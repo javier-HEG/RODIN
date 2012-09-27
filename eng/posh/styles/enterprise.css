@@ -1,0 +1,134 @@
+/* enterprise version CSS  */
+
+/*===== Notebooks =====*/
+
+.notebookarticle1, .notebookarticle2, .notebookarticle3 {
+	margin-bottom: 20px;
+}
+.notebookarticleD {
+	display: none;
+}
+.notebookarticletitle {
+	padding: 3px 6px 5px 0px;
+}
+.feature .notebookarticletitle a:link,.feature .notebookarticletitle a:visited,.feature .notebookarticletitle a:hover {
+	color: #0E679A;
+	font-size: 1.1em;
+	font-weight: bold;
+	text-decoration: underline;
+}
+.notebookarticleinfo{
+	padding: 3px;
+	text-align: left;
+}
+.notebookarticleinfo a {
+}
+
+.notebookarticle1 .notebookarticletitle {
+	/*background: #FFF297 url(../images/ico_logon.gif) no-repeat right 3px;*/
+	background: #FFFCDB url(../images/ico_logon.gif) no-repeat left;
+	padding-left: 20px;
+}
+.notebookarticle2 .notebookarticletitle {
+	background: #EAFBFF url(../images/mynetwork.gif) no-repeat left;
+	padding-left: 20px;
+}
+.notebookarticle3 .notebookarticletitle {
+	background: #fff;
+	padding-left: 0px;
+}
+.noteboolarticledate {
+	padding: 0px 8px 0px 8px;
+}
+.notebooklink {
+	padding: 6px;
+	border: 1px dashed #aaa;
+}
+.notebookarticledesc {
+	color: #000;
+	text-align: justify;
+	padding: 10px;
+    font-size: 1.1em;
+    width: 800px;
+}
+.notebookarticlesummary {
+    color: #000;
+    text-align: justify;
+    font-size: 1em;
+}
+.notebookarticledesc p {
+	margin: 0px;
+	padding: 0px;
+}
+.notebookcomment {
+	/*border: 1px solid #c6c3c6;*/
+	font-size: 0.9em;
+	color: #000000;
+    padding: 8px;
+    border-bottom: 1px dotted #aaa;
+}
+.notebookcommentform {
+    border: 1px solid #0E679A;
+    padding: 8px;
+    background: #E9EDF2;
+    color: #000;
+}
+
+/*===== Network =====*/
+ul.card-outer {
+	margin: 0px;
+	padding: 0px;
+/*	width: 100%;*/
+}
+ul.card-outer li {
+	list-style: none;
+	margin: 5px;
+/*	float: left;*/
+}
+.card-inner {
+	border-bottom: 1px solid #ddd;
+/*	width: 100%;
+/*	height: 100px;*/
+	padding: 0px;
+	margin: 0px;
+}
+.card-bar, .card-bar-creator {
+	background: #fff;
+	color: #000;
+/*	width: 100%;*/
+	padding: 3px;
+}
+.card-bar-creator {
+	background: #FF0000;
+}
+.card-content {
+/*	height: 82px;
+	overflow: auto;*/
+}
+.card-content .title {
+	font-weight: bold;
+	color: #aaaaaa;
+	border-bottom: 1px solid #aaaaaa;
+}
+
+#chatarea .container {
+	display: inline;
+	float: left;
+	border: 1px solid #c6c3c6;
+	overflow: hidden;
+	margin: 5px;
+}
+#chatarea .title {
+	background: #c6c3c6;
+	border: 1px solid #ffffff;
+	padding-top: 3px;
+	font-size: 0.9em;
+}
+#chatarea .content {
+	font-size: 9pt;
+}
+#chatarea  .input {
+}
+#workinggroupsdiv a {
+	text-decoration: none;
+}

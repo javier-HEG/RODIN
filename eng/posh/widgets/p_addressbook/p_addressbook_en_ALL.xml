@@ -1,0 +1,20 @@
+<messagebundle>
+  <msg name="widgetTitle">Address book</msg>
+  <msg name="widgetDescription">Address book</msg>
+  <msg name="msgAreYouSureSupElement">Are you sure to delete this element?</msg>
+  <msg name="msgNeedToBeConnected">you need to save this page to use this widget</msg>
+  <msg name="lblFirstName">First name</msg>
+  <msg name="lblName">Name</msg>
+  <msg name="lblEmail">Email</msg>
+  <msg name="company">Company</msg>
+  <msg name="function">Function</msg>
+  <msg name="phone">Phone</msg>
+  <msg name="other">Other</msg>
+  <msg name="tags">Tags</msg>
+  <msg name="linkKeysHlp">Keywords/tags help you to classify your links by category and find them easily. Separate them with commas.</msg>
+  <msg name="lblAdd">Add</msg>
+  <msg name="lblModify">Modify</msg>
+  <msg name="addContact">Add a contact</msg>
+  <msg name="lblSuppress">Delete</msg>
+  <msg name="all">All</msg>
+</messagebundle>

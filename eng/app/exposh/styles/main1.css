@@ -1,0 +1,423 @@
+/* PARAMETRIZED BY FABIO RICCI */
+
+#logo {
+	background: url(../../../posh/images/logo_portal.gif) no-repeat left;
+	width: 150px;
+	height: 60px;
+}
+#logolink {
+	width: 150px;
+	height: 56px;
+}
+
+
+td#header {
+	height: 15px;
+	vertical-align: top;
+    /*background: url(../images/bgblank.png) #ffffff repeat-x top;*/
+}
+
+#header {
+	height: 20px;
+	vertical-align: top;
+    background: url(../../../posh/images/bgblank.png) #ffffff repeat-x top;
+}
+.maintbl {
+	padding-top: 4px;
+	color: <?php print $COLOR_SUPERVISIBLETEXT; ?>;
+	/*background-color: #fff;  FRI*/
+}
+#footer a:link, #footer a:visited {
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+	text-decoration: underline;
+}
+
+
+.maintbl {
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+}
+#footer {
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+}
+#footer a:link,
+#footer a:visited {
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+}
+
+
+
+
+.loading {
+	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+	padding-top: 50px;
+	padding-bottom: 50px;
+	color: #c6c3c6;
+}
+.protectbox {
+	background-color: #efefef;
+	color: #000000;
+	border: 1px solid #c6c3c6;
+}
+
+/*======   MODULES  =====*/
+.module {
+	margin-bottom: 6px;
+	border: 3px solid <?php print $COLOR_WIDGET_BORDERLINE; ?>;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+	font-size: 0.7em;
+}
+.module .bmod {
+	border: 1px solid <?php print $COLOR_WIDGET_BORDERLINE; ?>;
+}
+.module .hmod {
+	display: none;
+	background-image: url(../images/bgbar.gif);
+}
+.barstyle0 {
+	background-image: url(../images/bgbar.gif);
+	overflow: hidden;
+}
+.module .hmod, .module .hmod a:visited, .module .hmod a:link, .module .hmod a:active {
+	color: $COLOR_MOREVISIBLETEXT; ?>;
+	font-size: 8pt;
+}
+.module .headmod {
+	padding: 0px;
+	margin: 0px;
+	border-bottom: 1px solid <?php print $COLOR_WIDGET_TITLEBAR; ?>;
+}
+.module .titmod {
+	padding: 2px 5px 0 5px;
+	font-size: 11px;
+	line-height: 20px;
+	height: 20px;
+	font-weight: bold;
+	color: <?php print $COLOR_SUPERVISIBLETEXT; ?>;
+	overflow:hidden;
+}
+
+.barcoli {
+	border: 1px solid #c6c3c6;
+	text-decoration:none;
+}
+.barcola {
+	border: 1px solid #000000;
+	text-decoration:none;
+}
+.content a:link {
+	color: #000000;
+	text-decoration: none;
+}
+.content a:visited {
+	color: <?php print $COLOR_SUPERVISIBLETEXT; ?>;
+	text-decoration: none;
+}
+.content a:hover {
+	color: #9C0000;
+	text-decoration: underline;
+}
+
+.newspaper #npdetaili h2 {
+	color: #000000;
+}
+.newspaper #npdetailititle {
+	background: #ffffff;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+.newspaper #npdetail {
+	border: 2px solid #555555;
+}
+
+/*====== TABS =====*/
+/*====== TABS =====*/
+/*====== TABS =====*/
+.taba {
+	height:29px;
+	width: 100px;
+	vertical-align: bottom;
+	padding:0px;
+}
+.tabal a:visited,.tabal a:link,.tabal a:hover {
+	text-decoration: none;
+	/*color: #FFCC00;*/
+	color:black;
+}
+
+/*SELECTED TABS: tabal tabar: */
+.tabal {
+	height: 31px;
+	font-size: 0.7em;
+	font-weight: bold;
+	white-space: nowrap;
+	text-align: center;
+	vertical-align: middle;
+	background: url(../images/tab_topleft.png) left top no-repeat #ffffff;
+	border:0px;
+	padding:0px;
+}
+.tabar {
+	background: url(../images/tab_topright.png) right top no-repeat #ffffff;
+	font-size: 0.7em;
+	border:0px;
+	width: 20px;
+	padding:0px;
+}
+.intertab {
+	width: 2px;
+	font-size:2pt;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+
+.intertaba {
+	width: 2px;
+	font-size:2pt;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+
+.tab {
+	height:30px;
+	width: 100px;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+    opacity: 0.9;filter: alpha(opacity=90);
+}
+/*UNSELECTED TABS: tabl tabl: */
+.tabl {
+	white-space: nowrap;
+	text-align: center;
+	color:<?php print $COLOR_TAB_UNSELECTED; ?>;
+	/*font-weight: bold;*/
+	font-size: 0.7em;
+	border:0px;
+	padding:0px;
+	background: url(../images/tab_topleft.png) left top no-repeat #ffffff;
+}
+
+.tabr {
+	background: url(../images/tab_topright.png) right top no-repeat #ffffff;
+	border:0px;
+	width: 20px;
+	padding:0px;
+}
+.tabl a:visited,
+.tabl a:link {
+	color: #000000;
+	text-decoration: none;
+}
+.tabl a:hover {
+	color:black;
+	font-weight:bold;
+}
+.endtab {
+	height:20px;
+	font-size: 0.8em;
+	width: 100px;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+.tabextra {
+	color: #1A4972;
+}
+#alltabs {
+	width: 100%;
+	height: 20px;
+}
+#navfixedbox {
+	/*
+	position: absolute;
+	left: 0px;
+	width: 100%;
+	height: 29px;
+	overflow: hidden;
+	clip: rect(0px, 100%, 29px, 0px);
+	z-index:1;
+	*/
+	height: 32px;
+}
+#navfloatbox {
+	height: 33px;
+	clip: rect(0px, 100%, 33px, 0px);
+}
+.notab {
+	height:27px;
+	font-size: 0.8em;
+	width: 100px;
+}
+#tabinput {
+	border: 0px;
+	margin: 0px;
+	height:13px;
+}
+
+#navmovebox {
+	position: absolute;
+	left: 0px;
+	z-index:1;
+}
+
+ul.tabnav {
+/*    font: bold 11px verdana, arial, sans-serif;
+border-bottom: 1px solid #6c6;
+*/
+    list-style-type: none;
+    padding-bottom: 24px;
+    margin: 0;
+}
+ul.tabnav li {
+    float: left;
+    height: 28px;
+    margin: 2px 2px 0 2px;
+/*    background-color: #cfc;
+    border: 1px solid #6c6;
+*/
+}
+ul.tabnav li.active {
+/*    border-bottom: 1px solid #fff;
+    background-color: #fff;
+*/
+}
+.tabnav a {
+    float: left;
+    display: block;
+    color: #666;
+    text-decoration: none;
+    padding: 4px;
+}
+.tabnav a:hover {
+/*    background: #fff;*/
+}
+
+
+/*====== MENUS =====*/
+#vmenu {
+	/*background: #E9EDF2; FRI*/
+	width: 240px;
+	position: relative;
+	left: 0px;
+	top: 0px;
+	overflow: hidden;
+	background: 	  <?php 	print $COLOR_PAGE_BACKGROUND; ?>;
+	border: 3px solid <?php		print $COLOR_BORDERLINE; ?>; 
+}
+
+#vmenucontent,
+#hmenucontent {
+	clear:both;
+	background: red;
+	position:relative;
+	z-index:10;
+}
+
+
+
+#vmenusuboptions {
+	background: #0E679A;
+}
+#vmenusuboptions ul.menulist li a:hover,#vmenusuboptions ul.menulist li.menulistsel {
+	background: #083D5B;
+}
+#vmenu .menuitem {
+	background: #0E679A;
+}
+#vmenu #menuoptions li a:hover {
+	background: #0E679A;
+}
+#vmenu #menuoptions li.menulistsel {
+    background: #0E679A;
+}
+
+/*====== HEADER LINKS =====*/
+
+#headlink {
+	position: relative;
+	height: 36px;/*FRI*/
+	line-height: 27px;
+	text-align: right;
+	vertical-align: center;
+	margin: 0px;
+	padding: 0px;
+	font-size: 14px;/*FRI*/
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	border-bottom: 1px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+#headlink a:link,#headlink a:visited {
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	text-decoration: underline;
+}
+#headlink a:hover {
+	text-decoration: underline;
+}
+
+#headlink a:link,#headlink a:visited {
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+}
+
+#headmenu {
+	position: relative;
+	width: 120px;
+	display: none;
+	overflow: hidden;
+	z-index:100;
+	background-color: #fff;
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	padding: 2px;
+	font-size: 12px;
+	border: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+#headmenu a {
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	background: #fff;
+	display: block;
+	width: 100%;
+	text-decoration: none;
+	padding: 3px;
+}
+#headmenu a:hover, #headlink a:focus {
+	background: #eeeeee;
+}
+
+#information {
+	position: absolute;
+	top: 0px;
+	left: 10px;
+	height: 27px;
+	line-height: 27px;
+	text-align: left;
+	font-size: 14px;/*FRI*/
+}
+
+/*====== ADDONS =====*/
+.addonbar {
+	background: #0E679A;
+	border: 1px solid #148CD2;
+	color: #ffffff;
+}
+.addonbar a:link,.addonbar a:visited {
+	color: #ffffff;
+}
+
+
+/*====== RODIN WIDGETS ======*/
+
+.widget_user_warn {
+color:red;
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:medium;
+}
+
+widget_user_warn {
+color: red;
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:medium;
+}
+
+.widget_user_info {
+color:#aaaaaa;
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:small;
+text-align:right;
+}
+

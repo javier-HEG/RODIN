@@ -1,0 +1,7 @@
+<messagebundle>
+  <msg name="widgetTitle">Widget HTML</msg>
+  <msg name="widgetDescription">Widget HTML (Edition>Administrateur, Lecture>Utilisateurs)</msg>
+  <msg name="modify">Modifier</msg>
+  <msg name="noModifFromTutorial">L'ajout de contenu se fait depuis l'onglet 'Pages' de l'administration.</msg>
+  <msg name="noContentDefined">L'administrateur n'a défini aucun contenu</msg>
+</messagebundle>

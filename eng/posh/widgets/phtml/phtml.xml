@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" author="Portaneo" height="120">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/phtml/phtml_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/phtml/phtml_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/phtml/phtml_fr_ALL.xml"/>
+ <UserPref name="htmlid" display_name="." datatype="hidden" default_value="0" />
+ <UserPref name="html" display_name="." datatype="hidden" default_value="" />
+ </ModulePrefs>
+ <Content type="html" view="home"><![CDATA[
+<script type="text/javascript">
+var user_id = parent.$p.app.user.id;
+var user_type=parent.$p.app.user.type;
+var htmlid = parent.$p.string.getVar(window.location+"","htmlid");
+var html = parent.$p.string.getVar(window.location+"","html");
+var p = parent.$p.string.getVar(window.location+"","p");
+var pref;
+var id__MODULE_ID__ = parent.$p.app.widgets.uniqToId(p,parent.$p.app.tabs.sel);
+var htmlid__MODULE_ID__ = htmlid;
+var html__MODULE_ID__ = html;
+
+$p.app.widgets.phtml__MODULE_ID__={
+    /*
+	    Function: save
+                $p.app.widgets.phtml__MODULE_ID__.save 
+                    
+                Save the HTML the administrator defined
+               
+               Parameters:
+                    
+                v_form - HTML form
+                
+	*/
+    save:function(v_form){
+    	var newHTML=v_form.html_text__MODULE_ID__.value;
+        newHTML = newHTML.replace(/\\n/g," "); 
+        newHTML = newHTML.replace(/\\r/g," "); 
+    	newHTML=parent.$p.string.doubleToSimpleCot(newHTML);
+    	parent.executescr("../modules/wid_html.php","htmlid="+htmlid__MODULE_ID__+"&html="+parent.$p.string.esc(newHTML),false,true,$p.app.widgets.phtml__MODULE_ID__.getId);
+    },
+    /*
+	    Function: getId
+                $p.app.widgets.phtml__MODULE_ID__.getId 
+                    
+                Get the HTML ID (From the database)
+               
+               Parameters:
+                    
+                v_id - HTML ID
+                
+	*/   
+    getId:function(v_id){
+    	if (v_id!=indef){
+    		htmlid__MODULE_ID__=v_id;
+    		parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("htmlid",htmlid__MODULE_ID__);
+            parent.$("editboxinput_"+parent.tab[parent.$p.app.tabs.sel].id+"_"+p+"_htmlid").value=htmlid__MODULE_ID__; 
+    	}
+    	//added 1.4 to refresh module options
+    	parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].refresh();
+    },
+    /*
+	    Function: init
+                $p.app.widgets.phtml__MODULE_ID__.init 
+                    
+                Display the widget content (form for admin/HTMl code for user)
+               
+               Parameters:
+                    
+                response - XML Object
+                vars (hash) - 
+                
+	*/   
+    init:function(response,vars) {
+        html__MODULE_ID__ = parent.$p.ajax.getVal(response,"htmlCode","str",false,"__MSG_noContentDefined__");
+        parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("html",html__MODULE_ID__);
+        if (parent.$p.app.env!="tutorial")
+            parent.$("editboxinput_"+parent.tab[parent.$p.app.tabs.sel].id+"_"+p+"_html").value=html__MODULE_ID__; 
+    	
+        _gel("html_disp__MODULE_ID__").innerHTML=html__MODULE_ID__;
+
+        if (user_type=='A' && parent.$p.app.env=="admin") {
+            _gel("html_edit__MODULE_ID__").innerHTML="<center>\
+                                                       <form onsubmit=\"$p.app.widgets.phtml__MODULE_ID__.save(this);return false;\">\
+                                                        <textarea style='width:100%;height:150px;' name='html_text__MODULE_ID__'>"+html__MODULE_ID__+"</textarea>\
+                                                        <input type='submit' value='__MSG_modify__' />\
+                                                       </form>\
+                                                      </center>";  
+                                                      _IG_AdjustIFrameHeight();
+    	}
+        else if (user_type=='A' && parent.$p.app.env=="tutorial") {
+            _gel("html_edit__MODULE_ID__").innerHTML="__MSG_noModifFromTutorial__";
+        }
+        _IG_AdjustIFrameHeight();
+    },
+    /*
+	    Function: getInfosToInit
+                $p.app.widgets.phtml__MODULE_ID__.getInfosToInit 
+                    
+                Load the HTML code
+	*/   
+    getInfosToInit:function() { 
+        _IG_FetchXmlContent("../modules/wid_html.php?htmlid="+htmlid__MODULE_ID__+"&getText=1",$p.app.widgets.phtml__MODULE_ID__.init,"GET");
+    }
+}
+_IG_RegisterOnloadHandler($p.app.widgets.phtml__MODULE_ID__.getInfosToInit);
+</script>
+<div id="html_disp__MODULE_ID__"></div>
+<div id="html_edit__MODULE_ID__"></div>
+]]></Content>
+</Module>

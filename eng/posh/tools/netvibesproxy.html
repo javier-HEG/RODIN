@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript">
+var map = {};
+var hash = location.hash.substr(1);
+var pairs = hash.split('&');
+for (var i = 0; i < pairs.length; i++) {
+    var pair = pairs[i].split('=');
+    if (pair.length == 2 && pair[0].length > 0) {
+        map[pair[0]] = unescape(pair[1]);
+    }
+}
+ 
+if (typeof map.target !== 'undefined' && typeof map.message !== 'undefined' &&
+    typeof map.origin !== 'undefined' && typeof map.uri !== 'undefined') {
+ 
+    if (map.target != 'parent') {
+        throw new Error('The communication system works with the parent window.');
+    }
+ 
+    if (parent.parent.UWA.MessageHandler) {
+        var message = null;
+        if (typeof map.message === 'string' && map.message.length) {
+            parent.parent.UWA.MessageHandler.dispatch(map.message, map.origin, 'ifproxy');
+        }
+    }
+}
+</script>
+<title>UWA Container Proxy</title>
+</head>
+<body>
+</body>
+</html>

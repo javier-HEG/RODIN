@@ -1,0 +1,7 @@
+
+AddDefaultCharset UTF-8
+SetEnv REGISTER_GLOBALS 0
+
+#php_flag magic_quotes_gpc Off
+#php_flag magic_quotes_runtime Off
+#php_flag magic_quotes_sybase Off

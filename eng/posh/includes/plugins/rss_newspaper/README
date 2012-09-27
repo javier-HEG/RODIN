@@ -1,0 +1,13 @@
+
+This plugin manage RSS newspapers fed by RSS feeds.
+This plugin is compliant with Portaneo Enterprise solution v2.2+.
+
+======================= INSTALLATION =========================
+
+FPDF is used by this plugin and automatically installed. You just have to check that ZLIB PHP extension is activated. For more information : http://www.fpdf.org/.
+
+Just install this plugin like any plugin, through the Portaneo admin panel.
+
+upload folder must be writable by apache user :
+	chmod -R 0755 upload 
+	chown -R apache:users upload

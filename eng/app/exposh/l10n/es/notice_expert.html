@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+<head>
+	<title>PORTANEO :: Creación avanzada de módulos</title>
+	<link rel="stylesheet" href="../../styles/docs.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Guía avanzada de creación de módulos</h1>
+<br />
+Portaneo utiliza el estandard de los módulos de Google.
+<br />
+<br />
+<h2>Tabla de contenidos</h2>
+<ul>
+<li><a href="#properties">Propiedades de los módulos</a> : título, descripción y altura de los módulos</li>
+<li><a href="#options">Opciones de los módulos</a> : opciones de personalización de los módulos que se ofrecerán a los usuarios</li>
+<li><a href="#content">Contenido de los módulos</a> : 
+	<ul>
+	<li><a href="#type">tipo de módulo</a></li>
+	<li><a href="#html">contenido HTML del módulo</a></li>
+	<li><a href="#javascript">contenido javaScript del módulo</a></li>
+	<li><a href="#i18n">Traducción / internacionalización</a></li>
+	</ul>
+</li>
+<li><a href="#samples">Plantillas</a></li>
+<li><a href="#examples">Ejemplos</a></li>
+<li><a href="#test">Testea tus módulos</a></li>
+</ul>
+<br /><br />
+Tu módulo es un fichero XML :
+<br /><br />
+<center><textarea class="examplebox" rows="22" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="widget name" description="widget description" height="200" /> 
+  <UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n.1 :">
+    <EnumValue value="value1" display_value="value n.1" />
+    <EnumValue value="value2" display_value="value n.2" />
+    <EnumValue value="value3" display_value="value n.3" />
+    <EnumValue value="value4" display_value="value n.4" />
+    <EnumValue value="value5" display_value="value n.5" />
+  </UserPref>
+  <Content type="html">&lt;![CDATA[
+	widget HTML content
+	<script type="text/javascript">
+		widget javaScript content
+	</script>
+  
+  </Content> 
+</Module>
+</textarea></center>
+<br /><br />
+El documento tiene 3 partes, cada una estará explicada más bajo :
+<ul>
+<li>propiedades del módulo (<i>etiqueta ModulePrefs</i>)</li>
+<li>opciones  del módulo (<i>etiqueta UserPref</i>)</li>
+<li>contenido  del módulo (etiqueta <i>Content</i>)</li>
+</ul>
+<br /><br />
+<a name="properties"></a><h2>propiedades del módulo</h2>
+<br />
+La etiqueta <i>ModulePrefs</i> se utiliza para definir las propiedades del módulo :<br /><br />
+<center><textarea class="examplebox" rows="3" cols="80">
+
+<ModulePrefs title="my widget" description="it is my widget" height="200" /> 
+</textarea></center>
+<ul>
+<li><b>title</b> : nombre del módulo (obligatorio). Texto (30 car. max.).</li>
+<li><b>description</b> : descripción del módulo (opcional). Texto (250 car. max.).</li>
+<li><b>height</b> : Altura en pixeles del módulo (Obligatorio). Número entre 20 y 400. Si la altura del contenido del módulo va cambiando, utiliza la función <a href="#javascript">_IG_AdjustIFrameHeight</a> en el contenido  javaScript del módulo.</li>
+</ul>
+<br />
+<a name="options"></a>
+<h2>opciones de los módulos</h2><br />
+Las etiquetas <i>UserPref</i> se utilizan para definir las opciones del módulo,estas permitiran a los usuarios personalizarlo. Estas serán las opciones que se mostrarán cuando el usuario pulse en el botón &quot;configurar&quot; en la cabecera del módulo.<br />
+<br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n.1 :">...</UserPref>
+</textarea></center><br />
+<ul>
+<li><b>name</b> : ID de las opciones. Texto (string) sin espacios en blanco.</li>
+<li><b>datatype</b> : tipo de las opciones<br />
+Los tipos de las opciones pueden ser:
+  <ul>
+<li><u>string</u><br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="name" datatype="string" default_value="Will Smith" display_name="Your name :" />
+</textarea></center><br />
+</li>
+<li><u>password</u> : string, todos los carcateres se substituirán por * para ocultar su valor<br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="password" datatype="password" default_value="" display_name="Password :" />
+</textarea></center><br />
+</li>
+<li><u>bool</u> : check box. El default_value puede ser "true"(marcado) o "false"(desmarcado)<br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="thumb" datatype="bool" default_value="true" display_name="Show the thumbnails ?" />
+</textarea></center><br />
+</li>
+<li><u>enum</u> : Select box. Cada elemento seleccionado se definirá por una etiqueta "EnumValue".<br /><br />
+<center><textarea class="examplebox" rows="9" cols="80">
+
+<UserPref name="color" datatype="enum" default_value="blue" display_name="background color :">
+	<EnumValue value="red" display_value="Red" />
+	<EnumValue value="blue" display_value="Blue" />
+	<EnumValue value="green" display_value="Green" />
+	<EnumValue value="yellow" display_value="Yellow" />
+</UserPref> 
+</textarea></center><br />
+</li>
+</ul>
+</li>
+<li><b>default_value</b> :valor de la opción por defecto (utilizado en la primera visualización del módulo por el usuario).</li>
+<li><b>display_name</b> : etiqueta mostrada.</li>
+</ul><br />
+<a name="properties"></a>
+<h2>contenido d elos módulos</h2>
+<br />
+La etiqueta <i>Content</i> reagrupa el código HTML y javaScript del módulo.
+<br /><br />
+<center><textarea class="examplebox" rows="12" cols="80">
+
+<Content type="html">&lt;![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hola Mundo !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+ </Content>
+</textarea></center><br />
+<ul>
+<li><a name="type"></a><b>El atributo "type" define el tipo de módulo</b> :<br />
+	<ul>
+	<li><u>type="html"</u> : módulo guardado en nuestros servidores. Si puedes elegir, utiliza siempre este tipo.<br /><br />
+<center><textarea class="examplebox" rows="13" cols="80">
+
+<Content type="html">&lt;![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hola Mundo !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+ </Content>
+</textarea></center><br />
+	</li>
+	<li><u>type="URL"</u> : módulo integrado en un IFRAME y guardado en tus servidores. Puedes utilizar este tipo si el contenido de los módulos es dinámico (se actualiza cada vez que se muestra con la información de tu base de datos) y si no puedes utilizar las funciones  <a href="#javascript">_IG_FetchContent</a> y <a href="#javascript">_IG_FetchXmlContent</a>. <br />
+	  <br />
+<center><textarea class="examplebox" rows="3" cols="80">
+
+<Content type="url" href="http://www.mywebsite.com/mywidget.php" />
+</textarea></center><br />
+Para este tipo de módulo, la etiqueta <Content> está vacia porque el código de tu módulo está en el fichero especificado por el atributo URL.<br />
+ <br />
+Atencióon : Si necesitas utilizar las funciones javascript mencionadas más abajo y nuestro fichero CSS, inserta las siguientes filas en la etiqueta <HEAD> de tu módulo :<br />
+<center><textarea class="examplebox" rows="6" cols="80">
+
+<link rel="stylesheet" type="text/css" media="screen" title="default" href="http://www.portaneo.com/styles/module.css" />
+<script type="text/javascript" src="http://www.portaneo.com/includes/modules.js"></script>
+</textarea></center><br />
+	</li>
+	</ul>
+</li>
+<li><a name="html"></a><b>Los módulos HTML (excepto los de tipo URL)</b><br />
+	<br />
+	Introduce el HTML de tu módulo. 
+	Se formateará según <a href="http://www.portaneo.com/styles/module.css">nuestro CSS</a><br />
+	<br />
+</li>
+<li><a name="javascript"></a><b>El código  javaScript de tu módulo (excepto los de tipo URL)</b><br />
+En una sóla etiqueta <b>&lt;script type="text/javascript"&gt;&lt;/script&gt;</b>, introduce el javaScript de tu módulo.<br /><br />
+Puedes utilizar las siguientes funciones:<br /><br />
+<table cellspacing="0" cellpadding="4" border="1">
+<tr>
+  <td colspan="2" bgcolor="#efefef"><b>Código de las funciones</b></td>
+</tr>
+<tr><td valign="top">_IG_RegisterOnloadHandler(FUNCTION)</td>
+<td valign="top">Llama a la función  FUNCTION al cargar el módulo.<br />
+ejemplo :<br /><br /><i>function init(){<br />
+&nbsp; alert('hola mundo');<br />}<br />_IG_RegisterOnloadHandler(init);</i><br /><br /></td></tr>
+<tr><td valign="top">_IG_AdjustIFrameHeight()</td>
+<td valign="top">Ajusta la altura del módulo según el contenido de éste. Utilizalo si la altura va cambiando.</td>
+</tr>
+<tr><td valign="top">_IG_FetchContent(URL, FUNCTION)</td>
+<td valign="top">Carga el contenido de un fichero definido por su URL URL y envía los resultados a la función FUNCTION . Utilizando Ajax asíncrono.<br />
+  <br />Example :<br /><i>function treatFile(responsetxt){<br />&nbsp; var obj=_gel("mydiv");<br />&nbsp; obj.innerHTML=responsetxt;<br />}<br />_IG_FetchContent('http://www.mysite.com/mydoc.csv',treatFile);</i><br /><br /></td></tr>
+<tr><td valign="top">_IG_FetchXmlContent(URL, FUNCTION)</td>
+<td valign="top">Carga el contenido de un fichero XML definido por su URL y envia los resultados a la función FUNCTION . Utilizando Ajax asíncrono.<br />
+  <br />Example :<br /><i>function treatXml(responsexml){<br />&nbsp; var str="name : "+responsexml.getElementByTagName("name").firstChild.nodeValue+"<br />age : "+responsexml.getElementByTagName("age").firstChild.nodeValue;<br />&nbsp; var obj=_gel("mydiv");<br />&nbsp; obj.innerHTML=str;<br />}<br />_IG_FetchXmlContent('http://www.mysite.com/myxmlfile.xml',treatXml);</i><br /><br /></td></tr>
+<tr>
+  <td colspan="2" bgcolor="#efefef"><b>Función que utiliza opciones</b></td>
+</tr>
+<tr><td valign="top">_IG_Prefs(__MODULE_ID__)</td>
+<td valign="top">Envía las opciones a un objeto.<br /><br /> 
+Ejemplo : <i>var pref = new _IG_Prefs(__MODULE_ID__);</i><br /><br /></td></tr>
+<tr><td valign="top">.getString("variable")</td>
+<td valign="top">Devuelve el valor de una opción  "string".<br /><br />
+Ejemplo : <i>var name = pref.getString("yourname");</i><br /><br /></td></tr>
+<tr><td valign="top">.getInt("variable")</td>
+<td valign="top">Devuelve el valor numérico de una opción "string".</td>
+</tr>
+<tr><td valign="top">.getBool("variable")</td>
+<td valign="top">Devuelve el valor de una opción "bool".</td>
+</tr>
+<tr><td valign="top">.set("variable","value")</td>
+<td valign="top">Modifica el valor de una opción determinada.<br /><br />
+Ejemplo : <i>pref.set("yourname","John Wayne");</i><br /><br /></td></tr>
+<tr><td valign="top">.open()</td>
+<td valign="top">Abre la caja de configuración de las opciones.<br /><br />
+Ejemplo : <i>&lt;A href=# onclick="return pref.open()"&gt;Modificar las opciones&lt;/A&gt;</i><br /><br /></td></tr>
+<tr>
+  <td colspan="2" bgcolor="#efefef"><b>Gestión de pestañas</b></td>
+</tr>
+<tr><td valign="top">_IG_Tabs(__MODULE_ID__,"default selection")</td>
+<td valign="top">Inicializa la gestión de pestañas. devuelve el objeto pestañas, se utiliza para ejecutar las funciones indicadas más abajo. "default selection" es el nombre de la pestaña seleccionada (opcional).<br /><br /> 
+Ejemplo : <i>var tabs = new _IG_Tabs(__MODULE_ID__);</i><br /><br /></td></tr>
+<tr><td valign="top">.tabsContainer</td>
+<td valign="top">Opcional. Define el objeto que contendrá las pestañas.<br /><br /> 
+Ejemplo : <i>tabs.tabsContainer=_gel("tabsdiv"); (Si tu has creado un objeto &lt;div id="tabsdiv"&gt;&lt;/div&gt;)<br /><br /></td></tr>
+<tr><td valign="top">.addTab("tabname","divid","function")</td>
+<td valign="top">Crear una nueva pestaña, con el nombre "tabname" , dentro del objeto div "divid", llamando a la función "function" cuando se pulse la pestaña.<br />
+  <br />
+    Ejemplo : <i>tabs.addTabs("tab 1","tabdiv","displayTab1Content");</i><br /><br /></td></tr>
+<tr><td valign="top">.setSelectedTab("tabIndex")</td>
+<td valign="top">Define la pestaña seleccionada."tabIndex" es el índice de la pestaña (empieza con 0).</td>
+</tr>
+<tr>
+  <td colspan="2" bgcolor="#efefef"><b>Otras funciones</b></td>
+</tr>
+<tr><td valign="top">_bringToFront(__MODULE_ID__)</td>
+<td valign="top">Llevar un módulo al frente, por encima de los otros.</td>
+</tr>
+<tr><td valign="top">_gel("object")</td>
+<td valign="top">Llama al objeto con el ID "object".<br />
+  <br />
+    Ejemplo : <i>var obj=_get("mydiv");obj.innerHTML='Hello world !';</i><br /><br /></td></tr>
+<tr><td valign="top">_gelstn("object")</td>
+<td valign="top">Un contenedor alrededor del método javaScript  <i>.getElementByTagName()</i>.</td>
+</tr>
+<tr><td valign="top">_esc("string")</td>
+<td valign="top">Un contenedor alrededor del método javaScript <i>.escape()</i>.</td>
+</tr>
+<tr><td valign="top">_unesc("string")</td>
+<td valign="top">Un contenedor alrededor del método javaScript <i>.unescape()</i>.</td>
+</tr>
+<tr>
+  <td valign="top">_uc("textoprueba")</td>
+<td valign="top">Devuelve el valor del string "textoprueba" en mayúsculas.</td>
+</tr>
+<tr>
+  <td valign="top">_lc("textoprueba")</td>
+<td valign="top">Devuelve el valor del string &quot;textoprueba&quot; en minúsculas.</td>
+</tr>
+<tr><td valign="top">_min(value1,value2)</td>
+<td valign="top">Devuelve el menor valor de value1 y value2.</td>
+</tr>
+<tr><td valign="top">_max(value1,value2)</td>
+<td valign="top">Devuelve el mayor valor de value1 y value2.</td>
+</tr>
+<tr><td valign="top">_args("string")</td>
+<td valign="top">Transforma el string "name=john&age=12&sex=m" a la matriz {"name":"john","age":"12","sex":"m"}</td>
+</tr>
+<tr><td valign="top">_trim("string")</td>
+<td valign="top">Elimina los espacios en blanco.</td>
+</tr>
+</table>
+<br />
+</li>
+<li><a name="i18n"></a><b>Traducción / internacionalización</b><br />
+<u>Obtener la selección de idioma del usuario</u> :<br />
+Usa la variable<i>__lang</i> en la parte javascript de tu módulo. El lenguaje tiene una longitud de 2 caracteres (ej: en para el inglés, fr para francés,es para español...). El idioma debe configurarse en posh (directorio de idiomas disponible en /l10n y el parámetro AVLANGS actualizado en la tabla adm_config).
+<br />
+<br />
+<u>Traduce tu módulo automáticamente</u> :<br />
+Puedes utilizar la función __ para traducir los textos de tus módulos. El diccionario utilizado es el fichero /l10n/es/lang.js. Si no se encuentran las palabras, añádelas a este fichero, o pregúntanos para que las añadamos a la siguiente version de posh.<br /><br />
+Ejemplo :<br />
+La función __("lblClose") muestra "close", "fermer" o &quot;cerrar&quot;, dependiendo del idioma de los usuarios.<br /><br />
+El nombre de las opciones del módulo se traduce automáticamente con el diccionario /l10n/en/lang.js
+</li>
+</ul>
+
+<a name="samples"></a>
+<h2>Plantillas</h2><br />
+<center><textarea class="examplebox" rows="29" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="name of widget" description="description of the widget" height="200" /> 
+  <UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n.1 :">
+    <EnumValue value="value1" display_value="value n.1" />
+    <EnumValue value="value2" display_value="value n.2" />
+  </UserPref>
+  <UserPref name="variable2" datatype="string" default_value="value1" display_name="variable n.2 :">
+  <UserPref name="variable3" datatype="bool" default_value="true" display_name="variable n.3" />
+  <Content type="html">&lt;![CDATA[
+	<!-- HTML content -->
+	<script type="text/javascript">
+	//javaScript content
+
+	//init function of your widget (optional)
+	function init(){
+		
+	}
+	_IG_RegisterOnloadHandler(init);
+	</script>
+  
+  </Content> 
+</Module>
+</textarea></center><br />
+
+<a name="examples"></a>
+<h2>Ejemplos</h2><br />
+Para visualizar los ejemplos, copia / pega los códigos en el testeador de módulos<br /><br />
+<b>Hola Mundo!</b><br /><br />
+<center><textarea class="examplebox" rows="11" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="Hello world !" description="my first portaneo widget" height="100" /> 
+  <Content type="html">&lt;![CDATA[
+	<h2>Hola mundo !</h2>
+  
+  </Content> 
+</Module>
+</textarea></center><br />
+<b>Caja coloreada</b><br /><br />
+<center><textarea class="examplebox" rows="54" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="colored box" description="test widget" height="130" /> 
+  <UserPref name="color" datatype="enum" default_value="blue" display_name="box color :">
+    <EnumValue value="blue" display_value="Blue" />
+    <EnumValue value="red" display_value="Red" />
+    <EnumValue value="yellow" display_value="Yellow" />
+  </UserPref>
+  <Content type="html">&lt;![CDATA[
+   <div style='padding:6px'>
+    <table width='100%'>
+     <tr>
+      <td>Click on a color :</td>
+      <td></td>
+      <td bgcolor='blue' onclick='changeColor("blue")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Blue</td>
+      <td></td>
+      <td bgcolor='red' onclick='changeColor("red")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Red</td>
+      <td></td>
+      <td bgcolor='yellow' onclick='changeColor("yellow")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Yellow</td>
+      <td></td>
+     </tr>
+     <tr>
+      <td colspan=8>&nbsp;</td>
+     </tr>
+     <tr>
+      <td colspan=8 id='box' style='height:80px'>&nbsp;</td>
+     </tr>
+   </div>
+   <script type="text/javascript">
+    function init(){
+     var pref=new _IG_Prefs(__MODULE_ID__);
+     var color=pref.getString("color");
+     var obj=_gel('box');
+     obj.style.backgroundColor=color;
+    }
+
+    function changeColor(v_color){
+     var obj=_gel('box');
+     obj.style.backgroundColor=v_color;
+     // Save the new default color
+     var pref=new _IG_Prefs(__MODULE_ID__);
+     pref.set("color",v_color);
+    }
+
+    _IG_RegisterOnloadHandler(init);
+   </script>
+  
+  </Content> 
+</Module>
+</textarea></center><br />
+
+<b>Leer un fichero HTML</b><br />
+<br />
+<center><textarea class="examplebox" rows="24" cols="80">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs title="read HTML" description="test widget" height="50" />
+  <Content type="html">
+    <a href="#" onclick="return loadFile()">Display HTML</a><br />
+    <div id="mondiv"></div>
+   <script type="text/javascript">
+    function treatFile(responsetxt)
+    {
+     var obj=_gel("mondiv");
+     obj.innerHTML=responsetxt;
+     _IG_AdjustIFrameHeight();
+    }
+   function loadFile()
+   {
+    _IG_FetchContent('http://www.portaneo.com/examples/html_include.html',treatFile);
+   }
+  </script>
+  
+  </Content>
+</Module>
+</textarea></center><br />
+<b>Leer y tratar un fichero XML</b><br />
+<br />
+<center><textarea class="examplebox" rows="32" cols="80">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs title="read XML" description="test widget" height="50" />
+  <Content type="html">
+    <div id="mondiv"></div>
+   <script type="text/javascript">
+    function treatXml(responsexml)
+    {
+     var str="";
+     var i=0;
+     while (responsexml.getElementsByTagName("eleve")[i])
+     {
+       var eleve=responsexml.getElementsByTagName("eleve")[i];
+       str+=eleve.getElementsByTagName("prenom")[0].firstChild.nodeValue+" "+eleve.getElementsByTagName("nom")[0].firstChild.nodeValue+" got the note of "+eleve.getElementsByTagName("note")[0].firstChild.nodeValue+"/20 for his exams.<br />";
+       i++;
+     }
+     var obj=_gel("mondiv");
+     obj.innerHTML=str;
+    }
+    function init()
+    {
+     _IG_FetchXmlContent('http://www.portaneo.com/examples/eleves.xml',treatXml);
+    }
+    _IG_RegisterOnloadHandler(init);
+  </script>
+  
+  </Content>
+</Module>
+</textarea></center><br />
+
+<a name="test"></a>
+<h2>Testea tu módulo</h2><br />
+Después de cada modificación del módulo, pruebalo con el testeador antes de solicitar su publicación (herramienta disponible en la página de módulos Avanzados. Preparado? ADELANTE!
+</body>
+</html>

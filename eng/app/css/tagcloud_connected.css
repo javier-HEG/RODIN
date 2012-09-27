@@ -1,0 +1,85 @@
+							
+
+.word {
+font-family:Arial, Helvetica, sans-serif;
+}
+
+a {text-decoration:none}
+
+
+
+span.size1 {
+font-size: 1.6em;
+}
+
+span.size2 {
+font-size:1.5em;
+}
+span.size3 {
+font-size: 1.4em;
+}
+span.size4 {
+font-size: 1.3em;
+}
+span.size5 {
+font-size: 1em;
+}
+span.size6 {
+font-size: 1.2em;
+}
+span.size7 {
+font-size: 1.1em;
+}
+span.size8 {
+font-size: 1em;
+}
+span.size9 {
+font-size: .9em;
+}
+span.size0 {
+font-size: .8em;
+}
+
+/*
+span.size1 {
+color: #bbb;
+font-size: 1.6em;
+}
+
+span.size2 {
+color: #aaa;
+font-size:1.5em;
+}
+span.size3 {
+color: #999;
+font-size: 1.4em;
+}
+span.size4 {
+color: #aaa;
+font-size: 1.2em;
+}
+span.size5 {
+color: #555;
+font-size: 1em;
+}
+span.size6 {
+color: #999;
+font-size: .9em;
+}
+span.size7 {
+color: #aaa;
+font-size: .8em;
+}
+span.size8 {
+color: #777;
+font-size: .7em;
+}
+span.size9 {
+color: #aaa;
+font-size: .6em;
+}
+span.size0 {
+color: #111;
+font-size: .5em;
+}
+*/

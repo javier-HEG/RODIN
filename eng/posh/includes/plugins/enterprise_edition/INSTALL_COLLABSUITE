@@ -1,0 +1,56 @@
+
+POSH COLLABORATION SUITE INSTALLATION
+
+POSH COLLABORATION SUITE IS RELEASED WITH POSH FILES. IF NOT, DOWNLOAD FIRST POSH FILES, AND COPY COLLABORATION SUITE FILES ON ROOT OF YOUR POSH INSTALLATION. SOME POSH FILES COULD BE REPLACED.
+
+POSH COLLABORATION SUITE IS A POSH PLUGIN. THIS PLUGIN MUST NOT BE APPLIED ON AN EXISTING POSH INSTALL. COLLABORATION SUITE MUST BE INSTALLED ON THE SAME TIME THAN YOUR POSH INSTALLATION !
+
+0/ Update your server configuration
+in your PHP.ini file :
+session.cookie_lifetime = 0
+session.gc_maxlifetime = 10000
+
+Restart Apache server (/etc/init.d/apache2 restart    for apache 2)
+
+1/ Copy files on your web server
+
+2/ Give write access for the web server on the posh + collaboration suite files
+chmod -R 0755 <root posh folder>
+e.g. : chmod -R 0755 posh
+chown -R <web server user>:<web server user group> <root posh folder>
+e.g. : chown -R apache:users posh
+
+3/ Launch install and follow steps :
+http://<posh url>/install/
+e.g. : http://localhost/install/
+
+WHEN INSTALLATION IS DONE, REMOVE THE INSTALL/ FOLDER
+
+4/ Activate collaboration suite Plugin
+
+Open administration panel, with the admin account your created during installation.
+Open "configuration" tab, then click on "plug-ins management" link.
+Check "Enterprise main tools", and click on "Save changes".
+
+5/ Proxy settings
+
+	a/ if you are behind a proxy :
+
+	In admin panel, open "configuration" tab, then click on "general settings" link.
+	Enter proxy settings and save.
+
+	b/ if you are NOT behind a proxy :
+	
+	In admin panel, open "configuration" tab, then click on "general settings" link.
+	Click on "advanced settings" link, on the bottom of the page.
+	Then change value for "useproxy" variable, from true to false
+	Save changes.
+
+6/ Create first users in "users" tab
+
+
+
+7/ Planify maintenance process :
+
+Add in cron following process :
+00 06 * * * lynx -source http://<your web site URL>/maintenance.php

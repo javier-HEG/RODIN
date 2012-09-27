@@ -1,0 +1,14 @@
+<messagebundle>
+  <msg name="widgetTitle">Gestion des favoris</msg>
+  <msg name="widgetDescription">Affichez vos favoris dans votre portail personnel</msg>
+  <msg name="msgAreYouSureSupElement">Etes-vous certain(e) de vouloir supprimer cet élément ?</msg>
+  <msg name="msgNeedToBeConnected">Vous devez enregistrer cette page pour pouvoir utiliser ce widget</msg>
+  <msg name="lblTitle">Titre</msg>
+  <msg name="tags">Tags</msg>
+  <msg name="lblAdd">Ajouter</msg>
+  <msg name="lblModify">Modifier</msg>
+  <msg name="lblAddFav">Ajouter un favori</msg>
+  <msg name="lblSuppress">Supprimer</msg>
+  <msg name="all">Tous</msg>
+  <msg name="linkKeysHlp">Les mots clés,tags vous permettent de classer vos liens thématiquement. Séparez les mots clés par des virgules.</msg>
+</messagebundle>

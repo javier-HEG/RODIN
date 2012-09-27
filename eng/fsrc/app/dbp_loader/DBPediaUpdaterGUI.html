@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="DBPediaUpdaterScripts.js"></script>
+<style type="text/css">
+h1 {font-size:large;}
+</style>
+<title>DBPedia Loader & Updater GUI</title>
+</head>
+<body>
+
+<div id="message">...</div>
+
+<hr />
+
+<h1>DBPedia Updater Tool</h1>
+<p>Language to update :
+	<input id="lang_input" type="text" value="af" />
+	<button onclick="javascript:askToFillFileLists();">Process!</button>
+</p>
+
+<hr />
+
+<h1>Files up to date</h1>
+<div id="files_uptodate"></div>
+
+<hr />
+
+
+<h1>Files to Remove</h1>
+<div id="files_to_remove"></div>
+
+<hr />
+
+<h1>Files to Upload</h1>
+<div id="files_to_upload"></div>
+
+<hr />
+
+<h1>Unzipped files in temp folder</h1>
+<div id="files_in_temp"></div>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><channel><parent>0</parent><dirname><![CDATA[VICHANGO (1)]]></dirname><path><![CDATA[ <a href='#' onclick='$p.app.menu.widget.getExplorer(0)' style='color:#000000;text-decoration:underline;'>Home</a> > VICHANGO ]]></path>
+<item>
+ <id>10009</id>
+ <name><![CDATA[Viaticalpes]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10009.gif</icon>
+</item>
+</channel>

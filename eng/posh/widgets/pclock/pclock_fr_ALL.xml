@@ -1,0 +1,5 @@
+<messagebundle>
+  <msg name="widgetTitle">Horloge analogique</msg>
+  <msg name="widgetDescription">Horloge analogique</msg>
+  <msg name="getFlash">Get Flash Player</msg>
+</messagebundle>

@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>PORTANEO :: Installation</title>
+	<link rel="stylesheet" href="../../styles/docs.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>GUIDE D'INSTALLATION</h1>
+<ol>
+<li><a href="#requirements">Pré-requis</a></li>
+<li><a href="#newinstallation">Nouvelle installation</a></li>
+	<ol>
+	<li>Installer POSH sur une application ou un site internet existant</li>
+	<li>Téléchargez et installez les fichiers</li>
+	<li>Vérifications préliminaires à l'installation</li>
+	<li>Installation de la base de données</li>
+	<li>Configuration primaire</li>
+	<li>Choix des premiers modules</li>
+	<li>Création du compte administrateur</li>
+	</ol>
+<li><a href="#skins">Définir votre thème graphique</a></li>
+<li><a href="#pages">Définir les pages de votre application</a></li>
+<li><a href="#configure">Configurer votre application</a></li>
+<li><a href="#modules">Définir vos modules</a></li>
+<li><a href="#users">Gérer les utilisateurs</a></li>
+<li><a href="#ownfunc">Créer vos propres fonctionnalités</a></li>
+</ol>
+<br /><br />
+<ol>
+<li><h2><a name="requirements" />Pré-requis</h2><br />
+L'installation de POSH requière les éléments suivants:
+<ul>
+<li>Une base de données MySQL (4.1 +)</li>
+<li>PHP (4.1+)</li>
+</ul>
+<br />Si une application est déjà installée sur la base de données MySQL, il est important de sauvegarder cette base de données.
+<br /><br />
+Vous devez donner les droits d'écriture à votre serveur web sur les répertoires suivants, ainsi qu'aux fichiers qu'ils contiennent :
+<ul>
+<li>cache/</li>
+<li>includes/</li>
+<li>modules/ et ses sous répertoires</li>
+<li>portal/selections/</li>
+<li>styles/</li>
+<li>styles/themes/</li>
+<li>temp/</li>
+</ul>
+Pour cela, référez-vous à la documentation de votre serveur web ou à notre FAQ.
+<br /><br />
+</li>
+<li><h2><a name="newinstallation" />Nouvelle installation</h2><br />
+	<ol>
+	<li><h3>Installer POSH sur une application ou un site internet existant</h3><br />
+	Si vous installez POSH sur une base de données existante, il n'est pas exclu qu'il y ait des impacts sur les tables déjà existantes. Il est donc important de sauvegarder cette base de données avant d'installer POSH.
+	<br /><br />
+	</li>
+	<li><h3>Téléchargez et installez les fichiers</h3><br />
+	Téléchargez les fichiers POSH à partir de http://www.portaneo.net<br />
+	Décompressez les fichiers sur votre serveur web (ou sur votre ordinateur et envoyez les par ftp sur votre serveur), et placez les dans le répertoire où vous voulez installer POSH.<br />
+	<b>Commencez l'installation en lançant http://www.&lt;votrenomdedomaine&gt;.com/&lt;chemin_d_installation_de_posh&gt;/install/</b>
+	<br /><br />
+	</li>
+	<li><h3>Vérifications préliminaires à l'installation</h3><br />
+	Etape 1 de l'installateur : POSH vérifie si les pré-requis cités plus haut sont respectés (composants logiciels installés, accès sur les répertoires).<br />
+	Si tous les critères sont respectés, vous pouvez continuer l'installation en cliquant sur "suite >>>". Sinon, il vous faudra résoudre les problèmes soulevés (croix rouges) et rafraîchir la page pour continuer.
+	<br /><br />
+	</li>
+	<li><h3>Installation de la base de données</h3><br />
+	Etape 2 de l'installateur : Entrez les paramètres de connexion à la base de données qui seront utilisés pour installer les tables et pour faire fonctionner POSH (gestion des utilisateurs, des modules, ...). Utilisez les informations fournies par votre hébergeur ou créez un nouvel utilisateur avec les droits de création de bases et de tables et de gestion des données MySQL.<br /><br />
+	Si la base de données existe déjà, sauvegardez là auparavant.<br /><br />
+	Si vous avez déjà installé POSH et que vous voulez écraser l'installation précédente, cochez "Remplacer l'installation précédente".<br />
+	<br /><br />
+	</li>
+	<li><h3>Configuration primaire</h3><br />
+	Etape 3 de l'installateur : Entrez les premiers éléments de configuration de l'application:
+	<br /><br />
+	<ul>
+	<li>Nom de l'application : Nom de votre site internet ou de votre application.</li>
+	<li>Gérer des groupes d'utilisateurs : Voulez-vous regrouper les utilisateurs de votre site sous des groupes que vous définirez.</li>
+	<li>Emplacement de Portaneo : URL de la racine de POSH sur votre serveur.</li>
+	<li>Les utilisateurs de votre site peuvent créer des modules : Permettez-vous aux utilisateurs de votre site de créer des modules ? Si décoché, seuls les administrateurs pourront créer des modules.</li>
+	<li>URL du flux RSS de la barre d'information : Dans les portails personnels, vous pouvez faire défiler les éléments d'un flux RSS. Pour cela, le flux RSS doit être hébergé sur votre serveur. Dans ce cas là, indiquez le chemin relatif du flux à partir du répertoire <i>portal/</i>. Le laisser vide si vous ne voulez utiliser cette option.</li>
+	</ul>
+	<br />
+	</li>
+	<li><h3>Choix des premiers modules</h3><br />
+	Etape 4 de l'installateur : Sélectionnez les premiers modules qui seront proposés aux utilisateurs de votre application.<br />
+	Vous pourrez ensuite, via l'interface d'administration, les supprimer, les déplacer dans votre hiérarchie de modules, en créer de nouveaux ...
+	<br /><br />
+	</li>
+	<li><h3>Création du compte administrateur</h3><br />
+	Etape 5 de l'installateur : Création du premier compte administrateur qui vous permettra d'accéder à l'interface d'administration de votre application.
+	<br /><br />
+	</li>
+	</ol>
+	Pour continuer avec les options ci-dessous, ouvrez l'interface d'administration (soit via le lien de fin d'installation, soit en vous connectant avec le compte créé ci-dessus).<br /><br />
+</li>
+<li><h2><a name="skins" />Définir votre thème graphique</h2><br />
+Deux solutions pour changer de thème graphique :
+<ul>
+<li>Soit vous modifiez le fichier styles/main1.css.php</li>
+<li>Soit vous utilisez un thème disponible sur http://www.portaneo.net : téléchargez le .thm sur votre ordinateur. Dans l'interface d'administration de POSH, cliquez sur l'onglet "configuration", puis sur "Gestion des thèmes graphiques". Ajoutez le thème graphique téléchargé, et cliquez sur "télécharger". Sélectionnez le thème ajouté dans la liste déroulante et cliquez sur "appliquer le nouveau thème".</li>
+</ul><br />
+Ajoutez les images utilisées dans le répertoire images/. L'image "images/addtoapplication.gif" peut également être modifiée.<br /><br />
+Vous pouvez proposer plusieurs thèmes à vos utilisateurs. Pour cela, créez les fichiers styles/mainX.css (ou X représente le numéro d'ordre du thème : 1,2,3,...,9), modifier la valeur du paramètre "themeNb" de la table MySQL "adm_config" avec le nombre de thèmes proposés puis dans l'interface d'administration, validez la "configuration générale de l'application" (onglet "configuration").
+<br /><br />
+</li>
+<li><h2><a name="pages" />Définir les pages de votre application</h2><br />
+A l'ouverture de votre application par un utilisateur, plusieurs onglets sont disponibles. Voici la marche à suivre pour configurer ces onglets :
+<ul>
+<li>Cliquez sur l'onglet "pages", puis sur "Gestion des onglets".</li>
+<li>Cliquez sur "ajouter une page" pour un nouvel onglet, ou sur "modifier cette page" pour modifier l'onglet concernée (type de page, configuration des modules, ...)</li>
+<li>Entrez le titre de l'onglet, la description de la page liée. Le "mode" indique si cette page sera disponible sur la page d'accueil (anonyme) et/ou sur les portails personnels des utilisateurs (connecté). Le "type" indique si la page est un portail personnalisable (les modules sont configurés dans la partie inférieure), une page HTML dont vous indiquez l'URL et qui sera affichée dans une frame, une fonction javascript qui sera lancée en cliquant sur l'onglet (Cette fonction pourrait &ecirc;tre g&eacute;r&eacute;e dans un plugins), ou une redirection vers une autre page web. Validez en cliquant sur "enregistrer".</li>
+<li>Classez vos onglets en déplaçant les blocs au moyen de la surface grisée à gauche de chaque bloc.</li>
+<li>Une fois les pages configurées, validez les modifications en cliquant sur le bouton "Mettre en ligne !".</li>
+</ul><br />
+</li>
+<li><h2><a name="configure" />Configurer votre application</h2><br />
+Dans l'interface d'administration, cliquez sur l'onglet "configuration" puis sur "configuration générale de l'application".<br />
+Modifiez ensuite les paramètres désirés et validez.
+<br /><br />
+</li>
+<li><h2><a name="modules" />Définir vos modules</h2><br />
+Vous modifiez, classez et supprimez les modules via la page "Modules".<br /><br />
+Vous créez vos modules via le tutoriel. Si les utilisateurs sont autorisés à créer des modules, ce tutoriel est disponible dans son portail personnel (via le lien "ajouter un module"). Sinon, vous pouvez y accéder via le lien "ajouter un module" dans la page "Module".<br />
+Un module créé devra être validé dans la page "Module".
+<br /><br />
+</li>
+<li><h2><a name="users" />Gérer les utilisateurs</h2><br />
+Vous modifiez, classez et supprimez les utilisateurs via la page "Utilisateurs".<br />
+Vous pouvez également créer des utilisateurs et administrateurs via cette interface.<br /><br />
+Pour gérer les utilisateurs via des groupes, vous devez activer l'option dans la "configuration générale".
+<br /><br />
+</li>
+<li><h2><a name="ownfunc" />Créer vos propres fonctionnalités</h2><br />
+Référez-vous au "GUIDE DU DEVELOPPEUR" disponible dans le répertoire docs/fr/.
+</li>
+</ol>
+</body>
+</html>

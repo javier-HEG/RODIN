@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>Loovi.it - Guida alla creazione di un modulo AVANZATO</title>
+	<link rel="stylesheet" href="../../styles/docs.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Guida alla creazione di un modulo AVANZATO</h1>
+<br />Loovi usa lo stesso standard in uso per la creazione dei gadget di Google.
+<br /><br />
+<h2>Sommario</h2>
+<ul>
+<li><a href="#properties">Proprietà di un modulo</a> : titolo, descrizione e altezza del modulo</li>
+<li><a href="#options">Opzioni di un modulo</a> : opzioni di personalizzazione fornite agli utenti del modulo</li>
+<li><a href="#content">Contenuti del modulo</a> : 
+	<ul>
+	<li><a href="#type">Tipo del modulo</a></li>
+	<li><a href="#html">Contenuto HTML del modulo</a></li>
+	<li><a href="#javascript">Contenuto Javascript del modulo</a></li>
+	</ul>
+</li>
+<li><a href="#samples">Templates</a></li>
+<li><a href="#examples">Esempi</a></li>
+<li><a href="#test">Test del modulo</a></li>
+</ul>
+<br /><br />
+Un modulo è un file XML:
+<br /><br />
+<center><textarea class="examplebox" rows="22" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="module name" description="module description" height="200" /> 
+  <UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n°1 :" >
+    <EnumValue value="value1" display_value="value n°1" />
+    <EnumValue value="value2" display_value="value n°2" />
+    <EnumValue value="value3" display_value="value n°3" />
+    <EnumValue value="value4" display_value="value n°4" />
+    <EnumValue value="value5" display_value="value n°5" />
+  </UserPref>
+  <Content type="html"><![CDATA[
+	module HTML content
+	<script type="text/javascript">
+		module javaScript content
+	</script>
+  ]]>
+  </Content> 
+</Module>
+</textarea></center>
+<br /><br />
+Questa guida si divide in tre parti dettagliate qui sotto:
+<ul>
+<li>proprietà del modulo (<i>ModulePrefs</i> tag)</li>
+<li>Opzioni del modulo (<i>UserPref</i> tag)</li>
+<li>Contenuti del modulo (<i>Content</i> tag)</li>
+</ul>
+<br /><br />
+<a name="properties"></a><h2>Proprietà del modulo</h2><br />
+Il tag <i>ModulePrefs</i> viene usato per definire le proprietà del modulo:<br /><br />
+<center><textarea class="examplebox" rows="3" cols="80">
+
+<ModulePrefs title="my module" description="it is my module" height="200" /> 
+</textarea></center>
+<ul>
+<li><b>title</b> : nome del modulo (obbligatorio). Stringa (30 car. max.).</li>
+<li><b>description</b> : descrizione del modulo (opzionale). Stringa (250 car. max.).</li>
+<li><b>height</b> : altezza del modulo in pixel (obbligatorio). Intero compreso tra 20 e 400. Se l'altezza del contenuto del modulo è variabile, dovrai usare la funzione <a href="#javascript">_IG_AdjustIFrameHeight</a> nella sezione di contenuto javascript del modulo.</li>
+</ul>
+<br />
+<a name="options"></a><h2>Opzioni del modulo</h2><br />
+I tag <i>UserPref</i> sono usati per definire le opzioni del modulo, che permetteranno agli utenti di personalizzarlo. Queste sono le opzioni mostrate quando si clicca su 'configura' nella testata del modulo.<br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n°1 :" >
+</textarea></center><br />
+<ul>
+<li><b>name</b> : ID dell'opzione. Stringa senza spazi bianchi.</li>
+<li><b>datatype</b> : tipo dell'opzione<br />
+Il tipo dell'opzione pu&ograve; essere:
+<ul>
+<li><u>string</u><br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="name" datatype="string" default_value="Will Smith" display_name="Your name :" >
+</textarea></center><br />
+</li>
+<li><u>bool</u> : check box. Il valore di default pu&ograve; essere "true"(checked) o "false"(unchecked)<br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="thumb" datatype="bool" default_value="true" display_name="Show the thumbnails ?" />
+</textarea></center><br />
+</li>
+<li><u>enum</u> : Select box. Ciascun elemento sar&agrave; definito da un "EnumValue" tag.<br /><br />
+<center><textarea class="examplebox" rows="9" cols="80">
+
+<UserPref name="color" datatype="enum" default_value="blue" display_name="background color :">
+	<EnumValue value="red" display_value="Red" />
+	<EnumValue value="blue" display_value="Blue" />
+	<EnumValue value="green" display_value="Green" />
+	<EnumValue value="yellow" display_value="Yellow" />
+</UserPref> 
+</textarea></center><br />
+</li>
+</ul>
+<li><b>default_value</b> :valore di default dell'opzione (usanto nella prima visualizzazione del modulo agli utenti).</li>
+<li><b>display_name</b> : etichetta visualizzata.</li>
+</ul><br />
+<a name="content"></a><h2>Contenuto del modulo</h2><br />
+Il tag <i>Content</i> definisce il tipo di modulo, e il codice HTML e javascript del modulo.
+<br /><br />
+<center><textarea class="examplebox" rows="12" cols="80">
+
+<Content type="html"><![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hello World !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+]]> </Content>
+</textarea></center><br />
+<ul>
+<li><a name="type"></a><b>L'attributo "type" definisce il tipo di modulo</b> :<br />
+	<ul>
+	<li><u>type="html"</u> : Il modulo &egrave; memorizzato sui nostri server. Se &egrave; possibile usate sempre questo tipo di modulo.<br /><br />
+<center><textarea class="examplebox" rows="13" cols="80">
+
+<Content type="html"><![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hello World !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+]]> </Content>
+</textarea></center><br />
+	</li>
+	<li><u>type="URL"</u> : Il modulo &egrave; memorizzato sul vostro server. E' possibile usare questo tipo di modulo se i contenuti sono dinamici (aggiornati ad ogni visualizzazione con informazioni sul vostro database) e se non potete usare le funzioniY <a href="#javascript">_IG_FetchContent</a> e <a href="#javascript">_IG_FetchXmlContent</a> . <br /><br />
+<center><textarea class="examplebox" rows="3" cols="80">
+
+<Content type="url" href="http://www.mywebsite.com/mymodule.php" />
+</textarea></center><br />
+Per questo tipo di modulo il tag <Content> &egrave; vuoto perch&eacute; il codice del modulo &egrave; nel file specificato dall'attributo URL.<br /><br />
+Attenzione: se avete la necessit&agrave; di usare le funzioni javascript descritte pi&ugrave; sotto, e il CSS di Loovi, inserite le seguenti istruzioni nel tag  <HEAD> del vostro modulo:<br />
+<center><textarea class="examplebox" rows="6" cols="80">
+
+<link rel="stylesheet" type="text/css" media="screen" title="default" href="http://www.portaneo.com/styles/module.css" />
+<script type="text/javascript" src="http://www.portaneo.com/includes/modules.js"></script>
+</textarea></center><br />
+	</li>
+	</ul>
+</li>
+<li><a name="html"></a><b>HTML per il modulo (tranne che per il tipo URL)</b><br />
+	<br />Inserite qui l'HTML del vostro modulo. 
+	L'output verr&agrave; formattato dal nostro <a href="http://www.portaneo.com/styles/module.css">CSS</a><br /><br />
+</li>
+<li><a name="javascript"></a><b>Codice javascript per il modulo (tranne che per il tipo URL)</b><br />
+Inserire il codice javascript del modulo in un unico tag <b>&lt;script type="text/javascript"&gt;&lt;/script&gt;</b>.<br /><br />
+E' possibile usare le seguenti funzioni:<br /><br />
+<table cellspacing="0" cellpadding="4" border="1">
+<tr><td colspan="2" bgcolor="#efefef"><b>Funzioni di programmazione</b></td></tr>
+<tr><td valign="top">_IG_RegisterOnloadHandler(FUNCTION)</td><td valign="top">Chiama la funzione FUNCTION al caricamento del modulo.<br />esempio:<br /><br /><i>function init(){<br />&nbsp; alert('hello world');<br />}<br />_IG_RegisterOnloadHandler(init);</i><br /><br /></td></tr>
+<tr><td valign="top">_IG_AdjustIFrameHeight()</td><td valign="top">Regola l'altezza del modulo come l'altezza dei contenuti. Usarla se l'altezza del modulo pu&ograve; cambiare.</td></tr>
+<tr><td valign="top">_IG_FetchContent(URL, FUNCTION)</td><td valign="top">Carica il contenuto di un file definito dal suo URL e manda il risultato alla funzione FUNCTION. Utilizzare per applicazioni AJAX.<br /><br />Esempio:<br /><i>function treatFile(responsetxt){<br />&nbsp; var obj=_gel("mydiv");<br />&nbsp; obj.innerHTML=responsetxt;<br />}<br />_IG_FetchContent('http://www.mysite.com/mydoc.csv',treatFile);</i><br /><br /></td></tr>
+<tr><td valign="top">_IG_FetchXmlContent(URL, FUNCTION)</td><td valign="top">Carica il contenuto di un file XML definito dal suo URL e manda il risultato alla funzione FUNCTION. Utilizzare per applicazioni AJAX.<br /><br />Esempio:<br /><i>function treatXml(responsexml){<br />&nbsp; var str="name : "+responsexml.getElementByTagName("name").firstChild.nodeValue+"<br />age : "+responsexml.getElementByTagName("age").firstChild.nodeValue;<br />&nbsp; var obj=_gel("mydiv");<br />&nbsp; obj.innerHTML=str;<br />}<br />_IG_FetchXmlContent('http://www.mysite.com/myxmlfile.xml',treatXml);</i><br /><br /></td></tr>
+<tr><td colspan="2" bgcolor="#efefef"><b>Funzioni per l'accesso alle opzioni</b></td></tr>
+<tr><td valign="top">_IG_Prefs(__MODULE_ID__)</td><td valign="top">Invia le opzioni ad un oggetto.<br /><br /> Esempio: <i>var pref = _IG_Prefs(__MODULE_ID__);</i><br /><br /></td></tr>
+<tr><td valign="top">.getString("variable")</td><td valign="top">Recupera il valore di un'opzione "string".<br /><br />Esempio: <i>var name = pref.getString("yourname");</i><br /><br /></td></tr>
+<tr><td valign="top">.getInt("variable")</td><td valign="top">Recupera il valore intero di un'opzione "string".</td></tr>
+<tr><td valign="top">.getBool("variable")</td><td valign="top">Recupera il valore di un'opzione "bool".</td></tr>
+<tr><td valign="top">.set("variable","value")</td><td valign="top">Modifica il valore dell'opzione specificata.<br /><br />Esempio: <i>pref.set("yourname","John Wayne");</i><br /><br /></td></tr>
+<tr><td valign="top">.open()</td><td valign="top">Apre il box di modifica delle opzioni.<br /><br />Esempio: <i>&lt;A href=# onclick="return pref.open()"&gt;Modify the options&lt;/A&gt;</i><br /><br /></td></tr>
+<tr><td colspan="2" bgcolor="#efefef"><b>Altre funzioni</b></td></tr>
+<tr><td valign="top">_gel("object")</td><td valign="top">Recupera l'oggetto il cui ID &egrave; "object".<br /><br />Example : <i>var obj=_get("mydiv");obj.innerHTML='Hello world !';</i><br /><br /></td></tr>
+<tr><td valign="top">_gelstn("object")</td><td valign="top">Wrapper attorno al metodo javascript <i>.getElementByTagName()</i>.</td></tr>
+<tr><td valign="top">_esc("string")</td><td valign="top">Wrapper attorno al metodo javascript <i>.escape()</i>.</td></tr>
+<tr><td valign="top">_unesc("string")</td><td valign="top">Wrapper attorno al metodo javaScript <i>.unescape()</i>.</td></tr>
+<tr><td valign="top">_uc("string")</td><td valign="top">Ritorna la stringa "string" in maiuscole.</td></tr>
+<tr><td valign="top">_lc("string")</td><td valign="top">Ritorna la stringa "string" in minuscole.</td></tr>
+<tr><td valign="top">_min(value1,value2)</td><td valign="top">Ritorna il minimo tra value1 e value2.</td></tr>
+<tr><td valign="top">_max(value1,value2)</td><td valign="top">Ritorna il massimo tra value1 e value2.</td></tr>
+<tr><td valign="top">_args("string")</td><td valign="top">Trasforma la stringa "name=john&age=12&sex=m" nell'array {"name":"john","age":"12","sex":"m"}</td></tr>
+<tr><td valign="top">_trim("string")</td><td valign="top">Rimuove gli spazi bianchi in eccesso.</td></tr>
+</table>
+</li>
+</ul>
+
+<a name="samples"></a><h2>Templates</h2><br />
+<center><textarea class="examplebox" rows="29" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="name of module" description="description of the module" height="200" /> 
+  <UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n°1 :" >
+    <EnumValue value="value1" display_value="value n°1" />
+    <EnumValue value="value2" display_value="value n°2" />
+  </UserPref>
+  <UserPref name="variable2" datatype="string" default_value="value1" display_name="variable n°2 :" >
+  <UserPref name="variable3" datatype="bool" default_value="true" display_name="variable n°3" />
+  <Content type="html"><![CDATA[
+	<!-- HTML content -->
+	<script type="text/javascript">
+	//javaScript content
+
+	//init function of your module (optional)
+	function init(){
+		
+	}
+	_IG_RegisterOnloadHandler(init);
+	</script>
+  ]]>
+  </Content> 
+</Module>
+</textarea></center><br />
+
+<a name="examples"></a><h2>Esempi</h2><br />
+Per verificare il funzionamento degli esempi, copia/incollare nel box di test<br /><br />
+<b>Hello World !</b><br /><br />
+<center><textarea class="examplebox" rows="11" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="Hello world !" description="my first portaneo module" height="100" /> 
+  <Content type="html"><![CDATA[
+	<h2>Hello world !</h2>
+  ]]>
+  </Content> 
+</Module>
+</textarea></center><br />
+<b>Colored box</b><br /><br />
+<center><textarea class="examplebox" rows="54" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="colored box" description="test module" height="130" /> 
+  <UserPref name="color" datatype="enum" default_value="blue" display_name="box color :" >
+    <EnumValue value="blue" display_value="Blue" />
+    <EnumValue value="red" display_value="Red" />
+    <EnumValue value="yellow" display_value="Yellow" />
+  </UserPref>
+  <Content type="html"><![CDATA[
+   <div style='padding:6px'>
+    <table width='100%'>
+     <tr>
+      <td>Click on a color :</td>
+      <td></td>
+      <td bgcolor='blue' onclick='changeColor("blue")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Blue</td>
+      <td></td>
+      <td bgcolor='red' onclick='changeColor("red")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Red</td>
+      <td></td>
+      <td bgcolor='yellow' onclick='changeColor("yellow")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Yellow</td>
+      <td></td>
+     </tr>
+     <tr>
+      <td colspan=8>&nbsp;</td>
+     </tr>
+     <tr>
+      <td colspan=8 id='box' style='height:80px'>&nbsp;</td>
+     </tr>
+   </div>
+   <script type="text/javascript">
+    function init(){
+     var pref=new _IG_Prefs(__MODULE_ID__);
+     var color=pref.getString("color");
+     var obj=_gel('box');
+     obj.style.backgroundColor=color;
+    }
+
+    function changeColor(v_color){
+     var obj=_gel('box');
+     obj.style.backgroundColor=v_color;
+     // Save the new default color
+     var pref=new _IG_Prefs(__MODULE_ID__);
+     pref.set("color",v_color);
+    }
+
+    _IG_RegisterOnloadHandler(init);
+   </script>
+  ]]>
+  </Content> 
+</Module>
+</textarea></center><br />
+<a name="test"></a><h2>Test dei moduli</h2><br />
+Dopo ogni modifica al modulo si prega di provarne il funzionamento corretto tramite il box di test (disponibile nella pagina di creazione di modulo esperto) prima di sottometere il modulo per l'approvazione.
+</body>
+</html>

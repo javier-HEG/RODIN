@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><channel><parent>0</parent><dirname><![CDATA[RODIN GENERAL WIDGETS (7)]]></dirname><path><![CDATA[ <a href='#' onclick='$p.app.menu.widget.getExplorer(0)' style='color:#000000;text-decoration:underline;'>Startseite</a> > RODIN GENERAL WIDGETS ]]></path>
+<item>
+ <id>10013</id>
+ <name><![CDATA[ARXIV - TBD]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10013.gif</icon>
+</item>
+
+<item>
+ <id>10011</id>
+ <name><![CDATA[BIBSONOMY]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10011.gif</icon>
+</item>
+
+<item>
+ <id>10014</id>
+ <name><![CDATA[DELICIOUS ]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10014.gif</icon>
+</item>
+
+<item>
+ <id>10007</id>
+ <name><![CDATA[FLICKR]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10007.gif</icon>
+</item>
+
+<item>
+ <id>10000</id>
+ <name><![CDATA[GOOGLE BOOKS]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10000.gif</icon>
+</item>
+
+<item>
+ <id>10017</id>
+ <name><![CDATA[SWISSBIB]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10017.gif</icon>
+</item>
+
+<item>
+ <id>10003</id>
+ <name><![CDATA[ZBZ Manuscripts]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10003.gif</icon>
+</item>
+</channel>

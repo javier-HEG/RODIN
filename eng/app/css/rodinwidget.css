@@ -1,0 +1,296 @@
+/* FRI: Widget PREFS and some widget peculiarities */
+/* see the counterpart .php */
+/* this file is not used at the moment */
+
+body {
+	font-family: arial, helvetica, clean, sans-serif;
+	font-size:medium;
+	margin:0px;
+}
+
+form {
+	border-bottom: 1px solid lightgray;
+}
+
+.word {
+font-family:Arial, Helvetica, sans-serif;
+}
+
+.recordcnt {
+color:#aaaaaa;
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:small;
+text-align:right;
+}
+
+.widgetPrefsDiv {
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:small;
+font-style:normal;
+border: 1px solid <?php print $COLOR_WIDGET_PREFS_BG_BORDER; ?>;
+background-color: <?php print $COLOR_WIDGET_PREFS_BG; ?>;
+margin: 1px;
+padding: 5px;
+}
+
+.widgetPrefsDiv .widget_user_info {
+color:#aaaaaa;
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:small;
+font-style:normal;
+}
+
+.widgetPrefsDiv p {
+	margin-top: 0px;
+	margin-bottom: 4px;
+}
+
+p.widgetResultCount {
+	margin:2px;
+	padding: 0px;
+	color: #aaaaaa;
+}
+
+div.widgetResultsDiv {
+	overflow-x: hidden;
+	overflow-y:auto;
+	width:100%;
+}
+
+div.widgetImageGridDiv {
+	float: left;
+	margin: 2px 0 0 4px;
+}
+
+img.widgetImageGridImg {
+	width: 64px;
+	padding: 2px;
+	border: 1px solid lightgray;
+}
+
+div.widgetImageGridFilter {
+	cursor: pointer;
+	height: 0px;
+	position: relative;
+	top:-22px;
+	left:52px;
+}
+
+table.widgetResultsListTable {
+	background-color: <?php print $COLOR_WIDGET_RESULT_BG; ?>;
+	width: 100%;
+	border: none;
+}
+
+table.widgetResultsDocumentTable {
+	width: 100%;
+	border: none;
+}
+
+a {
+	color:#777777;
+	text-decoration:none;
+	font-family:arial,helvetica,clean,sans-serif;
+	font-weight:300;
+	font-size:small;
+	font-style:normal;
+}
+	
+td {
+	font-family:arial,helvetica,clean,sans-serif;
+	font-weight:400;
+	font-size:small;
+	font-style:normal;
+}
+
+td.widget_user_info {
+	color:#aaaaaa;
+	font-family:arial,helvetica,clean,sans-serif;
+	font-weight:400;
+	font-size:small;
+	font-style:normal;
+}
+
+div#bc_toggle_div.change2add {
+	width:20px;
+	height:20px;
+	cursor:crosshair;
+	background: url(../../../gen/u/images/breadcrumbs_22.png) left no-repeat;
+	color:red;
+}
+
+div#bc_toggle_div.noadd {
+	width:20px;
+	height:20px;
+	cursor:crosshair;
+	background: url(../../../gen/u/images/breadcrumbs_gray_22.png) left no-repeat;
+}
+
+lable {
+	cursor: pointer;
+}
+
+lable.bcx {
+	cursor:crosshair;
+	color:red;
+}
+
+lable.bcx-selected {
+	background-color:<?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	color:black;
+}
+
+img.openPreferencesButton {
+	padding: 4px 4px 2px 2px;
+	cursor: pointer;
+}
+
+input.localSearch {
+	margin: 2px 0px 2px 2px;
+	width: 150px;
+}
+
+input.localSearchButton {
+	width: 80px;
+}
+
+input.localMaxResults {
+	margin-top: 2px;
+	width: 20px;
+}
+
+/* Widget styles for OO printing */
+div.oo-result-container {
+	display: table;
+	table-layout: fixed;
+	border-bottom: 1px solid gray;
+	width: 100%;
+}
+
+div.oo-result-header {
+	display: table-cell;
+	width: 24px;
+	background-color: lightgray;
+	text-align: center;
+	font-weight: bold;
+	color: gray;
+}
+
+div.oo-result-header img {
+	cursor: pointer;
+}
+
+div.oo-result-content {
+	display: table-cell;
+}
+
+div.oo-result {
+	padding: 4px;
+}
+
+div.oo-result h1 {
+	font-size: 14px;
+	font-weight: bold;
+	margin: 0px;
+}
+
+div.oo-result p {
+	font-size: 12px;
+	margin: 0px;
+}
+
+span.hovered-word {
+	background-color:<?php print $COLOR_PAGE_BACKGROUND2; ?>;
+}
+
+/* Spotlight Box */
+div.spotlightbox {
+	border: 1px solid <?php print $COLOR_ZEN_FILTER_BOX; ?>;
+	width: auto;
+	font-size: small;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+
+div.spotlightbox h1 {
+	font-size: small;
+	padding: 1px;
+	padding-bottom: 3px;
+	margin: 0px;
+	background-color: <?php print $COLOR_ZEN_FILTER_BOX; ?>;
+	color: white;
+}
+
+div.spotlightbox p.loading {
+	font-size: small;
+	margin: 0px;
+	padding-left: 2px;
+	background-color: <?php print $COLOR_ZEN_FILTER_BOX; ?>;
+	color: white;
+}
+
+div.spotlightbox p.terms {
+	margin: 0px;
+	padding: 0px 0px 2px 2px;
+	font-size: small;
+}
+
+div.spotlightbox a {
+	font-size: smaller;	
+	margin: 0px 1px 0px 0px;
+	padding: 0px 1px 0px 1px;
+	color: black;
+}
+
+div.spotlightbox a.term {
+	background-color: <?php print $COLOR_ZEN_FILTER_TERMS; ?>;
+}
+
+div.spotlightbox a.hover {
+	background-color: <?php print $COLOR_ZEN_FILTER_HOVER; ?>;
+}
+
+div.spotlightbox a.button {
+	padding: 1px 5px 1px 5px;
+	margin-bottom: 2px;
+	border-left:1px solid <?php print $COLOR_ZEN_FILTER_HOVER; ?>;
+	background-color: <?php print $COLOR_ZEN_FILTER_BUTTONS; ?>;
+	color: white;
+	cursor: pointer;
+	float: right;
+}
+
+div.spotlightbox a.buttonHover {
+	padding: 1px 5px 1px 5px;
+	margin-bottom: 2px;
+	border-left:1px solid <?php print $COLOR_ZEN_FILTER_HOVER; ?>;	
+	background-color: <?php print $COLOR_ZEN_FILTER_HOVER; ?>;
+	color: white;
+	cursor: pointer;
+	float: right;
+}
+
+/* Spotlight Box In OO Result Content */
+div.oo-result-content div.spotlightbox {
+	border: none;
+	border-bottom: 2px solid lightgray;
+	font-size: small;
+	margin: 0px;
+	width: 100%;
+}
+
+
+div.oo-result-content div.spotlightbox h1 {
+	padding: 3px;
+	margin: 0px;
+	background-color: <?php print $COLOR_ZEN_FILTER_BOX; ?>;
+	color: white;
+}
+
+div.oo-result-content div.spotlightbox p.loading {
+	padding: 3px;
+}

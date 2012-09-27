@@ -1,0 +1,11 @@
+<messagebundle>
+  <msg name="widgetTitle">Tasks management (To-Do List)</msg>
+  <msg name="widgetDescription">Tasks management (To-Do List)</msg>
+  <msg name="lblAddTask">Add a task</msg>
+  <msg name="lblModify">MODIFY</msg>
+  <msg name="msgAreYouSureSupElement">Are you sure you want to delete this element ?</msg>
+  <msg name="msgNeedToBeConnected">you need to save this page to use this widget</msg>
+  <msg name="lblTitle">Title</msg>
+  <msg name="comment">Comment</msg>
+  <msg name="lblAdd">Add</msg> 
+</messagebundle>

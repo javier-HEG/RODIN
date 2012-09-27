@@ -1,0 +1,7 @@
+function lg(){
+	$str=func_get_arg(0);
+	$ret=(!empty($GLOBALS['lgMap'][$str]))?$GLOBALS['lgMap'][$str]:$str;
+	for ($i=1;$i<func_num_args();$i++){$arg=func_get_arg($i);$ret=str_replace("#".$i,$arg,$ret);}
+	return $ret;
+}
+?>

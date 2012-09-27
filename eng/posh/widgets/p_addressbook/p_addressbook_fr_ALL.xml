@@ -1,0 +1,20 @@
+<messagebundle>
+  <msg name="widgetTitle">Carnet d'adresses</msg>
+  <msg name="widgetDescription">Carnet d'adresses</msg>
+  <msg name="msgAreYouSureSupElement">Etes-vous certain(e) de vouloir supprimer cet &eacute;l&eacute;ment ?</msg>
+  <msg name="msgNeedToBeConnected">vous devez enregistrer cette page pour pouvoir utiliser ce widget</msg>
+  <msg name="lblFirstName">Pr&eacute;nom</msg>
+  <msg name="lblName">Nom</msg>
+  <msg name="lblEmail">Email</msg>
+  <msg name="company">Soci&eacute;t&eacute;</msg>
+  <msg name="function">Fonction</msg>
+  <msg name="phone">T&eacute;l&eacute;phone</msg>
+  <msg name="other">Autre</msg>
+  <msg name="tags">Tags</msg>
+  <msg name="linkKeysHlp">Les mots cl&eacute;s/tags vous permettent de classer vos liens th&eacute;matiquement. S&eacute;parez les mots cl&eacute;s par des virgules.</msg>
+  <msg name="lblAdd">Ajouter</msg>
+  <msg name="lblModify">Modifier</msg>
+  <msg name="addContact">Ajouter un contact</msg>
+  <msg name="lblSuppress">Supprimer</msg>
+  <msg name="all">Tous</msg>
+</messagebundle>

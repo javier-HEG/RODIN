@@ -1,0 +1,6 @@
+function lg(v_s,v_p) {
+	var l_ret=lang[v_s],indef;
+	if(v_p && l_ret){l_ret=l_ret.replace("$$",v_p);}
+	if (l_ret==indef)l_ret=v_s;
+ 	return l_ret;
+}

@@ -1,0 +1,16 @@
+Instructions for MAC OSX:
+
+1. Copy rodin.gz into a directory on your web server where you want to have rosin (for instance "rodin-n").
+
+2. unzip the file
+
+3. Open Dir Applications until you find the directory "rosin", take the content of the directory "rodin" (i.e. 4 directories eng, gen, install, makeinstall) into your  current rodin directory into rodin-new and delete what remains from /Applications… (JAVIER PLS have a better idea here??)
+
+4. Now you should have a directory "eng" containing your rodin installation blueprint. 
+
+4. Start your web server and call rodin-new/install/osx/install_rodin.php. You will be asked to enter a segment name (i.e. 'p' or 'st'), please enter the segment name and follow the instructions.
+
+5. adapt values in your SRC maintenance (http://.../) too meet your SRC requirements or run <rodininstallation>/posh/login.php?MAINTENANCE to automatically adapt values.
+
+5. adapt values in Your widget keys maintenance (http://.../) in order to meet your requirements (i.e., search authorization keys for widgets)
+

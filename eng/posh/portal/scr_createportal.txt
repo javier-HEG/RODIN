@@ -1,0 +1,5 @@
+		icon= /rodinposh/u/images/color_wheel.png
+		seq=3
+		
+		INSERT INTO profile (user_id, name, width, style, def, creation_date, modif_date, height, cacheurl,showtype,nbnews,seq,icon,modulealign,type,param,page_id,removable) 
+	VALUES (   				  2,      'REFINE',   3,    1,    'N', CURRENT_DATE,  CURRENT_DATE, 5,    'notused',      '0',      15,    3, '/rodinposh/u/images/color_wheel.png',  'Y',         '1',  '',   0,     1) 

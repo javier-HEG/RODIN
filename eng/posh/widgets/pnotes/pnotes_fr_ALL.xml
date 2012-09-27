@@ -1,0 +1,16 @@
+<messagebundle>
+  <msg name="widgetTitle">Notes</msg>
+  <msg name="widgetDescription">Editeur de notes</msg>
+  <msg name="txtNote">Vous pouvez changer cette note par défaut depuis l'administration, dans la configuration générale</msg>
+  <msg name="msgNeedToBeConnected">Vous devez enregistrer cette page pour pouvoir utiliser ce widget</msg>
+  <msg name="color">Couleur</msg> 
+  <msg name="white">Blanc</msg> 
+  <msg name="red">Rouge</msg> 
+  <msg name="yellow">Jaune</msg> 
+  <msg name="green">Vert</msg> 
+  <msg name="blue">Bleu</msg> 
+  <msg name="gray">Gris</msg> 
+  <msg name="orange">Orange</msg> 
+  <msg name="purple">Violet</msg> 
+  <msg name="brown">Marron</msg>
+</messagebundle>

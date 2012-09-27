@@ -1,0 +1,14 @@
+<messagebundle>
+  <msg name="widgetTitle">Bookmarks</msg>
+  <msg name="widgetDescription">Put your bookmarks on your portal</msg>
+  <msg name="msgAreYouSureSupElement">Are you sure you want to delete this element ?</msg>
+  <msg name="msgNeedToBeConnected">You need to save this page to use this widget</msg>
+  <msg name="lblTitle">Title</msg>
+  <msg name="tags">Tags</msg>
+  <msg name="lblAdd">Add</msg>
+  <msg name="lblModify">Modify</msg>
+  <msg name="lblAddFav">Add a bookmark</msg>
+  <msg name="lblSuppress">Delete</msg>
+  <msg name="all">All</msg>
+  <msg name="linkKeysHlp">Keywords,tags help you to classify your links by category and find them easily. Separate them with commas.</msg>
+</messagebundle>

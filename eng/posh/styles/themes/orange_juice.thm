@@ -1,0 +1,205 @@
+body {}
+#logo {
+	background: url(../styles/themes/orange_juice/logo_posh.png) no-repeat left;
+	width: 140px;
+	height: 60px;
+}
+#logolink {
+	width: 140px;
+	height: 56px;
+}
+#header {
+	height: 60px;
+	vertical-align: top;
+	background: #D69600;
+}
+.maintbl {
+	color: #888888;
+	background-color: #ffffff;
+}
+#footer {
+	color: #D69600;
+}
+#footer a:link,#footer a:visited {
+	color: #D69600;
+}
+#information {
+	color: #ffffff;
+}
+.loading {
+	color: #D69600;
+}
+#mousebox {
+	color: #000000;
+	border: 1px solid #000000;
+	background: #f5e5bf;
+}
+
+/*======   MODULES  =====*/
+.module {
+	border: 3px solid #efefef;
+}
+.module .bmod {
+	border: 1px solid #F7B629;
+	color: #555555;
+}
+.module .hmod {
+	display: none;
+	background: #F7B629;
+	border: 1px solid #ffd37b;
+}
+.barstyle0 {
+	background: #F7B629;
+}
+.module .hmod,
+.module .hmod a:visited,
+.module .hmod a:link,
+.module .hmod a:active {
+	color: #555555;
+}
+.module .headmod {
+	border-bottom: 1px solid #F7B629;
+}
+.module .titmod {
+	color: #ffffff;
+}
+.module .hmod a.rssstatus:link,
+.module .hmod a.rssstatus:visited {
+	color: #555555;
+}
+.content td {
+	color: #555555;
+}
+.content a:link {
+	color: #6b4b00;
+	text-decoration: none;
+}
+.content a:visited {
+	color: #e1b140;
+	text-decoration: none;
+}
+.content a:hover {
+	color: #e1b140;
+	text-decoration: underline;
+}
+.editbox {
+	background: #e1b140;
+}
+.newspaper #npdetaili h2 {
+	color: #000000;
+}
+.newspaper #npdetailititle {
+	background: #ffffff;
+	border-bottom: 2px solid #555555;
+}
+.newspaper #npdetail {
+	border: 2px solid #555555;
+}
+.newspaper .source {
+	color: #008200
+}
+.newspaper .clear {
+	background-color: #ffffff;
+}
+.newspaper .dark {
+	background-color: #f5e5bf;
+}
+.newspaper .highlight {
+	background: #D69600;color: #ffffff;
+}
+.newspaper .highlight a:link {
+	color: #ffffff;
+}
+.newspaper .highlight a:visited {
+	color: #ffffff;
+}
+.newspaper .read a:link {
+	color: #ffd37b;
+}
+
+/*====== TABS =====*/
+.taba {}
+.tabal {
+	background: #ffffff;
+	border:0px;
+}
+.tabar {
+	background: #ffffff;
+	border:0px;
+}
+.tab {
+	border: 0px;
+}
+.tabl {
+	padding: 3px;
+	background: #F7B629;
+	border: 0px;
+	border-top: 1px solid #FFD37B;
+	border-left: 1px solid #FFD37B;
+}
+.tabr {
+	text-align: center;
+	background: #F7B629;
+	border: 0px;
+	border-top: 1px solid #FFD37B;
+	border-right: 1px solid #FFD37B;
+}
+.tabl a:visited,
+.tabl a:link {
+	color: #555555;
+}
+.tabl a:hover {
+	color: #ffffff;
+}
+
+/*====== MENUS =====*/
+#vmenu {
+	background: #efefef;
+	color: #000000;
+}
+#vmenu #menuclosebutton a:link,
+#vmenu #menuclosebutton a:visited {
+	color: #000000;
+}
+#vmenusuboptions{
+	background: #000000;
+}
+#vmenuheader {
+	background: #000000;
+}
+#vmenusuboptions ul.menulist li a:hover,#vmenusuboptions ul.menulist li.menulistsel {
+	background: #D69600;
+}
+#vmenu .menuitem {
+	background-color: #D69600;
+}
+#vmenu #menuoptions li a, #vmenu #menuoptions li a:link, #vmenu #menuoptions  li a:visited {
+    background: #efefef;
+}
+#vmenu #menuoptions li a:hover {
+	background-color: #D69600;
+}
+#vmenu #menuoptions li.menulistsel {
+	background-color: #D69600;
+}
+
+/*====== HEADER LINKS =====*/
+#headlink {
+	color: #fff;
+	border-bottom: 1px solid #fff;
+	background-color: #D69600;
+}
+#headlink a:link,
+#headlink a:visited {
+	color: #fff;
+}
+
+/*====== ADDONS =====*/
+.addonbar {
+	background: #D69600;
+	border: 1px solid #555555;
+	color: #ffffff;
+}
+.addonbar a:link,.addonbar a:visited {
+	color: #ffffff;
+}

@@ -1,0 +1,502 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>PORTANEO - Creating an Advanced widget for POSH</title>
+    <meta name="description" content="How to create an Advanced widget, not RSS Widget, for POSH, Enterprise information portal by Posh.">
+	<link rel="stylesheet" href="../../styles/docs.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        .balises {
+            font-weight: bolder;
+            font-style:italic;
+            color:green;
+        }
+    </style>    
+</head>
+<body>
+<h1>Advanced widget creation guide</h1>
+<br />Portaneo is using the Google widget standard.
+<br /><br />
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#properties">widget properties</a> : title, description and widget's height</li>
+<li><a href="#options">widget options</a> : personalization options given to widget's users</li>
+<li><a href="#content">widget content</a> : 
+	<ul>
+	<li><a href="#type">widget type</a></li>
+	<li><a href="#html">widget HTML content</a></li>
+	<li><a href="#javascript">widget javaScript content</a></li>
+	<li><a href="#i18n">Translation / internationalization</a></li>
+	</ul>
+</li>
+<li><a href="#samples">Templates</a></li>
+<li><a href="#examples">Samples</a></li>
+<li><a href="#test">Test your widget</a></li>
+</ul>
+<p>Your widget is an XML file :</p>
+<center><textarea class="examplebox" rows="22" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="widget name" description="widget description" height="200" /> 
+  <UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n.1 :">
+    <EnumValue value="value1" display_value="value n.1" />
+    <EnumValue value="value2" display_value="value n.2" />
+    <EnumValue value="value3" display_value="value n.3" />
+    <EnumValue value="value4" display_value="value n.4" />
+    <EnumValue value="value5" display_value="value n.5" />
+  </UserPref>
+  <Content type="html">&lt;![CDATA[
+	widget HTML content
+	<script type="text/javascript">
+		widget javaScript content
+	</script>
+  
+  </Content> 
+</Module>
+</textarea></center>
+<br /><br />
+The document has 3 parts, each will be fully explained below :
+<ul>
+<li>widget's properties (<i>ModulePrefs</i> tag)</li>
+<li>widget's options (<i>UserPref</i> tag)</li>
+<li>widget's content (<i>Content</i> tag)</li>
+</ul>
+<br /><br />
+<a name="content"></a><h2>widget's properties</h2>
+<p>
+The <i>ModulePrefs</i> tag is used to define the properties of the widget :<br /><br />
+<center><textarea class="examplebox" rows="3" cols="80">
+<ModulePrefs title="my widget" description="it is my widget" height="200" /> 
+</textarea></center>
+<ul>
+<li><b>title</b> : widget's name (required). String (30 car. max.).</li>
+<li><b>description</b> : widget's description (optional). String (250 car. max.).</li>
+<li><b>height</b> : widget's pixel height (required). Integer between 20 and 400. If the widget content height is changing, you will use the <a href="#javascript">_IG_AdjustIFrameHeight</a> function in the widget javaScript content.</li>
+</ul>
+</p>
+
+<a name="options"></a><h2>Require features widget</h2>
+<p>
+Some tags can inform API that a widget contains some required features.
+</p>
+<p>
+With POSH, you can add a require which inform API the l10n files of your widget are relative to your portal. So your url might be relative.
+
+<center><textarea class="examplebox" rows="2" cols="80">
+<Require feature="internal-posh"/>
+</textarea>
+</center>
+</p>
+<p>
+If you download a Portaneo widget, this widget contains the following require feature.
+<center><textarea class="examplebox" rows="2" cols="80">
+<Require feature="external-portaneo"/>
+</textarea>
+</center>
+</p>
+<p>
+Some Portaneo widgets can be integrated to your portal by your administrator. 
+In this case, the urls will be relative to your portal. These widgets contain the following require feature.
+
+<center><textarea class="examplebox" rows="2" cols="80">
+<Require feature="internal-portaneo"/>
+</textarea>
+</center>
+</p>
+
+
+<a name="options"></a><h2>widget's options</h2>
+<p>
+The <i>UserPref</i> tags are used to define the widget's options, that will give personalization to users. These are the options that show up when you click on "configure" button in the widget's header.<br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n.1 :">...</UserPref>
+</textarea></center><br />
+<ul>
+<li><b>name</b> : option's ID. String without whitespaces.</li>
+<li><b>datatype</b> : option's type<br />
+The option type can be :
+<ul>
+<li><u>string</u><br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="name" datatype="string" default_value="Will Smith" display_name="Your name :" />
+</textarea></center><br />
+</li>
+<li><u>password</u> : string, all characters are replaced by * to hide the value<br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="password" datatype="password" default_value="" display_name="Password :" />
+</textarea></center><br />
+</li>
+<li><u>bool</u> : check box. The default_value can be "true"(checked) or "false"(unchecked)<br /><br />
+<center><textarea class="examplebox" rows="4" cols="80">
+
+<UserPref name="thumb" datatype="bool" default_value="true" display_name="Show the thumbnails ?" />
+</textarea></center><br />
+</li>
+<li><u>enum</u> : Select box. Each selected element will be defined by an "EnumValue" tag.<br /><br />
+<center><textarea class="examplebox" rows="9" cols="80">
+<UserPref name="color" datatype="enum" default_value="blue" display_name="background color :">
+	<EnumValue value="red" display_value="Red" />
+	<EnumValue value="blue" display_value="Blue" />
+	<EnumValue value="green" display_value="Green" />
+	<EnumValue value="yellow" display_value="Yellow" />
+</UserPref> 
+</textarea></center><br />
+</li>
+</ul>
+</li><li><b>default_value</b> :default option value (used on first widget display for a user).</li>
+<li><b>display_name</b> : label displayed.</li>
+</ul>
+</p>
+
+<a name="properties"></a><h2>widget's content</h2>
+<p>
+The <i>Content</i> tag regroups the widget's HTML and javaScript code.
+<br />
+With new version (Posh 2.1), you may define several <span class="balises">content</span>
+for each view of your widget, <strong>home view</strong> for original widget, <strong>canvas view</strong> for full screen state.
+<br /><br />
+<strong>view</strong> attribute, several options :
+<ul>
+
+    <li>view="home"</li>
+    <li>view="home,canvas"</li>
+    <li>view="canvas"</li>
+</ul>
+</p>
+<center><textarea class="examplebox" rows="12" cols="80">
+<Content type="html">&lt;![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hello World !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+ </Content>
+</textarea></center><br />
+
+<center>
+<h3>default view: home</h3>
+<textarea class="examplebox" rows="12" cols="80">
+<Content type="html" view="home">&lt;![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hello World !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+]]> </Content>
+
+</textarea></center><br />
+
+<center>
+<h3>Two views and same content</h3>
+<textarea class="examplebox" rows="12" cols="80">
+<Content type="html" view="home,canvas">&lt;![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hello World !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+]]> </Content>
+
+</textarea></center><br />
+<center>
+<h3>Two views and two contents</h3>
+<textarea class="examplebox" rows="12" cols="80">
+<Content type="html" view="home">&lt;![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hello World !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+]]> </Content>
+<Content type="html" view="canvas">&lt;![CDATA[
+<div id="examplediv">
+Widget content in full screen view
+</div>
+]]> </Content>
+</textarea></center><br />
+
+<ul>
+
+<li><a name="type"></a><b>The "type" attribute defines the widget's type</b> :<br />
+	<ul>
+	<li><u>type="html"</u> : widget stored on our servers. If you have the choice, always use this type.<br /><br />
+<center><textarea class="examplebox" rows="13" cols="80">
+
+<Content type="html">&lt;![CDATA[
+<div id="examplediv"></div>
+<script type="text/javascript">
+	function init(){
+		var div=_gel("examplediv");
+		div.innerHTML="Hello World !";
+	}
+	_IG_RegisterOnloadHandler(init);
+</script>
+ </Content>
+</textarea></center><br />
+	</li>
+	<li><u>type="URL"</u> : widget stored on your servers. You can use this type if your widget's content is dynamic (refreshed on each display with you database information) and if you can not use the <a href="#javascript">_IG_FetchContent</a> and <a href="#javascript">_IG_FetchXmlContent</a> functions. <br /><br />
+<center><textarea class="examplebox" rows="3" cols="80">
+
+<Content type="url" href="http://www.mywebsite.com/mywidget.php" />
+</textarea></center><br />
+For this type of widget, the <Content> tag is empty because your widget's code is in the file specified by the URL attribute.<br /><br />
+Attention : If you need to use the javascript functions mentionned below and our CSS file, insert the following rows in the <HEAD> tag of your widget :<br />
+<center><textarea class="examplebox" rows="6" cols="80">
+
+<link rel="stylesheet" type="text/css" media="screen" title="default" href="http://www.portaneo.com/styles/module.css" />
+<script type="text/javascript" src="http://www.portaneo.com/includes/modules.js"></script>
+</textarea></center><br />
+	</li>
+	</ul>
+</li>
+<li><a name="html"></a><b>The widget's HTML (except for URL type)</b><br />
+	<br />Type the HTML of your widget. 
+	It will be formatted by <a href="http://www.portaneo.com/styles/module.css">our CSS</a><br /><br />
+</li>
+<li><a name="javascript"></a><b>The javaScript code of your widget (except for URL type)</b><br />
+In a unique tag <b>&lt;script type="text/javascript"&gt;&lt;/script&gt;</b>, type the javaScript of your widget.<br /><br />
+You can use the following functions :<br /><br />
+<table cellspacing="0" cellpadding="4" border="1">
+<tr><td colspan="2" bgcolor="#efefef"><b>Code functions</b></td></tr>
+<tr><td valign="top">_IG_RegisterOnloadHandler(FUNCTION)</td><td valign="top">Call the FUNCTION function on the widget loading.<br />example :<br /><br /><i>function init(){<br />&nbsp; alert('hello world');<br />}<br />_IG_RegisterOnloadHandler(init);</i><br /><br /></td></tr>
+<tr><td valign="top">_IG_AdjustIFrameHeight()</td><td valign="top">Adjust the widget height to the widget content. Use it if the widget's height change.</td></tr>
+<tr><td valign="top">_IG_FetchContent(URL, FUNCTION)</td><td valign="top">Load the content of a file defined by its URL and send the results to the FUNCTION function. Using of asynchronous Ajax.<br /><br />Example :<br /><i>function treatFile(responsetxt){<br />&nbsp; var obj=_gel("mydiv");<br />&nbsp; obj.innerHTML=responsetxt;<br />}<br />_IG_FetchContent('http://www.mysite.com/mydoc.csv',treatFile);</i><br /><br /></td></tr>
+<tr><td valign="top">_IG_FetchXmlContent(URL, FUNCTION)</td><td valign="top">Load the content of an XML file defined by its URL and send the results to the FUNCTION function. Using of asynchronous Ajax.<br /><br />Example :<br /><i>function treatXml(responsexml){<br />&nbsp; var str="name : "+responsexml.getElementsByTagName("name")[0].firstChild.nodeValue+"<br />age : "+responsexml.getElementsByTagName("age")[0].firstChild.nodeValue;<br />&nbsp; var obj=_gel("mydiv");<br />&nbsp; obj.innerHTML=str;<br />}<br />_IG_FetchXmlContent('http://www.mysite.com/myxmlfile.xml',treatXml);</i><br /><br /></td></tr>
+<tr><td colspan="2" bgcolor="#efefef"><b>Function that use options</b></td></tr>
+<tr><td valign="top">_IG_Prefs(__MODULE_ID__)</td><td valign="top">Send the options to an object.<br /><br /> Example : <i>var pref = new _IG_Prefs(__MODULE_ID__);</i><br /><br /></td></tr>
+<tr><td valign="top">.getString("variable")</td><td valign="top">Retrieve the value of a "string" option.<br /><br />Example : <i>var name = pref.getString("yourname");</i><br /><br /></td></tr>
+<tr><td valign="top">.getInt("variable")</td><td valign="top">Retrieve the integer value of a "string" option.</td></tr>
+<tr><td valign="top">.getBool("variable")</td><td valign="top">Retrieve the value of a "bool" option.</td></tr>
+<tr><td valign="top">.set("variable","value")</td><td valign="top">Modify the value of a specified option.<br /><br />Exemple : <i>pref.set("yourname","John Wayne");</i><br /><br /></td></tr>
+<tr><td valign="top">.open()</td><td valign="top">Open the options configuration box.<br /><br />Example : <i>&lt;A href=# onclick="return pref.open()"&gt;Modify the options&lt;/A&gt;</i><br /><br /></td></tr>
+<tr><td colspan="2" bgcolor="#efefef"><b>Tabs management</b></td></tr>
+<tr><td valign="top">_IG_Tabs(__MODULE_ID__,"default selection")</td><td valign="top">Initialize tab management. Return tabs object, used to execute functions below. "default selection" is the name of the selected tab (optional).<br /><br /> Example : <i>var tabs = new _IG_Tabs(__MODULE_ID__);</i><br /><br /></td></tr>
+<tr><td valign="top">.tabsContainer</td><td valign="top">Optional. Define the object that will contain the tabs.<br /><br /> Example : <i>tabs.tabsContainer=_gel("tabsdiv"); (if you have created an object &lt;div id="tabsdiv"&gt;&lt;/div&gt;)<br /><br /></td></tr>
+<tr><td valign="top">.addTab("tabname","divid","function")</td><td valign="top">Create a new tab, with "tabname" name, inside "divid" div object, calling "function" function when clicked.<br /><br />Example : <i>tabs.addTabs("tab 1","tabdiv","displayTab1Content");</i><br /><br /></td></tr>
+<tr><td valign="top">.setSelectedTab("tabIndex")</td><td valign="top">Define the selected tab."tabIndex" is the index of the tab (start with 0).</td></tr>
+<tr><td colspan="2" bgcolor="#efefef"><b>Other functions</b></td></tr>
+<tr><td valign="top">_bringToFront(__MODULE_ID__)</td><td valign="top">Bring a widget to front, above the others.</td></tr>
+<tr><td valign="top">_gel("object")</td><td valign="top">Get the object which ID is "object".<br /><br />Example : <i>var obj=_get("mydiv");obj.innerHTML='Hello world !';</i><br /><br /></td></tr>
+<tr><td valign="top">_gelstn("object")</td><td valign="top">A wrapper around the javaScript  <i>.getElementsByTagName()</i> method.</td></tr>
+<tr><td valign="top">_esc("string")</td><td valign="top">A wrapper around the javaScript <i>.escape()</i> method.</td></tr>
+<tr><td valign="top">_unesc("string")</td><td valign="top">A wrapper around the javaScript <i>.unescape()</i> method.</td></tr>
+<tr><td valign="top">_uc("string")</td><td valign="top">Return uppercase value of "string" string.</td></tr>
+<tr><td valign="top">_lc("string")</td><td valign="top">Return lowercase value of "string" string.</td></tr>
+<tr><td valign="top">_min(value1,value2)</td><td valign="top">Return the lesser value of value1 and value2.</td></tr>
+<tr><td valign="top">_max(value1,value2)</td><td valign="top">Return the greater value of value1 and value2.</td></tr>
+<tr><td valign="top">_args("string")</td><td valign="top">Transforms the string "name=john&age=12&sex=m" to the array {"name":"john","age":"12","sex":"m"}</td></tr>
+<tr><td valign="top">_trim("string")</td><td valign="top">Remove the useless whitespaces.</td></tr>
+<tr><td colspan="2" bgcolor="#efefef"><b>canvas mode functions</b></td></tr>
+<tr><td valign="top">gadgets.views.getCurrentView</td><td valign="top">return current view</td></tr>
+<tr><td valign="top">gadgets.views.getName</td><td valign="top">return name of the current view</td></tr>
+<tr><td valign="top">gadgets.views.getSupportedViews</td><td valign="top">return a hash (object) of supported views (and functions called for each view)</td></tr>
+<tr><td valign="top">gadgets.views.requestNavigateTo(vue)</td><td valign="top">Send to a view (home ou canvas)</td></tr>
+<tr><td valign="top">gadgets.views.changeUrl(url)</td><td valign="top">Update Url of a widget to open a any page from the widget in full screen</td></tr>
+</table>
+<br />
+</li>
+<li><a name="i18n"></a><b>Translation / internationalisation</b><br />
+<u>Get the user language selection</u> :<br />
+Use the variable <i>__lang</i> in javascript part of your widget. The language is 2 digits long (eg: en for english, fr for french, ...). The lang must be configured in posh (language directory available in /l10n and AVLANGS parameter updated in adm_config table).
+<br /><br />
+<u>Translate your widget automatically</u> :<br />
+You can use the __ function to translate texts of your widgets. The dictionary used is the file /l10n/en/lang.js. If words are missing, add them in this file, or ask us to add them for next posh version.<br /><br />
+Example :<br />
+The function __("lblClose") displays "close" or "fermer", depending on the users language.<br /><br />
+widgets options' name are automatically translated with dictionary /l10n/en/lang.js
+</li>
+</ul>
+
+<a name="samples"></a><h2>Templates</h2><br />
+<center><textarea class="examplebox" rows="29" cols="80">
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="name of widget" description="description of the widget" height="200" /> 
+  <UserPref name="variable1" datatype="enum" default_value="value1" display_name="variable n.1 :">
+    <EnumValue value="value1" display_value="value n.1" />
+    <EnumValue value="value2" display_value="value n.2" />
+  </UserPref>
+  <UserPref name="variable2" datatype="string" default_value="value1" display_name="variable n.2 :">
+  <UserPref name="variable3" datatype="bool" default_value="true" display_name="variable n.3" />
+  <Content type="html">&lt;![CDATA[
+	<!-- HTML content -->
+	<script type="text/javascript">
+	//javaScript content
+
+	//init function of your widget (optional)
+	function init(){
+		
+	}
+	_IG_RegisterOnloadHandler(init);
+	</script>
+  
+  </Content> 
+</Module>
+</textarea></center><br />
+
+<a name="examples"></a><h2>Examples</h2>
+For the example overviews, copy / paste the codes in the widget tester<br /><br />
+
+<center><h3>Hello World !</h3><textarea class="examplebox" rows="11" cols="80">
+
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="Hello world !" description="my first portaneo widget" height="100" /> 
+  <Content type="html">&lt;![CDATA[
+	<h2>Hello world !</h2>
+  
+  </Content> 
+</Module>
+</textarea></center><br />
+
+
+<center><h3>Colored box</h3><textarea class="examplebox" rows="54" cols="80">
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+    <ModulePrefs title="Colored box" description="test widget" height="170" /> 
+    <UserPref name="color" datatype="enum" default_value="blue" display_name="color :" >
+        <EnumValue value="blue" display_value="blue" />
+        <EnumValue value="red" display_value="red" />
+        <EnumValue value="yellow" display_value="yellow" />
+    </UserPref>
+    <Content type="html"><![CDATA[
+        <div style='padding:6px'>
+            <table width='100%'>
+                <tr>
+                    <td>Choose a color :</td>
+                    <td></td>
+                    <td bgcolor='blue' onclick='changeColor("blue")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Blue</td>
+                    <td></td>
+                    <td bgcolor='red' onclick='changeColor("red")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Red</td>
+                    <td></td>
+                    <td bgcolor='yellow' onclick='changeColor("yellow")' style='text-align:center;width:50px;cursor:hand;cursor:pointer;'>Yellow</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan=8> </td>
+                </tr>
+                <tr>
+                    <td colspan=8 id='box' style='height:80px'> </td>
+                </tr>
+            </table>
+        </div>
+        <p>
+        <a href="#" onclick="return addBlackColor()">add black color</a>
+         
+        <a href="#" onclick="return removeBlueColor()">remove blue color</a>
+        </p>
+
+        <script type="text/javascript">
+            var pref;
+            function init()
+            {
+                pref = new _IG_Prefs(__MODULE_ID__);
+                var color = pref.getString("color");
+                var obj = _gel('box');
+                obj.style.backgroundColor = color;
+            }
+        
+            function changeColor(v_color)
+            {
+                var obj = _gel('box');
+                obj.style.backgroundColor = v_color;
+                // save the new color value
+                pref.set("color",v_color);
+            }
+            function addBlackColor()
+            {
+                pref.addOption('color','black','black');
+                return false;
+            }
+            function removeBlueColor()
+            {
+                pref.removeOption('color','blue');
+                return false;
+            }
+            _IG_RegisterOnloadHandler(init);
+        </script>
+        ]]>
+    </Content> 
+</Module>
+
+</textarea></center><br />
+
+
+<center><h3>Read an HTML file</h3><textarea class="examplebox" rows="24" cols="80">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs title="read HTML" description="test widget" height="50" />
+  <Content type="html"><![CDATA[
+    <a href="#" onclick="return loadFile()">Display HTML</a><br />
+    <div id="mondiv"></div>
+   <script type="text/javascript">
+    function treatFile(responsetxt)
+    {
+     var obj=_gel("mondiv");
+     obj.innerHTML=responsetxt;
+     _IG_AdjustIFrameHeight();
+    }
+   function loadFile()
+   {
+    _IG_FetchContent('http://www.portaneo.com/examples/html_include.html',treatFile);
+   }
+  </script>
+  ]]>
+  </Content>
+</Module>
+</textarea></center>
+
+<br />
+<center><h3>Read and treat an XML file</h3><textarea class="examplebox" rows="32" cols="80">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs title="read XML" description="test widget" height="50" />
+  <Content type="html"><![CDATA[
+    <div id="mondiv"></div>
+   <script type="text/javascript">
+    function treatXml(responsexml)
+    {
+     var str="";
+     var i=0;
+     while (responsexml.getElementsByTagName("eleve")[i])
+     {
+       var eleve=responsexml.getElementsByTagName("eleve")[i];
+       str+=eleve.getElementsByTagName("prenom")[0].firstChild.nodeValue+" "+eleve.getElementsByTagName("nom")[0].firstChild.nodeValue+" got the note of "+eleve.getElementsByTagName("note")[0].firstChild.nodeValue+"/20 for his exams.<br />";
+       i++;
+     }
+     var obj=_gel("mondiv");
+     obj.innerHTML=str;
+    }
+    function init()
+    {
+     _IG_FetchXmlContent('http://www.portaneo.com/examples/eleves.xml',treatXml);
+    }
+    _IG_RegisterOnloadHandler(init);
+  </script>
+  ]]>
+  </Content>
+</Module>
+</textarea></center><br />
+
+<a name="test"></a><h2>Test your widget</h2><p>
+After each widget modification, test it with the tester before asking for publication (tool available on the Advanced widget page). Ready? GO!
+<br />
+</p>
+</body>
+</html>

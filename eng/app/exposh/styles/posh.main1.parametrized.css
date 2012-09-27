@@ -1,0 +1,735 @@
+/* PARAMETRIZED BY FABIO RICCI */
+/* ../images --> ../../../posh/images/ */
+
+/* Overiding main.css */
+.optmod {
+	width: 70px;
+}
+.optmodhide {
+	display: block;
+	visibility: hidden;
+	width: 70px;
+}
+
+.popuphdr {
+	background: none;
+	padding: 2px;
+}
+
+.popuphdr a {
+	font-weight: normal;
+	color: gray;
+	font-size: 12px;
+}
+
+#popupcontent {
+	padding: 20px;
+	padding-top: 16px;
+	padding-bottom: 20px;
+	font-size: 14px;
+}
+/* End */
+	
+#logo {
+	background: url(../../../posh/images/logo_portal.gif) no-repeat left;
+	width: 150px;
+	height: 60px;
+}
+#logolink {
+	width: 150px;
+	height: 56px;
+}
+
+td#header {
+	height: 15px;
+	vertical-align: top;
+    /*background: url(../images/bgblank.png) #ffffff repeat-x top;*/
+}
+
+#header {
+	height: 20px;
+	vertical-align: top;
+    background: url(../../../posh/images/bgblank.png) #ffffff repeat-x top;
+}
+
+#footer a:link, #footer a:visited {
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+	text-decoration: underline;
+}
+
+
+#footer {
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+}
+#footer a:link,
+#footer a:visited {
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+}
+
+
+.maintbl {
+	padding-top: 4px;
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+	/*background-color: <?php print $COLOR_WIDGET_BG; ?>;*/
+}
+
+.allBoards {
+	padding-top: 34px;
+}
+
+
+.loading {
+	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+	padding-top: 50px;
+	padding-bottom: 50px;
+	color: #c6c3c6;
+}
+.protectbox {
+	background-color: #efefef;
+	color: #000000;
+	border: 1px solid #c6c3c6;
+}
+
+/*======   MODULES  =====*/
+
+.modules {
+	width:100%;
+}
+
+
+.module {
+	margin-bottom: 6px;
+	border: 3px solid <?php print $COLOR_WIDGET_BORDERLINE; ?>;
+	background-color: <?php print $COLOR_WIDGET_BG; ?>;
+	font-size: 0.7em;
+}
+.module .bmod {
+	border: 1px solid <?php print $COLOR_WIDGET_BORDERLINE; ?>;
+	min-width: 302px;
+}
+.module .hmod {
+	display: none;
+	background-image: url(../../../posh/images/bgbar.gif);
+}
+.barstyle0 {
+	background-image: url(../../../posh/images/bgbar.gif);
+	overflow: hidden;
+}
+.module .hmod, .module .hmod a:visited, .module .hmod a:link, .module .hmod a:active {
+	color: $COLOR_MOREVISIBLETEXT; ?>;
+	font-size: 8pt;
+}
+.module .headmod {
+	padding: 0px;
+	margin: 0px;
+}
+.module .titmod {
+	padding: 2px 5px 0 5px;
+	font-size: 11px;
+	line-height: 20px;
+	height: 20px;
+	font-weight: bold;
+	color: <?php print $COLOR_SUPERVISIBLETEXT; ?>;
+	overflow:hidden;
+}
+
+.titmod img {
+	height: 20px;
+}
+
+.barcoli {
+	border: 1px solid #c6c3c6;
+	text-decoration:none;
+}
+.barcola {
+	border: 1px solid #000000;
+	text-decoration:none;
+}
+.content a:link {
+	color: #000000;
+	text-decoration: none;
+}
+.content a:visited {
+	color: <?php print $COLOR_SUPERVISIBLETEXT; ?>;
+	text-decoration: none;
+}
+.content a:hover {
+	color: #9C0000;
+	text-decoration: underline;
+}
+
+.newspaper #npdetaili h2 {
+	color: #000000;
+}
+.newspaper #npdetailititle {
+	background: #ffffff;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+.newspaper #npdetail {
+	border: 2px solid #555555;
+}
+
+/*====== TABS =====*/
+/*====== TABS =====*/
+/*====== TABS =====*/
+.taba {
+	height:29px;
+	width: 100px;
+	vertical-align: bottom;
+	padding:0px;
+}
+.tabal a:visited,.tabal a:link,.tabal a:hover {
+	text-decoration: none;
+	/*color: #FFCC00;*/
+	color:black;
+}
+
+/*SELECTED TABS: tabal tabar: */
+.tabal {
+	height: 31px;
+	font-size: 0.7em;
+	font-weight: bold;
+	white-space: nowrap;
+	text-align: center;
+	vertical-align: middle;
+	background: url(../../../posh/images/tab_topleft.png) left top no-repeat #ffffff;
+	border:0px;
+	padding:0px;
+}
+.tabar {
+	background: url(../../../posh/images/tab_topright.png) right top no-repeat #ffffff;
+	font-size: 0.7em;
+	border:0px;
+	width: 20px;
+	padding:0px;
+}
+.intertab {
+	width: 2px;
+	font-size:2pt;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+
+.intertaba {
+	width: 2px;
+	font-size:2pt;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+
+.tab {
+	height:30px;
+	width: 100px;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+    opacity: 0.9;filter: alpha(opacity=90);
+}
+/*UNSELECTED TABS: tabl tabl: */
+.tabl {
+	white-space: nowrap;
+	text-align: center;
+	color:<?php print $COLOR_TAB_UNSELECTED; ?>;
+	/*font-weight: bold;*/
+	font-size: 0.7em;
+	border:0px;
+	padding:0px;
+	background: url(../../../posh/images//tab_topleft.png) left top no-repeat #ffffff;
+}
+
+.tabr {
+	background: url(../../../posh/images//tab_topright.png) right top no-repeat #ffffff;
+	border:0px;
+	width: 20px;
+	padding:0px;
+}
+.tabl a:visited,
+.tabl a:link {
+	color: #000000;
+	text-decoration: none;
+}
+.tabl a:hover {
+	color:black;
+	font-weight:bold;
+}
+.endtab {
+	height:20px;
+	font-size: 0.8em;
+	width: 100px;
+	border-bottom: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+}
+.borderedModuleRODIN {
+	border-top: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+	position: relative;
+	top: -2px;
+}
+.tabextra {
+	color: #1A4972;
+}
+#alltabs {
+	width: 100%;
+	height: 20px;
+}
+#navfixedbox {
+	/*
+	position: absolute;
+	left: 0px;
+	width: 100%;
+	height: 29px;
+	overflow: hidden;
+	clip: rect(0px, 100%, 29px, 0px);
+	z-index:1;
+	*/
+	height: 32px;
+}
+#navfloatbox {
+	height: 33px;
+	clip: rect(0px, 100%, 33px, 0px);
+}
+.notab {
+	height:27px;
+	font-size: 0.8em;
+	width: 100px;
+}
+#tabinput {
+	border: 0px;
+	margin: 0px;
+	height:13px;
+}
+
+#navmovebox {
+	position: absolute;
+	left: 0px;
+	z-index:1;
+}
+
+ul.tabnav {
+/*    font: bold 11px verdana, arial, sans-serif;
+border-bottom: 1px solid #6c6;
+*/
+    list-style-type: none;
+    padding-bottom: 24px;
+    margin: 0;
+}
+ul.tabnav li {
+    float: left;
+    height: 28px;
+    margin: 2px 2px 0 2px;
+/*    background-color: #cfc;
+    border: 1px solid #6c6;
+*/
+}
+ul.tabnav li.active {
+/*    border-bottom: 1px solid #fff;
+    background-color: #fff;
+*/
+}
+.tabnav a {
+    float: left;
+    display: block;
+    color: #666;
+    text-decoration: none;
+    padding: 4px;
+}
+.tabnav a:hover {
+/*    background: #fff;*/
+}
+
+
+div#area {
+	width:100%;
+	position:relative;
+	float: left;	
+}
+
+
+/*====== MENUS =====*/
+#vmenu {
+	left: 0px;
+	width: 240px;
+	overflow: hidden;
+	background: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+	border: 3px solid <?php print $COLOR_BORDERLINE; ?>; 
+}
+
+#vmenucontent,
+#hmenucontent {
+	/*background-color:red;*/
+	clear:both;
+	position:relative;
+	z-index:10;
+}
+
+/*====== MENUS =====*/
+#vmenu,
+#hmenu {
+	z-index: 7;
+	padding: 0px;
+	display: none;
+	font-size: 0.8em;
+}
+
+#hmenu {
+    background: #fff url(../../../posh/images/bg_menu_footer.png) repeat-x bottom left;
+	color: #000;
+    padding-bottom: 10px;
+}
+#hmenu #menuclosebutton {
+    width: 100%;
+    background: #fff url(../../../posh/images/bg_menu_top.png) repeat-x top left;
+}
+#hmenu #menuclosebutton a:link,
+#hmenu #menuclosebutton a:visited {
+	color: #000;
+}
+#hmenu #menuoptions {
+	width: 200px;
+    padding: 0 10px 0 5px;
+    background: url(../../../posh/images/bg_menu_separator.png) repeat-y top right;
+}
+#menuoptions {
+	vertical-align: top;
+}
+#menuoptions ul.menulist li a,#menuoptions ul.menulist li.menulistsel {
+	padding: 8px;
+}
+#vmenu #menuoptions ul {
+	margin: 0;
+	padding: 2px;
+}
+#vmenu #menuoptions  li {
+	list-style: none;	
+}
+#vmenu #menuoptions  li {
+	margin: 1px;
+	display: inline;
+}
+#vmenu #menuoptions li a, #vmenu #menuoptions li a:link, #vmenu #menuoptions  li a:visited {
+	color: #fff;
+	text-decoration: none;
+	font-weight: bold;
+	padding: 5px;
+}
+#vmenu #menuoptions li a:hover {
+	background: #999;
+	text-decoration: none;
+}
+#vmenu #menuoptions li.menulistsel {
+	color: #fff;
+	background: #999;
+	font-weight: bold;
+	padding: 5px;
+}
+#hmenu ul.menulist {
+	margin: 0;
+	padding: 2px;
+}
+#hmenu ul.menulist li {
+	list-style: none;	
+	margin-bottom: 4px;
+}
+#hmenu ul.menulist li a, ul.menulist li a:link, ul.menulist li a:visited {
+	color: #000;
+	text-decoration: none;
+	padding: 2px 4px 2px 4px;
+}
+#hmenu ul.menulist li a:hover {
+	text-decoration: none;
+}
+#hmenu ul.menulist li.menulistsel {
+	color: #000;
+	border: 1px solid #000;
+	font-weight: bold;
+	padding: 2px 4px 2px 4px;
+    background: url(../../../posh/images/ico_next.gif) no-repeat 180px center;
+}
+#hmenu #menusuboptions {
+	position:relative;
+	z-index:7;
+	vertical-align: top;
+	width: 200px;
+    padding: 0 10px 0 3px;
+    background: url(../images/bg_menu_separator.png) repeat-y top right;
+}
+#hmenu #menusuboptions ul li a {
+	color: #000;
+	border: 1px solid transparent;
+}
+#hmenu #menusuboptions ul li a:hover,#hmenu #menusuboptions ul li.menulistsel {
+	color: #000;
+}
+
+.menuitem, .menuitemselected {
+	padding:2px;
+	cursor: pointer;
+	cursor: hand;
+}
+#vmenu .menuitem,#vmenu .menuitemselected {
+	color: #fff;
+    padding:4px;
+    font-size: 1em;
+}
+#vmenu .menuitemselected {
+	background: #555;
+}
+#hmenu .menuitemselected {
+    font-weight: bold;
+    background: url(../../../posh/images/ico_next.gif) no-repeat 180px center;
+	border: 1px solid #000;
+} 
+.menuitemcontent {
+	padding: 6px;
+}
+#vmenu .menuitemcontent {
+    /*background: #fff;  FRI*/
+}
+#vmenu .menuitem {
+	width: 234px;
+	background-color: #999999;
+	vertical-align: center;
+	border-top:1px solid #fff;
+}
+#vmenu .menuitemcontent {
+	width: 230px;
+}
+#menucontent {
+	clear:both;
+	position:relative;
+	padding-left: 1px;
+	padding-right: 1px;
+	color: #000;
+	border-bottom: 1px solid #fff;
+	vertical-align: top;
+	background-color:<?php print $COLOR_MENUCONTENT; ?>;
+}
+#vmenu #menucontent {
+	width: 242px;
+}
+
+#vmenu a:link,#vmenu a:visited,
+#hmenu a:link,#hmenu a:visited  {
+	font-size: 1em;
+	color: #000;
+}
+#vmenu a.dirlink:link,#vmenu a.dirlink:visited,
+#hmenu a.dirlink:link,#hmenu a.dirlink:visited {
+	font-size: 0.85em;
+	color: #000;
+	text-decoration: none;
+	font-weight: bold;
+}
+#vmenu a.modlink:link,#vmenu a.modlink:visited,
+#hmenu a.modlink:link,#hmenu a.modlink:visited {
+	font-size: 0.85em;
+	color: #555555;
+	text-decoration: none;
+	font-weight: bold;
+}
+#vmenu .title,
+#hmenu .title {
+	color: #444;
+	font-weight: bold;
+	margin: 10px 0 6px 0;
+}
+#vmenu .part {
+	border-bottom: 1px dashed #000;
+}
+#vmenu .highlight,
+#hmenu .highlight {
+	background-color: #efefef;
+}
+#hmenu #exp0 {
+	height: 200px;
+	width: 100%;
+	overflow: auto;
+}
+/*.leftmenuitemgroup {
+	border: 1px solid #C6C3C6; 
+	height: 105px; 
+	overflow:auto;
+}*/
+.pbox {
+	background-color: #e1e1e1;
+	vertical-align: top;
+	border: 1px solid #c6c3c6;
+}
+.pboxcontent {
+	padding: 6px;
+	font-size: 0.8em;
+}
+.pboxcontent td {
+	color: #777777;
+}
+.pboxheader {
+	padding-left: 4px;
+	padding-right: 10px;
+	border-bottom: 2px inset #f7f7f7;
+	background-color: #dedede;
+}
+
+a.optlist, a.optlist:hover {
+	color: #c6c3c6;
+	white-space: nowrap;
+	text-decoration: none;
+	border:1px solid #c6c3c6;
+	padding: 1px;
+}
+a.sellist {
+	color: #fff;
+	background-color: #c6c3c6;
+	white-space: nowrap;
+	text-decoration: none;
+	border: 1px solid #c6c3c6;
+	padding: 1px;
+}
+.dirdiva {
+	overflow: auto;
+	height: 122px;
+	font-size: 8pt;
+	border: 1px solid #e1e1e1;
+	background-color: #fff;
+}
+.dirdiva a:link,.dirdiva a:visited {
+	color: #555555
+}
+.dirdivi {
+	overflow: auto;
+	height: 122px;
+	font-size: 8pt;
+	border: 1px solid #c6c3c6;
+}
+.diropta {
+	background-color: #c6c3c6
+}
+.diropti {}
+.diropts {
+	background-color: #c6c3c6
+}
+.catopti, .catopta, .catopts, .catoptsi, .catoptsa, .catoptss {
+	padding-left: 16px;
+}
+.catopti { background: url(../../../posh/images/ico_dir.gif) no-repeat left top;}
+.catopta { background: #c6c3c6 url(../../../posh/images/ico_dir.gif) no-repeat left top;}
+.catopts { background: #c6c3c6 url(../../../posh/images/ico_diro.gif) no-repeat left top;}
+.catoptsi { background: url(../../../posh/images/ico_dirs.gif) no-repeat left top;}
+.catoptsa { background: #c6c3c6 url(../../../posh/images/ico_dirs.gif) no-repeat left top;}
+.catoptss { background: #c6c3c6 url(../../../posh/images/ico_dirso.gif) no-repeat left top;}
+.expdir {}
+.expdir div {
+	margin-left: 10pt;
+}
+
+
+
+
+/*-----*/
+
+
+#vmenusuboptions {
+	background: <?php print $COLOR_MENUTITLEBAR; ?>;
+}
+#vmenusuboptions ul.menulist li a:hover,#vmenusuboptions ul.menulist li.menulistsel {
+	background: #083D5B;
+}
+#vmenu .menuitem {
+	background: <?php print $COLOR_MENUTITLEBAR; ?>;
+}
+#vmenu #menuoptions li a:hover {
+	background: <?php print $COLOR_MENUTITLEBAR; ?>;
+}
+#vmenu #menuoptions li.menulistsel {
+    background: <?php print $COLOR_MENUTITLEBAR; ?>;
+}
+
+/*====== HEADER LINKS =====*/
+
+#headlink {
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	font-size: 14px;
+	text-align: right;
+	line-height: 27px;
+	vertical-align: center;
+	position: relative;
+	height: 50px;
+	margin: 0px;
+	padding: 0px;
+}
+
+#headlink a:link,#headlink a:visited {
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	text-decoration: underline;
+}
+
+#headlink a:hover {
+	text-decoration: underline;
+}
+
+#headlink .userAccountLink img {
+	vertical-align: middle;
+	padding-left: 2px;
+}
+
+#headmenu {
+	position: absolute;
+	width: 120px;
+	display: none;
+	overflow: hidden;
+	z-index:100;
+	background-color: #fff;
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	padding: 2px;
+	font-size: 12px;
+}
+#headmenu a {
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	background: #fff;
+	display: block;
+	width: 100%;
+	text-decoration: none;
+}
+#headmenu a:hover, #headlink a:focus {
+	background: #eeeeee;
+}
+
+#information {
+	position: absolute;
+	top: 0px;
+	left: 10px;
+	height: 27px;
+	line-height: 27px;
+	text-align: left;
+	font-size: 14px;/*FRI*/
+}
+
+/*====== ADDONS =====*/
+.addonbar {
+	background: <?php print $COLOR_MENUTITLEBAR; ?>;
+	border: 1px solid #148CD2;
+	color: #ffffff;
+}
+.addonbar a:link,.addonbar a:visited {
+	color: #ffffff;
+}
+
+
+/*====== RODIN WIDGETS ======*/
+
+.widget_user_warn {
+color:red;
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:medium;
+}
+
+widget_user_warn {
+color: red;
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:medium;
+}
+
+.widget_user_info {
+color:#aaaaaa;
+font-family:arial,helvetica,clean,sans-serif;
+font-weight:400;
+font-size:small;
+text-align:right;
+}
+

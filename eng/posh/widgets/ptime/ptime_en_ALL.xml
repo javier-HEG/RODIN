@@ -1,0 +1,23 @@
+<messagebundle>
+  <msg name="widgetTitle">Clock</msg>
+  <msg name="widgetDescription">Digital clock</msg>
+  <msg name="january">January</msg>
+  <msg name="february">February</msg>
+  <msg name="march">March</msg>
+  <msg name="april">April</msg>
+  <msg name="may">May</msg>
+  <msg name="june">June</msg>
+  <msg name="july">July</msg>
+  <msg name="august">August</msg>
+  <msg name="september">September</msg>
+  <msg name="october">October</msg>
+  <msg name="november">November</msg>    
+  <msg name="december">December</msg>
+  <msg name="monday">Monday</msg>
+  <msg name="tuesday">Tuesday</msg>
+  <msg name="wednesday">Wednesday</msg>
+  <msg name="thursday">Thursday</msg>
+  <msg name="friday">Friday</msg>
+  <msg name="saturday">Saturday</msg>
+  <msg name="sunday">Sunday</msg>
+</messagebundle>

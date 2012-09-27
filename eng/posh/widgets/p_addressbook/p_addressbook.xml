@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" height="200">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/p_addressbook/p_addressbook_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/p_addressbook/p_addressbook_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/p_addressbook/p_addressbook_fr_ALL.xml"/>
+ </ModulePrefs>
+<UserPref name="addid" display_name="." datatype="hidden" default_value="0" />
+<Content type="html" view="home" ><![CDATA[
+<head>
+<script>
+var user_id = parent.$p.app.user.id;
+
+var userid = parent.$p.app.user.id;
+var selTag = parent.$p.string.getVar(""+window.location,"seltag");
+var shared = 0;
+var p = parent.$p.string.getVar(""+window.location,"p");
+
+var id__MODULE_ID__ =  parent.$p.app.widgets.uniqToId(p,parent.$p.app.tabs.sel);
+var addId__MODULE_ID__  = parent.$p.string.getVar(""+window.location,"addid");
+var inc__MODULE_ID__ =0;
+var name__MODULE_ID__ ="";
+var addr__MODULE_ID__ = [];
+var keys__MODULE_ID__ = [];
+var selKey__MODULE_ID__ = selTag;
+var shared__MODULE_ID__ = shared;
+
+$p.app.widgets.p_addressbook__MODULE_ID__={
+
+    addObj__MODULE_ID__:function(id,firstname,lastname,mail,company,func,phone1,phone2,other,tags){
+    	this.id=id;
+    	this.firstname=firstname;
+    	this.lastname=lastname;
+    	this.mail=mail;
+    	this.company=company;
+    	this.func=func;
+    	this.phone1=phone1;
+    	this.phone2=phone2;
+    	this.other=other;
+    	this.tags=tags;
+    },
+    add__MODULE_ID__:function(v_form){
+    	var input_firstname=v_form.fn__MODULE_ID__.value;
+    	var input_lastname=v_form.ln__MODULE_ID__.value;
+    	var input_mail=v_form.m__MODULE_ID__.value;
+    	var input_company=v_form.c__MODULE_ID__.value;
+    	var input_function=v_form.f__MODULE_ID__.value;
+    	var input_phone1=v_form.p1__MODULE_ID__.value;
+    	var input_phone2=v_form.p2__MODULE_ID__.value;
+    	var input_other=v_form.o__MODULE_ID__.value;
+    	
+    	var oId=v_form.id.value;
+    	
+    	var oTags=v_form.t__MODULE_ID__.value;
+    	//remove unused chars
+    	oTags=oTags.replace(";",",");
+    	oTags=parent.$p.string.trim(oTags);
+    	oTags=oTags.replace(" ,",",");
+    	oTags=oTags.replace(", ",",");
+    	
+    	name__MODULE_ID__=input_firstname+" "+input_lastname;
+    	parent.executescr("../modules/wid_addressbook.php","modid="+addId__MODULE_ID__+"&addid="+oId+"&act=add&fn="+parent.$p.string.esc(input_firstname)+"&ln="+parent.$p.string.esc(input_lastname)+"&m="+parent.$p.string.esc(input_mail)+"&c="+parent.$p.string.esc(input_company)+"&f="+parent.$p.string.esc(input_function)+"&p1="+parent.$p.string.esc(input_phone1)+"&p2="+parent.$p.string.esc(input_phone2)+"&o="+parent.$p.string.esc(input_other)+"&tags="+parent.$p.string.esc(oTags),false,true,$p.app.widgets.p_addressbook__MODULE_ID__.treat__MODULE_ID__);
+    },
+    treat__MODULE_ID__:function(v_id){
+    	if (v_id!=indef){
+    		var l_id=v_id.split("_");
+    		//if (l_id[0]!=id__MODULE_ID__){
+    			addId__MODULE_ID__ = l_id[0];
+    			parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("addid",addId__MODULE_ID__);
+                parent.$("editboxinput_"+parent.tab[parent.$p.app.tabs.sel].id+"_"+p+"_addid").value = addId__MODULE_ID__;  
+    		//}
+    	}
+    	$p.app.widgets.p_addressbook__MODULE_ID__.refr__MODULE_ID__();
+    },
+    sup__MODULE_ID__:function(id,newL){
+    	response=confirm("__MSG_msgAreYouSureSupElement__");
+    	if (response==1){parent.executescr("../modules/wid_addressbook.php","modid="+addId__MODULE_ID__+"&act=sup&addid="+id,false,true,$p.app.widgets.p_addressbook__MODULE_ID__.treat__MODULE_ID__);}
+    },
+    opt__MODULE_ID__:function(v_id){
+    	if ( userid == 0 ){alert("__MSG_msgNeedToBeConnected__");}
+    	else {
+    		var l_s = "<form action='' onsubmit='$p.app.widgets.p_addressbook__MODULE_ID__.add__MODULE_ID__(this);return false;'><table>";
+    		l_s+= "<tr><td>"+"__MSG_lblFirstName__"+"</td><td><input name='fn__MODULE_ID__' type='text' maxlength='30' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].firstname)+"' /></td></tr>";
+    		l_s+= "<tr><td>"+"__MSG_lblName__"+"</td><td><input name='ln__MODULE_ID__' type='text' maxlength='30' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].lastname)+"' /></td></tr>";
+    		l_s+= "<tr><td>"+"__MSG_lblEmail__"+"</td><td><input name='m__MODULE_ID__' type='text' maxlength='60' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].mail)+"' /></td></tr>";
+    		l_s+= "<tr><td>"+"__MSG_company__"+"</td><td><input name='c__MODULE_ID__' type='text' maxlength='60' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].company)+"' /></td></tr>";
+    		l_s+= "<tr><td>"+"__MSG_function__"+"</td><td><input name='f__MODULE_ID__' type='text' maxlength='30' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].func)+"' /></td></tr>";
+    		l_s+= "<tr><td>"+"__MSG_phone__"+" 1</td><td><input name='p1__MODULE_ID__' type='text' maxlength='30' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].phone1)+"' /></td></tr>";
+    		l_s+= "<tr><td>"+"__MSG_phone__"+" 2</td><td><input name='p2__MODULE_ID__' type='text' maxlength='30' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].phone2)+"' /></td></tr>";
+    		l_s+= "<tr><td>"+"__MSG_other__"+"</td><td><input name='o__MODULE_ID__' type='text' maxlength='150' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].other)+"' /></td></tr>";
+    		l_s+= "<tr><td>"+"__MSG_tags__"+"</td><td><input name='t__MODULE_ID__' type='text' maxlength='100' size='30' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].tags)+"' /> <a href='#' onclick=\"return parent.$p.app.alert.show('__MSG_linkKeysHlp__',2)\">"+parent.$p.img("ico_help_s.gif",12,12,"imgmid")+"</a></td></tr>";
+    		l_s+= "<tr><td></td><td class='bluebtn' ><input name='id' type='hidden' value='"+(v_id==indef?"":addr__MODULE_ID__[v_id].id)+"' /><input  type='submit' value='"+(v_id==indef?"__MSG_lblAdd__":"__MSG_lblModify__")+"' /> <a href='#' onclick='$p.app.widgets.p_addressbook__MODULE_ID__.noopt__MODULE_ID__();return false;'><img src='../images/ico_close.gif' /></a></td></tr>";
+    		l_s+= "</table></form>";
+    		navPrint("addb__MODULE_ID__",l_s);
+            _IG_AdjustIFrameHeight();
+    	}
+    },
+    noopt__MODULE_ID__:function(){
+    	if (shared__MODULE_ID__==1) return false;
+    	var obj = _gel("addb__MODULE_ID__");
+    	obj.innerHTML="<a href='#' class='add' onclick='$p.app.widgets.p_addressbook__MODULE_ID__.opt__MODULE_ID__();return false;'><img src='../images/ico_add.gif' /> "+"__MSG_addContact__"+"</a>";
+        _IG_AdjustIFrameHeight();
+    },
+    refr__MODULE_ID__:function(){
+    	parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].refresh();
+    },
+    init__MODULE_ID__:function(){
+    	$p.app.widgets.p_addressbook__MODULE_ID__.noopt__MODULE_ID__();
+        if ( addId__MODULE_ID__!=0 ){
+            parent.getXml("../modules/wid_addressbook.php",$p.app.widgets.p_addressbook__MODULE_ID__.getInfo__MODULE_ID__,"","xml","modid="+addId__MODULE_ID__+"&act=get","POST");
+    	}
+    },
+    getInfo__MODULE_ID__:function(response,vars){
+        var inc=0;
+    	if (response.getElementsByTagName("addr")[0]){
+    		while (response.getElementsByTagName("addr")[inc]){
+    			var l_addr=response.getElementsByTagName("addr")[inc];
+                addr__MODULE_ID__[inc]=new $p.app.widgets.p_addressbook__MODULE_ID__.addObj__MODULE_ID__(parent.$p.ajax.getVal(l_addr,"add_id","id",false,0),parent.$p.ajax.getVal(l_addr,"firstname","str",false,''),parent.$p.ajax.getVal(l_addr,"lastname","str",false,''),parent.$p.ajax.getVal(l_addr,"email","str",false,''),parent.$p.ajax.getVal(l_addr,"company","str",false,''),parent.$p.ajax.getVal(l_addr,"func","str",false,''),parent.$p.ajax.getVal(l_addr,"phone1","str",false,''),parent.$p.ajax.getVal(l_addr,"phone2","str",false,''),parent.$p.ajax.getVal(l_addr,"other","str",false,''),parent.$p.ajax.getVal(l_addr,"tags","str",false,''));
+                inc++;
+    		}
+    	}
+        $p.app.widgets.p_addressbook__MODULE_ID__.getKeys__MODULE_ID__();
+    	$p.app.widgets.p_addressbook__MODULE_ID__.show__MODULE_ID__();
+    },
+    getKeys__MODULE_ID__:function(){
+    	for (var i=0;i<addr__MODULE_ID__.length;i++){
+    		var arr=addr__MODULE_ID__[i].tags.split(",");
+    		for (var j=0;j<arr.length;j++){
+    			if (arr[j]!="" && !parent.$p.array.find(keys__MODULE_ID__,arr[j])){
+    				keys__MODULE_ID__.push(arr[j]);
+    			}
+    		}
+    	}
+    	keys__MODULE_ID__.sort();
+    },
+    show__MODULE_ID__:function(){
+    	var l_s = "",
+            l_sAddr = "";
+    	for (var i=0;i<addr__MODULE_ID__.length;i++)
+        {
+    		if (selKey__MODULE_ID__=="" || parent.$p.array.find((addr__MODULE_ID__[i].tags.split(",")),selKey__MODULE_ID__))
+            {
+    			l_sAddr += '<div class="articleborder" style="padding-bottom: 3px;background: url(../images/ico_adressbook.gif) no-repeat top left;padding-left: 20px;">';
+
+                if (shared__MODULE_ID__==0)
+    			{
+    				l_sAddr += '<div style="float: right">'
+        				+ '<a href="#" title="'+"__MSG_lblModify__"+'" onclick="$p.app.widgets.p_addressbook__MODULE_ID__.opt__MODULE_ID__('+i+');return false;">'
+        				+ (userid == 0 ?'':'<img src="../images/ico_edit.gif" align="absmiddle" />')
+        				+ '</a> '
+        				+ '<a href="#" title="'+"__MSG_lblSuppress__"+'" onclick="$p.app.widgets.p_addressbook__MODULE_ID__.sup__MODULE_ID__('+addr__MODULE_ID__[i].id+',false);return false;">'
+        				+ (userid==0?'':'<img src="../images/ico_close.gif" align="absmiddle" />')
+        				+ '</a>'
+                        + '</div>';
+    			}
+              
+    			l_sAddr	+= '<a id="lk__MODULE_ID___'+i+'" href="#" onclick="return $p.app.widgets.p_addressbook__MODULE_ID__.detail__MODULE_ID__('+i+')" style="color:#000000">'
+    				+ addr__MODULE_ID__[i].lastname+', '+addr__MODULE_ID__[i].firstname
+    				+ '</a>'
+                    + '</div>';
+    		}
+    	}
+    	if (keys__MODULE_ID__.length>0)
+        {
+    		l_s += '<div style="background-color:#efefef;padding:1px;">'
+                + '<form>'
+                + "__MSG_tags__"
+                + ' : <select name="keywords" onchange="$p.app.widgets.p_addressbook__MODULE_ID__.changeKey__MODULE_ID__(this.value);">'
+                + '<option value="">* '
+                + "__MSG_all__"
+                + ' *</option>';
+
+    		keys__MODULE_ID__.sort();
+    		for (var i=0;i<keys__MODULE_ID__.length;i++)
+            {
+    			l_s += '<option value="'+keys__MODULE_ID__[i]+'"'+(keys__MODULE_ID__[i]==selKey__MODULE_ID__?' selected="selected" ':'')+'>'
+                    + keys__MODULE_ID__[i]
+                    + '</option>';
+    		}
+    		l_s += '</select>'
+                + '</form>'
+                + '</div>';
+    	}
+
+    	l_s += l_sAddr;
+        
+    	navPrint("lkd__MODULE_ID__",l_s);
+        _IG_AdjustIFrameHeight();
+    },
+    changeKey__MODULE_ID__:function(v_key){
+    	selKey__MODULE_ID__=v_key;
+    	parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("selkey",v_key);
+    	$p.app.widgets.p_addressbook__MODULE_ID__.show__MODULE_ID__();
+    },
+    detail__MODULE_ID__:function(v_id){
+    	var l_s = "<b>"+addr__MODULE_ID__[v_id].firstname+" "+addr__MODULE_ID__[v_id].lastname+"</b><table>";
+    	l_s+= "<tr><td>"+"__MSG_lblEmail__"+"</td><td>"+addr__MODULE_ID__[v_id].mail+"</td></tr>";
+    	l_s+= "<tr><td>"+"__MSG_company__"+"</td><td>"+addr__MODULE_ID__[v_id].company+"</td></tr>";
+    	l_s+= "<tr><td>"+"__MSG_function__"+"</td><td>"+addr__MODULE_ID__[v_id].func+"</td></tr>";
+    	l_s+= "<tr><td>"+"__MSG_phone__"+" 1</td><td>"+addr__MODULE_ID__[v_id].phone1+"</td></tr>";
+    	l_s+= "<tr><td>"+"__MSG_phone__"+" 2</td><td>"+addr__MODULE_ID__[v_id].phone2+"</td></tr>";
+    	l_s+= "<tr><td>"+"__MSG_other__"+"</td><td>"+addr__MODULE_ID__[v_id].other+"</td></tr>";
+    	l_s+= "<tr><td>"+"__MSG_tags__"+"</td><td>"+addr__MODULE_ID__[v_id].tags+"</td></tr>";
+    	l_s+= "<tr><td></td><td>";
+    	if (shared__MODULE_ID__==0) l_s+= "<input class='btn' type='button' onclick='$p.app.widgets.p_addressbook__MODULE_ID__.opt__MODULE_ID__("+v_id+");return false;' value='"+"__MSG_lblModify__"+"' /> ";
+    	l_s+= "<a href='#' onclick='$p.app.widgets.p_addressbook__MODULE_ID__.noopt__MODULE_ID__();return false;'><img src='../images/ico_close.gif' /></a></td></tr>";
+    	l_s+= "</table>";
+    	navPrint("addb__MODULE_ID__",l_s);
+        _IG_AdjustIFrameHeight();
+    	return false
+    }
+
+}
+</script>
+</head>
+<body>
+<table cellpadding="4" cellspacing="0" width="100%">
+<tr><td id="lkd__MODULE_ID__" style='padding:6px'></td></tr></table>
+<div id="addb__MODULE_ID__" style='padding:2px 0 4px 4px;'></div>
+<script type="text/javascript">
+$p.app.widgets.p_addressbook__MODULE_ID__.init__MODULE_ID__();
+</script>
+</body>
+]]></Content>
+</Module>

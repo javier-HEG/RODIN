@@ -1,0 +1,11 @@
+<messagebundle>
+  <msg name="widgetTitle">Gestion des tâches</msg>
+  <msg name="widgetDescription">Gestion des tâches</msg>
+  <msg name="lblAddTask">Ajouter une tâche</msg>
+  <msg name="lblModify">MODIFIER</msg>
+  <msg name="msgAreYouSureSupElement">Etes-vous certain(e) de vouloir supprimer cet élément ?</msg>
+  <msg name="msgNeedToBeConnected">vous devez enregistrer cette page pour pouvoir utiliser ce widget</msg>
+  <msg name="lblTitle">Titre</msg>
+  <msg name="comment">Commentaire</msg>
+  <msg name="lblAdd">Ajouter</msg>
+</messagebundle>

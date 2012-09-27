@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" author="Portaneo" height="120">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/pnotes/pnotes_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/pnotes/pnotes_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/pnotes/pnotes_fr_ALL.xml"/>
+ <UserPref name="color" display_name="__MSG_color__" datatype="enum" default_value="#ffffff">
+  <EnumValue value="#ffffff" display_value="__MSG_white__"/>
+  <EnumValue value="#F7F384" display_value="__MSG_yellow__"/>
+  <EnumValue value="#C3D9FF" display_value="__MSG_blue__"/>
+  <EnumValue value="#FFDFDE" display_value="__MSG_red__"/>
+  <EnumValue value="#B8E0BA" display_value="__MSG_green__"/>
+  <EnumValue value="#FADCB3" display_value="__MSG_orange__"/>
+  <EnumValue value="#F3E7B3" display_value="__MSG_brown__"/>
+  <EnumValue value="#E1C7E1" display_value="__MSG_purple__"/>
+ </UserPref>
+ <UserPref name="noteid" display_name="." datatype="hidden" default_value="0" />
+ </ModulePrefs>
+ <Content type="html" view="home"><![CDATA[
+<script type="text/javascript">
+var shared = 0;
+var user_id = parent.$p.app.user.id;
+var noteid = parent.$p.string.getVar(window.location+"","noteid");
+var p = parent.$p.string.getVar(window.location+"","p");
+var sharedmd5key = parent.$p.string.getVar(window.location+"","sharedmd5key");
+var pref;
+
+var odata__MODULE_ID__= "",
+    id__MODULE_ID__ = parent.$p.app.widgets.uniqToId(p,parent.$p.app.tabs.sel);
+    shared__MODULE_ID__ = shared;
+    noteid__MODULE_ID__ = noteid;
+    note__MODULE_ID__ = "__MSG_txtNote__";
+    defaultText__MODULE_ID__ = "__MSG_txtNote__";
+    sharedmd5key__MODULE_ID__ = sharedmd5key;
+    uniq__MODULE_ID__ = p;
+    
+$p.app.widgets.pnotes__MODULE_ID__={
+
+	/*
+	    Function: write
+              $p.app.widgets.ptime__MODULE_ID__.write 
+                    
+              Display textarea to write in the bloc note
+	*/
+    write:function()
+    {
+    	if (shared__MODULE_ID__ == 1) return false; // if widget shared, writing is disabled
+        id__MODULE_ID__ = parent.$p.app.widgets.uniqToId(p,parent.$p.app.tabs.sel);
+
+    	var mainobj = _gel("bn__MODULE_ID__"),
+            obj = _gel("bnc__MODULE_ID__"),
+            data=obj.innerHTML;
+            
+    	odata__MODULE_ID__ = data;
+    	data = parent.$p.string.htmlToText(data);
+    	var oWidth = obj.offsetWidth;
+    	var oHeight = (obj.offsetHeight>100)?obj.offsetHeight:100;
+
+    	mainobj.innerHTML = "<textarea id='bntxt__MODULE_ID__' style='width:"+oWidth+"px;height:"+oHeight+"px;border:1px dashed #ff0000;font-size:10px;FONT-FAMILY:Verdana,Arial;' onblur='$p.app.widgets.pnotes__MODULE_ID__.save();return false;' onmouseover='this.focus();'>"
+            + data
+            + "</textarea>";     
+        
+        _IG_AdjustIFrameHeight();
+    },
+    /*
+	    Function: save
+              $p.app.widgets.ptime__MODULE_ID__.save 
+                    
+              Save the text typed in the textarea
+	*/
+    save:function()
+    {
+    	var mainobj = _gel("bn__MODULE_ID__"),
+            obj = _gel("bntxt__MODULE_ID__"),
+            data = parent.$p.string.textToHtml(parent.$p.string.doubleToSimpleCot(obj.value));
+
+    	if (data != odata__MODULE_ID__) {
+            parent.executescr("../modules/wid_notes.php","noteid="+noteid__MODULE_ID__+"&notes="+parent.$p.string.esc(data)+"&userid="+user_id,false,true,$p.app.widgets.pnotes__MODULE_ID__.getId);
+        }
+    	else {
+            $p.app.widgets.pnotes__MODULE_ID__.init();
+        }
+    },
+    /*
+	    Function: getId
+                $p.app.widgets.ptime__MODULE_ID__.getId 
+                    
+                Change the new noteid
+               
+               Parameters:
+                    
+                 v_id (int) - noteid 
+                
+	*/
+    getId:function(v_id)
+    {
+    	if (v_id != indef) {
+    		noteid__MODULE_ID__ = v_id;
+    		parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("noteid",noteid__MODULE_ID__);
+            parent.$("editboxinput_"+parent.tab[parent.$p.app.tabs.sel].id+"_"+p+"_noteid").value=noteid__MODULE_ID__; 
+    	}
+    	//added 1.4 to refresh module options
+    	parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].refresh(); 
+    },
+    /*
+	    Function: get_notes
+                $p.app.widgets.ptime__MODULE_ID__.get_notes 
+                    
+                Get the user notes
+               
+               Parameters:
+                    
+                 response - XML object 
+                 vars (array)
+                
+	*/
+    get_notes:function(response,vars)
+    {
+    	var html = '';
+    	if (user_id==0) {
+    		html = "<td height='20' onclick='$p.app.widgets.pnotes__MODULE_ID__.alert();'>";
+            note__MODULE_ID__ = "__MSG_txtNote__";
+    	}
+    	else {
+            html = "<td height='20' onclick='$p.app.widgets.pnotes__MODULE_ID__.write();' id='bnc__MODULE_ID__'>";
+            note__MODULE_ID__ = parent.$p.ajax.getVal(response,"note","str",false,defaultText__MODULE_ID__);
+    	}
+    	var obj = _gel("bn__MODULE_ID__");
+    	obj.innerHTML = "<table cellpadding='0' cellspacing='0' border='0' width='100%'>"
+            + "<tr>"
+    		+ html
+    		+ note__MODULE_ID__
+    		+ "</td>"
+            + "</tr>"
+            + "</table>";
+            
+    	_IG_AdjustIFrameHeight();    
+    },
+    /*
+	    Function: init
+                $p.app.widgets.ptime__MODULE_ID__.init 
+                    
+                Initialise the widget (default bgcolor / get notes )
+	*/
+    init:function()
+    { 
+        pref = new _IG_Prefs(__MODULE_ID__);
+        var obj = _gel("bn__MODULE_ID__");
+    	var color = pref.getString('color');
+        if (color!="") {    
+            obj.style.backgroundColor = color;     
+        }
+        else {
+            obj.style.backgroundColor = "#F7F384";
+        }
+        _IG_FetchXmlContent("../modules/wid_notes.php?noteid="+noteid__MODULE_ID__+"&getText=1&widgetid="+uniq__MODULE_ID__+"&sharedmd5key="+sharedmd5key__MODULE_ID__,$p.app.widgets.pnotes__MODULE_ID__.get_notes,"GET");
+    },
+    /*
+	    Function: init
+                $p.app.widgets.ptime__MODULE_ID__.alert 
+                    
+                Display an alert for non-connected users
+	*/
+    alert:function()
+    {
+    	alert("__MSG_msgNeedToBeConnected__");
+    }
+}
+_IG_RegisterOnloadHandler($p.app.widgets.pnotes__MODULE_ID__.init);
+</script>
+<table cellpadding="3" cellspacing="0" width="100%" border="0">
+ <tr>
+  <td id="bn__MODULE_ID__">
+  </td>
+ </tr>
+</table>
+]]></Content>
+</Module>

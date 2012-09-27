@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><channel><parent>0</parent><dirname><![CDATA[GENERAL (4)]]></dirname><path><![CDATA[ <a href='#' onclick='$p.app.menu.widget.getExplorer(0)' style='color:#000000;text-decoration:underline;'>Startseite</a> > GENERAL ]]></path>
+<item>
+ <id>10000</id>
+ <name><![CDATA[BIBSONOMY]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10000.gif</icon>
+</item>
+
+<item>
+ <id>10004</id>
+ <name><![CDATA[DELICIOUS]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10004.gif</icon>
+</item>
+
+<item>
+ <id>10001</id>
+ <name><![CDATA[FLICKR]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10001.gif</icon>
+</item>
+
+<item>
+ <id>10008</id>
+ <name><![CDATA[GOOGLE BOOKS]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10008.gif</icon>
+</item>
+</channel>

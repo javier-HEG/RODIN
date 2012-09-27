@@ -1,0 +1,213 @@
+body {}
+#logo {
+	background: url(../images/logo_portal.gif) no-repeat left;
+	width: 150px;
+	height: 60px;
+}
+#logolink {
+	width: 150px;
+	height: 56px;
+}
+#header {
+	height: 60px;
+	vertical-align: top;
+}
+.maintbl {
+	color: #888888;
+	background-color: #ffffff;
+}
+#footer {
+	color: #888888;
+	background-color: #ffffff;
+}
+#footer a:link,
+#footer a:visited {
+	color: #888888;
+}
+.loading {
+	background-color: #ffffff;
+	padding-top: 50px;
+	padding-bottom: 50px;
+	color: #c6c3c6;
+}
+.protectbox {
+	background-color: #efefef;
+	color: #000000;
+	border: 1px solid #c6c3c6;
+}
+
+/*======   MODULES  =====*/
+.module {
+	margin-bottom: 6px;
+	border: 3px solid #efefef;
+	font-size: 0.7em;
+}
+.module .bmod {
+	border: 1px solid #c6c3c6;
+}
+.module .hmod {
+	display: none;
+	background-image: url(../images/bgbar.gif);
+}
+.barstyle0 {
+	background-image: url(../images/bgbar.gif);
+	overflow: hidden;
+}
+.module .hmod, .module .hmod a:visited, .module .hmod a:link, .module .hmod a:active {
+	color: #999999;
+	font-size: 8pt;
+}
+.module .headmod {
+	padding: 0px;
+	margin: 0px;
+	border-bottom: 1px solid #c6c3c6;
+}
+.module .titmod {
+	padding: 2px 5px 0 5px;
+	font-size: 11px;
+	line-height: 20px;
+	height: 20px;
+	font-weight: bold;
+	color: #999999;
+	overflow:hidden;
+}
+
+.barcoli {
+	border: 1px solid #c6c3c6;
+	text-decoration:none;
+}
+.barcola {
+	border: 1px solid #000000;
+	text-decoration:none;
+}
+.content a:link {
+	color: #000000;
+	text-decoration: none;
+}
+.content a:visited {
+	color: #999999;
+	text-decoration: none;
+}
+.content a:hover {
+	color: #9C0000;
+	text-decoration: underline;
+}
+
+.newspaper #npdetaili h2 {
+	color: #000000;
+}
+.newspaper #npdetailititle {
+	background: #ffffff;
+	border-bottom: 2px solid #555555;
+}
+.newspaper #npdetail {
+	border: 2px solid #555555;
+}
+
+/*====== TABS =====*/
+.taba {
+	height:32px;
+	width: 100px;
+	vertical-align: bottom;
+}
+.tabal a:visited,
+.tabal a:link,.tabal a:hover {
+	color: #000000;
+}
+.tabal {
+	height: 30px;
+	font-weight: bold;
+	background: url(../images/tab_topleft_closed.png) left top no-repeat #ffffff;
+	border:0px;
+}
+.tabar {
+	background: url(../images/tab_topright_closed.png) right top no-repeat #ffffff;
+	border:0px;
+	width: 20px;
+}
+.intertaba {
+	border-bottom: 0px;
+}
+.tab {
+	height:30px;
+	margin-top:1px;
+	margin-bottom: 1px;
+	width: 100px;
+	border-bottom: 0px;
+    opacity: 0.9;filter: alpha(opacity=90);
+}
+.tabl {
+	font-weight: bold;
+	color: #c6c3c6;
+	background: url(../images/tab_topleft_closed.png) left top no-repeat #ffffff;
+	border:0px;
+}
+.tabr {
+	background: url(../images/tab_topright_closed.png) right top no-repeat #ffffff;
+	border:0px;
+	width: 20px;
+}
+.tabl a:visited,
+.tabl a:link {
+	color: #000000;
+	text-decoration: none;
+}
+.tabl a:hover {
+	color: #000000;
+}
+.endtab {
+	border-bottom: 0px;
+}
+.tabextra {
+	color: #1A4972;
+}
+#alltabs {
+	height: 30px;
+}
+#navfixedbox {
+	height: 33px;
+}
+#navfloatbox {
+	height: 33px;
+	clip: rect(0px, 100%, 33px, 0px);
+}
+
+/*====== MENUS =====*/
+#vmenu {
+	background: #E9EDF2;
+	border: 3px solid #E9EDF2;
+}
+#vmenusuboptions {
+	background: #0E679A;
+}
+#vmenusuboptions ul.menulist li a:hover,#vmenusuboptions ul.menulist li.menulistsel {
+	background: #083D5B;
+}
+#vmenu .menuitem {
+	background: #0E679A;
+}
+#vmenu #menuoptions li a:hover {
+	background: #0E679A;
+}
+#vmenu #menuoptions li.menulistsel {
+    background: #0E679A;
+}
+
+/*====== HEADER LINKS =====*/
+#headlink {
+	color: #c6c3c6;
+	border-bottom: 1px solid #c6c3c6;
+}
+#headlink a:link,#headlink a:visited {
+	color: #666666;
+}
+
+/*====== ADDONS =====*/
+.addonbar {
+	background: #0E679A;
+	border: 1px solid #148CD2;
+	color: #ffffff;
+}
+.addonbar a:link,.addonbar a:visited {
+	color: #ffffff;
+}

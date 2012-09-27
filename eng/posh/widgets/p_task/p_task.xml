@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" height="240">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/p_task/p_task_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/p_task/p_task_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/p_task/p_task_fr_ALL.xml"/>
+ </ModulePrefs>
+<UserPref name="taskid" display_name="." datatype="hidden" default_value="0" />
+<Content type="html" view="home"><![CDATA[
+<head>
+<script>
+
+var p = parent.$p.string.getVar(""+window.location,"p");
+var taskid__MODULE_ID__ = parent.$p.string.getVar(window.location+"","taskid");
+var sharedmd5key__MODULE_ID__ = parent.$p.string.getVar(window.location+"","sharedmd5key");
+var uniq__MODULE_ID__ = p;
+
+var userid = parent.$p.app.user.id;
+var shared = 0;
+var inc__MODULE_ID__ = 0;
+var id__MODULE_ID__=parent.$p.app.widgets.uniqToId(p,parent.$p.app.tabs.sel);
+var tasks__MODULE_ID__=[];
+var shared__MODULE_ID__= shared;
+
+
+$p.app.widgets.p_task__MODULE_ID__={
+
+    taskObj__MODULE_ID__:function(id,name,comment,status){
+    	this.id=id;
+    	this.name=name;
+    	this.comment=comment;
+    	this.status=status;
+    },
+    add__MODULE_ID__:function(v_form){
+    	var oName = parent.$p.string.esc(parent.$p.string.doubleToSimpleCot(v_form.n__MODULE_ID__.value));
+    	var oCat = parent.$p.string.esc(parent.$p.string.doubleToSimpleCot(v_form.r__MODULE_ID__.value));
+    	var oId = v_form.id.value;
+    	
+    	parent.executescr("../modules/wid_tasks.php","modid="+taskid__MODULE_ID__+"&taskid="+oId+"&act=add&name="+oName+"&cat="+oCat,false,true,$p.app.widgets.p_task__MODULE_ID__.refr__MODULE_ID__);
+    },
+    sup__MODULE_ID__:function(id,newL){
+    	response=confirm("__MSG_msgAreYouSureSupElement__");
+    	if (response==1)
+    	{
+            parent.executescr("../modules/wid_tasks.php","modid="+taskid__MODULE_ID__+"&act=sup&taskid="+id,false,true,$p.app.widgets.p_task__MODULE_ID__.refr__MODULE_ID__);
+        }
+    },
+    refr__MODULE_ID__:function(v_id){
+    	if (v_id!=indef){
+    		var l_id=v_id.split("_");
+                taskid__MODULE_ID__ = l_id[0];
+                
+    			parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("taskid",taskid__MODULE_ID__);
+                parent.$("editboxinput_"+parent.tab[parent.$p.app.tabs.sel].id+"_"+p+"_taskid").value = taskid__MODULE_ID__;                
+    	}
+    	parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].refresh();
+    },
+    opt__MODULE_ID__:function(v_id){
+    	if ( userid==0 ){alert("__MSG_msgNeedToBeConnected__");}
+    	else {
+    		var obj = _gel("addb__MODULE_ID__");
+    		obj.innerHTML="<form action='' onsubmit='$p.app.widgets.p_task__MODULE_ID__.add__MODULE_ID__(this);return false;'><table cellpadding='0'><tr><td>__MSG_lblTitle__</td><td><input name='n__MODULE_ID__' type='text' maxlength='50' size='20' value='"+(v_id==indef?"":tasks__MODULE_ID__[v_id].name)+"' /></td></tr><tr><td>__MSG_comment__</td><td><input name='r__MODULE_ID__' type='text' maxlength='255' size='35' value='"+(v_id==indef?"":tasks__MODULE_ID__[v_id].comment)+"' /></td></tr><tr><td></td><td><input name='id' type='hidden' value='"+(v_id==indef?"":tasks__MODULE_ID__[v_id].id)+"' /><input class='bluebtn' type='submit' value='"+(v_id==indef?'__MSG_lblAdd__':'__MSG_lblModify__')+"' /> <a href='#' onclick='$p.app.widgets.p_task__MODULE_ID__.noopt__MODULE_ID__();return false;'><img src='../images/ico_close.gif' /></a></td></tr></table></form>";
+            _IG_AdjustIFrameHeight();
+    	}
+    },
+    noopt__MODULE_ID__:function(){
+    	if (shared__MODULE_ID__==1) return;
+    	var obj = _gel("addb__MODULE_ID__");
+    	obj.innerHTML="<a class='add' href='#' onclick='$p.app.widgets.p_task__MODULE_ID__.opt__MODULE_ID__();return false;'><img src='../images/ico_add.gif' /> "+"__MSG_lblAddTask__"+"</a>";
+        _IG_AdjustIFrameHeight();
+    },
+    done__MODULE_ID__:function(id,obj){
+    	parent.executescr("../modules/wid_tasks.php","act=done&val="+(obj.checked?"Y":"N")+"&taskid="+id,false,true,$p.app.widgets.p_task__MODULE_ID__.refr__MODULE_ID__);
+    },
+    show__MODULE_ID__:function(){
+    	var l_s="<table cellpadding='0' cellspacing='0' width='100%'>";
+    	for (var i=0;i<tasks__MODULE_ID__.length;i++){
+    		l_s+='<tr>';
+    		if (shared__MODULE_ID__==0)
+    		{
+    			l_s+='<td width="14">'
+    			+'<input class="nostyle" type="checkbox" onclick="$p.app.widgets.p_task__MODULE_ID__.done__MODULE_ID__('+tasks__MODULE_ID__[i].id+',this)"'+(tasks__MODULE_ID__[i].status=='Y'?'checked="checked" ':'')+'/>'
+    			+'</td>';
+    		}
+    		l_s+='<td>'
+    			+(tasks__MODULE_ID__[i].status=='Y'?'<strike>':'')
+    			+'<a onmouseover=parent.mouseBox("'+tasks__MODULE_ID__[i].comment+'",event); onmouseout=parent.mouseBox(""); >'
+    			+tasks__MODULE_ID__[i].name
+    			+'</a>'
+    			+(tasks__MODULE_ID__[i].status=='Y'?'</strike>':'')
+    			+'</td>';
+    		if (shared__MODULE_ID__==0)
+    		{
+    			l_s+='<td style="text-align: right">'
+    			+'<a href="#" title="__MSG_lblModify__" onclick="$p.app.widgets.p_task__MODULE_ID__.opt__MODULE_ID__('+i+');return false;">'
+    			+(userid==0?'':'<img src="../images/ico_edit.gif" align="absmiddle" />')
+    			+'</a>'
+    			+'<a href="#" onclick="$p.app.widgets.p_task__MODULE_ID__.sup__MODULE_ID__('+tasks__MODULE_ID__[i].id+',false);return false;">'
+    			+(userid==0?'':'<img src="../images/ico_close.gif" align="absmiddle" />')
+    			+'</a>'
+    			+'</td>';
+    		}
+    		l_s+='</tr>';
+    	}
+    	l_s+="</table>";
+    	navPrint("c__MODULE_ID__",l_s);
+        _IG_AdjustIFrameHeight();
+    },
+    init__MODULE_ID__:function(){
+    	$p.app.widgets.p_task__MODULE_ID__.noopt__MODULE_ID__();
+        parent.getXml("../modules/wid_tasks.php",$p.app.widgets.p_task__MODULE_ID__.display__MODULE_ID__,"","xml","modid="+taskid__MODULE_ID__+"&widgetid="+uniq__MODULE_ID__+"&sharedmd5key="+sharedmd5key__MODULE_ID__+"&act=get","POST");
+    },
+    display__MODULE_ID__:function(response,vars){
+    	var inc=0;
+    		while (response.getElementsByTagName("task")[inc]){
+    			var l_task=response.getElementsByTagName("task")[inc];
+                tasks__MODULE_ID__[inc]=new $p.app.widgets.p_task__MODULE_ID__.taskObj__MODULE_ID__(parent.$p.ajax.getVal(l_task,"task_id","id",false,0), parent.$p.ajax.getVal(l_task,"name","str",false,''), parent.$p.ajax.getVal(l_task,"comments","str",false,''), parent.$p.ajax.getVal(l_task,"done","str",false,''));
+         		inc++;
+    		}
+        $p.app.widgets.p_task__MODULE_ID__.show__MODULE_ID__();
+    }
+}
+
+</script>
+</head>
+<body>
+<table cellpadding="4" cellspacing="0" width="100%">
+<tr><td id="c__MODULE_ID__" style='padding:6px'>
+</td></tr>
+</table>
+<div id="addb__MODULE_ID__" style='padding:2px 0 4px 4px;'></div>
+<script>
+window.onload = function() {
+$p.app.widgets.p_task__MODULE_ID__.init__MODULE_ID__();
+}
+</script>
+</body>
+]]></Content>
+</Module>

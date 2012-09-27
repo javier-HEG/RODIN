@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>PORTANEO :: Guide du développeur</title>
+	<link rel="stylesheet" href="../../styles/docs.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>GUIDE DU DEVELOPPEUR</h1>
+<ol>
+<li><a href="#requirements">Pré-requis</a></li>
+<li><a href="#directories">Arborescence des fichiers</a></li>
+<li><a href="#norms">Standards de développement</a></li>
+<li><a href="#menu">Ajouter de nouveaux éléments au menu</a></li>
+<li><a href="#header">Ajouter de nouveaux liens dans l'entête </a></li>
+<li><a href="#admin">Ajouter de nouvelles pages dans l'interface d'administration</a></li>
+</ol>
+<br /><br />
+<ol>
+<li><h2><a name="requirements" />Pré-requis</h2><br />
+Si vous modifiez POSH, n'oubliez pas de nous soumettre vos modifications afin de faire évoluer également le produit pour tous les autres utilisateurs de POSH. Pour cela, contactez-nous sur http://www.portaneo.net
+<br /><br />
+</li>
+<li><h2><a name="directories" />Arborescence des fichiers</h2><br />
+Signification de chaque répertoires : 
+<ul>
+<li>admin : pages et scripts PHP gérant l'interface d'administration</li>
+<li>cache : mise en cache XML des informations de l'application (caractéristiques des modules, rubriques, ...)</li>
+<li>images : Toutes les images utilisées par l'application (sauf celles des modules)</li>
+<li>includes : Tous les fichiers javascript et includes PHP</li>
+<li>l10n : fichiers de langue</li>
+<li>modules : modules utilisés dans l'application</li>
+	<ul>
+	<li>cache : caches des modules RSS</li>
+	<li>external : images et javascripts utilisés par les modules</li>
+	<li>pictures : icones des modules</li>
+	<li>quarantine : répertoire temporaire utilisé par le tutoriel</li>
+	</ul>
+<li>portal : pages et scripts PHP gérant le portail personnalisable</li>
+<li>styles : Tous les fichiers CSS de l'application</li>
+<li>tools : Outils utilisés par l'application (rss parser, ...)</li>
+<li>tutorial : fichiers et scripts PHP gérant les pages du tutoriel</li>
+</ul>
+<br /><br />
+</li>
+<li><h2><a name="norms" />Standards de développement</h2><br />
+Toutes les pages PHP doivent appeler includes/session.inc.php en configurant auparavant les variables $not_access (1 l'utilisateur doit être connecté pour ouvrir cette page, 0 ne doit pas être connecté) et $granted ("A": uniquement accessible aux administrateurs, "I": uniquement accessible aux internautes connectés).<br /><br />
+Pour tout accès à la base de données, utilisez la classe "connection" du fichier includes/connection.inc.php.<br /><br />
+Vous pouvez ajoutez vos nouvelles fonctionnalit&eacute;s gr&acirc;ce &agrave; l'ajout de plug-ins, dans l'administration (voir le plug-ins "test" pour exemple).<br /><br />
+
+<br /><br />
+</li>
+<li><h2><a name="header" />Ajouter de nouveaux liens dans l'entête</h2><br />
+Pour ajoutez de nouveaux lien dans l'entête des portails (à coté du lien de connexion) :
+<ul>
+<li>Modifiez le parametre "headlinks" dans la table "adm_config", en ajoutant le nouveau lien sur le même modèle que les existants (fct: fonction appelée (tapez link(\"votre_lien\") pour un lien hypertexte), label: nom affiché, img:image liée à l'option, comment:texte affiché au survol de la souris, anonymous: est-ce que ce lien est affiché sur la homepage, connected: est-ce que ce lien est affiché dans les portails personnels). L'ordre d'affichage est le même que l'ordre défini dans "adm_config".</li>
+<li>Dans l'interface d'administration, validez la "configuration générale" afin de regénérer le fichier includes/config.js.</li>
+</ul>
+<br /><br />
+</li>
+<li><h2><a name="admin" />Ajouter de nouvelles pages dans l'interface d'administration</h2><br />
+<ul>
+<li>Créez vos fichiers PHP dans le répertoire admin/</li>
+<li>Ajoutez les nouveaux onglets dans la table "adm_tabs" :<br />
+ name : id de l'onglet
+ label : titre affiché sur l'onglet
+ type : taper <b>4</b>
+ param : nom du fichier PHP qui s'ouvre quand on clique sur l'onglet
+ </li>
+</ul>
+<br /><br />
+</li>
+</ol>
+Et n'oubliez pas de nous faire profiter de votre ingéniosité en devenant contributeur de POSH en nous envoyant vos développements !
+</body>
+</html>

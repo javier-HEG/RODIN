@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <Module>
+  <ModulePrefs title="widget name" description="widget description" height="200" />
+  <Content type="html"><![CDATA[
+   YOUR HTML
+   <script type="text/javascript">
+   </script>
+  ]]>
+  </Content>
+</Module>

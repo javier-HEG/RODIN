@@ -1,0 +1,72 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script language="JavaScript">
+var timer; 
+var msg = ""; 
+function startTime()
+{ 
+    clearTimeout(timer);
+    refreshTime();
+} 
+function refreshTime()
+{ 
+    msg = customDateSpring(new Date()) + " - " + showTime();
+    document.getElementById("time").innerHTML=msg; 
+    timer = setTimeout("refreshTime()", 1000);
+} 
+function showTime (){ 
+    var now = new Date(); 
+    var hours= now.getHours();
+    var minutes= now.getMinutes();
+    var seconds= now.getSeconds(); 
+    var months= now.getMonth(); 
+    var dates= now.getDate(); 
+    var years= now.getYear(); 
+    var timeValue = "" //lwf
+    timeValue += ((months >9) ? "" : " ") 
+    timeValue += ((dates >9) ? "" : " ") 
+    timeValue = ( months +1) 
+    timeValue +="/"+ dates 
+    timeValue +="/"+ years 
+    var timeValue2 = hours + ((minutes < 10) ? ":0":":") + minutes + ((seconds < 10) ? ":0":":") + seconds
+    return timeValue2; 
+} 
+function MakeArray(n) { 
+    this.length = n 
+    return this 
+} 
+monthNames = new MakeArray(12) 
+    monthNames[1] = "Janvier" 
+    monthNames[2] = "F&eacute;vrier" 
+    monthNames[3] = "Mars" 
+    monthNames[4] = "Avril" 
+    monthNames[5] = "Mai" 
+    monthNames[6] = "Juin" 
+    monthNames[7] = "Juillet" 
+    monthNames[8] = "Ao&ucirc;t" 
+    monthNames[9] = "Septembre"
+    monthNames[10] = "Octobre" 
+    monthNames[11] = "Novembre" 
+    monthNames[12] = "D&eacute;cembre" 
+    daysNames = new MakeArray(7) 
+    daysNames[1] = "Dimanche" 
+    daysNames[2] = "Lundi" 
+    daysNames[3] = "Mardi" 
+    daysNames[4] = "Mercredi" 
+    daysNames[5] = "Jeudi" 
+    daysNames[6] = "Vendredi" 
+    daysNames[7] = "Samedi" 
+    function customDateSpring(oneDate) {  
+    var theDate =oneDate.getDate() 
+    var theMonth = monthNames[oneDate.getMonth() +1] 
+    return daysNames[oneDate.getDay() +1] + " " + oneDate.getDate() + " " + monthNames[oneDate.getMonth() +1] + " " + oneDate.getFullYear(); 
+} 
+ 
+</script>
+</head>
+<body style="margin:0px">
+<div id="time" style="color: #000;font-size: 12pt;font-weight: bold;width: 100%;text-align: center;padding-top: 3px;" />
+<script type="text/javascript">startTime();</script>
+</body>
+</html>

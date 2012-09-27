@@ -1,0 +1,393 @@
+/* ADMIN THEME */
+body.admin_body {
+	margin:0px;
+	background: #fff;
+	color:#000000;
+	font-size: normal;
+}
+div,td,th {
+	FONT-FAMILY:Verdana,Arial,Helvetica;
+}
+h1 {
+	font-size:12pt;
+	margin:0 0 10px 0;
+	border-bottom: 1px solid #000;
+}
+h2 {font-size:11pt;margin:3px 0 5px 0;}
+strong.important
+{
+	font-weight:bold;
+	color:red;
+}
+h1 img,
+h2 img{
+	margin:0 2px -2px 2px;
+}
+#content
+{
+	font-size:0.7em;
+	margin: 0px;
+	padding:20px;
+	background: #fff;
+}
+
+#allthemesdiv
+{
+	width: 200px;
+	height: 100px;
+	overflow: auto;
+	border: 1px solid #c6c3c6;
+	padding: 2px;
+}
+
+.tabsfunctions h3
+{
+	padding:0;
+	margin:0;
+	font-size:0.95em;
+}
+.tabsfunctions h3 img
+{
+	margin-right:5px;
+}
+div.tabsfunctions p
+{
+	margin:3px 0 0 10px;
+}
+
+.module table h3,
+.module table p
+{
+	margin:0 0 2px 0;
+}
+
+.module table
+{
+	font-size:1em;
+	width:100%;
+}
+
+img {
+	border:0px
+}
+table {
+	border:0px
+}
+form {
+	margin:0px;
+}
+hr {
+	width:100%;color:#c6c3c6;
+}
+a {
+	color:#005D95;
+}
+a:hover {
+	text-decoration:underline
+}
+a:visited {
+	color:#005D95;
+}
+a.u {
+	color:#ff0000;
+	text-decoration:underline;
+}
+a.optmenu {
+	white-space:nowrap;
+	font-size:9pt;
+	text-decoration:none;
+	border:1px solid #ffffff;
+}
+a.optmenu:hover {
+	border:1px solid #009ECE;
+	text-decoration:none;
+}
+a.selmenu {
+	background-color:#D6D3CE;
+	white-space:nowrap;
+	color:#ffffff;
+	font-size:9pt;
+	text-decoration:none;
+	border-top:1px solid #424142;
+	border-left:1px solid #424142;
+	border-right:1px solid #ffffff;
+	border-bottom:1px solid #ffffff;
+}
+.box {
+	border-bottom:1px dashed #c6c3c6;
+	padding:5px;
+	margin-bottom:20px;
+}
+p.submit {
+	margin:10px;
+}
+.label {
+	width:300px;
+	height: 26px;
+	border-bottom: 1px solid dotted;
+    font-size:.8em;
+}
+.souslabel {
+	padding-left:15px;
+	width:300px;
+}
+.admheader {
+	vertical-align:bottom;
+	background: #4D2E1A;
+}
+.index {
+	white-space:nowrap;
+	color:#000000;
+}
+.index A:visited,.index A:link {
+	color:#ffffff;
+}
+.editbox {
+	display:none;
+	padding:8px;
+	background-color:#f3f3f3;
+}
+select,input,textarea {
+	border:1px solid #555555;
+	font-size:8pt;
+}
+input,textarea {
+	background-color:#e1e1e1;
+}
+input.thinbox {
+	border:1px solid #c6c3c6;
+	background-color:#f6f6f6;
+}
+input.btn {
+	border:1px solid #efefef;
+	font-size:7pt;
+	font-weight:bold;
+	background-color:#aaaaaa;
+	height:20px;
+	color:#ffffff;
+	cursor:hand;
+	cursor:pointer;
+}
+input.btn2 {
+	border:1px solid #ffffff;
+	font-size:7pt;
+	background-color:#aaaaaa;
+	width:26px;
+	height:17px;
+	color:#ffffff;
+	cursor:hand;
+	cursor:pointer;
+}
+.btnsmall {
+	border:1px solid #efefef;
+	font-size:8px;
+	background-color:#aaaaaa;
+	height:13px;
+	color:#ffffff;
+	cursor:hand;
+	cursor:pointer;
+	padding:0px;
+	margin:0px;
+}
+.iconea {
+	vertical-align:middle;
+	background-color:#efefef;
+	border:1px solid #c6c3c6;
+	padding:0 1px 0 1px;
+}
+.iconei {
+	vertical-align:middle;
+	border:1px solid #ffffff;
+	padding:1px;
+}
+.imgmid {
+	vertical-align:middle
+}
+.imgbot {
+	vertical-align:bottom
+}
+.bottomhr {
+	padding-bottom: 6px;
+	border-bottom: 2px inset #f7f7f7;
+}
+.tophr {
+	padding-top: 6px;
+	border-top: 2px outset #f7f7f7;
+}
+.lefthr {
+	padding-left: 6px;
+	border-left: 2px outset #f7f7f7;
+}
+.righthr {
+	padding-right: 6px;
+	border-right: 2px outset #f7f7f7;
+}
+.greydiv {
+	background-color:#efefef;
+}
+.greydivh {
+    background-color:#efefef;
+    height:20px;
+}
+body.admin_body .breadcrumbs {
+	background: url(../images/adm_breadcrumbs.png) repeat-x 0px 24px #fff;
+	width: 100%;
+	color: #000;
+	padding: 20px 0 10px 20px;
+	font-size: 12pt;
+	height: 30px;
+	line-height: 30px;
+}
+body.admin_body  .breadcrumbs a {
+	color: #000;
+	text-decoration: none;
+}
+
+/*====== PROFILES =====*/
+body.admin_body .taba {
+	height:28px;
+	width:100px;
+}
+body.admin_body .tabal A:visited,body.admin_body .tabal A:link,body.admin_body .tabal A:hover {
+	text-decoration:none;
+	color:#000000;
+}
+body.admin_body .tabal {
+	height: 26px;
+	white-space:nowrap;
+	text-align:center;
+	padding: 1px 3px 0 3px;
+	font-weight:bold;
+	white-space:nowrap;
+	background:#ffffff;
+	border-left:0px;
+	border-top:0px;
+	border-bottom:2px solid #ffffff;
+	font-size: 0.7em;
+}
+body.admin_body .tabar {
+	text-align:center;
+	padding:2px;
+	background: #ffffff;
+	border-top:0px;
+	border-right:0px;
+	border-bottom:2px solid #ffffff;
+}
+body.admin_body .intertaba {
+	width:2px;
+	border-bottom:1px solid #C6C3C6;
+	font-size:2pt;
+}
+body.admin_body .tab {
+	height:27px;
+	margin-top:1px;
+	width:100px;
+	border-bottom:0px;
+	opacity: 1;filter: alpha(opacity=100);
+}
+body.admin_body .tabl {
+	white-space:nowrap;
+	text-align:center;
+	font-weight:bold;
+	padding:3px;
+	color:#fff;
+	background: #341F0A;
+	border-left:0px;
+	border-top:1px solid #fff;
+	border-bottom:0px;
+	font-size: 0.7em;
+	
+}
+body.admin_body .tabr {
+	text-align:center;
+	padding:2px;
+	background: #341F0A;
+	border-top:1px solid #fff;
+	border-right:0px;
+	border-bottom:0px;
+}
+body.admin_body .tabl a:visited,body.admin_body .tabl a:link {
+	color:#fff;
+	text-decoration:none;
+}
+body.admin_body .tabl a:hover {
+	color:#c6c3c6;
+}
+body.admin_body .intertab {
+	width: 2px;
+	font-size:2pt;
+}
+body.admin_body .endtab {
+	border:0px
+}
+body.admin_body #alltabs {
+	vertical-align: bottom;
+}
+body.admin_body #alltabs {
+	height: 26px;
+}
+body.admin_body #navfixedbox {
+	height: 29px;
+}
+body.admin_body #navfloatbox {
+	height: 29px;
+	clip: rect(0px, 100%, 29px, 0px);
+}
+body.admin_body ul.tabnav {
+    padding-bottom: 24px;
+}
+body.admin_body ul.tabnav li {
+    height: 28px;
+}
+
+/*====== MENUS =======*/
+#leftmenu {
+	top: 312px;
+}
+
+/*====== HEADER LINKS =====*/
+body.admin_body #headlink {
+	position: relative;
+	color: #ffffff;
+	height: 27px;
+	text-align: right;
+	vertical-align: center;
+	font-size: 0.7em;
+	border-bottom: 0px;
+	background: #4D2E1A;
+}
+body.admin_body #headlink a:link,body.admin_body #headlink a:visited {
+	color: #ffffff;
+	text-decoration: none;
+}
+body.admin_body #headlink a:hover {
+	text-decoration: underline;
+}
+
+a.optlist {
+	color: #000000;
+	white-space: nowrap;
+	text-decoration: none;
+	border: 1px solid #ffffff;
+	padding: 1px;
+}
+a.optlist:hover {
+	color: #c6c3c6;
+	white-space: nowrap;
+	text-decoration: none;
+	border: 1px solid #003366;
+	padding: 1px;
+}
+a.sellist {
+	color: #ffffff;
+	background-color: #003366;
+	white-space: nowrap;
+	text-decoration: none;
+	border: 1px solid #336699;
+	padding: 1px;
+}
+.warning {
+   background-color:yellow;
+   color:red;
+   font-weight: bold;'
+}

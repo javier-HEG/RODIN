@@ -1,0 +1,7 @@
+<messagebundle>
+  <msg name="widgetTitle">HTML widget</msg>
+  <msg name="widgetDescription">HTML widget (Write access>Administrator, Read access>Users)</msg>
+  <msg name="modify">Modify</msg>
+  <msg name="noModifFromTutorial">To add content you must go to 'Pages' in the administrartion panel.</msg>
+  <msg name="noContentDefined">No current content defined by the administrator </msg>
+</messagebundle>

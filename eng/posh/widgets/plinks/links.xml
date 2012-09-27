@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" author="Portaneo" height="120">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/plinks/plinks_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/plinks/plinks_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/plinks/plinks_fr_ALL.xml"/>
+ <UserPref name="linkid" display_name="." datatype="hidden" default_value="0" />
+ <UserPref name="favid" display_name="." datatype="hidden" default_value="0" />
+ </ModulePrefs>
+ <Content type="html" view="home"><![CDATA[
+<script type="text/javascript">
+var shared = 0;
+var user_id = parent.$p.app.user.id;//user id
+
+var selkey = parent.$p.string.getVar(window.location+"","selkey");
+var p = parent.$p.string.getVar(window.location+"","p"); //uniq
+var linkid = parent.$p.string.getVar(window.location+"","linkid"); 
+var favid = parent.$p.string.getVar(window.location+"","favid");
+var sharedmd5key = parent.$p.string.getVar(window.location+"","sharedmd5key");
+
+var id__MODULE_ID__=parent.$p.app.widgets.uniqToId(p,parent.$p.app.tabs.sel); //get the module id from the uniq
+var linkid__MODULE_ID__=linkid;
+var favid__MODULE_ID__=favid;
+var inc__MODULE_ID__=0;
+var name__MODULE_ID__="";
+var links__MODULE_ID__=[];
+var keys__MODULE_ID__=[];
+var selKey__MODULE_ID__=selkey;
+var shared__MODULE_ID__=shared;
+var sharedmd5key__MODULE_ID__=sharedmd5key;
+var uniq__MODULE_ID__=p;
+     
+$p.app.widgets.plinks__MODULE_ID__={
+
+    /*
+              Function: linkObj
+                  $p.app.widgets.plinks__MODULE_ID__.linkObj
+                        
+                  Set a link object
+              
+              Parameters:
+                  id (int) - link id
+                  name (string)- link name
+                  url (string) - link url
+                  tag (string)- link associated tags
+          */   
+    linkObj:function(id,name,url,tags){
+    	this.id=id;
+    	this.name=name;
+    	this.url=url;
+    	this.tags=tags;
+    },
+    /*
+              Function: add
+                  $p.app.widgets.plinks__MODULE_ID__.add
+                        
+                  Add a new link in the database
+              
+              Parameters:
+                  v_form (Element) - link creation form
+          */   
+    add:function(v_form){
+        var oName=v_form.n__MODULE_ID__.value;
+    	var oLink=v_form.l__MODULE_ID__.value;
+    	var oTags=v_form.t__MODULE_ID__.value;
+    	var oId=v_form.id.value;
+        
+    	//remove unused chars
+    	oTags=oTags.replace(";",",");
+    	oTags=parent.$p.string.trim(oTags);
+    	oTags=oTags.replace(" ,",",");
+    	oTags=oTags.replace(", ",",");
+    	if (oLink.indexOf("http://")==-1 && oLink.indexOf("https://")==-1) oLink="http://"+oLink;
+    	name__MODULE_ID__=oName;
+
+    	parent.executescr("../modules/wid_links.php","modid="+favid__MODULE_ID__+"&linkid="+oId+"&act=add&name="+parent.$p.string.esc(oName)+"&link="+parent.$p.string.esc(oLink)+"&tags="+parent.$p.string.esc(oTags),false,true,$p.app.widgets.plinks__MODULE_ID__.treat);
+    },
+    /*
+              Function: treat
+                  $p.app.widgets.plinks__MODULE_ID__.treat
+                        
+                  Apply changes (update current link ID and favorite ID)
+              
+              Parameters:
+                  v_id (string) - like "favoriteID_linkID"
+          */ 
+    treat:function(v_id){
+    	if (v_id!=indef){
+    		var l_id=v_id.split("_");
+            favid__MODULE_ID__=l_id[0];
+            linkid__MODULE_ID__=l_id[1];
+            parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("linkid",linkid__MODULE_ID__);
+            parent.$("editboxinput_"+parent.tab[parent.$p.app.tabs.sel].id+"_"+p+"_linkid").value=linkid__MODULE_ID__;
+            parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("favid",favid__MODULE_ID__);
+            parent.$("editboxinput_"+parent.tab[parent.$p.app.tabs.sel].id+"_"+p+"_favid").value=favid__MODULE_ID__;
+    	}
+    	$p.app.widgets.plinks__MODULE_ID__.refr();
+    },
+    /*
+              Function: sup
+                  $p.app.widgets.plinks__MODULE_ID__.sup
+                        
+                  Delete an link in the bookmark
+              
+              Parameters:
+                  id (int) - link ID
+                  newL - not used
+          */     
+    sup:function(id,newL){
+    	if (confirm("__MSG_msgAreYouSureSupElement__")){
+            parent.executescr("../modules/wid_links.php","modid="+favid__MODULE_ID__+"&act=sup&linkid="+id,false,true,$p.app.widgets.plinks__MODULE_ID__.treat);
+        }
+    },
+    /*
+              Function: opt
+                  $p.app.widgets.plinks__MODULE_ID__.opt
+                        
+                  Display the form (link creation/modification)
+              
+              Parameters:
+                  v_id (int) - link ID for update otherwise v_id=indef
+          */         
+    opt:function(v_id){
+    	if (user_id==0){
+            alert("__MSG_msgNeedToBeConnected__");
+        }
+    	else {
+    		var obj=_gel("addb__MODULE_ID__");
+    		obj.innerHTML="<form onsubmit='$p.app.widgets.plinks__MODULE_ID__.add(this);return false;'>\
+                            <table>\
+                            <tr>\
+                                <td>__MSG_lblTitle__</td>\
+                                <td><input name='n__MODULE_ID__' type='text' maxlength='30' size='30' value='"+((v_id==indef)?"":links__MODULE_ID__[v_id].name)+"'/></td>\
+                            </tr>\
+                            <tr>\
+                                <td>URL</td>\
+                                <td><input name='l__MODULE_ID__' type='text' maxlength='199' size='30' value='"+((v_id==indef)?"http://":links__MODULE_ID__[v_id].url)+"' /></td>\
+                            </tr>\
+                            <tr>\
+                                <td>__MSG_tags__</td>\
+                                <td><input name='t__MODULE_ID__' type='text' maxlength='100' size='28' value='"+((v_id==indef)?"":links__MODULE_ID__[v_id].tags)+"'/> "+parent.tooltip("__MSG_linkKeysHlp__",true)+" </td>\
+                            </tr>\
+                            <tr>\
+                                <td></td>\
+                                <td>\
+                                    <input name='id' type='hidden' value='"+((v_id==indef)?"":links__MODULE_ID__[v_id].id)+"' />\
+                                    <input class='bluebtn' type='submit' value='"+((v_id==indef)?"__MSG_lblAdd__":"__MSG_lblModify__")+"' />\
+                                    <a href='#' onclick='$p.app.widgets.plinks__MODULE_ID__.noopt();return false;'><img src='../images/ico_close.gif' /></a>\
+                                </td>\
+                           </tr>\
+                           </table>\
+                           </form>";
+            _IG_AdjustIFrameHeight();
+    	}
+    },
+    /*
+              Function: noopt
+                  $p.app.widgets.plinks__MODULE_ID__.noopt
+                        
+                  Display complementary information icon
+          */     
+    noopt:function(){
+    	if (shared__MODULE_ID__==1) return false;
+    	var obj=_gel("addb__MODULE_ID__");
+    	obj.innerHTML="<a href='#' onclick='$p.app.widgets.plinks__MODULE_ID__.opt();return false;'><img src='../images/ico_add.gif' /> __MSG_lblAddFav__</a>";
+    },
+    /*
+              Function: refr
+                  $p.app.widgets.plinks__MODULE_ID__.refr
+                        
+                  Refresh the module
+          */    
+    refr:function(){
+    	parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].refresh();
+    },   
+    /*
+              Function: getKeys
+                  $p.app.widgets.plinks__MODULE_ID__.getKeys
+                        
+                  Get links tags
+          */     
+    getKeys:function(){
+    	for (var i=0;i<links__MODULE_ID__.length;i++){
+    		var arr=links__MODULE_ID__[i].tags.split(",");
+    		for (var j=0;j<arr.length;j++){
+    			if (arr[j]!="" && !parent.$p.array.find(keys__MODULE_ID__,arr[j])){
+    				keys__MODULE_ID__.push(arr[j]);
+    			}
+    		}
+    	}
+    	keys__MODULE_ID__.sort();
+    },  
+    /*
+              Function: show
+                  $p.app.widgets.plinks__MODULE_ID__.show
+                        
+                  Display all links and tags
+          */     
+    show:function(){
+    	var l_s="",l_slink="";
+    	for (var i=0;i<links__MODULE_ID__.length;i++){
+    		if (selKey__MODULE_ID__=="" || parent.$p.array.find((links__MODULE_ID__[i].tags.split(",")),selKey__MODULE_ID__)){
+                l_slink+='<tr>'
+    				+'<td>'
+    				+'<img src="../images/puce.gif" valign="absmiddle" /> &nbsp; '
+    				+'<a id="lk__MODULE_ID___'+i+'" href="'+links__MODULE_ID__[i].url+'" target="_blank" style="color:#000000">'
+    				+links__MODULE_ID__[i].name
+    				+'</a>'
+    				+'</td>'
+    			if (shared__MODULE_ID__==0) {
+    				l_slink+='<td style="text-align: right">'
+    				+'<a href="#" title="__MSG_lblModify__" onclick="$p.app.widgets.plinks__MODULE_ID__.opt('+i+');return false;">';
+                    if (user_id!=0) l_slink+='<img src="../images/ico_edit.gif" align="absmiddle" />';			
+                    l_slink+='</a>'
+    				+'<a href="#" title="__MSG_lblSuppress__" onclick="$p.app.widgets.plinks__MODULE_ID__.sup('+links__MODULE_ID__[i].id+',false);return false;">';
+                    if (user_id!=0) l_slink+='<img src="../images/ico_close.gif" align="absmiddle" />';    				
+                    l_slink+='</a>'
+    				+'</td>'
+    			}
+    			l_slink+='</tr>';
+    		}
+    	}
+    	if (keys__MODULE_ID__.length>0){
+    		l_s+="<div style='background-color:#efefef;padding:1px;'><form>__MSG_tags__ : <select name='keywords' onchange='$p.app.widgets.plinks__MODULE_ID__.changeKey(this.value);'><option value=''>* __MSG_all__ *</option>";
+    		keys__MODULE_ID__.sort();
+    		for (var i=0;i<keys__MODULE_ID__.length;i++){
+    			l_s+='<option value="'+keys__MODULE_ID__[i]+'"'+(keys__MODULE_ID__[i]==selKey__MODULE_ID__?' selected="selected" ':'')+'>'+keys__MODULE_ID__[i]+'</option>';
+    		}
+    		l_s+="</select></form></div>";
+    	}
+    	l_s+="<table cellpadding='0' cellspacing='0' border='0' width='100%'>";
+    	l_s+=l_slink;
+    	l_s+="</table>";
+
+        var obj=_gel("lkd__MODULE_ID__");
+    	obj.innerHTML=l_s;
+        _IG_AdjustIFrameHeight();
+    },
+    /*
+              Function: changeKey
+                  $p.app.widgets.plinks__MODULE_ID__.changeKey
+                        
+                  Change selected tag 
+          */     
+    changeKey:function(v_key){
+    	selKey__MODULE_ID__=v_key;
+    	parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("selkey",v_key);
+    	$p.app.widgets.plinks__MODULE_ID__.show();
+    },
+    /*
+              Function: initCallback
+                  $p.app.widgets.plinks__MODULE_ID__.initCallback
+                        
+                  Get the user registered links for the module
+              
+              Parameters:
+                  response (object) - XML Object 
+                  vars (array) - 
+          */  
+    initCallback:function(response,vars){
+        var i=0;
+        while (response.getElementsByTagName("link")[i])
+		{
+			var result=response.getElementsByTagName("link")[i];
+			var link_id=parent.$p.ajax.getVal(result,"linkid","int",false,0);
+			var name=parent.$p.ajax.getVal(result,"name","str",false,"");
+			var url=parent.$p.ajax.getVal(result,"url","str",false,"");
+			var tags=parent.$p.ajax.getVal(result,"tags","str",false,"");
+            links__MODULE_ID__[i] = new $p.app.widgets.plinks__MODULE_ID__.linkObj(link_id,name,url,tags);
+            i++;
+        }
+    	$p.app.widgets.plinks__MODULE_ID__.getKeys();
+    	$p.app.widgets.plinks__MODULE_ID__.show();
+    },
+    /*
+              Function: init
+                  $p.app.widgets.plinks__MODULE_ID__.init
+                        
+                  Initialize the module
+          */  
+    init:function(){
+    	$p.app.widgets.plinks__MODULE_ID__.noopt();
+        _IG_FetchXmlContent("../modules/wid_links.php?linkid="+linkid__MODULE_ID__+"&favid="+favid__MODULE_ID__+"&getText=1&widgetid="+uniq__MODULE_ID__+"&sharedmd5key="+sharedmd5key__MODULE_ID__,$p.app.widgets.plinks__MODULE_ID__.initCallback,"GET");
+    }
+}    
+_IG_RegisterOnloadHandler($p.app.widgets.plinks__MODULE_ID__.init);
+_IG_AdjustIFrameHeight();
+</script>
+<table cellpadding="4" cellspacing="0" width="100%">
+    <tr>
+        <td id="lkd__MODULE_ID__" style='padding:6px'></td>
+    </tr>
+</table>
+<div id="addb__MODULE_ID__" style='padding:2px 0 4px 4px;'></div>
+]]></Content>
+</Module>

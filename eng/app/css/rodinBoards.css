@@ -1,0 +1,493 @@
+/* CSS file for Rodin's control boards */
+/* PARAMETRIZED BY FABIO RICCI */
+/* ADJUST rodinBoards.css.php !!!! */
+
+/******************************/
+/* Global to all Rodin boards */
+/******************************/
+div.singleRodinBoard {
+	width: <?php print $FACETBOARDMINWIDTH; ?>;
+	position:relative;	
+	margin-bottom: 6px;
+	overflow-y: hidden;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+	border: 3px solid <?php print $COLOR_BORDERLINE; ?>;
+	font-size: 12px;
+}
+
+div.rodinBoardTitleBar {
+	padding-left: 6px;
+	padding-bottom: 2px;
+	background-color:<?php print $COLOR_MENUTITLEBAR; ?>;
+	vertical-align: middle;
+}
+
+div.rodinBoardTitleBar img.rodinBoardTitleImage {
+	height: 15px;
+	margin-right: 2px;
+	vertical-align: middle;
+}
+
+div.rodinBoardTitleBar img.toggleBoardIcon {
+	float: right;
+	cursor: pointer;
+	padding: 4px 2px 0px 2px;
+}
+
+div.rodinBoardTitleBar span.rodinBoardTitleLabel {
+	font-size: 13px;
+	font-family:"Arial";
+	color:<?php print $COLOR_MENUCONTENT; ?>;
+}
+
+div.allBoards div.collapsedContent {
+	display: none;
+	visibility: hidden;
+}
+
+div.singleRodinBoard div.boardConfiguration {
+	background-color: <?php print $COLOR_BORDERLINE; ?>;
+	padding-top: 2px;
+}
+
+div.singleRodinBoard div.boardConfiguration select {
+	vertical-align: middle;
+	display: inline;
+	font-size: 12px;
+}
+
+div.singleRodinBoard div.boardConfiguration input {
+	vertical-align: middle;
+	display: inline;
+	font-size: 12px;
+}
+
+div.singleRodinBoard div.boardConfiguration label {
+	vertical-align: middle;
+	display: inline;
+	font-size: 12px;
+}
+
+div.singleRodinBoard div.boardConfiguration button {
+	vertical-align: middle;
+	display: inline;
+}
+
+div.singleRodinBoard div.boardConfiguration img {
+	vertical-align: middle;
+	display: inline;
+}
+
+/*******************/
+/* Add Widget only */
+/*******************/
+div#addWidgetBoard div.menuitemcontent {
+	font-size: 0.85em;
+	font-weight: bold;
+	color: <?php print $COLOR_BLACK; ?>;
+}
+
+div#addWidgetBoard div.menuitemcontent a:visited {
+	color: <?php print $COLOR_BLACK; ?>;
+}
+
+div#addWidgetBoard div.menuitemcontent a:hover {
+	text-decoration: none;
+}
+
+
+/******************/
+/* Tag cloud only */
+/******************/
+div#cloudBoard div#cloudBoardTags {
+	padding: 4px;
+	text-align: center;
+}
+
+div#cloudBoard ul {
+	text-align: left;
+	list-style: none;
+	margin: 0px;
+	padding: 0px 0px 6px 4px;
+}
+
+div#cloudBoard a.cloudTag {
+	cursor: pointer;
+	border-radius: 6px 6px 6px 6px;
+    padding: 2px 4px;
+    background: none;
+    vertical-align: middle;
+}
+
+div#cloudBoard a.color0 {
+	color: <?php print $COLOR1_TAGCLOUD; ?>;
+}
+
+div#cloudBoard a.color1 {
+	color: <?php print $COLOR2_TAGCLOUD; ?>;
+}
+
+div#cloudBoard a.cloudTag:hover {
+	
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	text-decoration: none;
+}
+
+/*******************************/
+/* Only for ontological facets */
+/*******************************/
+div.singleRodinBoard div.boardConfiguration input#ontofacet_center {
+	width: 212px;
+	margin-right: 2px;
+}
+
+div#fb_itemname {
+	position:relative;
+	border-style:hidden;
+	border-width:thin;
+}
+
+.fb_expander-uninit {
+	text-align:left;
+}
+
+.fb-expander {
+	background-image:url(<?php print $RODINIMAGESURL; ?>/icon_collapsed_black_h12.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	text-align:left;
+}
+
+.fb-collapser {
+	background-image:url(<?php print $RODINIMAGESURL; ?>/icon_expanded_black_w12.png);
+	background-repeat:no-repeat;
+	background-position:center;
+}
+
+.facetboard-container {
+	overflow-x:hidden;
+	overflow-y:auto;			
+}
+
+.facetcontrol-normal,
+.facetcontrol-active {
+	border-top: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+	padding-left: 4px;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	position: relative;	
+	text-align: left;
+	overflow-y: auto;
+}
+
+.facet-result-count {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: normal;
+    min-width: 80px;
+    padding-right: 6px;
+    text-align: right;
+    color: darkgray;
+}
+
+.facetcontrol-active {
+	border-top-color:#FFF;
+	border-top-style:solid;
+	border-top-width:thin;
+	border-left-color:#FFF;
+	border-left-style:solid;
+	border-left-width:thin;
+	border-bottom-color:#AAA;
+	border-bottom-style:solid;
+	border-bottom-width:thin;
+}
+
+.facetcontrol-td-uninit {
+	padding-left:6px;
+	font-family:"Arial";
+	font-size: small; /*like portaneo widgetmenu */
+	font-weight:lighter;
+	text-align:left; 
+	color:<?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+}
+
+
+.facetcontrol-td {
+	font-family:"Arial";
+	font-size: small; /*like portaneo vidgetmenu */
+	font-weight:bold;
+	text-align:left; 
+}
+
+
+.facetcontrol-td-error, 
+.facetcontrol-td-timeout {
+	color:<?php print $COLOR_WARNINGS; ?>;
+	padding-left:6px;
+	font-family:"Arial";
+	font-size: small; /*like portaneo vidgetmenu */
+	font-weight:bold;
+	text-align:left; 
+}
+
+.facetgroup-header {
+	padding: 2px 2px 2px 8px;
+	border-style:hidden;
+	background-color: white;
+	position:relative;
+}
+
+.facetgroup-active,
+.facetgroup-inactive {
+	padding: 2px 0px;
+	border-style: none;
+	background-color: white;
+	position: relative;	
+}
+
+.facetgroup-inactive {
+	display:none;
+	visibility:hidden;
+}
+
+.facetlist-active,
+.facetlist-inactive {
+	padding: 0px 2px 0px 8px;
+	border-style: none;
+	background-color: white;
+	position: relative;
+}
+
+.facetlist-inactive {
+	display:none;
+	visibility:hidden;
+}
+
+div#fb_container {
+	border-top-style:solid;
+	border-top-color:white;
+	border-top-width:thin;
+}	
+
+.term,
+.first {
+		font-weight: bold;
+}
+
+.fb-content {
+	border-color:black;
+	background:red;
+	border-style:solid;
+	border-width:thin;	
+}
+
+.fb-sorting {
+	padding-left:6px;
+	color:<?php print $COLOR_PAGE_BACKGROUND3; ?>;
+	border-bottom-style:solid;
+	border-bottom-color:black;
+	border-bottom-width:thin;
+	font-size:small;
+	font-style:italics;! important;	
+}
+
+.fb-tab-selected {
+	font-family:"Arial";
+	font-size:small; /*like portaneo vidgetmenu */
+	text-decoration:none;	
+	color:white;
+	background-color:<?php print $COLOR_PAGE_BACKGROUND3; ?>;
+}
+
+
+.fb-tab {
+	font-family:"Arial";
+	font-size: small; /*like portaneo vidgetmenu */
+		text-decoration:none;	
+	color:<?php print $COLOR_PAGE_BACKGROUND3; ?>;
+}
+
+
+.fb-inc,
+.fb-exc {
+	color:<?php print $COLOR_PAGE_BACKGROUND3; ?>;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	font-family:"Courier New";
+	font-size: small; 
+}
+
+a.fb-term {
+	color:<?php print $COLOR_BLACK; ?>;
+	text-align: left;
+	text-decoration: none;
+	font-family:"Arial";
+	font-size: 13px; /*like portaneo vidgetmenu */
+	cursor: pointer;
+}
+
+a:hover.fb-term {
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+}
+
+table.fb-group-table {
+	padding-left: 16px;
+	padding-right: 2px;
+}
+
+tr.fb-term-row > td {
+	padding-top: 6px;
+	border-bottom: 1px solid <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+}
+
+/*
+a#srcsearchlink
+{
+	font-weight: bold;
+	text-align: left;
+	text-decoration: none;
+	font-family:"Arial";
+	font-size: 13px; /*like portaneo vidgetmenu
+}
+*/
+
+.facet-recomp-hidden {
+	display:none;
+	visibility:hidden;
+}
+
+.facet-recomp-visible {
+	display:block;
+	visibility:visible;
+}
+
+.facet-nodelabel {
+	color: black;
+    font-family: "Arial";
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.facet-nodelabel-visible {
+	display:block;
+	visibility:visible;
+}
+
+/***************************/
+/* Meta Search Options Bar */
+/***************************/
+div#metaSearchOptionsBar {
+	width:100%;
+	font-size: 12px;
+	border: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+	border-width: 2px 0px 2px 0px;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	float: left;
+	padding: 2px 0px 2px 0px;
+	margin-top: 2px;
+}
+
+div#metaSearchOptionsBar .searchOptionDiv {
+	/*border: 1px solid blue;*/
+	float: right;
+	margin-right: 8px;
+	margin-left: 8px;
+	
+	display: table-cell;
+}
+
+div#metaSearchOptionsBar .searchOptionDiv img.optionButton {
+	width: 20px;
+	cursor: pointer;
+	margin: 0px ;
+	padding-top: 2px;
+	position: relative;
+}
+
+div#metaSearchOptionsBar .optionLabel {
+	/*width: 80px;
+	border: 1px solid red;*/
+	padding-right: 4px;
+	padding-top: 4px;
+	float: left;
+	height: 20px;
+}
+
+div#metaSearchOptionsBar input {
+	height: 24px;
+	margin-top: 1px;
+}
+
+/**************/
+/* Breadcrumb */
+/**************/
+div#breadcrumbs {
+	/* Same as div#rodinmetasearch in rodin.css */
+	width: 800px;
+	margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 4px;
+    display: block;
+}
+
+div#breadcrumbs.breadCrumbsHidden {
+	display:none;
+	visibility:hidden;
+}
+
+div#breadcrumbs #breadcrumbs_title {
+	font-size:13px;
+	text-align: right;
+	color:<?php print $COLOR_BLACK; ?>;
+	cursor:pointer;
+
+	position: relative;
+	width: 164px;
+	padding-right:6px;
+	float: left;
+}
+
+div#breadcrumbs_terms {
+	position: relative;
+	display: table;
+}
+
+div#breadcrumbs_terms a {
+	background-color: <?php print $COLOR_BORDERLINE;?>;
+    border-radius: 6px 6px 6px 6px;
+    padding: 0px 2px 2px 8px;
+    margin: 0px 4px 2px 0px;
+	font-family:Arial, Helvetica, sans-serif;
+	text-decoration:none;
+	float: left;
+}
+
+div#breadcrumbs_terms a:hover {
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2;?>;
+}
+
+div#breadcrumbs_terms a img {
+	padding: 0px 2px 0px 4px;
+	position: relative;
+	top: 1px;
+}
+
+a.crumb-meta-normal {
+	color:<?php print $COLOR_METASEARCHTEXT_IN_BC; ?>;
+}
+
+a.crumb-onto-normal {
+	color:<?php print $COLOR_BC_ONTO_TEXT; ?>;
+}
+
+a.crumb-result-normal {
+	color:<?php print $COLOR_BC_RESULT_TEXT; ?>;
+}
+
+a.crumb-survista-normal {
+	color:<?php print $COLOR_BC_SURVISTA_TEXT; ?>;
+}
+
+a.crumb-zen-normal {
+	color:<?php print $COLOR_BC_ZEN_TEXT; ?>;
+}

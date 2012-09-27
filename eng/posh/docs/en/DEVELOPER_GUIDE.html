@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>PORTANEO :: Developer guide</title>
+	<link rel="stylesheet" href="../../styles/docs.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>DEVELOPER'S GUIDE</h1>
+<ol>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#directories">Directories</a></li>
+<li><a href="#norms">Coding standards</a></li>
+<li><a href="#menu">Add new options in the menu</a></li>
+<li><a href="#header">Add new links in the header</a></li>
+<li><a href="#admin">Add new tabs in the administration interface</a></li>
+</ol>
+<br /><br />
+<ol>
+<li><h2><a name="requirements" />Requirements</h2><br />
+If you modify POSH, do not forget to submit your changes to give us chance to improve the POSH tool to the community. For that, contact us on http://www.portaneo.net
+<br /><br />
+</li>
+<li><h2><a name="directories" />Directories</h2><br />
+Directories usages : 
+<ul>
+<li>admin : PHP pages and scripts that manage the admin interface</li>
+<li>cache : XML caches of the application informations (modules, categories, ...)</li>
+<li>images : All the pictures used in the application (except modules' ones)</li>
+<li>includes : All the javascript files and PHP includes</li>
+<li>l10n : Language files</li>
+<li>modules : modules used in the application</li>
+	<ul>
+	<li>cache : rss modules caches</li>
+	<li>external : pictures and scripts used by modules</li>
+	<li>pictures : icons of the modules</li>
+	<li>quarantine : temporary folder used by tutorial for users module creation</li>
+	</ul>
+<li>portal : PHP pages and scripts php that manage the main pages</li>
+<li>styles : All the css files of the application</li>
+<li>tools : Tools used by the application (rss parser, ...)</li>
+<li>tutorial : PHP pages and scripts that manage the tutorial</li>
+</ul>
+<br /><br />
+</li>
+<li><h2><a name="norms" />Coding standards</h2><br />
+All the PHP pages must call includes/session.inc.php and previously define the variables $not_access (1 : the user must be connected to open this page, 0 : the user is not connected) et $granted ("A": grant access only for admin users, "I": grant access only for connected POSH users).<br /><br />
+To access the database, use the class "connection" of the file includes/connection.inc.php.<br /><br />
+You can add new javascript / php functions through plug-ins. See "test" plug-ins as an example.<br /><br />
+
+<br /><br />
+</li>
+<li><h2><a name="header" />Add new links in the header</h2><br />
+To add new links in the portals header (next to "connection link") :
+<ul>
+<li>Modify the "headlinks" parameter of the "adm_config" table, by adding new link just like the existing ones (fct: function called (type link(\"your_link\") for an hyperlink), label: name displayed, img:pictures of the link, comment:text displayed on mouseover, anonymous: is the option available on the homepage?, connected: is the option available on the personal portals). Links are sorted the same way in "adm_config" and in the portals.</li>
+<li>From admin interface, Submit the "general settings" to re-generate the includes/config.js. file</li>
+</ul>
+<br /><br />
+</li>
+<li><h2><a name="admin" />Add new tabs in the administration interface</h2><br />
+<ul>
+<li>Create your PHP files in the admin/ folder</li>
+<li>Add the new tabs in the "adm_tabs" table :<br />
+ name : tab id
+ label : tab title
+ type : type <b>4</b>
+ param : name of the PHP file that opens when we click on the tab
+ </li>
+</ul>
+<br /><br />
+</li>
+</ol>
+And don't forget to become a POSH contributor by sending us your developments !
+</body>
+</html>

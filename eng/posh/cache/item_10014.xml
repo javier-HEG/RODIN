@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><item><id>10014</id>
+ <name><![CDATA[EconBiz]]></name>
+ <url><![CDATA[/rodin/eng/app/w/RDW_EconBiz.php?]]></url>
+ <size>300</size>
+ <minwidth>300</minwidth>
+ <sizable>1</sizable>
+ <format>I</format>
+ <var><![CDATA[]]></var>
+ <nota>0</nota>
+ <description><![CDATA[Search in EconBiz. RODIN project, HEG.]]></description>
+ <website><![CDATA[/rodin/gen/u/images/econbiz-logo.png]]></website>
+ <nbvars>0</nbvars>
+ <usereader>1</usereader>
+ <autorefresh>0</autorefresh>
+ <editor_id>1</editor_id>
+ <editor><![CDATA[]]></editor>
+ <creation_date>2011-02-24</creation_date>
+<views></views>
+<l10n></l10n>    
+<icon><![CDATA[../modules/pictures/box0_10014.gif]]></icon>
+</item>

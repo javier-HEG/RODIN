@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><channel><path>Home</path>
+          <parent>0</parent>
+<dir>
+ <dirid>3</dirid>
+ <dirname><![CDATA[TEST]]></dirname>
+ <quantity>10</quantity>
+ <secured>0</secured>
+ <secured_quantity>0</secured_quantity>
+ <lang>en</lang>
+</dir>
+        
+<dir>
+ <dirid>5001</dirid>
+ <dirname><![CDATA[INFONET]]></dirname>
+ <quantity>1</quantity>
+ <secured>0</secured>
+ <secured_quantity>0</secured_quantity>
+ <lang>en</lang>
+</dir>
+        
+<dir>
+ <dirid>5003</dirid>
+ <dirname><![CDATA[VICHANGO]]></dirname>
+ <quantity>1</quantity>
+ <secured>0</secured>
+ <secured_quantity>0</secured_quantity>
+ <lang>en</lang>
+</dir>
+        </channel>

@@ -1,0 +1,71 @@
+@CHARSET "UTF-8";
+
+
+
+span.explHead
+{
+	font-size:large;
+	font-weight:bold;
+}	
+
+span.expl0 {
+	font-family:arial;
+}
+
+span.expl1, span.expl4 {
+	font-size:small;
+	font-family:arial;
+	color:#aaa;
+	font-style:italic;
+}
+
+.expl2 {
+	font-size:small;
+	font-family:arial;
+	color:gray;
+}
+
+tr.mysqltext {
+	
+	font-size:small;
+	font-family:arial;
+	
+	background-color:white;
+}
+
+
+
+label.dbname {
+	color:red;
+}
+
+label.codeinstance {
+	color:black;
+}
+
+label.username {
+	color:green;
+}
+
+label.ausername {
+	color:#3aa;
+}
+
+label.xusername {
+	color:#0f0;
+}
+
+
+label.passwd {
+	color:blue;
+}
+
+label.userpass {
+	color:blue;
+}
+
+input.rodinseg {
+	color:red;
+}
+
+	

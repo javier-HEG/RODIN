@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><channel><parent>0</parent><dirname><![CDATA[INFONET (1)]]></dirname><path><![CDATA[ <a href='#' onclick='$p.app.menu.widget.getExplorer(0)' style='color:#000000;text-decoration:underline;'>Home</a> > INFONET ]]></path>
+<item>
+ <id>10007</id>
+ <name><![CDATA[GBooks]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10007.gif</icon>
+</item>
+</channel>

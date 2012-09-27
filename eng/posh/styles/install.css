@@ -1,0 +1,29 @@
+BODY {background-image: url(../images/bgstrike.gif);font-size: 8pt;margin: 0px;}
+IMG {border: 0px;}
+A {color: #808080;font-size: 8pt;FONT-FAMILY: Verdana,Arial,Helvetica;}
+DIV, TD {color: #808080;font-size: 8pt;FONT-FAMILY: Verdana,Arial,Helvetica;}
+H1 {font-size: 12pt;margin: 5px 0 10px 0;}
+H2 {color: #88A121;font-size: 11pt;margin: 5px 0 5px 0;}
+H3 {font-size: 9pt;margin: 1px 0 2px 0;font-weight: bold;}
+FORM {margin: 0px;}
+.cell {border: 1px solid #c6c3c6;background-color: #efefef;}
+SELECT {border: 1px solid #c6c3c6;background-color: #efefef;}
+#header {width: 780px;background-image: url(../images/headergreen.gif);height: 46px;padding: 4px;border-bottom: 1px solid #C6C3C6;}
+#headertbl {width: 780px;border: 0px;}
+.flag {border: 1px solid #ffffff;margin: 2px;vertical-align: top;}
+#content {text-align: left;width: 650px;height: 435px;border-top: 1px solid #efefef;padding: 6px;}
+#footer {width: 642px;height: 38px;text-align: center;padding: 10px;color: #808080;}
+.selectbox {width: 212px;height: 334px;text-align: left;vertical-align: top;background: url(../images/selectbox.gif) no-repeat;text-align: center;} 
+.selectboxactive {width: 212px;height: 334px;vertical-align: top;text-align: left;background: url(../images/selectboxactive.gif) no-repeat;text-align: center;}
+.title {padding-bottom: 6px;border-bottom: 2px inset #efefef;font-weight: bold;}
+.lightlink {color: #FFCC00;}
+ul {list-style: url(../images/ico_right_arrow.gif) outside;padding: 0 0 0 0px;margin-left: 30px;}
+li {margin: 0 0 2px 0}
+.bottomhr {width: 658px;border-bottom: 1px solid #C6C3C6;}
+.errordiv {display: none;position: absolute;left: 0px;width: 100%;border-bottom: 1px solid #c6c3c6;background-color: #efefef;padding: 12px 0 12px 0;color: #ff0000; font-weight: bold;}
+
+.install_active_suite {
+    border:1px solid #808080;
+    padding:10px 0 10px 10px;
+}
+label { color: #808080;font-weight: bold; }

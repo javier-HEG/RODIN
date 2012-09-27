@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" height="184">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/p_calendar/p_calendar_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/p_calendar/p_calendar_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/p_calendar/p_calendar_fr_ALL.xml"/>
+ </ModulePrefs>
+<UserPref name="calid" display_name="." datatype="hidden" default_value="0" />
+<Content type="html" view="home"><![CDATA[
+<head>
+<script>
+var user_id = parent.$p.app.user.id;
+var p = parent.$p.string.getVar(""+window.location,"p");
+var shared = parent.$p.string.getVar(""+window.location,"shared");
+var sharedmd5key = parent.$p.string.getVar(""+window.location,"sharedmd5key");
+
+var calid__MODULE_ID__ =  parent.$p.string.getVar(window.location+"","calid");
+
+var id__MODULE_ID__ = parent.$p.app.widgets.uniqToId(p,parent.$p.app.tabs.sel);
+var date__MODULE_ID__ = new Date();
+var mod__MODULE_ID__ = 0;
+var events__MODULE_ID__ = [];
+var shared__MODULE_ID__ = shared;
+
+$p.app.widgets.p_calendar__MODULE_ID__={
+
+    add__MODULE_ID__:function(v_form){
+    	var stime=v_form.hour__MODULE_ID__.value+":"+v_form.minute__MODULE_ID__.value;
+    	var etime=v_form.hourf__MODULE_ID__.value+":"+v_form.minutef__MODULE_ID__.value;
+    	if (etime<stime){alert("__MSG_endTimeMustBeHigher__");return;}
+    	var ndate=parent.$p.date.getDbFormat(v_form.day__MODULE_ID__.value,v_form.mon__MODULE_ID__.value,v_form.yea__MODULE_ID__.value);
+    	parent.executescr("../modules/wid_calendar.php","modid="+calid__MODULE_ID__+"&act=add&t="+v_form.tit__MODULE_ID__.value+"&c="+v_form.com__MODULE_ID__.value+"&d="+ndate+"&h="+stime+"&end="+etime,false,true,$p.app.widgets.p_calendar__MODULE_ID__.get__MODULE_ID__);
+    },
+    get__MODULE_ID__:function(v_id){
+    	if (v_id!=indef){
+    		var l_id=v_id.split("_");
+    			calid__MODULE_ID__=l_id[0];
+    			parent.tab[parent.$p.app.tabs.sel].module[id__MODULE_ID__].changeVar("calid",calid__MODULE_ID__);
+                parent.$("editboxinput_"+parent.tab[parent.$p.app.tabs.sel].id+"_"+p+"_calid").value = calid__MODULE_ID__;   
+    	}
+    	if (mod__MODULE_ID__==0){
+            navPrint("ev__MODULE_ID__","__MSG_lbl_loading__");
+    		parent.getXml("../modules/wid_calendar.php",$p.app.widgets.p_calendar__MODULE_ID__.displayMonth__MODULE_ID__,"","xml","modid="+calid__MODULE_ID__+"&act=month&m="+(date__MODULE_ID__.getMonth()+1)+"&y="+date__MODULE_ID__.getFullYear()+"&widgetid="+p+"&sharedmd5key="+sharedmd5key,"POST");
+    	} else {
+    		var gdate=parent.$p.date.getDbFormat(date__MODULE_ID__.getDate(),(date__MODULE_ID__.getMonth()+1),date__MODULE_ID__.getFullYear())
+    		parent.getXml("../modules/wid_calendar.php",$p.app.widgets.p_calendar__MODULE_ID__.display__MODULE_ID__,"","xml","modid="+calid__MODULE_ID__+"&act=get&d="+gdate+"&widgetid="+p+"&sharedmd5key="+sharedmd5key,"POST");
+    	}
+    },
+    display__MODULE_ID__:function(response,vars){
+        $p.app.widgets.p_calendar__MODULE_ID__.noopt__MODULE_ID__();
+    	l_s = "<a href='#' onclick='$p.app.widgets.p_calendar__MODULE_ID__.displayMonthEvents__MODULE_ID__();return false;'>&laquo; "+"__MSG_returnWholeMonth__"+"</a><br /><br />";
+
+    	if (response.getElementsByTagName("event")[0]){
+    		var i=0;
+    		l_s += "<table cellpadding='1' cellspacing='0' width='100%'>";
+    		while (response.getElementsByTagName("event")[i])
+            {
+    			var l_event = response.getElementsByTagName("event")[i];
+    			l_s += "<tr>"
+                    + "<td width='72'>"
+                    + parent.$p.ajax.getVal(l_event,"time","str",false,"--")
+                    + " - "
+                    + parent.$p.ajax.getVal(l_event,"endtime","str",false,"--")
+                    + "</td>"
+                    + "<td onmouseover=\"parent.mouseBox('"+(parent.$p.ajax.getVal(l_event,"comment","str",false,"--").replace(/'/g," "))+"',event)\" onmouseout=\"parent.mouseBox('')\">"
+                    + parent.$p.ajax.getVal(l_event,"title","str",false,"--")
+                    + "</td>"
+                    + "<td width='15'>"
+                    + "<a href='#' onclick='$p.app.widgets.p_calendar__MODULE_ID__.sup__MODULE_ID__("+parent.$p.ajax.getVal(l_event,"id","id",false,0)+")'><img src='../images/ico_close.gif' /></a>"
+                    + "</td>"
+                    + "</tr>";
+    			i++;
+    		}
+    		l_s += "</table>";
+    	} else {l_s += "__MSG_lblNoEvent__";}
+        
+    	navPrint("ev_list__MODULE_ID__",l_s);
+        _IG_AdjustIFrameHeight();
+    },
+    displayMonth__MODULE_ID__:function(response,vars){
+        $p.app.widgets.p_calendar__MODULE_ID__.noopt__MODULE_ID__();
+           
+            events__MODULE_ID__.length = 0;
+            
+        	var l_s = '<table cellpadding="0" cellspacing="0" style="border: 1px solid #0E679A;">'
+                + '<tr style="background: #E9EDF2;">'
+                + '<td style="text-align: center;height: 20px;">'
+                + '<a href="#" onclick="return $p.app.widgets.p_calendar__MODULE_ID__.prev__MODULE_ID__();"><img src="../images/ico_previous.gif" /></a>'
+                + '</td>'
+                + "<td colspan='5' id='currdate__MODULE_ID__' style='text-align:center'>"
+                + $p.app.widgets.p_calendar__MODULE_ID__.showdate__MODULE_ID__()
+                + '</td>'
+                + '<td style="text-align:center">'
+                + '<a href="#" onclick="return $p.app.widgets.p_calendar__MODULE_ID__.next__MODULE_ID__();"><img src="../images/ico_next.gif" /></a>'
+                + '</td>'
+                + '</tr>'
+            	+ '<tr style="background: #E9EDF2;">'
+                + "<td style='width: 20px;height: 20px;text-align: center;'>"+"__MSG_monday2__"+ "</td>"
+                + "<td style='width: 20px;height: 20px;text-align: center;'>"+"__MSG_tuesday2__"+"</td>"
+                + "<td style='width: 20px;height: 20px;text-align: center;'>"+"__MSG_wednesday2__"+"</td>"
+                + "<td style='width: 20px;height: 20px;text-align: center;'>"+"__MSG_thirsday2__"+"</td>"
+                + "<td style='width: 20px;height: 20px;text-align: center;'>"+"__MSG_friday2__"+"</td>"
+                + "<td style='width: 20px;height: 20px;text-align: center;'>"+"__MSG_saturday2__"+"</td>"
+                + "<td style='width: 20px;height: 20px;text-align: center;'>"+"__MSG_sunday2__"+"</td>"
+                + "</tr>";
+ 
+            var current_month = new Date().getMonth()+1;
+        	var l_date = new Date(date__MODULE_ID__.getFullYear(),date__MODULE_ID__.getMonth(),1),
+                l_today = new Date,
+                inc = 0,
+                l_day,
+                l_month = l_date.getMonth()+1,
+                l_yea = l_date.getFullYear(),
+                xmlinc = 0,
+                l_comment;
+
+        	var l_start = (l_date.getDay() == 0 ? 7 : l_date.getDay());
+        	for (var i = 1;i < l_start;i++)
+            {
+        		if (i == 1)
+                    l_s += "<tr>";
+        		l_s += "<td style='width: 20px;height: 20px;text-align: center;'></td>";
+        		inc++;
+        	}
+        	while ((l_date.getMonth()) == date__MODULE_ID__.getMonth())
+            {
+        		if (inc % 7 == 0) l_s += "<tr>";
+        		l_day = l_date.getDate();
+        		l_comment = "";
+ 
+        		if (response.getElementsByTagName("event")[xmlinc])
+                {
+        			while(response.getElementsByTagName("event")[xmlinc] && parent.$p.ajax.getVal(response.getElementsByTagName("event")[xmlinc],"day","int",false,0)==l_day)
+                    {
+        				var l_event = response.getElementsByTagName("event")[xmlinc];
+        				var l_title = parent.$p.ajax.getVal(l_event,"time","str",false,"--")+"&raquo;"+parent.$p.ajax.getVal(l_event,"endtime","str",false,"--")+" "+(parent.$p.ajax.getVal(l_event,"title","str",false,"--").replace(/'/g," "));
+                        l_comment += '' + l_title;
+                        
+                        // Only 24 events
+                        if ( events__MODULE_ID__.length < 24 && (l_month>current_month || ( l_month==current_month &&  l_day >= l_today.getDate() ) ) )
+                            events__MODULE_ID__.push(l_day+'/'+l_month+'/'+l_yea+' '+l_title);
+                            
+            			xmlinc++;
+        			}
+        		}
+        		if (l_comment == "")
+                {
+        			l_s+="<td style='width: 20px;height: 20px;text-align: center;' bgcolor='#ffffff' onmouseover=\"parent.mouseBox('')\">"+l_day+"</td>";
+        		} else {
+        			l_s+="<td style='width: 20px;height: 20px;text-align: center;' bgcolor='#efefef' style='cursor:pointer;cursor:hand;font-weight:bold;' onclick='$p.app.widgets.p_calendar__MODULE_ID__.selDay__MODULE_ID__("+l_day+")' onmouseover=\"parent.mouseBox('"+l_comment+"',event)\" onmouseout=\"parent.mouseBox('')\">"+l_day+"</td>";
+        		}
+
+        		l_date.setDate(l_date.getDate()+1);
+        		inc++;
+        		if (inc % 7 == 0) l_s += "</tr>";
+        	}
+        	navPrint("ev__MODULE_ID__",l_s);
+            _IG_AdjustIFrameHeight();
+            
+           $p.app.widgets.p_calendar__MODULE_ID__. displayMonthEvents__MODULE_ID__();
+    },
+    selDay__MODULE_ID__:function(day){
+    	date__MODULE_ID__=new Date(date__MODULE_ID__.getFullYear(),date__MODULE_ID__.getMonth(),day);
+    	mod__MODULE_ID__=1;
+    	$p.app.widgets.p_calendar__MODULE_ID__.get__MODULE_ID__();
+    },
+    selMonth__MODULE_ID__:function(){
+    	mod__MODULE_ID__=0;
+    	$p.app.widgets.p_calendar__MODULE_ID__.get__MODULE_ID__();
+    },
+    sup__MODULE_ID__:function(id,newL){
+    	response=confirm("__MSG_msgAreYouSureSupElement__");
+    	if (response==1){parent.executescr("../modules/wid_calendar.php","modid="+calid__MODULE_ID__+"&act=sup&calid="+id,false,true,$p.app.widgets.p_calendar__MODULE_ID__.get__MODULE_ID__);}
+    },
+    opt__MODULE_ID__:function(obj){
+    	var l_s="";
+    	if (user_id==0){alert("__MSG_msgNeedToBeConnected__");}
+    	else {
+    		l_s+="<form name='f__MODULE_ID__' action='' onsubmit='$p.app.widgets.p_calendar__MODULE_ID__.add__MODULE_ID__(this);return false;'><table cellpadding='1' cellspacing='0'><tr><td>"+"__MSG_lbl_title__"+"</td><td><input type='text' name='tit__MODULE_ID__' maxlength='64' size='32' /></td></tr><tr><td>"+"__MSG_comment__"+"</td><td><input type='text' name='com__MODULE_ID__' maxlength='250' size='35' /></td></tr>";
+    		l_s+="<tr><td>"+"__MSG_lbl_date__"+"</td>";
+    		l_s+="<td><select name='day__MODULE_ID__'><option value='1'>01</option><option value='2'>02</option><option value='3'>03</option><option value='4'>04</option><option value='5'>05</option><option value='6'>06</option><option value='7'>07</option><option value='8'>08</option><option value='9'>09</option><option value='10'>10</option><option value='11'>11</option><option value='12'>12</option><option value='13'>13</option><option value='14'>14</option><option value='15'>15</option><option value='16'>16</option><option value='17'>17</option><option value='18'>18</option><option value='19'>19</option><option value='20'>20</option><option value='21'>21</option><option value='22'>22</option><option value='23'>23</option><option value='24'>24</option><option value='25'>25</option><option value='26'>26</option><option value='27'>27</option><option value='28'>28</option><option value='29'>29</option><option value='30'>30</option><option value='31'>31</option></select>";
+    		l_s+="<select name='mon__MODULE_ID__'><option value='1'>"+"__MSG_month1__"+"</option><option value='2'>"+"__MSG_month2__"+"</option><option value='3'>"+"__MSG_month3__"+"</option><option value='4'>"+"__MSG_month4__"+"</option><option value='5'>"+"__MSG_month5__"+"</option><option value='6'>"+"__MSG_month6__"+"</option><option value='7'>"+"__MSG_month7__"+"</option><option value='8'>"+"__MSG_month8__"+"</option><option value='9'>"+"__MSG_month9__"+"</option><option value='10'>"+"__MSG_month10__"+"</option><option value='11'>"+"__MSG_month11__"+"</option><option value='12'>"+"__MSG_month12__"+"</option></select>";
+    		l_s+="<select name='yea__MODULE_ID__'><option value='2006'>2006</option><option value='2007'>2007</option><option value='2008'>2008</option><option value='2009'>2009</option><option value='2010'>2010</option><option value='2011'>2011</option><option value='2012'>2012</option></select></td></tr>";
+    		//l_s+="<tr><td>"+"__MSG__time__"+"</td><td><input type='text' name='time__MODULE_ID__' size='5' maxlength='5' value='hh:mm' /></td></tr><tr><td></td><td><input class='btn' type='submit' value='"+"__MSG_lbl_add__"+"' /> <a href='#' onclick='$p.app.widgets.p_calendar__MODULE_ID__.noopt__MODULE_ID__();return false;'><img src='../images/ico_close.gif' /></a></td></tr></table></form>";
+    		l_s+="<tr><td>"+"__MSG_lbl_from__"+"</td><td><select name='hour__MODULE_ID__'><option value='00'>00 h</option><option value='01'>01 h</option><option value='02'>02 h</option><option value='03'>03 h</option><option value='04'>04 h</option><option value='05'>05 h</option><option value='06'>06 h</option><option value='07'>07 h</option><option value='08'>08 h</option><option value='09'>09 h</option><option value='10'>10 h</option><option value='11'>11h</option><option value='12'>12 h</option><option value='13'>13 h</option><option value='14'>14h</option><option value='15'>15 h</option><option value='16'>16 h</option><option value='17'>17 h</option><option value='18'>18 h</option><option value='19'>19 h</option><option value='20'>20 h</option><option value='21'>21 h</option><option value='22'>22 h</option><option value='23'>23 h</option></select> ";
+    		l_s+="<select name='minute__MODULE_ID__'><option value='00'>00 mn</option><option value='05'>05 mn</option><option value='10'>10 mn</option><option value='15'>15 mn</option><option value='20'>20 mn</option><option value='25'>25 mn</option><option value='30'>30 mn</option><option value='35'>35 mn</option><option value='40'>40 mn</option><option value='45'>45 mn</option><option value='50'>50 mn</option><option value='55'>55 mn</option></select></td></tr>";
+    		l_s+="<tr><td>"+"__MSG__until__"+"</td><td><select name='hourf__MODULE_ID__'><option value='00'>00 h</option><option value='01'>01 h</option><option value='02'>02 h</option><option value='03'>03 h</option><option value='04'>04 h</option><option value='05'>05 h</option><option value='06'>06 h</option><option value='07'>07 h</option><option value='08'>08 h</option><option value='09'>09 h</option><option value='10'>10 h</option><option value='11'>11h</option><option value='12'>12 h</option><option value='13'>13 h</option><option value='14'>14h</option><option value='15'>15 h</option><option value='16'>16 h</option><option value='17'>17 h</option><option value='18'>18 h</option><option value='19'>19 h</option><option value='20'>20 h</option><option value='21'>21 h</option><option value='22'>22 h</option><option value='23'>23 h</option></select> ";
+    		l_s+="<select name='minutef__MODULE_ID__'><option value='00'>00 mn</option><option value='05'>05 mn</option><option value='10'>10 mn</option><option value='15'>15 mn</option><option value='20'>20 mn</option><option value='25'>25 mn</option><option value='30'>30 mn</option><option value='35'>35 mn</option><option value='40'>40 mn</option><option value='45'>45 mn</option><option value='50'>50 mn</option><option value='55'>55 mn</option></select></td></tr>";
+    		l_s+="<tr><td></td><td><input class='btn' type='submit' value='"+"__MSG_lbl_add__"+"' /> <a href='#' onclick='$p.app.widgets.p_calendar__MODULE_ID__.noopt__MODULE_ID__();return false;'><img src='../images/ico_close.gif' /></a></td></tr></table></form>";
+    		obj.parentNode.innerHTML=l_s;
+    		l_form=document.forms["f__MODULE_ID__"];
+    		l_form.yea__MODULE_ID__.value=date__MODULE_ID__.getFullYear();
+    		l_form.mon__MODULE_ID__.value=(date__MODULE_ID__.getMonth()+1);
+    		l_form.day__MODULE_ID__.value=date__MODULE_ID__.getDate();
+            _IG_AdjustIFrameHeight();
+    	}
+    },
+    displayMonthEvents__MODULE_ID__:function()
+    {
+        mod__MODULE_ID__ = 0;
+
+        var l_s = '<b>'+'__MSG_nextEventsForTheMonth__'+' :</b><br /><br />';
+        
+        if (events__MODULE_ID__.length == 0)
+        {
+            l_s += '__MSG_lblNoEvent__';
+        }
+        else
+        {
+            l_s += '<ul>';
+            for (var i = 0;i < events__MODULE_ID__.length;i++)
+            {
+                l_s += '<li>'+events__MODULE_ID__[i]+'</li>';
+            }
+            l_s += '</ul>';
+        }
+        
+        navPrint("ev_list__MODULE_ID__",l_s);
+        _IG_AdjustIFrameHeight();
+    },
+    noopt__MODULE_ID__:function(){
+    	if (shared__MODULE_ID__==1) return false;
+    	var obj=_gel("addb__MODULE_ID__");
+    	obj.innerHTML="<a href='#' class='add' onclick='$p.app.widgets.p_calendar__MODULE_ID__.opt__MODULE_ID__(this);return false;'><img src='../images/ico_add.gif' /> "+"__MSG_lbl_add_event__"+"</a>";
+        _IG_AdjustIFrameHeight();
+    },
+    init__MODULE_ID__:function(){
+    	$p.app.widgets.p_calendar__MODULE_ID__.get__MODULE_ID__();
+    },
+    next__MODULE_ID__:function(){
+    	if (mod__MODULE_ID__==0){date__MODULE_ID__.setMonth(date__MODULE_ID__.getMonth()+1);}
+    	else {date__MODULE_ID__=new Date(date__MODULE_ID__.getTime()+86400000);}
+    	$p.app.widgets.p_calendar__MODULE_ID__.get__MODULE_ID__();
+    	return false;
+    },
+    prev__MODULE_ID__:function(){
+    	if (mod__MODULE_ID__==0){date__MODULE_ID__.setMonth(date__MODULE_ID__.getMonth()-1);}
+    	else {date__MODULE_ID__=new Date(date__MODULE_ID__.getTime()-86400000);}
+    	$p.app.widgets.p_calendar__MODULE_ID__.get__MODULE_ID__();
+    	return false;
+    },
+    showdate__MODULE_ID__:function(){
+    	var mon = date__MODULE_ID__.getMonth(); 
+    	var dat = date__MODULE_ID__.getDate(); 
+    	var yea  = date__MODULE_ID__.getFullYear();
+        var month = new Array("__MSG_month1__", "__MSG_month2__", "__MSG_month3__", "__MSG_month4__", "__MSG_month5__", "__MSG_month6__", "__MSG_month7__", "__MSG_month8__", "__MSG_month9__", "__MSG_month10__", "__MSG_month11__", "__MSG_month12__");
+     
+    	return "<b>"
+            + (mod__MODULE_ID__ == 0 ? "" : dat+" ")
+            + month[mon]
+            + " "
+            + yea
+            + "</b>";
+    }
+}
+
+</script>
+</head>
+<body>
+<div id="ev__MODULE_ID__" style="padding: 6px;float: left;"></div>
+<div id="ev_list__MODULE_ID__" style="padding: 6px;float: left;"></div>
+<hr class="float_correction" />
+<div id="addb__MODULE_ID__" style="padding: 3px 0 5px 4px;"></div>
+<script>
+window.onload = function() {
+$p.app.widgets.p_calendar__MODULE_ID__.noopt__MODULE_ID__();
+$p.app.widgets.p_calendar__MODULE_ID__.init__MODULE_ID__(); 
+}
+</script>
+</body>
+]]></Content>
+</Module>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><channel><parent>0</parent><dirname><![CDATA[Widgets -en (2)]]></dirname><path><![CDATA[ <a href='#' onclick='$p.app.menu.widget.getExplorer(0)' style='color:#000000;text-decoration:underline;'>Startseite</a> > Widgets -en ]]></path>
+<item>
+ <id>10000</id>
+ <name><![CDATA[BIBSONOMY]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10000.gif</icon>
+</item>
+
+<item>
+ <id>10001</id>
+ <name><![CDATA[FLICKR]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10001.gif</icon>
+</item>
+</channel>

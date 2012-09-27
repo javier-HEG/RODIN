@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>PORTANEO :: Installation</title>
+<link rel="stylesheet" href="../../styles/docs.css" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>INSTALL GUIDE</h1>
+<ol>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#newinstallation">New installation</a></li>
+<ol>
+<li>Install POSH on existing web site or application</li>
+<li>Download and install files</li>
+<li>First checks</li>
+<li>Database configuration</li>
+<li>Preferences</li>
+
+<li>Choose the first modules of your application</li>
+<li>Create the admin account</li>
+</ol>
+<li><a href="#skins">Define your application skin</a></li>
+<li><a href="#pages">Define the pages of your application</a></li>
+<li><a href="#configure">Configure your application</a></li>
+<li><a href="#modules">Manage and build your modules</a></li>
+<li><a href="#users">Manage users</a></li>
+<li><a href="#ownfunc">Add your own functionalities</a></li>
+</ol>
+<br />
+<ol>
+<li><h2><a name="requirements" />Requirements</h2><br />
+POSH installation requires :
+<ul>
+<li>a MySQL database (4.1 +)</li>
+<li>PHP (4.1+)</li>
+</ul>
+<br /><b>If an application is already installed on your MySQL database</b>, you need to save that database first.
+<br /><br />
+
+You need to give write access to the web server on the following folders and the sub-folders and files of these folders :
+<ul>
+<li>cache/</li>
+<li>includes/</li>
+<li>modules/ and sub-folders</li>
+<li>portal/selections/</li>
+<li>styles/</li>
+<li>styles/themes/</li>
+<li>temp/</li>
+</ul>
+
+If you are unsure how to do this, look at your web server documentation or our FAQ.
+<br /><br />
+</li>
+<li><h2><a name="newinstallation" />New installation</h2>
+<ol>
+<li><h3>Install POSH on existing web site or application</h3>
+If you install POSH on an existing database, it could impact its data. You need then to save this database before installing POSH.
+</li>
+<li><h3>Download and install files</h3>
+
+Download the POSH files from http://www.portaneo.net<br />
+Uncompress files on your web server (or on your computer and ftp them), and move them to the folder you want to install POSH.<br />
+<b>Start the installation by launching://www.&lt;yourdomain&gt;.com/&lt;posh_path&gt;/install/</b>
+</li>
+
+<li><h3>First checks</h3>
+Installer step 1 : POSH checks if the requirements mentioned above are met (software installed, access rigths).<br />
+If all the requirement are met, you can continue installation by clicking on "continue >>>". Else, you will need to make correction on red cross items and refresh the page to check again.
+</li>
+<li><h3>Database configuration</h3>
+Installer step 2 : Type the database connection parameters that will be used to create database and to make POSH work with this database (users and modules management, ...). Use the connection parameters provided by you hoster or create a new user with database creation, tables creation and data management access rigths.<br /><br />
+
+If the database already exists, save it first.<br /><br />
+If you want to replace previous POSH installation, check "Replace previous install".<br />
+</li>
+<li><h3>Preferences</h3>
+Installer step 3 : Set the main configuration parameters value :
+<br />
+<ul>
+
+<li>Name of your application : Name of your web site or application.</li>
+<li>Manage the users Groups : Do you need to manage users by groups?</li>
+<li>POSH location : URL of POSH root on your server.</li>
+<li>Users of your website or application may create modules : Allow users to create their own modules? If unchecked, only the administrators will be allowed to create modules.</li>
+<li>URL of the RSS feed for the information bar : In personal portals you can publish information from a RSS feed. The RSS feed must be hosted on the same server. Type the relative path of the feed, from <i>path/</i> folder. Leave blank to not use this option.</li>
+
+</ul>
+<br />
+</li>
+<li><h3>Choose the first modules of your application</h3>
+Installer step 4 : Select the first modules you want to use on your application.<br />
+You will be able to use the admin interface later to add and delete additional modules.
+<br /><br />
+</li>
+
+<li><h3>Create the admin account</h3>
+Installer step 5 : Create the first administrator account for access to administation interface.
+<br /><br />
+</li>
+</ol>
+To continue with options below, open the administration interface (either with the link displayed at the end of the installation, or by connecting to the administration interface by loging in with account created above).<br />
+</li>
+<li><h2><a name="skins" />Define your application skin</h2>
+Two options for changing the application skin :
+
+<ul>
+<li>Modify the file styles/main1.css.php</li>
+<li>Use the other users skins available on http://www.portaneo.net. Download a .thm file on your computer. In the POSH adminstration interface, click on the "Configure" tab, then on the "Themes management" link. Add the downloaded skin and click on "upload". Select the skin added in the list and click on "Apply the new theme".</li>
+</ul>
+<p>Add the new images in the images/ folder. The "images/addtoapplication.gif" image can be modified.</p>
+<p>You can set several skins for you application. Create the styles/mainX.css file (X is the incremental number of the skin : 1,2,3,...,9), update the value of the "themeNb" parameter in the "adm_config" MySQL table with the skins number, then in the admin interface, submit the "general settings" ("configure" tab).</p>
+</li>
+<li><h2><a name="pages" />Define the pages of your application</h2>
+When a user open your application, one or several tabs are available. You can configure these tabs :
+<ul>
+<li>Click on the "pages" tabs and on "tabs management" link.</li>
+
+<li>Click on "add a page" for a new tab, or on "modify this page" to modify a tab (page type, modules configuration, ...)</li>
+<li>Type the tab title, and description of the linked page. "Mode" defines if the tab is available on the homepage (anonymous) and/or on the users personal pages (connected). "Type" defines if the page is a personalizable page (modules are configured on the bottom), an HTML page that will be displayed in an IFRAME html object, a javascript function that will be launched by clicking on the tab (this function could be added in a new plugins), or an external link to another web page. Save by clicking on "Save"</li>
+<li>Sort the tabs by moving the blocs with their grey area on the left of them.</li>
+<li>Once configured you can save the tab changes by clicking on the "Set Online !" button.</li>
+</ul>
+</li>
+<li><h2><a name="configure" />Configure your application</h2>
+In the admin interface, click on the "configure" tab and on the "general settings" link.<br />
+Modify the parameters and submit.
+</li>
+
+<li><h2><a name="modules" />Manage and build your modules</h2>
+<p>You modify, sort and remove modules from "Modules" page.</p>
+<p>You build the modules with the tutorial. If the users are allowed to build their modules, this tutorial is available with the "add your module" link on their personal page. Else, you can access the tutorial from the "module" admin page (with "add module" link").</p>
+<p>New modules must be validated in the "Module" admin page ("modules to validate" link).</p>
+</li>
+<li><h2><a name="users" />Manage the users</h2>
+<p>You modify, sort and suppress users from the "users" admin page.</p>
+<p>You can also create new users or administrators from this page.</p>
+<p>To manage groups, you need to activate the option in the "general settings".</p>
+
+</li>
+<li><h2><a name="ownfunc" />Add your own functionalities</h2>
+Please read the "DEVELOPER GUIDE" of the docs/en/ folder.
+</li>
+</ol>
+</body>
+</html>

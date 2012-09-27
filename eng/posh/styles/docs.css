@@ -1,0 +1,23 @@
+body {background-color:#ffffff;}
+div,td {font-family:verdana,arial;font-size:8pt;}
+h1 {font-size:12pt;margin:5px 0 10px 0;text-decoration:underline;}
+h2 {font-size:11pt;margin:3px 0 5px 0;text-decoration:underline;}
+h3 {font-size:10pt;margin:2px 0 3px 0;font-weight:bold;}
+h4 {font-size:9pt;margin:2px 0 2px 0;font-weight:bold;}
+ol {    
+    list-style-type: upper-alpha; 
+    margin-top:10px;
+    margin-bottom:10px;
+}
+ol ol { 
+    list-style-type: decimal; 
+}
+.examplebox {border:1px solid #c6c3c6;background-color:#efefef;}
+ol ol li {
+    padding: 8px 0 3px 0;
+}
+ul {
+    padding: 5px 0 3px 0;
+    margin-left:5%;
+
+}

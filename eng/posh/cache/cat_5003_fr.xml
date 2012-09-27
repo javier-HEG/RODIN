@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><channel><parent>0</parent><dirname><![CDATA[INFO-NET ECONOMY WIDGETS (5)]]></dirname><path><![CDATA[ <a href='#' onclick='$p.app.menu.widget.getExplorer(0)' style='color:#000000;text-decoration:underline;'>Startseite</a> > INFO-NET ECONOMY WIDGETS ]]></path>
+<item>
+ <id>10012</id>
+ <name><![CDATA[ALEXANDRIA UNI S.GALLEN]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10012.gif</icon>
+</item>
+
+<item>
+ <id>10016</id>
+ <name><![CDATA[ARCHIVE OUVERTE UNIGE - TBD]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10016.gif</icon>
+</item>
+
+<item>
+ <id>10018</id>
+ <name><![CDATA[ECONOMIESUISSE]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10018.gif</icon>
+</item>
+
+<item>
+ <id>10010</id>
+ <name><![CDATA[RERO.DOC]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10010.gif</icon>
+</item>
+
+<item>
+ <id>10015</id>
+ <name><![CDATA[S.N.BANK - TBD]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10015.gif</icon>
+</item>
+</channel>

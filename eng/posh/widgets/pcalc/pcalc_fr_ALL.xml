@@ -1,0 +1,6 @@
+<messagebundle>
+  <msg name="widgetTitle">Calculatrice</msg>
+  <msg name="widgetDescription">Calculatrice traditionnelle</msg>
+  <msg name="errFormula">Erreur dans la formule !</msg>
+  <msg name="moreFunctions">Fonctionnalités avancées:</msg>
+</messagebundle>

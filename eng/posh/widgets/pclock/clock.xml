@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" author="Portaneo" height="120">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/pclock/pclock_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/pclock/pclock_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/pclock/pclock_fr_ALL.xml"/>
+ </ModulePrefs>
+ <Content type="html" view="home"><![CDATA[
+<body bgcolor="#ffffff" style='margin:0'>
+<center style='backgound-color:white'>
+<!--[if !IE]> -->
+<object type="application/x-shockwave-flash"
+  data="../modules/clock.swf" width="100" height="100">
+<!-- <![endif]-->
+<!--[if IE]>
+<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+  codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
+  width="100" height="100">
+  <param name="movie" value="clock.swf" />
+<!--><!---->
+  <param name="loop" value="true" />
+  <param name="menu" value="false" />
+  <param name="bgcolor" value="FFFFFF">
+
+  <p><a href="http://www.macromedia.com/go/getflashplayer">__MSG_getFlash__</a></p>
+</object>
+]]></Content>
+</Module>

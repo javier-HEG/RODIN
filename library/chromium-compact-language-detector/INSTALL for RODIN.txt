@@ -1,0 +1,7 @@
+Installation instructions for the CLD component as used by Rodin.
+
+1. Launch the "build" script.
+   - On Mac "./build.sh"
+   - On HEG-62 "build.win.cmd"
+2. Both builders deliver a file named "cld.exe".
+3. Move the "cld.exe" file into the "cgi-bin" folder managed by XAMPP or MAMP.

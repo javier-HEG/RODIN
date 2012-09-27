@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" height="500">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/ptime/ptime_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/ptime/ptime_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/ptime/ptime_fr_ALL.xml"/>
+ </ModulePrefs>
+ <Content type="html" view="home"><![CDATA[
+<script type="text/javascript">
+var timer__MODULE_ID__; 
+var msg__MODULE_ID__ = "";
+var navigatorLang__MODULE_ID__ = navigator.language;
+
+$p.app.widgets.ptime__MODULE_ID__={
+
+    startTime:function()
+    { 
+        clearTimeout(timer__MODULE_ID__);
+        $p.app.widgets.ptime__MODULE_ID__.refreshTime();
+    },
+	/*
+	Function: refreshTime
+              $p.app.widgets.ptime__MODULE_ID__.refreshTime 
+                    
+              Refresh the date and time
+	*/
+    refreshTime:function()
+    { 
+        msg__MODULE_ID__ = $p.app.widgets.ptime__MODULE_ID__.customDateSpring(new Date()) + " - " + $p.app.widgets.ptime__MODULE_ID__.showTime();
+        _gel("time__MODULE_ID__").innerHTML=msg__MODULE_ID__; 
+        timer__MODULE_ID__ = setTimeout("$p.app.widgets.ptime__MODULE_ID__.refreshTime()", 1000);
+    },
+	/*
+	Function: showTime
+              $p.app.widgets.ptime__MODULE_ID__.showTime 
+                    
+              Returns the time value
+	
+	Returns:
+                    
+                     current time value
+	*/
+    showTime:function()
+    { 
+        var now = new Date(); 
+        var hours= now.getHours();
+        var minutes= now.getMinutes();
+        var seconds= now.getSeconds(); 
+        var months= now.getMonth(); 
+        var dates= now.getDate(); 
+        var years= now.getYear(); 
+        var timeValue = "";
+        timeValue += ((months >9) ? "" : " ");
+        timeValue += ((dates >9) ? "" : " "); 
+        timeValue = ( months +1);
+        timeValue +="/"+ dates;
+        timeValue +="/"+ years; 
+        var timeValue2 = hours + ((minutes < 10) ? ":0":":") + minutes + ((seconds < 10) ? ":0":":") + seconds;
+        return timeValue2; 
+    },
+	/*
+	Function: MakeArray
+              $p.app.widgets.ptime__MODULE_ID__.MakeArray 
+                    
+              Create an empty array 
+              
+    Parameter:
+    
+              n (integer) - length of the array
+	
+	Returns:
+                    
+              Object this
+	*/
+    MakeArray:function(n) 
+    { 
+        this.length = n;
+        return this;
+    },
+	/*
+	Function: customDateSpring
+              $p.app.widgets.ptime__MODULE_ID__.customDateSpring 
+                    
+              Convert the date with month name and day name
+	
+	Returns:
+                    
+              Converted date and time
+	*/
+    customDateSpring:function(oneDate) 
+    {  
+        var theDate=oneDate.getDate();
+        var theMonth = monthNames[oneDate.getMonth() +1]; 
+        var theCompleteDate = daysNames[oneDate.getDay() +1] + " " + oneDate.getDate() + " " + monthNames[oneDate.getMonth() +1] + " " + oneDate.getFullYear(); 
+        if (navigatorLang__MODULE_ID__=="en") {
+            theCompleteDate = monthNames[oneDate.getMonth() +1] + " " + daysNames[oneDate.getDay() +1] + " " + oneDate.getDate() + " " +oneDate.getFullYear();
+        }
+        return theCompleteDate;
+    }   
+}
+
+monthNames = new $p.app.widgets.ptime__MODULE_ID__.MakeArray(12);
+monthNames[1] = "__MSG_january__";
+monthNames[2] = "__MSG_february__"; 
+monthNames[3] = "__MSG_march__";
+monthNames[4] = "__MSG_april__"; 
+monthNames[5] = "__MSG_may__"; 
+monthNames[6] = "__MSG_june__"; 
+monthNames[7] = "__MSG_july__"; 
+monthNames[8] = "__MSG_august__"; 
+monthNames[9] = "__MSG_september__";
+monthNames[10] = "__MSG_october__"; 
+monthNames[11] = "__MSG_november__"; 
+monthNames[12] = "__MSG_december__"; 
+daysNames = new $p.app.widgets.ptime__MODULE_ID__.MakeArray(7); 
+daysNames[1] = "__MSG_monday__"; 
+daysNames[2] = "__MSG_tuesday__";
+daysNames[3] = "__MSG_wednesday__"; 
+daysNames[4] = "__MSG_thursday__"; 
+daysNames[5] = "__MSG_friday__"; 
+daysNames[6] = "__MSG_saturday__"; 
+daysNames[7] = "__MSG_sunday__";
+
+</script>
+<div id="time__MODULE_ID__" style="color: #000;font-size: 12pt;font-weight: bold;width: 100%;text-align: center;padding-top: 3px;" />
+<script type="text/javascript">
+$p.app.widgets.ptime__MODULE_ID__.startTime();
+</script>
+]]>
+</Content>
+</Module>

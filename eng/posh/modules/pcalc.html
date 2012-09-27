@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>Calculatrice PORTANEO</title>
+	
+<script type='text/javascript' src="../includes/modules.js"></script>
+<script type='text/javascript'>
+/*<![CDATA[*/
+var memo;
+var pref=new parent._IG_Prefs(parent.__MODULE_ID__);
+var add = pref.getString("maths_functions");
+function verif_maths(){
+	if(document.getElementById("pass").checked){
+		document.getElementById("advanced").style.display = 'block';
+	}
+	else{
+        document.getElementById("advanced").style.display = 'none';
+	}
+	_IG_AdjustIFrameHeight();
+}
+function isnum(number){
+	return (parseFloat(number,10)==(number*1));
+}
+function show(anystr) {
+        document.panel.txt.value += anystr;
+}
+function calculate() {
+	curvalue = document.panel.txt.value;
+	curvalue = curvalue.replace ("pi","Math.PI");
+	var pos=curvalue
+	try{
+        document.panel.txt.value = eval(curvalue);
+	}
+	catch(e){alert("erreur dans la formule !");}
+
+}
+function clr() {
+        document.panel.txt.value = "";
+}
+function sup() {
+        curvalue = document.panel.txt.value;
+        curlength = curvalue.length;
+        curvalue = curvalue.substring(0,curlength-1);
+        document.panel.txt.value = curvalue;
+}
+function chk(curvalue){
+	var chkt=true;
+	if (curvalue==""){chkt=false;}
+	var lastcar=curvalue.substring(curvalue.length-1);
+	if ("0123456789".indexOf(lastcar)==-1){chkt=false;}
+	return chkt;
+}
+
+function lastop(curvalue) {
+	pos=curvalue.lastIndexOf("+");
+	if (curvalue.lastIndexOf("-")>pos) {pos=curvalue.lastIndexOf("-");}
+	if (curvalue.lastIndexOf("/")>pos) {pos=curvalue.lastIndexOf("/");}
+	if (curvalue.lastIndexOf("*")>pos) {pos=curvalue.lastIndexOf("*");}
+	if (curvalue.lastIndexOf("(")>pos) {pos=curvalue.lastIndexOf("(");}
+	return pos+1;
+}
+function puiss(n) {
+	curvalue = document.panel.txt.value;
+	if (chk(curvalue)){
+		pos=lastop(curvalue);
+		curvalue=curvalue.substring(0,pos)+Math.pow(curvalue.substring(pos),n);
+		document.panel.txt.value=curvalue;
+	}
+}
+function sqr() {
+	curvalue = document.panel.txt.value;
+	if (chk(curvalue)){
+		pos=lastop(curvalue);
+		curvalue=curvalue.substring(0,pos)+Math.sqrt(curvalue.substring(pos));
+		document.panel.txt.value=curvalue;
+	}
+}
+function neg() {
+	var parenth=0;
+	curvalue = document.panel.txt.value;
+	if (curvalue.substring(curvalue.length-1)==")") {curvalue=curvalue.substring(0,curvalue.length-1);parenth=1;}
+	if (chk(curvalue)){
+		pos=lastop(curvalue);
+//		if (curvalue.substring(pos,pos+1)=="(") {pos+=2;}
+		if (curvalue.substring(pos-1,pos)=="-"){curvalue=curvalue.substring(0,pos-1)+"+"+curvalue.substring(pos);}
+		else {if ("-+".indexOf(curvalue.substring(pos-1,pos))==-1){curvalue=curvalue.substring(0,pos)+parseFloat(-curvalue.substring(pos));}
+			else {curvalue=curvalue.substring(0,pos-1)+parseFloat(-curvalue.substring(pos-1));}
+		}
+		if (parenth==1){curvalue+=")";}
+		document.panel.txt.value=curvalue;
+	}
+}
+function arrond() {
+	curvalue = document.panel.txt.value;
+	if (chk(curvalue)){
+		pos=lastop(curvalue);
+		curvalue=curvalue.substring(0,pos)+Math.round(curvalue.substring(pos)*100)/100;
+		document.panel.txt.value=curvalue;
+	}
+}
+function co() {
+	curvalue = document.panel.txt.value;
+	if (chk(curvalue)){
+		pos=lastop(curvalue);
+		curvalue=curvalue.substring(0,pos)+Math.cos(curvalue.substring(pos));
+		document.panel.txt.value=curvalue;
+	}
+}
+function si() {
+	curvalue = document.panel.txt.value;
+	if (chk(curvalue)){
+		pos=lastop(curvalue);
+		curvalue=curvalue.substring(0,pos)+Math.sin(curvalue.substring(pos));
+		document.panel.txt.value=curvalue;
+	}
+}
+function mc() {
+        document.panel.mem.value = "";
+	memo="";
+}
+function mp() {
+        memo=document.panel.txt.value;
+	document.panel.mem.value = memo;
+}
+function mr() {
+        document.panel.txt.value+=memo;
+}
+/*]]>*/
+</script>
+<style type="text/css">
+	INPUT.btn {
+		width: 45px;
+		height:30px;
+		font-size: 11pt;
+		font-weight:bold;
+		border: 0px none;
+		background: transparent url(../modules/external/calculator/bouton_b.gif) no-repeat top left;
+		line-height: 17px;
+		vertical-align: center;
+		text-align: center;
+		font-size: 11pt;
+		color: #f7f7f7;
+		cursor: pointer;
+		cursor: hand;
+		font-family: arial;
+		letter-spacing: 0ex;
+	}
+	INPUT.btn2 {
+		width: 95px;
+		height:60px;
+		font-size: 20pt;
+		border: 0px none;
+		background: transparent url(../modules/external/calculator/bouton_g.gif) no-repeat top left;
+		line-height: 17px;
+		vertical-align: center;
+		text-align: center;
+		color: #000000;
+		cursor: pointer;
+		cursor: hand;
+		font-family: arial;
+		letter-spacing: 0ex;
+	}
+	td {
+        padding-left: 5px;
+        padding-bottom: 2px
+    }
+    p {
+        padding: 3px;
+        margin: 3px;
+    }
+    form {
+        margin: 0px;
+        padding: 0px;
+    }
+    body {
+        margin: 0px;
+        color:#000;
+    }
+</style>
+</head>
+<body onload='_IG_AdjustIFrameHeight();'>
+<center>
+<form action='.' name="panel" onsubmit="calculate();return false">
+    <p style="padding-left:5px;padding-bottom:0px;padding-top:2px">
+        <input type=text name=txt style="color: #587070;border: 2px solid #587070;text-align: right;width: 239px;height: 25px;font-size: 15px;font-weight: bold;">
+    </p>
+    <table cellpadding=0 cellspacing=0 border=0>
+        <tr>
+            <td>
+                <input class="btn" type="button" value="1" onclick="show('1');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="2" onclick="show('2');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="3" onclick="show('3');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="+" onclick="show('+');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="-" onclick="show('-');">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input class="btn" type="button" value="4" onclick="show('4');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="5" onclick="show('5');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="6" onclick="show('6');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="x" onclick="show('*');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="/" onclick="show('/');">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input class="btn" type="button" value="7" onclick="show('7');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="8" onclick="show('8');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="9" onclick="show('9');">
+            </td>
+            <td rowspan="2" colspan="3">
+                <input type=submit value="=" onclick="calculate();document.panel.txt.focus();return false;" class="btn2">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input class="btn" type="button" value="." onclick="show('.');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="0" onclick="show('0');">
+            </td>
+            <td>
+                <input class="btn" type="button" value="C" onclick="clr();">
+            </td>
+        </tr>
+    </table>
+    
+    <div id="advanced" style="display: none;">
+    <table  cellpadding="0" cellspacing="0" border="0">
+		<tr>
+            <td>
+            <input class="btn" type="button" value="(" onclick="show('(');">
+            </td>
+            <td>
+            <input class="btn" type="button" value=")" onclick="show(')');">
+            </td>
+            <td>
+            <input class="btn" type="button" value="#.##" onclick="arrond();">
+            </td>
+            <td>
+            <input class="btn" type="button" value="+/-" onclick="neg();">
+            </td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <input class="btn" type="button" value="sin" onclick="si();">
+            </td>
+            <td>
+            <input class="btn" type="button" value="cos" onclick="co();">
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <input class="btn" type="button" value="&#178;" onclick="puiss(2);">
+            </td>
+            <td>
+            <input class="btn" type="button" value="&#179;" onclick="puiss(3);">
+            </td>
+            <td>
+            <input class="btn" type="button" value="MC" onclick="mc();">
+            </td>
+            <td>
+            <input class="btn" type="button" value="M+" onclick="mp();">
+            </td>
+            <td>
+            <input class="btn" type="button" value="MR" onclick="mr();">
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <input class="btn" type="button" value="&radic;" onclick="sqr();">
+            </td>
+            <td>
+            <input class="btn" type="button" value="π" onclick="show('pi');">
+            </td>
+            <td colspan="3">
+            <input type=text name="mem" style="color:#587070;text-align:right;width:129px;height:25px;font-size:15px;font-weight:bold;">
+            </td>
+        </tr>
+    </table>
+    </div>                                                    
+    
+    <p style="padding-left:10px;"> advanced functions:
+        <input id="pass" type="checkbox" value="" onclick="verif_maths();"/>
+    </p>
+</form>
+</center>
+</body>
+</html>

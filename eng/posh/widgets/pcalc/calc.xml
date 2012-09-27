@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+ <ModulePrefs title="__MSG_widgetTitle__" description="__MSG_widgetDescription__" author="Portaneo" height="120">
+ <Require feature="internal-domain"/>
+ <Locale messages="../widgets/pcalc/pcalc_en_ALL.xml"/>
+ <Locale lang="en" messages="../widgets/pcalc/pcalc_en_ALL.xml"/>
+ <Locale lang="fr" messages="../widgets/pcalc/pcalc_fr_ALL.xml"/>
+ </ModulePrefs>
+ <Content type="html" view="home"><![CDATA[
+ <style type="text/css">
+	INPUT.btn {
+		width: 45px;
+		height:30px;
+		font-size: 11pt;
+		font-weight:bold;
+		border: 0px none;
+		background: transparent url(../modules/external/calculator/bouton_b.gif) no-repeat top left;
+		line-height: 17px;
+		vertical-align: center;
+		text-align: center;
+		font-size: 11pt;
+		color: #f7f7f7;
+		cursor: pointer;
+		cursor: hand;
+		font-family: arial;
+		letter-spacing: 0ex;
+	}
+	INPUT.btn2 {
+		width: 95px;
+		height:60px;
+		font-size: 20pt;
+		border: 0px none;
+		background: transparent url(../modules/external/calculator/bouton_g.gif) no-repeat top left;
+		line-height: 17px;
+		vertical-align: center;
+		text-align: center;
+		color: #000000;
+		cursor: pointer;
+		cursor: hand;
+		font-family: arial;
+		letter-spacing: 0ex;
+	}
+	td {
+        padding-left: 5px;
+        padding-bottom: 2px
+    }
+    p {
+        padding: 3px;
+        margin: 3px;
+    }
+    form {
+        margin: 0px;
+        padding: 0px;
+    }
+    body {
+        margin: 0px;
+        color:#000;
+    }
+</style>
+<script type="text/javascript">
+var memo;
+//var pref=new parent._IG_Prefs(parent.__MODULE_ID__);
+//var add = pref.getString("maths_functions");
+    
+$p.app.widgets.pcalc__MODULE_ID__={
+ 
+    verif_maths:function(){
+    	if(_gel("pass").checked){
+    		_gel("advanced").style.display = 'block';
+    	}
+    	else{
+            _gel("advanced").style.display = 'none';
+    	}
+    	_IG_AdjustIFrameHeight();
+    },
+    isnum:function(number) {
+    	return (parseFloat(number,10)==(number*1));
+    },
+    show:function(anystr) {
+            document.panel.txt.value += anystr;
+    },
+    calculate:function() {
+    	curvalue = document.panel.txt.value;
+    	curvalue = curvalue.replace ("pi","Math.PI");
+    	var pos=curvalue;
+    	try{
+            document.panel.txt.value = eval(curvalue);
+    	}
+    	catch(e){alert("__MSG_errFormula__");}
+    },
+    clr:function() {
+            document.panel.txt.value = "";
+    },
+    sup:function() {
+            curvalue = document.panel.txt.value;
+            curlength = curvalue.length;
+            curvalue = curvalue.substring(0,curlength-1);
+            document.panel.txt.value = curvalue;
+    }, 
+    chk:function(curvalue) {
+    	var chkt=true;
+    	if (curvalue==""){chkt=false;}
+    	var lastcar=curvalue.substring(curvalue.length-1);
+    	if ("0123456789".indexOf(lastcar)==-1){chkt=false;}
+    	return chkt;
+    },
+    lastop:function(curvalue) {
+    	pos=curvalue.lastIndexOf("+");
+    	if (curvalue.lastIndexOf("-")>pos) {pos=curvalue.lastIndexOf("-");}
+    	if (curvalue.lastIndexOf("/")>pos) {pos=curvalue.lastIndexOf("/");}
+    	if (curvalue.lastIndexOf("*")>pos) {pos=curvalue.lastIndexOf("*");}
+    	if (curvalue.lastIndexOf("(")>pos) {pos=curvalue.lastIndexOf("(");}
+    	return pos+1;
+    },
+    puiss:function(n) {
+    	curvalue = document.panel.txt.value;
+    	if ($p.app.widgets.pcalc__MODULE_ID__.chk(curvalue)){
+    		pos=$p.app.widgets.pcalc__MODULE_ID__.lastop(curvalue);
+    		curvalue=curvalue.substring(0,pos)+Math.pow(curvalue.substring(pos),n);
+    		document.panel.txt.value=curvalue;
+    	}
+    },
+    sqr:function() {
+    	curvalue = document.panel.txt.value;
+    	if ($p.app.widgets.pcalc__MODULE_ID__.chk(curvalue)){
+    		pos=$p.app.widgets.pcalc__MODULE_ID__.lastop(curvalue);
+    		curvalue=curvalue.substring(0,pos)+Math.sqrt(curvalue.substring(pos));
+    		document.panel.txt.value=curvalue;
+    	}
+    },
+    neg:function() {
+    	var parenth=0;
+    	curvalue = document.panel.txt.value;
+    	if (curvalue.substring(curvalue.length-1)==")") {curvalue=curvalue.substring(0,curvalue.length-1);parenth=1;}
+    	if ($p.app.widgets.pcalc__MODULE_ID__.chk(curvalue)){
+    		pos=$p.app.widgets.pcalc__MODULE_ID__.lastop(curvalue);
+    //		if (curvalue.substring(pos,pos+1)=="(") {pos+=2;}
+    		if (curvalue.substring(pos-1,pos)=="-"){curvalue=curvalue.substring(0,pos-1)+"+"+curvalue.substring(pos);}
+    		else {if ("-+".indexOf(curvalue.substring(pos-1,pos))==-1){curvalue=curvalue.substring(0,pos)+parseFloat(-curvalue.substring(pos));}
+    			else {curvalue=curvalue.substring(0,pos-1)+parseFloat(-curvalue.substring(pos-1));}
+    		}
+    		if (parenth==1){curvalue+=")";}
+    		document.panel.txt.value=curvalue;
+    	}
+    },
+    arrond:function() {
+    	curvalue = document.panel.txt.value;
+    	if ($p.app.widgets.pcalc__MODULE_ID__.chk(curvalue)){
+    		pos=$p.app.widgets.pcalc__MODULE_ID__.lastop(curvalue);
+    		curvalue=curvalue.substring(0,pos)+Math.round(curvalue.substring(pos)*100)/100;
+    		document.panel.txt.value=curvalue;
+    	}
+    },
+    co:function() {
+    	curvalue = document.panel.txt.value;
+    	if ($p.app.widgets.pcalc__MODULE_ID__.chk(curvalue)){
+    		pos=$p.app.widgets.pcalc__MODULE_ID__.lastop(curvalue);
+    		curvalue=curvalue.substring(0,pos)+Math.cos(curvalue.substring(pos));
+    		document.panel.txt.value=curvalue;
+    	}
+    },
+    si:function() {
+    	curvalue = document.panel.txt.value;
+    	if ($p.app.widgets.pcalc__MODULE_ID__.chk(curvalue)){
+    		pos=$p.app.widgets.pcalc__MODULE_ID__.lastop(curvalue);
+    		curvalue=curvalue.substring(0,pos)+Math.sin(curvalue.substring(pos));
+    		document.panel.txt.value=curvalue;
+    	}
+    },
+    mc:function() {
+            document.panel.mem.value = "";
+    	memo="";
+    },
+    mp:function() {
+            memo=document.panel.txt.value;
+    	document.panel.mem.value = memo;
+    },
+    mr:function() {
+        document.panel.txt.value+=memo;
+    } 
+}
+//_IG_RegisterOnloadHandler($p.app.widgets.plinks__MODULE_ID__.init);
+//_IG_AdjustIFrameHeight();
+</script>
+<center>
+<form action='.' name="panel" onsubmit="$p.app.widgets.pcalc__MODULE_ID__.calculate();return false">
+    <p style="padding-left:5px;padding-bottom:0px;padding-top:2px">
+        <input type=text name=txt style="color: #587070;border: 2px solid #587070;text-align: right;width: 239px;height: 25px;font-size: 15px;font-weight: bold;">
+    </p>
+    <table cellpadding=0 cellspacing=0 border=0>
+        <tr>
+            <td><input class="btn" type="button" value="1" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('1');"></td>
+            <td><input class="btn" type="button" value="2" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('2');"></td>
+            <td><input class="btn" type="button" value="3" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('3');"></td>
+            <td><input class="btn" type="button" value="+" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('+');"></td>
+            <td><input class="btn" type="button" value="-" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('-');"></td>
+        </tr>
+        <tr>
+            <td><input class="btn" type="button" value="4" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('4');"></td>
+            <td><input class="btn" type="button" value="5" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('5');"></td>
+            <td><input class="btn" type="button" value="6" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('6');"></td>
+            <td><input class="btn" type="button" value="x" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('*');"></td>
+            <td><input class="btn" type="button" value="/" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('/');"></td>
+        </tr>
+        <tr>
+            <td><input class="btn" type="button" value="7" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('7');"></td>
+            <td><input class="btn" type="button" value="8" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('8');"></td>
+            <td><input class="btn" type="button" value="9" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('9');"></td>
+            <td rowspan="2" colspan="3"><input type=submit value="=" onclick="$p.app.widgets.pcalc__MODULE_ID__.calculate();document.panel.txt.focus();return false;" class="btn2"></td>
+        </tr>
+        <tr>
+            <td><input class="btn" type="button" value="." onclick="$p.app.widgets.pcalc__MODULE_ID__.show('.');"></td>
+            <td><input class="btn" type="button" value="0" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('0');"></td>
+            <td><input class="btn" type="button" value="C" onclick="$p.app.widgets.pcalc__MODULE_ID__.clr();"></td>
+        </tr>
+    </table>
+    
+    <div id="advanced" style="display: none;">
+    <table  cellpadding="0" cellspacing="0" border="0">
+		<tr>
+            <td><input class="btn" type="button" value="(" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('(');"></td>
+            <td><input class="btn" type="button" value=")" onclick="$p.app.widgets.pcalc__MODULE_ID__.show(')');"></td>
+            <td><input class="btn" type="button" value="#.##" onclick="$p.app.widgets.pcalc__MODULE_ID__.arrond();"></td>
+            <td><input class="btn" type="button" value="+/-" onclick="$p.app.widgets.pcalc__MODULE_ID__.neg();"></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><input class="btn" type="button" value="sin" onclick="$p.app.widgets.pcalc__MODULE_ID__.si();"></td>
+            <td><input class="btn" type="button" value="cos" onclick="$p.app.widgets.pcalc__MODULE_ID__.co();"></td>
+        </tr>
+        <tr>
+            <td><input class="btn" type="button" value="&#178;" onclick="$p.app.widgets.pcalc__MODULE_ID__.puiss(2);"></td>
+            <td><input class="btn" type="button" value="&#179;" onclick="$p.app.widgets.pcalc__MODULE_ID__.puiss(3);"></td>
+            <td><input class="btn" type="button" value="MC" onclick="$p.app.widgets.pcalc__MODULE_ID__.mc();"></td>
+            <td><input class="btn" type="button" value="M+" onclick="$p.app.widgets.pcalc__MODULE_ID__.mp();"></td>
+            <td><input class="btn" type="button" value="MR" onclick="$p.app.widgets.pcalc__MODULE_ID__.mr();"></td>
+        </tr>
+        <tr>
+            <td><input class="btn" type="button" value="&radic;" onclick="$p.app.widgets.pcalc__MODULE_ID__.sqr();"></td>
+            <td><input class="btn" type="button" value="π" onclick="$p.app.widgets.pcalc__MODULE_ID__.show('pi');"></td>
+            <td colspan="3"><input type=text name="mem" style="color:#587070;text-align:right;width:129px;height:25px;font-size:15px;font-weight:bold;"></td>
+        </tr>
+    </table>
+    </div>                                                    
+    
+    <p style="padding-left:10px;"> __MSG_moreFunctions__
+        <input id="pass" type="checkbox" value="" onclick="$p.app.widgets.pcalc__MODULE_ID__.verif_maths();"/>
+    </p>
+</form>
+</center>
+]]></Content>
+</Module>

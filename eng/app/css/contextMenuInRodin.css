@@ -1,0 +1,41 @@
+.contextMenu {
+	background-color: <?php echo $COLOR_PAGE_BACKGROUND;?>;
+	padding: 3px;
+	width: 180px;
+}
+
+.contextMenu h1 {
+	font-size: 12px;
+	font-weight: bold;
+	padding: 1px 2px 6px 2px;
+	margin: 0px;
+}
+
+.contextMenu a {
+	color: black;
+	font-size: 12px;
+	display: block;
+	line-height: normal;
+	height: auto;
+	padding: 1px 2px 1px 28px;
+}
+
+.contextMenu li {
+	padding: 0px;
+	margin: 0px;
+	line-height: auto;
+	height: auto;
+}
+
+.contextMenu li.hover a {
+	color: black;
+	background-color: <?php echo $COLOR_PAGE_BACKGROUND2; ?>;
+}
+
+.contextMenu li.addToBreadcrumb a {
+	background-image: url('<?php echo $RODINIMAGESWEB; ?>/add-to-breadcrumb.png');
+}
+
+.contextMenu li.exploreOntoFacets a {
+	background-image: url('<?php echo $RODINIMAGESWEB; ?>/magnifier-onto-small.png');
+}

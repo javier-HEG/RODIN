@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><channel><parent>0</parent><dirname><![CDATA[LIBRARIES (3)]]></dirname><path><![CDATA[ <a href='#' onclick='$p.app.menu.widget.getExplorer(0)' style='color:#000000;text-decoration:underline;'>Startseite</a> > LIBRARIES ]]></path>
+<item>
+ <id>10012</id>
+ <name><![CDATA[SWISSBIB]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10012.gif</icon>
+</item>
+
+<item>
+ <id>10013</id>
+ <name><![CDATA[VIATICALPES]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10013.gif</icon>
+</item>
+
+<item>
+ <id>10014</id>
+ <name><![CDATA[ZBZ Manuscripts]]></name>
+ <rank>0</rank>
+ <icon>../modules/pictures/box0_10014.gif</icon>
+</item>
+</channel>

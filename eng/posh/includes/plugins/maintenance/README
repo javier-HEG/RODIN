@@ -1,0 +1,9 @@
+
+Plugin used to redirect home page to maintenance page, during operations on the web site.
+
+To redirect to the maintenance page, just enable the plugin in the plugins management page of the admin panel.
+To give access again to the portals, just disable the plugin
+
+To access the administration page or the portals during maintenance, just add key=<KEY value in the adm_config table> to the URL (ex : http://mysite.com/portal/login.php?key=123456).
+
+To customize the message, just create a file maintenance_message.txt in the html/ folder, with the message writen.

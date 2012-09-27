@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><tabs><tab>
+		<number>1</number>
+		<name><![CDATA[Home]]></name>
+		<icon><![CDATA[]]></icon>
+		<type>1</type>
+		<param><![CDATA[/]]></param>
+		<action>$p.app.pages.change(1)</action>
+		<locked>0</locked>
+		<seq>1</seq>
+		<edit>1</edit>
+		<move>1</move>
+	</tab></tabs>

@@ -1,0 +1,13 @@
+		2
+		312
+		1
+		''
+		0
+		-----
+		
+		INSERT INTO module 
+(item_id, user_id,profile_id,posx,posy,posj,x,y,typ,variables,uniq,blocked,minimized,feed_id) 
+SELECT item_id,%u,%u,	       posx,posy,posj,x,y,typ,%s,				0,	 0,		 0,				   %u FROM module WHERE item_id=%u AND user_id = %u and profile_id = %u
+		INSERT INTO module 
+(item_id, user_id,profile_id,posx,posy,posj,x,y,typ,variables,uniq,blocked,minimized,feed_id) 
+SELECT item_id,2,312,	       posx,posy,posj,x,y,typ,'',				0,	 0,		 0,				   0 FROM module WHERE item_id=10004 AND user_id = 2 and profile_id = 2
