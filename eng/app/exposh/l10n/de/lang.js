@@ -8,6 +8,8 @@ lang["lblDuplicatedWidget"]="Widget $$ wurde bereits hinzugefügt";
 lang["titleTextZoomOneSelected"]="Zur Zeit wird das Resultat jeweils in einer Linie angezeigt";
 lang["titleTextZoomTwoSelected"]="Zur Zeit wird nur jeweils ein Teil eines Resultates angezeigt";
 lang["titleTextZoomThreeSelected"]="Zur Zeit wird jeweils das gesamte Resultat angezeigt";
+lang["titleAggregationButtonOn"]="Enable result aggregation";
+lang["titleAggregationButtonOff"]="Disable result aggregation";
 
 //Metasearch
 lang["lblResultGoogleLanguage"]="Die Sprache der Begriffe ist: ";

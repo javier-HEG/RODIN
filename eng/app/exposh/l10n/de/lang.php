@@ -1,15 +1,16 @@
 <?php
 // General
+$GLOBALS['lgMap']["lblMetaSearchPrefsNbResults"]="Ergebnisse pro Widget";
+$GLOBALS['lgMap']["lblMetaSearchPrefsTextZoom"]="Ergebnispräsentation";
 $GLOBALS['lgMap']["titleTextZoomOne"]="Klicken Sie, um das Resultat in einer Linie anzuzeigen";
 $GLOBALS['lgMap']["titleTextZoomTwo"]="Klicken Sie, um einen Teil des Resultates anzuzeigen";
 $GLOBALS['lgMap']["titleTextZoomThree"]="Klicken Sie, um das gesamte Resultat anzuzeigen";
+$GLOBALS['lgMap']["lblAggregation"]="Aggregate results";
 $GLOBALS['lgMap']["lblYouHaveBeenDisconnected"]="Die Verbindung wurde wegen #1-minütiger Inaktivität unterbrochen";
 $GLOBALS['lgMap']["lblBreadcrumbsTitle"]="Hinzugefügte Suchbegriffe";
 $GLOBALS['lgMap']["titleBreadcrumbsTitle"]="Alle zusätzlichen Suchbegriffe entfernen";
 $GLOBALS['lgMap']["lblHistoricalBoardTitle"]="Frühere Suchanfragen";
 $GLOBALS['lgMap']["lblFacetsBoardTitle"]="Ontologische Facetten";
-$GLOBALS['lgMap']["lblMetaSearchPrefsNbResults"]="Ergebnisse pro Widget";
-$GLOBALS['lgMap']["lblMetaSearchPrefsTextZoom"]="Ergebnispräsentation";
 $GLOBALS['lgMap']["titleGlobalMaxResults"]="Geben Sie hier die gewünschte Anzahl anzuzeigender Resultate ein";
 
 // Widgets

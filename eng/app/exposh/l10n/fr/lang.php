@@ -1,15 +1,16 @@
 <?php 
 // General
+$GLOBALS['lgMap']["lblMetaSearchPrefsNbResults"]="Résultat par widget";
+$GLOBALS['lgMap']["lblMetaSearchPrefsTextZoom"]="Présentation des résultats";
 $GLOBALS['lgMap']["titleTextZoomOne"]="Cliquez pour afficher une seule ligne par résultat";
 $GLOBALS['lgMap']["titleTextZoomTwo"]="Cliquez pour afficher seulement une partie du résultat";
 $GLOBALS['lgMap']["titleTextZoomThree"]="Cliquez pour afficher l'ensemble du résultat";
+$GLOBALS['lgMap']["lblAggregation"]="Regroupement des résultats";
 $GLOBALS['lgMap']["lblYouHaveBeenDisconnected"]="Vous avez été déconnecté après #1 minutes d'inactivité.";
 $GLOBALS['lgMap']["lblBreadcrumbsTitle"]="Mots de recherche ajoutés";
 $GLOBALS['lgMap']["titleBreadcrumbsTitle"]="Cliquez pour effacer chaque mot de l'extension de requête";
 $GLOBALS['lgMap']["lblHistoricalBoardTitle"]="Requêtes précédentes";
 $GLOBALS['lgMap']["lblFacetsBoardTitle"]="Facettes ontologiques";
-$GLOBALS['lgMap']["lblMetaSearchPrefsNbResults"]="Résultat par widget";
-$GLOBALS['lgMap']["lblMetaSearchPrefsTextZoom"]="Présentation des résultats";
 $GLOBALS['lgMap']["titleGlobalMaxResults"]="Rentrez le nombre de résultats souhaités par widget";
 
 // Widgets

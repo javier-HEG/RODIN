@@ -8,6 +8,8 @@ lang["lblDuplicatedWidget"]="Le widget $$ est déjà ouvert dans ce tab";
 lang["titleTextZoomOneSelected"]="Affichant une seule ligne par résultat";
 lang["titleTextZoomTwoSelected"]="Affichant une partie du résultat";
 lang["titleTextZoomThreeSelected"]="Affichant l'ensemble du résultat";
+lang["titleAggregationButtonOn"]="Activer le regroupement des résultats";
+lang["titleAggregationButtonOff"]="Désactiver le regroupement des résultats";
 
 //Metasearch
 lang["lblResultGoogleLanguage"]="La langue des mots semble être ";

@@ -138,12 +138,15 @@ EOI;
 EOH;
 
 //------------------ Agregated view controls ----------------
-	$aggregatedViewSwitch = '<div id="aggregateButtonDiv" class="searchOptionDiv">'
-		. '<span class="optionLabel">{$textZoomLabel}:</span>'
-		. '<img id="aggregateButton" class="optionButton"'
-		. ' src=""'
-		. ' onClick="javascript: toggle_aggregation();"'
-		. '</div>';
+	$aggregatedViewSwitch = '<div id="aggregateButtonDiv" class="searchOptionDiv">' . "\n"
+		. '<span class="optionLabel">' . lg("lblAggregation") . ':</span>' . "\n"
+		. '<img id="aggregateButton" class="optionButton" src=""' . "\n"
+		. 'onClick="javascript: toggle_aggregation();" title="" />' . "\n"
+		. '</div>' . "\n"
+		. '<script type="text/javascript">' . "\n"
+		. 'aggregation_status = false;' . "\n"
+		. 'set_aggregation(aggregation_status);' . "\n"
+		. '</script>' . "\n";
 	
 #------------------ RODINCONTROL ----------------
 	$launchMetaSearchCode = "eclog(Date() + ' Metasearch Start'); "
@@ -178,7 +181,8 @@ EOH;
 </div>
 
 <div id="metaSearchOptionsBar">
-	<?php print $textZoomButtons; ?>
+	<?php echo $aggregatedViewSwitch; ?>
+	<?php echo $textZoomButtons; ?>
 	<div id="maxResultsPerWidgetDiv" class="searchOptionDiv">
 		<span class="optionLabel"><?php print lg("lblMetaSearchPrefsNbResults");?>:</span>
 		<input id="rodinsearch_m" type="text" size="2" value="<?php print $m; ?>"

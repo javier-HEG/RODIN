@@ -8,6 +8,8 @@ lang["lblDuplicatedWidget"]="Widget $$ is already open in this tab";
 lang["titleTextZoomOneSelected"]="Currently showing compact view";
 lang["titleTextZoomTwoSelected"]="Currently showing normal view";
 lang["titleTextZoomThreeSelected"]="Currently showing detailed view";
+lang["titleAggregationButtonOn"]="Enable result aggregation";
+lang["titleAggregationButtonOff"]="Disable result aggregation";
 
 //Metasearch
 lang["lblResultGoogleLanguage"]="The terms collected in the breadcrumbs appear to be in ";

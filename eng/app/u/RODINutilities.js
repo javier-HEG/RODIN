@@ -1978,7 +1978,34 @@ function handle_received_src_data(response,vars) {
 	 * Changes the status of the result aggregation ON/OFF
 	 */
 	function toggle_aggregation() {
+		set_aggregation(!aggregation_status);
+	}
 
+	/**
+	 * Sets the aggregation status to a particular state
+	 */
+	function set_aggregation(state) {
+		aggregation_status = state;
+
+		var button = jQuery("#aggregateButton");
+
+		if (aggregation_status) {
+			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
+			button.attr("title", lg("titleAggregationButtonOff"));
+			button.hover(function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off-hover.png");
+			}, function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
+			});
+		} else {
+			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
+			button.attr("title", lg("titleAggregationButtonOn"));
+			button.hover(function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on-hover.png");
+			}, function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
+			});
+		}
 	}
 
 	function reload_frames_render(render) {
