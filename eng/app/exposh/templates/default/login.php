@@ -125,9 +125,9 @@ body {
 				<div id="loginbox">
                 
 					<div align="left" id="header" bgcolor="#ffffff">
-						<div id="logo" style="float: left;">
+						<div id="no-logo" style="float: left;">
 							<a href="../portal/index.php">
-							<img src="../images/s.gif" width="140" height="60" />
+								<img src="../images/logo_portal.gif" style="width: 150px;" />
 							</a>
 						</div>
 					</div>
