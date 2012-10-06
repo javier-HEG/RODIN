@@ -13514,9 +13514,9 @@ $p.app.widgets={
 		var innerUrl = '' + survistaIFrame.contentDocument.location;
 
 		if (innerUrl.indexOf('stw') != -1) {
-			survistaIFrame.contentDocument.location = "../../../gen/u/rodin_survista_20110901/stw/index.php?&rodinsegment="+ escape(rodinsegment) + "&l=" + lang;
+			survistaIFrame.contentDocument.location = "../../../gen/u/rodin_survista/stw/index.php?&rodinsegment="+ escape(rodinsegment) + "&l=" + lang;
 		} else {
-			survistaIFrame.contentDocument.location = "../../../gen/u/rodin_survista_20110901/dbpedia/index.php?&rodinsegment="+ escape(rodinsegment) + "&l=" + lang;
+			survistaIFrame.contentDocument.location = "../../../gen/u/rodin_survista/dbpedia/index.php?&rodinsegment="+ escape(rodinsegment) + "&l=" + lang;
 		}
 	},
 	restoreSurvista:function(rodinsegment, lang) {
@@ -13538,9 +13538,9 @@ $p.app.widgets={
 		var innerUrl = '' + survistaIFrame.contentDocument.location;
 
 		if (innerUrl.indexOf('stw') != -1) {
-			survistaIFrame.contentDocument.location = "../../../gen/u/rodin_survista_20110901/stw/index.php?&rodinsegment="+ escape(rodinsegment) + "&l=" + lang;
+			survistaIFrame.contentDocument.location = "../../../gen/u/rodin_survista/stw/index.php?&rodinsegment="+ escape(rodinsegment) + "&l=" + lang;
 		} else {
-			survistaIFrame.contentDocument.location = "../../../gen/u/rodin_survista_20110901/dbpedia/index.php?&rodinsegment="+ escape(rodinsegment) + "&l=" + lang;
+			survistaIFrame.contentDocument.location = "../../../gen/u/rodin_survista/dbpedia/index.php?&rodinsegment="+ escape(rodinsegment) + "&l=" + lang;
 		}
 		
 		$p.app.cache.hideShadow();
@@ -13611,11 +13611,11 @@ $p.app.widgets={
 		
 		// Check if the term sent is a ZBW URI
 		if (uri.indexOf("http://zbw") >= 0) {
-			visualizationIFrame.setAttribute("src", "../../../gen/u/rodin_survista_20110901/stw/index.php?r=" + uri + "&ul=" + term + "&rodinsegment="+ escape(rodinsegment) + "&l=" + lang + "&l10n=" + __lang);
+			visualizationIFrame.setAttribute("src", "../../../gen/u/rodin_survista/stw/index.php?r=" + uri + "&ul=" + term + "&rodinsegment="+ escape(rodinsegment) + "&l=" + lang + "&l10n=" + __lang);
 		} else {
 			// Check if the term sent is a DBPedia skos:Concept URI
 			if (uri.indexOf("http://dbpedia.org/resource/Category:") >= 0) {
-				visualizationIFrame.setAttribute("src", "../../../gen/u/rodin_survista_20110901/dbpedia/index.php?r=" + uri + "&rodinsegment="+ escape(rodinsegment) + "&l=" + lang + "&l10n=" + __lang);
+				visualizationIFrame.setAttribute("src", "../../../gen/u/rodin_survista/dbpedia/index.php?r=" + uri + "&rodinsegment="+ escape(rodinsegment) + "&l=" + lang + "&l10n=" + __lang);
 			}
 		}
 	},

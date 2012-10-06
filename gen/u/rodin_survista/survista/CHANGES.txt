@@ -1,0 +1,48 @@
+             SUrvista Rdf VISualizaTion Application Release Notes
+
+Introduction
+------------
+
+See README.txt for more information on how to get started.
+
+==================  20110901  ==================
+
+New Features
+--------------------------------
+
+* querying and displaying results with function sparqlResults
+* easily query edge usage for one relation with function anEdgeUsage
+
+Optimizations
+--------------------------------
+
+* DRYied language filter
+* function labels_or_uri now returns also preferred labels
+* catch and log error if cache dir is missing
+
+==================  20110810  ==================
+
+Upgrading from Survista 20110623
+--------------------------------
+
+New Features
+--------------------------------
+
+* Allows to display a user label for the centered node
+
+Optimizations
+--------------------------------
+
+* Updates to JIT 2.0.1
+
+Bug Fixes
+--------------------------------
+
+* Removes duplicates from user submitted URIs
+
+Other Changes
+--------------------------------
+
+==================  20110623  ==================
+
+Survista release for Rodin
