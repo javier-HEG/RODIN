@@ -84,16 +84,10 @@ class RodinPictureResult extends BasicRodinResult {
 	* allow for the header div holding the result counter, we need to hide it.
 	*/
 	public function jsScriptAndRender($resultIdentifier, $resultCounter, $sid) {
-		// TODO This is the original code, fix
-		$html = '<script type="text/javascript">';
-		$html .= 'var result = new RodinResult("' . $resultIdentifier . '")' . ";\n";
-		$html .= 'result.header = ' . json_encode($this->htmlHeader($resultIdentifier, $resultCounter, $sid)) . ";\n";
-		$html .= 'result.minHeader = null' . ";\n";
-		$html .= 'result.minContent = ' . json_encode($this->toInWidgetHtml('min')) . ";\n";
-		$html .= 'result.tokenContent = ' . json_encode($this->toInWidgetHtml('token')) . ";\n";
-		$html .= 'result.allContent = ' . json_encode($this->toInWidgetHtml('all')) . ";\n";
-		$html .= 'widgetResultSet.results.push(result)' . ";\n";
-		$html .= '</script>';
+		$html = parent::jsScriptAndRender($resultIdentifier, $resultCounter, $sid);
+		
+		// set the result min header to null
+		$html = preg_replace("/result\.minHeader\s=.*;/", 'result.minHeader = null;', $html);
 		
 		return $html;
 	}
