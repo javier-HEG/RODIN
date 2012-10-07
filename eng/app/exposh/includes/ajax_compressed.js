@@ -13473,6 +13473,115 @@ $p.app.widgets={
 			}
 		}
 	},
+
+	//////////////////////////////////////////////
+	// Aggregated view functions
+	//////////////////////////////////////////////
+	/**
+	 * $p.app.widgets.openAggregatedView
+	 */
+	openAggregatedView:function() {
+		// Let's get a handle on the first column of the table
+		var modulesHome = document.getElementById('modules' + tab[$p.app.tabs.sel].id);
+		var firstChild = modulesHome.getChildren()[0];
+
+		// The aggregated view should be placed over the widgets
+		// but under the Survista visualization if it is present
+		if (firstChild.getAttribute('id') == 'survista_module') {
+			firstChild = modulesHome.getChildren()[1];
+		}
+
+		// Check for the aggregated view module presence
+		if (firstChild.getAttribute('id') != 'aggregated_view_module') {
+			// It is absent so we add it
+			var moduleDiv = document.createElement('div');
+			moduleDiv.setAttribute("class", "module");
+			moduleDiv.setAttribute("id", "aggregated_view_module");
+			moduleDiv.setAttribute("style", "display: block; position: relative; margin: 5px;");
+						
+			var closeButtonImg = document.createElement('img');
+			closeButtonImg.setAttribute("style", "margin: 2px; cursor: pointer;");
+			closeButtonImg.setAttribute("src", "../images/ico_close.gif");
+			closeButtonImg.setAttribute("title", lg("titleSurvistaClose"));
+			closeButtonImg.setAttribute("onClick", "javascript: toggle_aggregation();");
+
+			var menuDiv = document.createElement('div');
+			menuDiv.setAttribute("style", "background-color: #eeeeee; text-align: right;");
+			menuDiv.appendChild(closeButtonImg);
+			
+			var resultsContainer = document.createElement('div');
+			resultsContainer.setAttribute("id", "aggregated_view_results");
+			resultsContainer.setAttribute("class", "widgetResultsDiv");
+			
+			moduleDiv.appendChild(menuDiv);
+			moduleDiv.appendChild(resultsContainer);
+			
+			modulesHome.insertBefore(moduleDiv, firstChild);
+		}
+
+		// Refresh the view content
+		$p.app.widgets.refreshAggregatedView();
+	},
+	/**
+	 * $p.app.widgets.refreshAggregatedView
+	 */
+	refreshAggregatedView:function() {
+		var resultsContainer = jQuery('#aggregated_view_results');
+		resultsContainer.empty();
+
+		var params = { sid : getLastSidForTab(parent.tab[$p.app.tabs.sel].id) };
+
+		jQuery.post('../../app/w/RodinResult/RodinResultResponder.php', params, function(data) {
+			$p.app.widgets.addRestustsToAggregatedView(data);
+		});
+	},
+	/**
+	 * $p.app.widgets.addRestustsToAggregatedView
+	 */
+	addRestustsToAggregatedView:function(results) {
+		var resultsContainer = jQuery('#aggregated_view_results');
+
+		for (var i = 0; i < results.length; i++) {
+			var resultDiv = jQuery('<div class="oo-result-container"></div>');
+			resultDiv.append(jQuery(jQuery.parseJSON(results[i].headerDiv)));
+			resultDiv.append(jQuery(jQuery.parseJSON(results[i].contentDiv)));
+
+			resultsContainer.append(resultDiv);
+
+			var resultObj = new RodinResult(results[i].resultIdentifier);
+			resultObj.minHeader = jQuery.parseJSON(results[i].minHeader);
+			resultObj.header = jQuery.parseJSON(results[i].header);
+			resultObj.minContent = jQuery.parseJSON(results[i].minContent);
+			resultObj.tokenContent = jQuery.parseJSON(results[i].tokenContent);
+			resultObj.allContent = jQuery.parseJSON(results[i].allContent);
+		
+			allWidgetsResultSet.results.push(resultObj);
+		}
+
+		allWidgetsResultSet.askResulsToRender('token');
+	},
+	/**
+	 * $p.app.widgets.closeAggregatedView
+	 */
+	closeAggregatedView:function() {
+		// Let's get a handle on the tab element
+		var modulesHome = document.getElementById('modules' + tab[$p.app.tabs.sel].id);
+		firstChild = modulesHome.getChildren()[0];
+		
+		// The aggregated view is placed over the widgets but
+		// under the Survista visualization if it is present
+		if (firstChild.getAttribute('id') == 'survista_module') {
+			firstChild = modulesHome.getChildren()[1];
+		}
+
+		if (firstChild.getAttribute('id') == 'aggregated_view_module') {
+			modulesHome.removeChild(document.getElementById('aggregated_view_module'));
+		}
+	},
+
+	//////////////////////////////////////////////
+	// Survista functions
+	//////////////////////////////////////////////
 	closeSurvista:function() {
 		// Let's get a handle on the tab element
 		modulesHome = document.getElementById('modules' + tab[$p.app.tabs.sel].id);

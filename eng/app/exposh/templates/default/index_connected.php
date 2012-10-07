@@ -44,6 +44,7 @@
 	<link rel="stylesheet" type="text/css" href="<?php print "$CSS_URL"; ?>/rodinBoards.css.php" />
 	<link rel="stylesheet" type="text/css" href="<?php print $RODINUTILITIES_GEN_URL; ?>/contextmenu/jquery.contextMenu.css" />
 	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/contextMenuInRodin.css.php" />
+	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/rodinwidget.css.php" />
 	
 	<script type="text/javascript" src="../portal/selections/waiting.js"></script>
 	<script type="text/javascript" src="../../app/exposh/l10n/<?php echo __LANG;?>/lang.js?v=<?php echo __POSHVERSION;?>" ></script>
@@ -55,9 +56,15 @@
 	<script type='text/javascript' src='../../app/u/wordProcessingTools.js'></script>
 	<script type='text/javascript' src='../../app/u/querystring.js'></script>
 	<script type="text/javascript" src='../../app/u/facetBoardInterface.js.php'></script>
+	<script type="text/javascript" src='../../app/w/RodinResult/RodinResultSet.js'></script>
 	<script type='text/javascript' src='../../app/u/RODINutilities.js.php?skin=<?php print $RODINSKIN;?>'></script>
 	<script type='text/javascript'>
 		var isIndexConnected = true;
+		// Holds the results shown in the aggregated view
+		var allWidgetsResultSet = new RodinResultSet();
+		// Save the SID of the last search per tab
+		var lastSidTabId = new Array();
+		var lastSid = new Array();
 	</script>
 	<!-- For idle timer and context menus -->
 	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.7.1.min.js'></script>
@@ -145,7 +152,7 @@ EOH;
 		. '</div>' . "\n"
 		. '<script type="text/javascript">' . "\n"
 		. 'aggregation_status = false;' . "\n"
-		. 'set_aggregation(aggregation_status);' . "\n"
+		. 'set_aggregation(aggregation_status, false);' . "\n"
 		. '</script>' . "\n";
 	
 #------------------ RODINCONTROL ----------------

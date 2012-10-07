@@ -549,7 +549,10 @@ function format3pos(num)
 	
 		// 1. Compute SID
 		SID = compute_ajax_sid(usr);
-		
+
+		// Save SID
+		saveLastSidPerTab(SID, db_tab_id);
+
 		// Launch the protective pop-up
 		var html_message='';
 		var msgtxt = '<div style="padding-left: 6px; padding-right: 28px;">'
@@ -649,7 +652,22 @@ function format3pos(num)
 		return false;
 	} // fri_rodin_metasearch
 
-	
+
+function saveLastSidPerTab(sid, tab_id) {
+	var i = lastSidTabId.indexOf(tab_id);
+
+	if (i == -1) {
+		i = lastSidTabId.length;
+		lastSidTabId.push(tab_id);
+	}
+
+	lastSid[i] = sid;
+}
+
+function getLastSidForTab(tab_id) {
+	var i = lastSidTabId.indexOf(tab_id);
+	return lastSid[i];
+}
 	
 function fri_rodin_do_onto_search_wrap(blankurl,variables) {
 	var terms = variables['terms'];
@@ -1978,28 +1996,44 @@ function handle_received_src_data(response,vars) {
 	 * Changes the status of the result aggregation ON/OFF
 	 */
 	function toggle_aggregation() {
-		set_aggregation(!aggregation_status);
+		set_aggregation(!aggregation_status, true);
 	}
 
 	/**
 	 * Sets the aggregation status to a particular state
 	 */
-	function set_aggregation(state) {
+	function set_aggregation(state, set_aggregated_view) {
 		aggregation_status = state;
 
 		var button = jQuery("#aggregateButton");
 
 		if (aggregation_status) {
+			if (set_aggregated_view)
+				$p.app.widgets.openAggregatedView();
+
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			button.attr("title", lg("titleAggregationButtonOff"));
+
+			button.unbind('click');
+			button.click(function() {
+				$p.app.widgets.closeAggregatedView();
+			});
 			button.hover(function() {
 				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off-hover.png");
 			}, function() {
 				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			});
 		} else {
+			if (set_aggregated_view)
+				$p.app.widgets.closeAggregatedView();
+
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
 			button.attr("title", lg("titleAggregationButtonOn"));
+			
+			button.unbind('click');
+			button.click(function() {
+				$p.app.widgets.openAggregatedView();
+			});
 			button.hover(function() {
 				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on-hover.png");
 			}, function() {

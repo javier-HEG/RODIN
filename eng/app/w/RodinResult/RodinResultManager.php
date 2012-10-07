@@ -132,6 +132,60 @@ class RodinResultManager {
 		return $sql . ';';
 	}
 	
+	public static function getRodinResultsForASearch($sid) {
+		$allResults = array();
+		
+		try {
+			$db = new RODIN_DB();
+			$conn = $db->DBconn;
+			
+			$query = "SELECT * FROM result WHERE sid = '$sid' ORDER BY datasource ASC, xpointer ASC";
+			$resultset = mysql_query($query, $conn);
+			
+			if ($resultset)	{
+				while ($row = mysql_fetch_assoc($resultset)) {
+					$pointer = explode('.', $row['xpointer']);
+					$pointerBase = intval($pointer[0]);
+					$pointerRemainder = count($pointer) > 1 ? intval($pointer[1]) : -1;
+					
+					if ($pointerBase > -1) {
+						// A new result to be loaded
+						if ($pointerRemainder == 0) {
+							$result = RodinResultManager::buildRodinResultByType(intval($row['value']));
+							$allResults[$pointerBase] = $result;
+						} else {
+							$result = $allResults[$pointerBase];
+							$attribute = $row['attribute'];
+							switch ($attribute) {
+								case 'title':
+									$result->setTitle($row['value']);
+								break;
+								case 'authors':
+									$result->setAuthors($row['value']);
+								break;
+								case 'date':
+									$result->setDate($row['value']);
+								break;
+								case 'urlPage':
+									$result->setUrlPage($row['value']);
+								break;
+								default:
+									$result->setProperty($attribute, $row['value']);
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			$db->close();
+		} catch (Exception $e) {
+			print "RodinResultManager EXCEPTION: $e";
+		}
+		
+		return $allResults;
+	}
+
 	public static function getRodinResultsFromResultsTable($sid, $datasource) {
 		$allResults = array();
 		
@@ -231,7 +285,7 @@ class RodinResultManager {
 				return 'gray';
 		}
 	}
-	
+
 	/**
 	 * Requires that the RodinResultSet.js file is included in page where
 	 * these results are rendered.
