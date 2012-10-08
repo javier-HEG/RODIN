@@ -146,7 +146,7 @@ EOH;
 
 //------------------ Agregated view controls ----------------
 	$aggregatedViewSwitch = '<div id="aggregateButtonDiv" class="searchOptionDiv">' . "\n"
-		. '<span class="optionLabel">' . lg("lblAggregation") . ':</span>' . "\n"
+		. '<span class="optionLabel" id="aggregateButtonLabel">' . lg("lblEnableAggregation") . ':</span>' . "\n"
 		. '<img id="aggregateButton" class="optionButton" src=""' . "\n"
 		. 'onClick="javascript: toggle_aggregation();" title="" />' . "\n"
 		. '</div>' . "\n"

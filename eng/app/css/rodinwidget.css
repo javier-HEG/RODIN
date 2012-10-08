@@ -13,34 +13,34 @@ form {
 }
 
 .word {
-font-family:Arial, Helvetica, sans-serif;
+	font-family:Arial, Helvetica, sans-serif;
 }
 
 .recordcnt {
-color:#aaaaaa;
-font-family:arial,helvetica,clean,sans-serif;
-font-weight:400;
-font-size:small;
-text-align:right;
+	color: #aaaaaa;
+	font-family: arial,helvetica,clean,sans-serif;
+	font-weight: 400;
+	font-size: small;
+	text-align: right;
 }
 
 .widgetPrefsDiv {
-font-family:arial,helvetica,clean,sans-serif;
-font-weight:400;
-font-size:small;
-font-style:normal;
-border: 1px solid <?php print $COLOR_WIDGET_PREFS_BG_BORDER; ?>;
-background-color: <?php print $COLOR_WIDGET_PREFS_BG; ?>;
-margin: 1px;
-padding: 5px;
+	font-family: arial,helvetica,clean,sans-serif;
+	font-weight: 400;
+	font-size: small;
+	font-style: normal;
+	border: 1px solid <?php print $COLOR_WIDGET_PREFS_BG_BORDER; ?>;
+	background-color: <?php print $COLOR_WIDGET_PREFS_BG; ?>;
+	margin: 1px;
+	padding: 5px;
 }
 
 .widgetPrefsDiv .widget_user_info {
-color:#aaaaaa;
-font-family:arial,helvetica,clean,sans-serif;
-font-weight:400;
-font-size:small;
-font-style:normal;
+	color: #aaaaaa;
+	font-family: arial,helvetica,clean,sans-serif;
+	font-weight: 400;
+	font-size: small;
+	font-style: normal;
 }
 
 .widgetPrefsDiv p {
@@ -49,15 +49,16 @@ font-style:normal;
 }
 
 p.widgetResultCount {
-	margin:2px;
+	margin: 2px;
 	padding: 0px;
 	color: #aaaaaa;
 }
 
 div.widgetResultsDiv {
+	color: black;
 	overflow-x: hidden;
-	overflow-y:auto;
-	width:100%;
+	overflow-y: auto;
+	width: 100%;
 }
 
 div.widgetImageGridDiv {
@@ -90,7 +91,7 @@ table.widgetResultsDocumentTable {
 	border: none;
 }
 
-a {
+div.oo-result a {
 	color:#777777;
 	text-decoration:none;
 	font-family:arial,helvetica,clean,sans-serif;
@@ -99,14 +100,14 @@ a {
 	font-style:normal;
 }
 	
-td {
+div.oo-result td {
 	font-family:arial,helvetica,clean,sans-serif;
 	font-weight:400;
 	font-size:small;
 	font-style:normal;
 }
 
-td.widget_user_info {
+div.oo-result td.widget_user_info {
 	color:#aaaaaa;
 	font-family:arial,helvetica,clean,sans-serif;
 	font-weight:400;

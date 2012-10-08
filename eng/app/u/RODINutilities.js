@@ -2006,6 +2006,7 @@ function handle_received_src_data(response,vars) {
 		aggregation_status = state;
 
 		var button = jQuery("#aggregateButton");
+		var label = jQuery("#aggregateButtonLabel");
 
 		if (aggregation_status) {
 			if (set_aggregated_view)
@@ -2013,6 +2014,7 @@ function handle_received_src_data(response,vars) {
 
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			button.attr("title", lg("titleAggregationButtonOff"));
+			label.html("<?php echo lg('lblDisableAggregation'); ?>:");
 
 			button.unbind('click');
 			button.click(function() {
@@ -2029,6 +2031,7 @@ function handle_received_src_data(response,vars) {
 
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
 			button.attr("title", lg("titleAggregationButtonOn"));
+			label.html("<?php echo lg('lblEnableAggregation'); ?>:");
 			
 			button.unbind('click');
 			button.click(function() {
