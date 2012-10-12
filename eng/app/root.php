@@ -169,7 +169,7 @@ $IMG_REFINING_DONE = $RODINIMAGESURL . '/semantic_web_icon.png';
 $IMG_REFINING_TITLE = "Calculating ontological facets to your query ...";
 
 //Zen filter icon
-$ZEN_FILTER_ICON = $RODINIMAGESURL . '/magnifier.png';
+$ZEN_FILTER_ICON = $RODINIMAGESURL . '/funnel.png';
 
 //Tag-cloud icon
 $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';

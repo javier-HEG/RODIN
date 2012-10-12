@@ -158,6 +158,7 @@ class BasicRodinResult {
 	}
 
 	public function htmlHeaderZenFilter($sid, $resultIdentifier = null) {
+		global $ZEN_FILTER_ICON;
 		global $widgetresultdivid;
 
 		$text64 = base64_encode($this->toPureContentText());
@@ -169,7 +170,7 @@ class BasicRodinResult {
 			$jsZenFilter = "rodin_zen_filter('$text64', '$query64', document.getElementById('spotlight-box-$widgetresultdivid'));";
 		}
 
-		return '<img src="/rodin/gen/u/images/magnifier.png" title="' . lg('titleLaunchZenFilter') . '" onclick="' . $jsZenFilter . '" />';
+		return '<img src="' . $ZEN_FILTER_ICON . '" title="' . lg('titleLaunchZenFilter') . '" onclick="' . $jsZenFilter . '" />';
 	}
 	
 	public function htmlHeader($resultIdentifier, $resultCounter, $sid) {
