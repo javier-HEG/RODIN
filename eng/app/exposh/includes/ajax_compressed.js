@@ -13499,21 +13499,10 @@ $p.app.widgets={
 			moduleDiv.setAttribute("id", "aggregated_view_module");
 			moduleDiv.setAttribute("style", "display: block; position: relative; margin: 5px;");
 						
-			var closeButtonImg = document.createElement('img');
-			closeButtonImg.setAttribute("style", "margin: 2px; cursor: pointer;");
-			closeButtonImg.setAttribute("src", "../images/ico_close.gif");
-			closeButtonImg.setAttribute("title", lg("titleSurvistaClose"));
-			closeButtonImg.setAttribute("onClick", "javascript: toggle_aggregation();");
-
-			var menuDiv = document.createElement('div');
-			menuDiv.setAttribute("style", "background-color: #eeeeee; text-align: right;");
-			menuDiv.appendChild(closeButtonImg);
-			
 			var resultsContainer = document.createElement('div');
-			resultsContainer.setAttribute("id", "aggregated_view_results");
+			resultsContainer.setAttribute("id", allWidgetsResultSet.containerDivId);
 			resultsContainer.setAttribute("class", "widgetResultsDiv");
 			
-			moduleDiv.appendChild(menuDiv);
 			moduleDiv.appendChild(resultsContainer);
 			
 			modulesHome.insertBefore(moduleDiv, firstChild);
@@ -13526,7 +13515,7 @@ $p.app.widgets={
 	 * $p.app.widgets.refreshAggregatedView
 	 */
 	refreshAggregatedView:function() {
-		var resultsContainer = jQuery('#aggregated_view_results');
+		var resultsContainer = jQuery('#' + allWidgetsResultSet.containerDivId);
 		resultsContainer.empty();
 
 		var params = { sid : getLastSidForTab(parent.tab[$p.app.tabs.sel].id) };
@@ -13538,27 +13527,31 @@ $p.app.widgets={
 	/**
 	 * $p.app.widgets.addRestustsToAggregatedView
 	 */
-	addRestustsToAggregatedView:function(results) {
-		var resultsContainer = jQuery('#aggregated_view_results');
-
-		for (var i = 0; i < results.length; i++) {
-			var resultDiv = jQuery('<div class="oo-result-container"></div>');
-			resultDiv.append(jQuery(jQuery.parseJSON(results[i].headerDiv)));
-			resultDiv.append(jQuery(jQuery.parseJSON(results[i].contentDiv)));
-
-			resultsContainer.append(resultDiv);
-
-			var resultObj = new RodinResult(results[i].resultIdentifier);
-			resultObj.minHeader = jQuery.parseJSON(results[i].minHeader);
-			resultObj.header = jQuery.parseJSON(results[i].header);
-			resultObj.minContent = jQuery.parseJSON(results[i].minContent);
-			resultObj.tokenContent = jQuery.parseJSON(results[i].tokenContent);
-			resultObj.allContent = jQuery.parseJSON(results[i].allContent);
+	addRestustsToAggregatedView:function(data) {
+		// add the results obtained
+		for (var i = 0; i < data.results.length; i++) {
+			var resultObj = new RodinResult(data.results[i].resultIdentifier);
+			resultObj.headerDiv = jQuery.parseJSON(data.results[i].headerDiv);
+			resultObj.contentDiv = jQuery.parseJSON(data.results[i].contentDiv);
+			resultObj.minHeader = jQuery.parseJSON(data.results[i].minHeader);
+			resultObj.header = jQuery.parseJSON(data.results[i].header);
+			resultObj.minContent = jQuery.parseJSON(data.results[i].minContent);
+			resultObj.tokenContent = jQuery.parseJSON(data.results[i].tokenContent);
+			resultObj.allContent = jQuery.parseJSON(data.results[i].allContent);
 		
-			allWidgetsResultSet.results.push(resultObj);
+			allWidgetsResultSet.addResultAndRender(resultObj, 'token');
 		}
 
-		allWidgetsResultSet.askResulsToRender('token');
+		if (data.upto < data.count) {
+			var params = {
+				sid : data.sid,
+				from: data.upto
+			};
+
+			jQuery.post('../../app/w/RodinResult/RodinResultResponder.php', params, function(data) {
+				$p.app.widgets.addRestustsToAggregatedView(data);
+			});
+		}
 	},
 	/**
 	 * $p.app.widgets.closeAggregatedView

@@ -62,6 +62,7 @@
 		var isIndexConnected = true;
 		// Holds the results shown in the aggregated view
 		var allWidgetsResultSet = new RodinResultSet();
+		allWidgetsResultSet.containerDivId = 'aggregated_view_results';
 		// Save the SID of the last search per tab
 		var lastSidTabId = new Array();
 		var lastSid = new Array();

@@ -4,13 +4,20 @@ require_once 'RodinResultManager.php';
 
 $sid = $_POST['sid'];
 
-$allResults = RodinResultManager::getRodinResultsForASearch($sid);
+$fromResult = isset($_POST['from']) ? $_POST['from'] : 0;
 
 $jsonAllResults = array();
 
-$resultCounter = 0;
-foreach ($allResults as $result) {
-	$resultCounter++;
+$allResults = RodinResultManager::getRodinResultsForASearch($sid);
+$resultCount = count($allResults);
+
+$resultMaxSetSize = 7;
+$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
+
+for ($i = $fromResult; $i < $uptoResult; $i++) { 
+	$result = $allResults[$i];
+	$resultCounter = $i + 1;
+
 	$resultIdentifier = 'aggregatedResult-' . $resultCounter;
 
 	$jsonSingleResult = array();
@@ -32,7 +39,7 @@ foreach ($allResults as $result) {
 	$jsonAllResults[] = $jsonSingleResult;
 }
 
-header('Content-type: application/json');
-echo json_encode($jsonAllResults);
+header('Content-type: application/json; charset=utf-8');
+echo json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $uptoResult, 'results' => $jsonAllResults));
 
 ?>
