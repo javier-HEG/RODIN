@@ -11,10 +11,14 @@ $jsonAllResults = array();
 $allResults = RodinResultManager::getRodinResultsForASearch($sid);
 $resultCount = count($allResults);
 
-$resultMaxSetSize = 7;
+// Both a maximum size and a maximum number of results are set
+$resultMaxSetSize = 10;
+$resultMaxLength = 131072;
+
 $uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
 
-for ($i = $fromResult; $i < $uptoResult; $i++) { 
+$i = $fromResult;
+while ($i < $uptoResult) {
 	$result = $allResults[$i];
 	$resultCounter = $i + 1;
 
@@ -36,10 +40,20 @@ for ($i = $fromResult; $i < $uptoResult; $i++) {
 	$jsonSingleResult['tokenContent'] = json_encode($result->toInWidgetHtml('token'));
 	$jsonSingleResult['allContent'] = json_encode($result->toInWidgetHtml('all'));
 
+	// Check the size of the response if this result was added
+	$tmpAllResults = $jsonAllResults;
+	$tmpAllResults[] = $jsonSingleResult;
+	$tmpJsonResponse = json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $uptoResult, 'results' => $tmpAllResults));
+	$tmpJsonResponseLength = strlen($tmpJsonResponse);
+
+	if ($tmpJsonResponseLength > $resultMaxLength)
+		break;
+	
 	$jsonAllResults[] = $jsonSingleResult;
+	$i++;
 }
 
 header('Content-type: application/json; charset=utf-8');
-echo json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $uptoResult, 'results' => $jsonAllResults));
+echo json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $i, 'results' => $jsonAllResults));
 
 ?>
