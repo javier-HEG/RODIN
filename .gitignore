@@ -1,4 +1,7 @@
 eng/fsrc/gen/u/tmp
 eng/fsrc/gen/u/data
+eng/posh/cache
+eng/posh/includes/config.js
+eng/posh/includes/config.inc.php
 gen/data
 gen/u/tmp
