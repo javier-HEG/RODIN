@@ -4,6 +4,10 @@ require_once 'RodinResultManager.php';
 
 $sid = $_POST['sid'];
 
+// The suffix is used to distinguish the hearder anc
+// content divs from results in different tabs
+$suffix = $_POST['suffix'];
+
 $fromResult = isset($_POST['from']) ? $_POST['from'] : 0;
 
 $jsonAllResults = array();
@@ -12,7 +16,7 @@ $allResults = RodinResultManager::getRodinResultsForASearch($sid);
 $resultCount = count($allResults);
 
 // Both a maximum size and a maximum number of results are set
-$resultMaxSetSize = 10;
+$resultMaxSetSize = 4;
 $resultMaxLength = 131072;
 
 $uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
@@ -22,7 +26,7 @@ while ($i < $uptoResult) {
 	$result = $allResults[$i];
 	$resultCounter = $i + 1;
 
-	$resultIdentifier = 'aggregatedResult-' . $resultCounter;
+	$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
 
 	$jsonSingleResult = array();
 
