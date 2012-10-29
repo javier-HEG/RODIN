@@ -7719,7 +7719,11 @@ $p.app.tabs={
 
 		$p.app.tabs.select(v_id);
 		
-		init_aggregation();
+		// Check if the aggregation has been initialized
+		var tabId = tab[$p.app.tabs.sel].id;
+		var index = tabAggregatedStatusTabId.indexOf(tabId);
+		if (index == -1)
+			init_aggregation();
 
 		$p.ajax.call('../../app/tests/LoggerResponder.php?action=4&name=' + tab[$p.app.tabs.sel].label, {'type':'load'});
 	},
@@ -13515,7 +13519,7 @@ $p.app.widgets={
 			
 			var menuDiv = document.createElement('div');
 			menuDiv.setAttribute("id", "aggregated_view_menu_" + tabId);
-			menuDiv.setAttribute("style", "background-color: #eeeeee; text-align: right; float: left; width:100%;");
+			menuDiv.setAttribute("class", "aggregatedViewMenu");
 
 			var resultsContainer = document.createElement('div');
 			resultsContainer.setAttribute("id", allWidgetsResultSets[index].containerDivId);
@@ -13572,7 +13576,7 @@ $p.app.widgets={
 			resultObj.tokenContent = jQuery.parseJSON(data.results[i].tokenContent);
 			resultObj.allContent = jQuery.parseJSON(data.results[i].allContent);
 		
-			allWidgetsResultSets[index].addResultAndRender(resultObj, 'token');
+			allWidgetsResultSets[index].addResultAndRender(resultObj, jQuery("#selectedTextZoom").val());
 		}
 
 		if (data.upto < data.count) {

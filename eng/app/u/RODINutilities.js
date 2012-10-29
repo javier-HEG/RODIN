@@ -2017,15 +2017,7 @@ function handle_received_src_data(response,vars) {
 		var menuDiv = jQuery('#aggregated_view_menu_' + tab[$p.app.tabs.sel].id);
 		menuDiv.empty();
 
-		var labelDiv = jQuery('<div class="hmod"></div>');
-		labelDiv.css('border', 'none');
-		labelDiv.css('background', 'none');
-		labelDiv.css('margin', '2px');
-		labelDiv.css('padding', '2px 8px');
-		labelDiv.css('float', 'left');
-		labelDiv.css('display', 'block');
-		labelDiv.css('color', 'black');
-		labelDiv.css('font-size', '14px');
+		var labelDiv = jQuery('<div class="aggregationLabel"></div>');
 		labelDiv.text('Aggregated results from:');
 		menuDiv.append(labelDiv);
 		
@@ -2038,20 +2030,7 @@ function handle_received_src_data(response,vars) {
 			iconImage.css('height', '20px');
 			iconImage.css('vertical-align', 'bottom');
 
-			var iconDiv = jQuery('<div class="hmod"></div>');
-			iconDiv.css('border', '1px solid whitesmoke');
-			iconDiv.css('border-radius', '9px');
-			iconDiv.css('background-color', 'white');
-			iconDiv.css('background-repeat', 'repeat-x');
-			iconDiv.css('background-position', 'center bottom');
-			iconDiv.css('margin', '2px');
-			iconDiv.css('padding', '2px 8px');
-			iconDiv.css('float', 'left');
-			iconDiv.css('display', 'block');
-			iconDiv.css('color', 'black');
-			iconDiv.css('font-size', '16px');
-
-
+			var iconDiv = jQuery('<div class="hmod widgetIcon"></div>');
 			iconDiv.append(iconImage);
 			iconDiv.append(iconLabel);
 
@@ -2173,6 +2152,14 @@ function handle_received_src_data(response,vars) {
 		set_zoom_text_icons(render);
 		
 		var	tab_id = parent.tab[parent.$p.app.tabs.sel].id;
+
+		var index = tabAggregatedStatusTabId.indexOf(tab_id);
+		var currentAggregationStatus = tabAggregatedStatus[index];
+		if (currentAggregationStatus) {
+			var resultSetIndex = allWidgetsResultsSetsTabId.indexOf(tab_id);
+			allWidgetsResultSets[resultSetIndex].askResulsToRender(render);
+		}
+
 		var pertinentIframes = getPertinentIframesInfos(tab_id);			
 		for(var i=0;i<pertinentIframes.length;i++) {
 			var iframe = pertinentIframes[i][0];
