@@ -147,14 +147,15 @@ class RodinResultManager {
 					$pointer = explode('.', $row['xpointer']);
 					$pointerBase = intval($pointer[0]);
 					$pointerRemainder = count($pointer) > 1 ? intval($pointer[1]) : -1;
+					$datasource = $row['datasource'];
 					
 					if ($pointerBase > -1) {
 						// A new result to be loaded
 						if ($pointerRemainder == 0) {
 							$result = RodinResultManager::buildRodinResultByType(intval($row['value']));
-							$allResults[$pointerBase] = $result;
+							$allResults[$datasource . '-' . $pointerBase] = $result;
 						} else {
-							$result = $allResults[$pointerBase];
+							$result = $allResults[$datasource . '-' . $pointerBase];
 							$attribute = $row['attribute'];
 							switch ($attribute) {
 								case 'title':
@@ -183,7 +184,7 @@ class RodinResultManager {
 			print "RodinResultManager EXCEPTION: $e";
 		}
 		
-		return $allResults;
+		return array_values($allResults);
 	}
 
 	public static function getRodinResultsFromResultsTable($sid, $datasource) {

@@ -1,5 +1,6 @@
 function RodinResultSet() {
 	this.results = new Array();
+	this.containerDivId = null;
 	
 	this.askResulsToRender = function (textZoom) {
 		for (var i = 0; i < this.results.length; i++) {
@@ -13,7 +14,26 @@ function RodinResultSet() {
 		// After rendering, context-menu needs to be re-attached
 		setContextMenu();
 	}
-	
+
+	/**
+	 * Adds a RodinResult instance to the set, prepares the div
+	 * to contain it and asks it to render.
+	 */
+	this.addResultAndRender = function (result, textZoom) {
+		this.results.push(result);
+
+		var resultDiv = jQuery('<div class="oo-result-container"></div>');
+		resultDiv.append(jQuery(result.headerDiv));
+		resultDiv.append(jQuery(result.contentDiv));
+
+		var resultsContainer = jQuery('#' + this.containerDivId);
+		resultsContainer.append(resultDiv);
+
+		result.render(textZoom);
+
+		// After rendering, context-menu needs to be re-attached
+		setContextMenu();
+	}
 }
 
 function RodinResult(resultId) {
@@ -22,6 +42,9 @@ function RodinResult(resultId) {
 	this.headerDivId = "header-" + this.resultId;
 	this.contentDivId = "content-" + this.resultId;
 	
+	this.headerDiv = null;
+	this.contentDiv = null;
+
 	this.header = null;
 	this.minHeader = null;
 	this.minContent = null;
