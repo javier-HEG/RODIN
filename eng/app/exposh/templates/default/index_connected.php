@@ -118,14 +118,20 @@ EOI;
 	global $B_MIN_ICON_SELECTED, $B_MIN_ICON_HOVER, $B_MIN_ICON_NORMAL;
 	global $B_TOKEN_ICON_SELECTED, $B_TOKEN_ICON_HOVER, $B_TOKEN_ICON_NORMAL;
 	global $B_ALL_ICON_SELECTED, $B_ALL_ICON_HOVER, $B_ALL_ICON_NORMAL;
+	global $B_FILTER_ICON_SELECTED, $B_FILTER_ICON_HOVER, $B_FILTER_ICON_NORMAL;
 	
 	$title1=lg("titleTextZoomOne");
 	$title2=lg("titleTextZoomTwo");
 	$title3=lg("titleTextZoomThree");
+	$title4=lg("titleTextZoomFour");
 	
 	$textZoomLabel = lg("lblMetaSearchPrefsTextZoom");
 	
 	$textZoomButtons=<<<EOH
+  <script type="text/javascript">
+    RESULTFILTEREXPR='';
+    TEXTZOOM='token';
+	</script>
 		<div id="textZoomButtonsDiv" class="searchOptionDiv">
 			<span class="optionLabel">{$textZoomLabel}:</span>
 			<img id="img_mainzoombutton1" class="optionButton" src="$B_MIN_ICON_NORMAL"
@@ -143,6 +149,12 @@ EOI;
 				onClick="javascript: reload_frames_render('all');"
 				onMouseOver="javascript: i3 = document.getElementById('img_mainzoombutton3');zoomb3=i3.src;src='$B_ALL_ICON_HOVER'" 
 				onMouseOut="javascript: i3 = document.getElementById('img_mainzoombutton3');i3.src=zoomb3;">
+			<img id="img_mainzoombutton4" class="optionButton" src="$B_FILTER_ICON_NORMAL"
+				title="$title4"
+				onClick="javascript: hide_un_highlighted_results();"
+				onMouseOver="javascript: i4 = document.getElementById('img_mainzoombutton4');zoomb4=i4.src;src='$B_FILTER_ICON_HOVER'"
+				onMouseOut="javascript: i4 = document.getElementById('img_mainzoombutton4');i4.src=zoomb4;">
+
 			<input id="selectedTextZoom" type="hidden" value="" />
 		</div>
 		<script type="text/javascript">set_zoom_text_icons("token");</script>
@@ -206,7 +218,7 @@ EOH;
 	
 	<div id="rodinBoards" class="allBoards">
 		<div id="addWidgetBoard" class="singleRodinBoard"></div>
-		<div id="facetboard" class="singleRodinBoard">
+    <div id="facetboard" class="singleRodinBoard" onmouseover="mark_ontoterms_on_resultmatch()">
 			<div id="facetsBoardTitleBar" class="rodinBoardTitleBar"> 
 				<img id="refining_busy_info2" src="<?php print $IMG_REFINING_DONE; ?>" class="rodinBoardTitleImage" />
 				<span id="facetboard_title" class="rodinBoardTitleLabel">
@@ -356,12 +368,20 @@ EOH;
 			init_aggregation();
 		});
 	</script>
-	
-	<?php launch_hook('userinterface_end',$pagename);?>
-	
+
+
+
+	<?php launch_hook('userinterface_end',$pagename);
+    $HOVERIN_RESTRICT="onmouseover=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,true)\"";
+    $HOVEROUT_RESTRICT="onmouseout=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,false)\"";
+  ?>
+	<!-- The following is the ontofacets menu:  -->
 	<ul id="facetsContextMenu" class="contextMenu">
-		<h1 id="facetsContextMenuLabel"></h1>
+    <li><h1 id="facetsContextMenuLabel"></h1></li>
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb"><?php echo lg('lblContextMenuAddToBreadcrumb'); ?></a></li>
+		<li class="restricttoontoterm" 
+        <?php print $HOVERIN_RESTRICT ?>
+        <?php print $HOVEROUT_RESTRICT ?> ><a href="#restricttoontoterm"><?php echo lg('lblContextMenuRestrictToOntoTerm1');?> <b><label/></b> <?php echo lg('lblContextMenuRestrictToOntoTerm2');?></a></li>
 		<li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets"><?php echo lg('lblContextMenuExploreOntoFacets');?></a></li>
 	</ul>
 

@@ -278,6 +278,9 @@ $B_TOKEN_ICON_HOVER = "$RODINUTILITIES_GEN_URL/images/button-token-hover.png";
 $B_ALL_ICON_NORMAL = "$RODINUTILITIES_GEN_URL/images/button-all-normal.png";
 $B_ALL_ICON_SELECTED = "$RODINUTILITIES_GEN_URL/images/button-all-selected.png";
 $B_ALL_ICON_HOVER = "$RODINUTILITIES_GEN_URL/images/button-all-hover.png";
+$B_FILTER_ICON_NORMAL = "$RODINUTILITIES_GEN_URL/images/button-filter-normal.png";
+$B_FILTER_ICON_SELECTED = "$RODINUTILITIES_GEN_URL/images/button-filter-selected.png";
+$B_FILTER_ICON_HOVER = "$RODINUTILITIES_GEN_URL/images/button-filter-hover.png";
 #######################################
 
 #######################################

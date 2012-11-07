@@ -440,6 +440,7 @@ EOP;
 				$ADDITIONALINCLUDES .= $EXTRAINCLUDES;
 			}
 
+			$restrictToOntoTermLabel = lg('lblContextMenuRestrictToOntoTerm1')." <b><label/></b> ".lg('lblContextMenuRestrictToOntoTerm2');
 			$addToBreadcrumbLabel = lg('lblContextMenuAddToBreadcrumb');
 			$exploreOntologicalFacetsLabel = lg('lblContextMenuExploreOntoFacets');
 
@@ -447,6 +448,8 @@ EOP;
 			$iFrameIdFromAppId = "modfram{$appIdElements[1]}_{$appIdElements[2]}";
 
 			$widgetDatasource = datasource_enhance(str_replace(".php", ".rodin", $_SERVER['SCRIPT_NAME']), $_REQUEST['app_id']);
+      $HOVERIN_RESTRICT="onmouseover=\"var t=document.getElementById('widgetContextMenuLabel').innerHTML; simple_highlight_semfilterresults(t,true)\"";
+      $HOVEROUT_RESTRICT="onmouseout=\"var t=document.getElementById('widgetContextMenuLabel').innerHTML; simple_highlight_semfilterresults(t,false)\"";
 
 			print<<<EOP
 	$ADDITIONALINCLUDES
@@ -477,6 +480,45 @@ EOP;
 		}
 	</script>
 	<script type="text/javascript">
+		function setContextMenu() {
+			(function(jQuery){
+				jQuery(document).ready(function() {
+					jQuery("span.result-word").add(".spotlightbox p.terms a").hover(
+						function () { jQuery(this).addClass("hovered-word"); },
+						function () { jQuery(this).removeClass("hovered-word");	});
+
+					jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
+						menu: 'widgetContextMenu',
+            premenuitem_callback: 'check_semfilterresults',
+            min_occurrences: 2, /*Build menuitem starting from 2 occurrences*/
+            conditioned_menuitem_id: 2 /*give menuitem obj to callback function for change*/
+					},
+
+
+            function(action, el, pos) {
+						var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
+						
+						switch(action) {
+							case "addToBreadcrumb":
+								correctParent.bc_add_breadcrumb_unique(jQuery(el).text(),'result');
+							break;
+							case "restricttoontoterm":
+                correctParent.RESULTFILTEREXPR = jQuery(el).text();
+                correctParent.reload_frames_render(correctParent.TEXTZOOM);
+                correctParent.RESULTFILTEREXPR='';
+             	break;
+							case "exploreInOntologicalFacets":
+								correctParent.fb_set_node_ontofacet(jQuery(el).text().toLowerCase());
+								correctParent.detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, correctParent.\$p);
+								correctParent.\$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=widget&name=' + get_datasource_name('$widgetDatasource'), {'type':'load'});
+							break;
+              default: 
+						}
+					});
+  				});
+			})(jQuery);
+		}
+
 		// set the context menu items
 		setContextMenu();
 	</script>
@@ -503,8 +545,9 @@ EOP;
 </head>
 <body bgcolor='$COLOR_WIDGET_BG'>
 	<ul id="widgetContextMenu" class="contextMenu">
-		<h1 id="widgetContextMenuLabel"></h1>
+		<li><h1 id="widgetContextMenuLabel"></h1></li>
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb">$addToBreadcrumbLabel</a></li>
+		<li class="restricttoontoterm" $HOVERIN_RESTRICT $HOVEROUT_RESTRICT><a href="#restricttoontoterm">$restrictToOntoTermLabel</a></li>
 		<li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets">$exploreOntologicalFacetsLabel</a></li>
 	</ul>
 EOP;

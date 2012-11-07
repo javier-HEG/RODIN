@@ -36,6 +36,10 @@
 	background-image: url('<?php echo $RODINIMAGESWEB; ?>/add-to-breadcrumb.png');
 }
 
+.contextMenu li.restricttoontoterm a {
+	background-image: url('<?php echo $RODINIMAGESWEB; ?>/restrict-to-ontoterm.png');
+}
+
 .contextMenu li.exploreOntoFacets a {
 	background-image: url('<?php echo $RODINIMAGESWEB; ?>/magnifier-onto-small.png');
 }

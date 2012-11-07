@@ -12,6 +12,12 @@
 // This plugin is dual-licensed under the GNU General Public License
 //   and the MIT License and is copyright A Beautiful Site, LLC.
 //
+//
+// Fabio Ricci (FRI) - HEG - fabio.ricci@ggaweb.ch - 2012
+// Added some extension to start actions just before constructing the menu.
+// In case premenuitem_callback be set, this will be called on the item text
+// of the element to call the contex menu on ( premenucallback(text) )
+//
 if(jQuery)( function($) {
 	$.extend($.fn, {
 		
@@ -23,11 +29,18 @@ if(jQuery)( function($) {
 			// 0 needs to be -1 for expected results (no fade)
 			if( o.inSpeed == 0 ) o.inSpeed = -1;
 			if( o.outSpeed == 0 ) o.outSpeed = -1;
-			// Loop each context menu
+      /* PARAMETERS: */
+      var premenuitem_callback = o.premenuitem_callback; /*FRI*/
+      var min_occurrences = o.min_occurrences; /*FRI*/
+      var conditioned_menuitem_id = o.conditioned_menuitem_id; /*FRI*/
+    	// Loop each context menu
 			$(this).each( function() {
 				var el = $(this);
 				var offset = $(el).offset();
-				// Add contextMenu class
+
+        var max_menu_items = 10;
+
+        // Add contextMenu class
 				$('#' + o.menu).addClass('contextMenu');
 				// Simulate a true click
 				$(this).mousedown( function(e) {
@@ -43,7 +56,6 @@ if(jQuery)( function($) {
 							
 							// Get this context menu
 							var menu = $('#' + o.menu);
-
 							if( $(el).hasClass('disabled') ) return false;
 							
 							// Detect mouse position
@@ -88,12 +100,61 @@ if(jQuery)( function($) {
 							var capitalizedLabel = $(el).text().toLowerCase().replace(/\b[a-z]/g, function(letter) {
 							    return letter.toUpperCase();
 							});
-							
-							$("#" + o.menu + "Label").text(capitalizedLabel);
+
+              //FRI: In case a premenuitem_callback function was defined by the user,
+              //Call that function before constructing the menu item conditioned_menuitem_id.
+              var premenuitem_obj=null;
+              if (typeof(premenuitem_callback) != 'undefined')
+              {
+                eval('premenuitem_obj = new '+premenuitem_callback+'("'+capitalizedLabel+'",'+min_occurrences+','+conditioned_menuitem_id+')'); //not cleaned inner quotes ' ?
+                /*
+                 * do_menu_item is a number
+                 * (+/-)1 corresponds to the first menu item. (+/-)2 to the second, ...
+                 * 0 means - error in execution (should not occur)
+                 * A negative number n means: suppress the n-th menu item
+                 */
+                var occurrences = premenuitem_obj.occurrences;
+                var menuitem_idx=premenuitem_obj.do_menu_item<0?(- premenuitem_obj.do_menu_item):premenuitem_obj.do_menu_item;
+
+                if (premenuitem_obj.do_menu_item > (- max_menu_items)
+                  &&premenuitem_obj.do_menu_item < (  max_menu_items)
+                  &&premenuitem_obj.do_menu_item != 0)
+                {
+                  var cnt=-1; //First menu elem is a <h1> offbyone
+                  var menuitem_selector= "#" + o.menu +" li";
+                  var action=premenuitem_obj.do_menu_item<0?'hide':'show';
+                
+                  $(menuitem_selector).each(function()
+                  {
+                    cnt++;
+                    if (cnt == menuitem_idx)
+                    {
+                      if (action=='hide')
+                      {
+                        //if ($(this).css('visibility')=='visible')
+                        $(this).hide();
+                      }
+                      else  if (action=='show')
+                      {
+                        //if ($(this).css('visibility')!='visible')
+                        $(this).find("label").text(occurrences);
+                        $(this).show();
+
+                      }
+                    }
+                 })
+               }
+
+              }
+
+              $("#" + o.menu + "Label").text(capitalizedLabel);
 
 							// Show the menu
 							$(document).unbind('click');
+
+
 							$(menu).css({ top: y, left: x }).fadeIn(o.inSpeed);
+							
 							// Hover events
 							$(menu).find('A').mouseover( function() {
 								$(menu).find('LI.hover').removeClass('hover');

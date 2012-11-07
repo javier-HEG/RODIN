@@ -8,6 +8,7 @@ lang["lblDuplicatedWidget"]="Widget $$ wurde bereits hinzugefügt";
 lang["titleTextZoomOneSelected"]="Zur Zeit wird das Resultat jeweils in einer Linie angezeigt";
 lang["titleTextZoomTwoSelected"]="Zur Zeit wird nur jeweils ein Teil eines Resultates angezeigt";
 lang["titleTextZoomThreeSelected"]="Zur Zeit wird jeweils das gesamte Resultat angezeigt";
+lang["titleTextZoomFourSelected"]="Zur Zeit wird jeweils das gefilterte Resultat angezeigt";
 lang["titleAggregationButtonOn"]="Enable result aggregation";
 lang["titleAggregationButtonOff"]="Disable result aggregation";
 
@@ -50,6 +51,7 @@ lang["lblRightClickForOptions"]="Klicken Sie rechts, um mögliche Aktionen anzuz
 lang["lblOntoFacetsExplore"]="Klicken Sie, um die ontologischen Facetten von \"$$\" anzuzeigen";
 lang["lblOntoFacetsShowOnSurvista"]="Klicken Sie, um die visuelle Darstellung von \"$$\" anzuzeigen";
 lang["lblOntoFacetsTermActions"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
+lang["lblOntoFacetsTermActions2"]="Klicken Sie links, um dieses Wort in den Widgetsergebnissen hervorzuheben, Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 lang["lblSRCTimeout"]="Die Zeit ist überschritten ohne dass Resultate gefunden werden konnten.";
 lang["lblSingleResultFound"]="$$ Ergebnis";
 lang["lblResultsFound"]="$$ Ergebnisse";

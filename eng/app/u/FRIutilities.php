@@ -981,12 +981,20 @@ function make_uncache_javascript_code($txt)
 {
 	$sid = $_REQUEST['sid'];
 	$uid = substr(strrchr($sid, '.'), 1);
-	
+
+  /*
+   * Perform some closing actions
+   * informing about the state of meta search
+   * and start filtering highlighting
+   */
 	$UNCACHE =<<<EOS
 	 <script type='text/javascript'>
 	 	adapt_widgetsareas_on_openclose_widgetmenu();
 	 	FRIdarkProtectionUncache('$txt');
 	 	parent.refreshCloudBoard('$uid');
+    parent.ONTOTERMS_REDO_HIGHLIGHTING=true;
+    parent.eclog('make_uncache_javascript_code FINISHED LAST WIDGET METASEARCH -> starting mark_ontoterms_on_resultmatch()');
+    parent.mark_ontoterms_on_resultmatch();
 	 </script>
 EOS;
 

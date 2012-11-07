@@ -204,6 +204,12 @@ div.oo-result p {
 	margin: 0px;
 }
 
+.result-word-hl
+{
+ 	background-color:<?php print $COLOR_BG_HIGHLIGHT; ?>;
+}
+
+
 span.hovered-word {
 	background-color:<?php print $COLOR_PAGE_BACKGROUND2; ?>;
 }

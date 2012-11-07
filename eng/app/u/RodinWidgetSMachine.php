@@ -1010,7 +1010,7 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 	global $datasource;
 	global $headerAreaHeight;
 	global $minwidth;
-		global $widgetresultdivid;
+	global $widgetresultdivid;
 	global $attributes_str;
 	global $APP_ID;
 	global $_w, $_h;
