@@ -1993,24 +1993,95 @@ function handle_received_src_data(response,vars) {
 	}
 	
 	/**
+	 * Sets aggregation buttons to correspond to the aggregation status of the
+	 * selected tab, will initi aggregation to OFF if no aggregation status was
+	 * previously set
+	 */
+	function init_aggregation() {
+		var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
+
+		if (index > -1) {
+			var currentStatus = tabAggregatedStatus[index];
+			set_aggregation(currentStatus);
+		} else
+			set_aggregation(false);
+	}
+
+	/**
+	 * Updates the icons of the aggregated widgets
+	 */
+	function refresh_aggregated_widget_icons() {
+		var pertitentIframes = getPertinentIframesInfos(tab[$p.app.tabs.sel].id);
+
+		// get iframes' icons
+		var menuDiv = jQuery('#aggregated_view_menu_' + tab[$p.app.tabs.sel].id);
+		menuDiv.empty();
+
+		var labelDiv = jQuery('<div class="aggregationLabel"></div>');
+		labelDiv.text('Aggregated results from:');
+		menuDiv.append(labelDiv);
+		
+		for (var i = 0; i < pertitentIframes.length; i++) {
+			var iconTable = jQuery(pertitentIframes[i][1]);
+
+			var iconLabel = jQuery('td', iconTable).text();
+			
+			var iconImage = jQuery('img', iconTable);
+			iconImage.css('height', '20px');
+			iconImage.css('vertical-align', 'bottom');
+
+			var iconDiv = jQuery('<div class="hmod widgetIcon"></div>');
+			iconDiv.append(iconImage);
+			iconDiv.append(iconLabel);
+
+			menuDiv.append(iconDiv);
+		};
+	}
+
+	/**
 	 * Changes the status of the result aggregation ON/OFF
+	 * NB. If no status has been set yet, it sets it to OFF
 	 */
 	function toggle_aggregation() {
-		set_aggregation(!aggregation_status, true);
+		var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
+
+		if (index < -1)
+			init_aggregation();
+		
+		index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id)
+		set_aggregation(!tabAggregatedStatus[index]);			
 	}
 
 	/**
 	 * Sets the aggregation status to a particular state
 	 */
-	function set_aggregation(state, set_aggregated_view) {
-		aggregation_status = state;
+	function set_aggregation(state) {
+		var tabId = tab[$p.app.tabs.sel].id;
+		var index = tabAggregatedStatusTabId.indexOf(tabId);
+
+		if (index > -1)
+			tabAggregatedStatus[index] = state;
+		else {
+			tabAggregatedStatusTabId.push(tabId);
+			index = tabAggregatedStatusTabId.indexOf(tabId);
+			tabAggregatedStatus[index] = state;
+		}
 
 		var button = jQuery("#aggregateButton");
 		var label = jQuery("#aggregateButtonLabel");
 
-		if (aggregation_status) {
-			if (set_aggregated_view)
-				$p.app.widgets.openAggregatedView();
+		// Show/hide the div containing the widgets
+		var tabHomeModule = jQuery("#home" + tabId);
+		if (state) {
+			tabHomeModule.hide();
+		} else {
+			tabHomeModule.show();
+		}
+
+		// Show/hide the aggregated view
+		if (state) {
+			$p.app.widgets.openAggregatedView();
+			refresh_aggregated_widget_icons();
 
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			button.attr("title", lg("titleAggregationButtonOff"));
@@ -2026,8 +2097,7 @@ function handle_received_src_data(response,vars) {
 				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			});
 		} else {
-			if (set_aggregated_view)
-				$p.app.widgets.closeAggregatedView();
+			$p.app.widgets.closeAggregatedView();
 
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
 			button.attr("title", lg("titleAggregationButtonOn"));
@@ -2045,10 +2115,51 @@ function handle_received_src_data(response,vars) {
 		}
 	}
 
+	/**
+	 * This fonctions, relies on the contextMenu jQuery library
+	 * to attach the context menu to the results shown within widgets
+	 * or in the aggregated view
+	 */
+	function setContextMenu() {
+		(function(jQuery){
+			jQuery(document).ready(function() {
+				jQuery("span.result-word").add(".spotlightbox p.terms a").hover(
+					function () { jQuery(this).addClass("hovered-word"); },
+					function () { jQuery(this).removeClass("hovered-word");	});
+			
+				jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
+					menu: 'widgetContextMenu'
+				}, function(action, el, pos) {
+					var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
+					
+					switch(action) {
+						case "addToBreadcrumb":
+							correctParent.bc_add_breadcrumb_unique(jQuery(el).text(),'result');
+						break;
+						
+						case "exploreInOntologicalFacets":
+							correctParent.fb_set_node_ontofacet(jQuery(el).text().toLowerCase());
+							correctParent.detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, correctParent.$p);
+							correctParent.$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=widget&name=' + get_datasource_name('$widgetDatasource'), {'type':'load'});
+						break;
+					}
+				});
+			});
+		})(jQuery);
+	}
+
 	function reload_frames_render(render) {
 		set_zoom_text_icons(render);
 		
 		var	tab_id = parent.tab[parent.$p.app.tabs.sel].id;
+
+		var index = tabAggregatedStatusTabId.indexOf(tab_id);
+		var currentAggregationStatus = tabAggregatedStatus[index];
+		if (currentAggregationStatus) {
+			var resultSetIndex = allWidgetsResultsSetsTabId.indexOf(tab_id);
+			allWidgetsResultSets[resultSetIndex].askResulsToRender(render);
+		}
+
 		var pertinentIframes = getPertinentIframesInfos(tab_id);			
 		for(var i=0;i<pertinentIframes.length;i++) {
 			var iframe = pertinentIframes[i][0];

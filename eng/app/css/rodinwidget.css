@@ -58,6 +58,7 @@ div.widgetResultsDiv {
 	color: black;
 	overflow-x: hidden;
 	overflow-y: auto;
+	min-height: 30px;
 	width: 100%;
 }
 
@@ -294,4 +295,38 @@ div.oo-result-content div.spotlightbox h1 {
 
 div.oo-result-content div.spotlightbox p.loading {
 	padding: 3px;
+}
+
+/* Aggregated view */
+div.aggregatedViewMenu {
+	background-color: lightgray;
+    border-bottom: 2px solid #EEEEEE;
+    float: left;
+    text-align: right;
+    width: 100%;
+}
+
+div.aggregatedViewMenu div.aggregationLabel {
+    color: black;
+    font-size: 14px;
+    border: none;
+	background: none;
+    margin: 2px;
+    padding: 2px 8px;
+    display: block;
+    float: left;
+}
+
+div.aggregatedViewMenu div.widgetIcon {
+	background-color: white;
+    background-position: center bottom;
+    background-repeat: repeat-x;
+    border: 1px solid whitesmoke;
+    border-radius: 9px 9px 9px 9px;
+    color: black;
+    display: block;
+    float: left;
+    font-size: 16px;
+    margin: 2px;
+    padding: 2px 8px;
 }

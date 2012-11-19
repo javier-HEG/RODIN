@@ -60,8 +60,12 @@
 	<script type='text/javascript' src='../../app/u/RODINutilities.js.php?skin=<?php print $RODINSKIN;?>'></script>
 	<script type='text/javascript'>
 		var isIndexConnected = true;
-		// Holds the results shown in the aggregated view
-		var allWidgetsResultSet = new RodinResultSet();
+		// Holds the aggregated status per tab
+		var tabAggregatedStatusTabId = new Array();
+		var tabAggregatedStatus = new Array();
+		// Holds the results shown in the aggregated view per tab
+		var allWidgetsResultsSetsTabId = new Array();
+		var allWidgetsResultSets = new Array();
 		// Save the SID of the last search per tab
 		var lastSidTabId = new Array();
 		var lastSid = new Array();
@@ -149,11 +153,7 @@ EOH;
 		. '<span class="optionLabel" id="aggregateButtonLabel">' . lg("lblEnableAggregation") . ':</span>' . "\n"
 		. '<img id="aggregateButton" class="optionButton" src=""' . "\n"
 		. 'onClick="javascript: toggle_aggregation();" title="" />' . "\n"
-		. '</div>' . "\n"
-		. '<script type="text/javascript">' . "\n"
-		. 'aggregation_status = false;' . "\n"
-		. 'set_aggregation(aggregation_status, false);' . "\n"
-		. '</script>' . "\n";
+		. '</div>' . "\n";
 	
 #------------------ RODINCONTROL ----------------
 	$launchMetaSearchCode = "eclog(Date() + ' Metasearch Start'); "
@@ -350,6 +350,11 @@ EOH;
 			setCookieExpireInSeconds('lastActive', Math.round(new Date().getTime() / 1000), get_max_idle_timeout());
 			setLogoutTimeout();
 		}
+
+		window.onload(function() {
+			alert('miechi!!!!!');
+			init_aggregation();
+		});
 	</script>
 	
 	<?php launch_hook('userinterface_end',$pagename);?>

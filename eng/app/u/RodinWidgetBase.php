@@ -477,34 +477,6 @@ EOP;
 		}
 	</script>
 	<script type="text/javascript">
-		function setContextMenu() {
-			(function(jQuery){
-				jQuery(document).ready(function() {
-					jQuery("span.result-word").add(".spotlightbox p.terms a").hover(
-						function () { jQuery(this).addClass("hovered-word"); },
-						function () { jQuery(this).removeClass("hovered-word");	});
-				
-					jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
-						menu: 'widgetContextMenu'
-					}, function(action, el, pos) {
-						var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
-						
-						switch(action) {
-							case "addToBreadcrumb":
-								correctParent.bc_add_breadcrumb_unique(jQuery(el).text(),'result');
-							break;
-							
-							case "exploreInOntologicalFacets":
-								correctParent.fb_set_node_ontofacet(jQuery(el).text().toLowerCase());
-								correctParent.detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, correctParent.\$p);
-								correctParent.\$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=widget&name=' + get_datasource_name('$widgetDatasource'), {'type':'load'});
-							break;
-						}
-					});
-				});
-			})(jQuery);
-		}
-		
 		// set the context menu items
 		setContextMenu();
 	</script>
