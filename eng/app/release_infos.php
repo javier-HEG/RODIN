@@ -40,14 +40,3 @@ Please report any bug issue to <?php echo $MANTIS ?>
 </p>
 
 
-/b>
-<br />==============================
-<br />
-<br />URL used for START &nbsp;: <?php echo $SRCreal; ?>/<b>start</b>?user=id
-<br />URL used for REFINE : <?php echo $SRCreal; ?>/<b>refine</b>?params - (see spec)
-<br />
-<br />CALLS ROGINDUI -> RODINSRC are stored in DB and can be viewed using <a href="<?php echo $SRC_INTERFACE_BASE_URL; ?>/calls.php" target="_blank"> this link</a>
-
-</p>
-
-

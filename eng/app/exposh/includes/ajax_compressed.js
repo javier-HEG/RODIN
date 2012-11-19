@@ -7719,12 +7719,6 @@ $p.app.tabs={
 
 		$p.app.tabs.select(v_id);
 		
-		// Check if the aggregation has been initialized
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = tabAggregatedStatusTabId.indexOf(tabId);
-		if (index == -1)
-			init_aggregation();
-
 		$p.ajax.call('../../app/tests/LoggerResponder.php?action=4&name=' + tab[$p.app.tabs.sel].label, {'type':'load'});
 	},
 	/*
@@ -13487,20 +13481,8 @@ $p.app.widgets={
 	 * $p.app.widgets.openAggregatedView
 	 */
 	openAggregatedView:function() {
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = allWidgetsResultsSetsTabId.indexOf(tabId);
-
-		if (index == -1) {
-			var localResultSet = new RodinResultSet();
-			localResultSet.containerDivId = 'aggregated_view_results_' + tabId;
-
-			allWidgetsResultsSetsTabId.push(tabId);
-			index = allWidgetsResultsSetsTabId.indexOf(tabId);
-			allWidgetsResultSets[index] = localResultSet;
-		}
-
 		// Let's get a handle on the first column of the table
-		var modulesHome = document.getElementById('modules' + tabId);
+		var modulesHome = document.getElementById('modules' + tab[$p.app.tabs.sel].id);
 		var firstChild = modulesHome.getChildren()[0];
 
 		// The aggregated view should be placed over the widgets
@@ -13510,29 +13492,32 @@ $p.app.widgets={
 		}
 
 		// Check for the aggregated view module presence
-		if (firstChild.getAttribute('id') != 'aggregated_view_module_' + tabId) {
+		if (firstChild.getAttribute('id') != 'aggregated_view_module') {
 			// It is absent so we add it
 			var moduleDiv = document.createElement('div');
 			moduleDiv.setAttribute("class", "module");
-			moduleDiv.setAttribute("id", "aggregated_view_module_" + tabId);
+			moduleDiv.setAttribute("id", "aggregated_view_module");
 			moduleDiv.setAttribute("style", "display: block; position: relative; margin: 5px;");
-			
+						
+			var closeButtonImg = document.createElement('img');
+			closeButtonImg.setAttribute("style", "margin: 2px; cursor: pointer;");
+			closeButtonImg.setAttribute("src", "../images/ico_close.gif");
+			closeButtonImg.setAttribute("title", lg("titleSurvistaClose"));
+			closeButtonImg.setAttribute("onClick", "javascript: toggle_aggregation();");
+
 			var menuDiv = document.createElement('div');
-			menuDiv.setAttribute("id", "aggregated_view_menu_" + tabId);
-			menuDiv.setAttribute("class", "aggregatedViewMenu");
-
+			menuDiv.setAttribute("style", "background-color: #eeeeee; text-align: right;");
+			menuDiv.appendChild(closeButtonImg);
+			
 			var resultsContainer = document.createElement('div');
-			resultsContainer.setAttribute("id", allWidgetsResultSets[index].containerDivId);
+			resultsContainer.setAttribute("id", "aggregated_view_results");
 			resultsContainer.setAttribute("class", "widgetResultsDiv");
-
+			
 			moduleDiv.appendChild(menuDiv);
 			moduleDiv.appendChild(resultsContainer);
 			
 			modulesHome.insertBefore(moduleDiv, firstChild);
 		}
-
-		// Refrech the aggregated widgets' list
-		refresh_aggregated_widget_icons();
 
 		// Refresh the view content
 		$p.app.widgets.refreshAggregatedView();
@@ -13541,16 +13526,10 @@ $p.app.widgets={
 	 * $p.app.widgets.refreshAggregatedView
 	 */
 	refreshAggregatedView:function() {
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = allWidgetsResultsSetsTabId.indexOf(tabId);
-
-		var resultsContainer = jQuery('#' + allWidgetsResultSets[index].containerDivId);
+		var resultsContainer = jQuery('#aggregated_view_results');
 		resultsContainer.empty();
 
-		var params = {
-			sid : getLastSidForTab(tabId),
-			suffix: tabId
-		};
+		var params = { sid : getLastSidForTab(parent.tab[$p.app.tabs.sel].id) };
 
 		jQuery.post('../../app/w/RodinResult/RodinResultResponder.php', params, function(data) {
 			$p.app.widgets.addRestustsToAggregatedView(data);
@@ -13559,61 +13538,44 @@ $p.app.widgets={
 	/**
 	 * $p.app.widgets.addRestustsToAggregatedView
 	 */
-	addRestustsToAggregatedView:function(data) {
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = allWidgetsResultsSetsTabId.indexOf(tabId);
+	addRestustsToAggregatedView:function(results) {
+		var resultsContainer = jQuery('#aggregated_view_results');
+
+		for (var i = 0; i < results.length; i++) {
+			var resultDiv = jQuery('<div class="oo-result-container"></div>');
+			resultDiv.append(jQuery(jQuery.parseJSON(results[i].headerDiv)));
+			resultDiv.append(jQuery(jQuery.parseJSON(results[i].contentDiv)));
+
+			resultsContainer.append(resultDiv);
+
+			var resultObj = new RodinResult(results[i].resultIdentifier);
+			resultObj.minHeader = jQuery.parseJSON(results[i].minHeader);
+			resultObj.header = jQuery.parseJSON(results[i].header);
+			resultObj.minContent = jQuery.parseJSON(results[i].minContent);
+			resultObj.tokenContent = jQuery.parseJSON(results[i].tokenContent);
+			resultObj.allContent = jQuery.parseJSON(results[i].allContent);
 		
-		// Add the results obtained
-		// TODO Change the result identifier in the header and content div, create a method
-		// that initializes the divs with a new id 
-		for (var i = 0; i < data.results.length; i++) {
-			var resultObj = new RodinResult(data.results[i].resultIdentifier);
-			resultObj.headerDiv = jQuery.parseJSON(data.results[i].headerDiv);
-			resultObj.contentDiv = jQuery.parseJSON(data.results[i].contentDiv);
-			resultObj.minHeader = jQuery.parseJSON(data.results[i].minHeader);
-			resultObj.header = jQuery.parseJSON(data.results[i].header);
-			resultObj.minContent = jQuery.parseJSON(data.results[i].minContent);
-			resultObj.tokenContent = jQuery.parseJSON(data.results[i].tokenContent);
-			resultObj.allContent = jQuery.parseJSON(data.results[i].allContent);
-		
-			allWidgetsResultSets[index].addResultAndRender(resultObj, jQuery("#selectedTextZoom").val());
+			allWidgetsResultSet.results.push(resultObj);
 		}
 
-		if (data.upto < data.count) {
-			var params = {
-				sid : data.sid,
-				from: data.upto,
-				suffix: tabId
-			};
-
-			jQuery.post('../../app/w/RodinResult/RodinResultResponder.php', params, function(data) {
-				$p.app.widgets.addRestustsToAggregatedView(data);
-			});
-		}
+		allWidgetsResultSet.askResulsToRender('token');
 	},
 	/**
 	 * $p.app.widgets.closeAggregatedView
 	 */
 	closeAggregatedView:function() {
-		var tabId = tab[$p.app.tabs.sel].id;
-
 		// Let's get a handle on the tab element
-		var modulesHome = document.getElementById('modules' + tabId);
+		var modulesHome = document.getElementById('modules' + tab[$p.app.tabs.sel].id);
 		firstChild = modulesHome.getChildren()[0];
+		
+		// The aggregated view is placed over the widgets but
+		// under the Survista visualization if it is present
+		if (firstChild.getAttribute('id') == 'survista_module') {
+			firstChild = modulesHome.getChildren()[1];
+		}
 
-		// We show and hide only if the first child is defined.
-		// Which isn't the case if the tab is loading for the
-		// first time, then, nothing needs to be removed anyway
-		if (typeof firstChild != 'undefined') {
-			// The aggregated view is placed over the widgets but
-			// under the Survista visualization if it is present
-			if (firstChild.getAttribute('id') == 'survista_module') {
-				firstChild = modulesHome.getChildren()[1];
-			}
-
-			if (firstChild.getAttribute('id') == 'aggregated_view_module_' + tabId) {
-				modulesHome.removeChild(document.getElementById('aggregated_view_module_' + tabId));
-			}
+		if (firstChild.getAttribute('id') == 'aggregated_view_module') {
+			modulesHome.removeChild(document.getElementById('aggregated_view_module'));
 		}
 	},
 
@@ -20327,6 +20289,7 @@ $p.app.connection={
 	*/
 	test:function()
 	{
+    /* FRI: deactivated on 3.11.2013
 		if ($p.app.connection.active && $p.app.user.id!=0) {
 			$p.ajax.call(__LOCALFOLDER+'portal/'+posh["xmlcheckuserconnection"],
 				{
@@ -20345,6 +20308,7 @@ $p.app.connection={
 				}
 			);
 		}
+    */
 	},
 	/*
 		$p.app.connection.testTreatment : treat server response on server testing

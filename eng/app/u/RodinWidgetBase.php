@@ -419,6 +419,7 @@ EOD;
 <head>
 	<script type="text/javascript" src="../../app/exposh/l10n/{$_SESSION["lang"]}/lang.js" ></script>
 	<script type="text/javascript" src="../u/RODINutilities.js.php?skin=$RODINSKIN" > </script>
+	<script type='text/javascript' src='../../app/u/RODINsemfilters.js.php?skin=<?php print $RODINSKIN;?>'></script>
 	<script type="text/javascript" src="../u/querystring.js" > </script>
 	<link rel="stylesheet" type="text/css" href="../css/rodinwidget.css.php" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -440,7 +441,7 @@ EOP;
 				$ADDITIONALINCLUDES .= $EXTRAINCLUDES;
 			}
 
-			$restrictToOntoTermLabel = lg('lblContextMenuRestrictToOntoTerm1')." <b><label/></b> ".lg('lblContextMenuRestrictToOntoTerm2');
+			$restrictToOntoTermLabel = lg('lblContextMenuRestrictToOntoTermX1');
 			$addToBreadcrumbLabel = lg('lblContextMenuAddToBreadcrumb');
 			$exploreOntologicalFacetsLabel = lg('lblContextMenuExploreOntoFacets');
 
@@ -494,7 +495,6 @@ EOP;
             conditioned_menuitem_id: 2 /*give menuitem obj to callback function for change*/
 					},
 
-
             function(action, el, pos) {
 						var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
 						
@@ -518,6 +518,7 @@ EOP;
   				});
 			})(jQuery);
 		}
+
 
 		// set the context menu items
 		setContextMenu();

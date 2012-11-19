@@ -157,11 +157,6 @@ class BasicRodinResult {
 		return $html;
 	}
 
-	public function contentDiv($resultIdentifier) {
-		$html = '<div id="content-' . $resultIdentifier . '" class="oo-result-content"></div>';
-		return $html;
-	}
-
 	public function htmlHeaderZenFilter($sid, $resultIdentifier = null) {
 		global $ZEN_FILTER_ICON;
 		global $widgetresultdivid;
@@ -189,6 +184,11 @@ class BasicRodinResult {
 		
 		$html .= $this->htmlHeaderZenFilter($sid, $resultIdentifier) . '<br />';
 		
+		return $html;
+	}
+	
+	public function contentDiv($resultIdentifier) {
+		$html = '<div id="content-' . $resultIdentifier . '" class="oo-result-content"></div>';
 		return $html;
 	}
 	

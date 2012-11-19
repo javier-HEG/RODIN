@@ -23,6 +23,10 @@ Array.prototype.foreach = function( callback ) {
 	  }
 }
 
+Array.prototype.insert = function (index, item) {
+  this.splice(index, 0, item);
+};
+
 
 function fri_adjust_logo_decoration()
 {
@@ -1640,7 +1644,7 @@ function handle_received_src_data(response,vars) {
 		jQuery(document).ready( function() {
 			jQuery(".fb-term, .fb-term-hl").contextMenu({
 				menu: 'facetsContextMenu',
-        premenuitem_callback: 'check_semfilterresults',
+        //premenuitem_callback: 'check_semfilterresults',
         min_occurrences: 1, /*Build menuitem starting from 2 occurrences*/
         conditioned_menuitem_id: 2 /*give menuitem obj to callback function for change*/
 			}, function(action, el, pos) {
@@ -1651,10 +1655,28 @@ function handle_received_src_data(response,vars) {
 					break;
 
           case "restricttoontoterm":
+          {
+              
+          }
+					break;
+          case "restricttoontoterm_f1":
             {
               RESULTFILTEREXPR = jQuery(el).text();
               reload_frames_render(TEXTZOOM);
               RESULTFILTEREXPR='';
+            }
+					break;
+          case "restricttoontoterm_f2":
+            {
+              //RESULTFILTEREXPR = jQuery(el).text();
+              var reranked_widgetresults = dskos_rerank_widgets_results(RESULTFILTEREXPR);
+              permutate_widgets_result_render(reranked_widgetresults);
+              reload_frames_render(TEXTZOOM);
+            }
+					break;
+          case "restricttoontoterm_f3":
+            {
+                alert('restricttoontoterm_f3');
             }
 					break;
 
@@ -1982,12 +2004,12 @@ function handle_received_src_data(response,vars) {
 		var mainbuttonimg1 = document.getElementById('img_mainzoombutton1');
 		var mainbuttonimg2 = document.getElementById('img_mainzoombutton2');
 		var mainbuttonimg3 = document.getElementById('img_mainzoombutton3');
-		var mainbuttonimg4 = document.getElementById('img_mainzoombutton4');
+		//var mainbuttonimg4 = document.getElementById('img_mainzoombutton4');
 		
 		mainbuttonimg1.src = '<?php print $B_MIN_ICON_NORMAL; ?>';
 		mainbuttonimg2.src = '<?php print $B_TOKEN_ICON_NORMAL; ?>';
 		mainbuttonimg3.src = '<?php print $B_ALL_ICON_NORMAL; ?>';
-		mainbuttonimg4.src = '<?php print $B_FILTER_ICON_NORMAL; ?>';
+		//mainbuttonimg4.src = '<?php print $B_FILTER_ICON_NORMAL; ?>';
 		
 		switch(render) {
 		case('min'):
@@ -2011,101 +2033,30 @@ function handle_received_src_data(response,vars) {
 		parent.zoomb1 = mainbuttonimg1.src;
 		parent.zoomb2 = mainbuttonimg2.src;
 		parent.zoomb3 = mainbuttonimg3.src;
-		parent.zoomb4 = mainbuttonimg4.src;
+		//parent.zoomb4 = mainbuttonimg4.src;
 		
 		document.getElementById("selectedTextZoom").value = render;
 	}
 	
 	/**
-	 * Sets aggregation buttons to correspond to the aggregation status of the
-	 * selected tab, will initi aggregation to OFF if no aggregation status was
-	 * previously set
-	 */
-	function init_aggregation() {
-		var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
-
-		if (index > -1) {
-			var currentStatus = tabAggregatedStatus[index];
-			set_aggregation(currentStatus);
-		} else
-			set_aggregation(false);
-	}
-
-	/**
-	 * Updates the icons of the aggregated widgets
-	 */
-	function refresh_aggregated_widget_icons() {
-		var pertitentIframes = getPertinentIframesInfos(tab[$p.app.tabs.sel].id);
-
-		// get iframes' icons
-		var menuDiv = jQuery('#aggregated_view_menu_' + tab[$p.app.tabs.sel].id);
-		menuDiv.empty();
-
-		var labelDiv = jQuery('<div class="aggregationLabel"></div>');
-		labelDiv.text('Aggregated results from:');
-		menuDiv.append(labelDiv);
-		
-		for (var i = 0; i < pertitentIframes.length; i++) {
-			var iconTable = jQuery(pertitentIframes[i][1]);
-
-			var iconLabel = jQuery('td', iconTable).text();
-			
-			var iconImage = jQuery('img', iconTable);
-			iconImage.css('height', '20px');
-			iconImage.css('vertical-align', 'bottom');
-
-			var iconDiv = jQuery('<div class="hmod widgetIcon"></div>');
-			iconDiv.append(iconImage);
-			iconDiv.append(iconLabel);
-
-			menuDiv.append(iconDiv);
-		};
-	}
-
-	/**
 	 * Changes the status of the result aggregation ON/OFF
-	 * NB. If no status has been set yet, it sets it to OFF
 	 */
 	function toggle_aggregation() {
-		var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
-
-		if (index < -1)
-			init_aggregation();
-		
-		index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id)
-		set_aggregation(!tabAggregatedStatus[index]);			
+		set_aggregation(!aggregation_status, true);
 	}
 
 	/**
 	 * Sets the aggregation status to a particular state
 	 */
-	function set_aggregation(state) {
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = tabAggregatedStatusTabId.indexOf(tabId);
-
-		if (index > -1)
-			tabAggregatedStatus[index] = state;
-		else {
-			tabAggregatedStatusTabId.push(tabId);
-			index = tabAggregatedStatusTabId.indexOf(tabId);
-			tabAggregatedStatus[index] = state;
-		}
+	function set_aggregation(state, set_aggregated_view) {
+		aggregation_status = state;
 
 		var button = jQuery("#aggregateButton");
 		var label = jQuery("#aggregateButtonLabel");
 
-		// Show/hide the div containing the widgets
-		var tabHomeModule = jQuery("#home" + tabId);
-		if (state) {
-			tabHomeModule.hide();
-		} else {
-			tabHomeModule.show();
-		}
-
-		// Show/hide the aggregated view
-		if (state) {
-			$p.app.widgets.openAggregatedView();
-			refresh_aggregated_widget_icons();
+		if (aggregation_status) {
+			if (set_aggregated_view)
+				$p.app.widgets.openAggregatedView();
 
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			button.attr("title", lg("titleAggregationButtonOff"));
@@ -2121,7 +2072,8 @@ function handle_received_src_data(response,vars) {
 				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			});
 		} else {
-			$p.app.widgets.closeAggregatedView();
+			if (set_aggregated_view)
+				$p.app.widgets.closeAggregatedView();
 
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
 			button.attr("title", lg("titleAggregationButtonOn"));
@@ -2139,51 +2091,12 @@ function handle_received_src_data(response,vars) {
 		}
 	}
 
-	/**
-	 * This fonctions, relies on the contextMenu jQuery library
-	 * to attach the context menu to the results shown within widgets
-	 * or in the aggregated view
-	 */
-	function setContextMenu() {
-		(function(jQuery){
-			jQuery(document).ready(function() {
-				jQuery("span.result-word").add(".spotlightbox p.terms a").hover(
-					function () { jQuery(this).addClass("hovered-word"); },
-					function () { jQuery(this).removeClass("hovered-word");	});
-			
-				jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
-					menu: 'widgetContextMenu'
-				}, function(action, el, pos) {
-					var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
-					
-					switch(action) {
-						case "addToBreadcrumb":
-							correctParent.bc_add_breadcrumb_unique(jQuery(el).text(),'result');
-						break;
-						
-						case "exploreInOntologicalFacets":
-							correctParent.fb_set_node_ontofacet(jQuery(el).text().toLowerCase());
-							correctParent.detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, correctParent.$p);
-							correctParent.$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=widget&name=' + get_datasource_name('$widgetDatasource'), {'type':'load'});
-						break;
-					}
-				});
-			});
-		})(jQuery);
-	}
+
 
 	function reload_frames_render(render) {
 		set_zoom_text_icons(render);
 		
 		var	tab_id = parent.tab[parent.$p.app.tabs.sel].id;
-
-		var index = tabAggregatedStatusTabId.indexOf(tab_id);
-		var currentAggregationStatus = tabAggregatedStatus[index];
-		if (currentAggregationStatus) {
-			var resultSetIndex = allWidgetsResultsSetsTabId.indexOf(tab_id);
-			allWidgetsResultSets[resultSetIndex].askResulsToRender(render);
-		}
-
 		var pertinentIframes = getPertinentIframesInfos(tab_id);			
 		for(var i=0;i<pertinentIframes.length;i++) {
 			var iframe = pertinentIframes[i][0];
@@ -2289,6 +2202,14 @@ function handle_received_src_data(response,vars) {
 			
 			//alert('getPertinentIframesInfos('+db_tab_id+') liefert:\n'+iframesinfo.length+' Objekte');
 		}
+
+    //Add aggregated view module
+    //take div inside the tab db_tab_id with id='module'+db_tab_id
+    var aggViewDiv = $('modules'+db_tab_id).children.aggregated_view_module
+    if (aggViewDiv)
+        iframesinfo.push(new Array(aggViewDiv,'aggregatedView',aggViewDiv.clientHeight));
+
+
 		return iframesinfo;
 	} // getPertinentIframesInfos
 	
@@ -3429,334 +3350,21 @@ function permitted_ontosearch()
 	return !ONTOSEARCH_LOCKED;
 }
 
-/* RESULT FILTERING */
 
-function check_semfilterresults(txt,min_occurrences,concerning_menuitem_idx)
-/*
- *
- * Returns in field this.do_menu_item: 0 on error, otherwise
- * +2  if the second menuitem in the contextmenu for RODIN shoul be visible
- * -2  if there is a reason why the menuitem should be made invisible
- * This function is used for testin the existence of a term inside some
- * loaded widgets results. If yes the function returns 2, if no it returns -2
- * since the menu item 2 offers the feature of semanticfiltering inside the
- * current results.
- */
+function get_rb_selected_val(radiobuttons)
 {
-  //alert ('checkPassivSemanticFilter ' + txt);
-  //Use the following only to get the results:
-  var HL = new count_matching_results(txt,"result-word");
+	//alert('get_rb_selected_val: '+radiobuttons);
+	var val='';
+	var name='';
+	for (var i=radiobuttons.length-1; i > -1; i--) {
+		if (radiobuttons[i].checked) {
+			val=radiobuttons[i].value;
+			name=radiobuttons[i].name;
+			break;
+	}	}
 
-  this.occurrences= HL.occurrences;
-  this.widgets= HL.widgets;
-
-  //Decide build menuitem or not:
-
-  this.do_menu_item=this.occurrences >= min_occurrences? concerning_menuitem_idx: (- concerning_menuitem_idx);
+	//alert('get_rb_selected_val:('+name+') '+val);
+	return val;
 }
-
-
-
-function toggle_highlight_semfilterresults(elem,txt,highlight)
-/* Elem ist the base from which a highlicht action should start */
-{
-  var eleclass=elem.classList[0];
-  if (eleclass.indexOf('-hl')>-1)
-  {
-    if (elem.highlighted)
-    {
-      highlight_semfilterresults(txt,elem.hl_color,false);
-      elem.highlighted=false;
-      elem.style.backgroundColor='';
-    }
-    else
-    {
-      elem.hl_color=compute_highlightcolor(txt);
-      elem.highlighted=true;
-      highlight_semfilterresults(txt,elem.hl_color,true);
-      elem.style.backgroundColor=elem.hl_color;
-    }
-  }
-}
-
-
-
-
-function simple_highlight_semfilterresults(txt,highlight)
-{
-  var hl_color=compute_highlightcolor(txt);
-  highlight_semfilterresults(txt,hl_color,highlight);
-}
-
-
-
-
-function compute_highlightcolor(txt)
-/*
- * returns the color in function of txt (tbd)
- * select rgb=(first,middle,last) byte in txt
- */
-{
-  var rx=txt.charAt(0);
-  var gx=txt.charAt(length/2);
-  var bx=txt.charAt(txt.length-1);
-  var r=Math.round( rx.charCodeAt(0) *2.5  );
-  var g=Math.round( gx.charCodeAt(0) *2.0  );
-  var b=Math.round( bx.charCodeAt(0) *1.5  );
-
-  var minc=180; var maxc=250;
-  /* limit color between minc and maxc */
-  var r2 = r>maxc?maxc:(r<minc?minc:r);
-  var g2 = g>maxc?maxc:(g<minc?minc:g);
-  var b2 = b>maxc?maxc:(b<minc?minc:b);
-  //alert('compute_highlightcolor: '+txt+' rgb='+rx+':'+r+'->'+r2+' - '+gx+':'+g+'->'+g2+' - '+bx+':'+b+'->'+b2);
-
-  return '#'+r.toString(16)+g.toString(16)+b.toString(16);
-
-}
-
-
-
-function highlight_semfilterresults(txt,bgcolor,highlight)
-{
-  //alert ('checkPassivSemanticFilter ' + txt);
-  /* Search for existence of txt in every widget*/
-  var resulttermclassmame="result-word";
-  var occurrences_in_results=0;
-  var widgets=0;
-  var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
-  var min_occurrences = parentIsIndexConnected?1:0; /*ontofacets 0*/
-  txt=txt.toLowerCase();
-
-  var tab_id = parentIsIndexConnected ?
-      parent.tab[parent.$p.app.tabs.sel].id :
-        window.opener.tab[window.opener.$p.app.tabs.sel].id;
-
-  var pertinentIframes = parent.getPertinentIframesInfos(tab_id);
-  for(var f=0;f<pertinentIframes.length;f++)
-  {
-      var in_widget=false;
-      var iframe=pertinentIframes[f][0];
-      //alert('check in iframe with selector '+selector);
-      /* Here the conversion from nodelist to array is used for concat */
-      var arrALL_RESULT_TERMS = get_all_elems_by_hlclass(iframe.contentDocument,resulttermclassmame);
-
-      for(var i=0;i<arrALL_RESULT_TERMS.length;i++)
-      {
-        var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
-        var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
-
-        if (RESULT_TERM_TXT.toLowerCase().indexOf(txt)>-1)
-        {
-          occurrences_in_results++;
-
-          if (!in_widget)
-          {
-            in_widget=true;
-            widgets++; /*Count widgets in wich results occurs*/
-          }
-          /*EVTL HIGHLIGHT WORD IN RESULTS*/
-          if (highlight)
-          {
-            if (RESULT_TERM.getAttribute('class')==resulttermclassmame)
-            {
-              RESULT_TERM.setAttribute('class',resulttermclassmame+'-hl');
-              RESULT_TERM.style.backgroundColor=bgcolor;
-            }
-          }
-          else
-          {
-            if (RESULT_TERM.getAttribute('class')==resulttermclassmame+'-hl')
-            {
-              RESULT_TERM.setAttribute('class',resulttermclassmame);
-              RESULT_TERM.style.backgroundColor='';
-            }
-          }
-        }
-     } //for
-  } //for
-
-  this.occurrences= occurrences_in_results;
-  this.widgets= widgets;
-}
-
-
-
-function count_matching_results(txt,classname)
-{
-  //alert ('checkPassivSemanticFilter ' + txt);
-  /* Search for existence of txt in every widget*/
-  var occurrences_in_results=0;
-  var widgets=0;
-  var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
-  txt=txt.toLowerCase();
-
-  var tab_id = parentIsIndexConnected ?
-      parent.tab[parent.$p.app.tabs.sel].id :
-        window.opener.tab[window.opener.$p.app.tabs.sel].id;
-
-  var pertinentIframes = parent.getPertinentIframesInfos(tab_id);
-  for(var f=0;f<pertinentIframes.length;f++)
-  {
-      var in_widget=false;
-      var iframe=pertinentIframes[f][0];
-      //alert('check in iframe with selector '+selector);
-      /* Here the conversion from nodelist to array is used for concat */
-      var arrALL_RESULT_TERMS = get_all_elems_by_hlclass(iframe.contentDocument,classname);
-
-      for(var i=0;i<arrALL_RESULT_TERMS.length;i++)
-      {
-        var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
-        var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
-
-        if (RESULT_TERM_TXT.toLowerCase().indexOf(txt)>-1)
-        {
-          occurrences_in_results++;
-
-          if (!in_widget)
-          {
-            in_widget=true;
-            widgets++; /*Count widgets in wich results occurs*/
-          }
-        }
-      } //for
-  } //for
-
-  this.occurrences= occurrences_in_results;
-  this.widgets= widgets;
-}
-
-
-
-
-
-
-function hide_un_highlighted_results()
-{
-  //alert ('checkPassivSemanticFilter ' + txt);
-  /* Search for existence of txt in every widget*/
-  var resulttermclassmame="result-word-hl";
-  var resultclassmame="oo-result-container";
-  var occurrences_in_results=0;
-  var widgets=0;
-  var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
-  var min_occurrences = parentIsIndexConnected?1:0; /*ontofacets 0*/
-
-  var tab_id = parentIsIndexConnected ?
-      parent.tab[parent.$p.app.tabs.sel].id :
-        window.opener.tab[window.opener.$p.app.tabs.sel].id;
-
-  var pertinentIframes = parent.getPertinentIframesInfos(tab_id);
-  for(var f=0;f<pertinentIframes.length;f++)
-  {
-      var in_widget=false;
-      var iframe=pertinentIframes[f][0];
-      //alert('check in iframe with selector '+selector);
-      /* Here the conversion from nodelist to array is used for concat */
-      var arrALL_RESULT = get_all_elems_by_class(iframe.contentDocument,resultclassmame);
-
-      for(var i=0;i<arrALL_RESULT.length;i++)
-      {
-        var RESULT= (arrALL_RESULT[i]);
-        var arrALL_HIGHLIGHTED_RESULTTERMS = get_all_elems_by_hlclass(RESULT,resulttermclassmame);
-        if (arrALL_HIGHLIGHTED_RESULTTERMS.length==0) //Nothing highlighted?
-        {
-          jQuery(RESULT.children[0]).hide();
-          jQuery(RESULT.children[1]).hide();
-        }
-        
-     } //for
-  } //for
-
-  this.occurrences= occurrences_in_results;
-  this.widgets= widgets;
-}
-
-
-
-
-
-
-
-
-
-// get_all_elems_by_hlclass(iframe.contentDocument,"result-word")
-function get_all_elems_by_hlclass(contentdoc,classname)
-{
-  var i;
-  var RESULT_TERMS    ; var arrRESULT_TERMS = [];
-  var RESULT_TERMS_HL ; var arrRESULT_TERMS_HL = [];
-  var arrALL_RESULT_TERMS;
-  RESULT_TERMS =contentdoc.getElementsByClassName(classname,null)
-  for(i = RESULT_TERMS.length; i--; arrRESULT_TERMS.unshift(RESULT_TERMS[i]));
-  RESULT_TERMS_HL =contentdoc.getElementsByClassName(classname+"-hl",null)
-  for(i = RESULT_TERMS_HL.length; i--; arrRESULT_TERMS_HL.unshift(RESULT_TERMS_HL[i]));
-
-  arrALL_RESULT_TERMS = arrRESULT_TERMS.concat(arrRESULT_TERMS_HL);
-  return arrALL_RESULT_TERMS;
-}
-
-
-// get_all_elems_by_hlclass(iframe.contentDocument,"result-word")
-function get_all_elems_by_class(contentdoc,classname)
-{
-  var i;
-  var RESULT_TERMS    ; var arrRESULT_TERMS = [];
-  RESULT_TERMS =contentdoc.getElementsByClassName(classname,null)
-  for(i = RESULT_TERMS.length; i--; arrRESULT_TERMS.unshift(RESULT_TERMS[i]));
-
-  return arrRESULT_TERMS;
-}
-
-
-function mark_ontoterms_on_resultmatch()
-{
-  eclog('mark_ontoterms_on_resultmatch Start refreshing onto matches ...');
-
-  if (ONTOTERMS_REDO_HIGHLIGHTING) //Need do do it?
-  {
-    var facetclassmame="fb-term";
-    var resulttermclassmame="result-word";
-    var arrALL_FACET_TERMS = get_all_elems_by_hlclass(document,facetclassmame);
-
-    for(var i=0;i<arrALL_FACET_TERMS.length;i++)
-    {
-      var FACET_TERM= (arrALL_FACET_TERMS[i]);
-      var FACET_TERM_TXT= FACET_TERM.innerHTML;
-
-      eclog('Considering facet term '+FACET_TERM_TXT+' ...');
-      //Match with some result?
-      var HL = new count_matching_results(FACET_TERM_TXT,resulttermclassmame);
-      if (HL.occurrences > 0)
-      {
-        eclog('Marking facet term '+FACET_TERM_TXT+' as matching');
-        if (FACET_TERM.getAttribute('class')==facetclassmame)
-        {
-          FACET_TERM.setAttribute('class',facetclassmame+'-hl');
-          FACET_TERM.setAttribute("title", lg('lblOntoFacetsTermActions2'));
-          FACET_TERM.setAttribute('onclick','toggle_highlight_semfilterresults(this,"'+FACET_TERM_TXT+'",true)');
-        }
-      }
-      else
-      { /*renormalize display*/
-        if (FACET_TERM.getAttribute('class')==facetclassmame+'-hl')
-          {
-            FACET_TERM.setAttribute('class',facetclassmame);
-            FACET_TERM.setAttribute("title", lg('lblOntoFacetsTermActions'));
-            FACET_TERM.setAttribute('onclick','#');
-          }
-      }
-    } //for
-
-    ONTOTERMS_REDO_HIGHLIGHTING=false;
-    eclog('mark_ontoterms_on_resultmatch Ended refreshing onto matches ...');
-
-  }
-  else
-      eclog('mark_ontoterms_on_resultmatch DONOTNEEDTO refresh onto matches (NOTHING DONE)');
-}
-
-
-
 
 //alert('RODINutilities.js loaded');

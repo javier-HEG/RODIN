@@ -24,10 +24,13 @@ $GLOBALS['lgMap']["lblCollectingResults"]="Es wird gesucht";
 $GLOBALS['lgMap']["lblGotNoResults"]="Ihre Suche ergab leider keine Resultate. Bitte versuchen Sie es erneut!";
 $GLOBALS['lgMap']["lblOneResultFound"]="1 Resultat gefunden";
 $GLOBALS['lgMap']["lblNumberOfResultsFound"]="#1 Resultate gefunden";
+$GLOBALS['lgMap']["lblContextMenuMorphoFilterX1"]="Hovern Sie zum Wählen eines morphologischen Filters";
 $GLOBALS['lgMap']["lblContextMenuAddToBreadcrumb"]="Klicken Sie, um den Begriff zu den Breadcrumbs hinzuzufügen";
-$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Klicken Sie, um";
-$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="Vorkommnisse dieses Begriffs zu filtern";
-$GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Klicken Sie, um den Begriff in den ontologischen Facetten zu suchen";
+$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTermX1"]="Klicken Sie, um Vorkommnisse dieses Begriffs zu filtern";
+$GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Klicken Sie, um den Begriff in den ontologischen Facetten zu suchen:";
+$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Vrw. F1";
+$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="Vrw. F2";
+$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm3"]="Vrw. F3";
 $GLOBALS['lgMap']["lblActionsOnWord"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 $GLOBALS['lgMap']["titleOpenResult"]="Click to open result information in new tab";
 

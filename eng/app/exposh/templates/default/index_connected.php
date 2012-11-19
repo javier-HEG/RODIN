@@ -58,14 +58,12 @@
 	<script type="text/javascript" src='../../app/u/facetBoardInterface.js.php'></script>
 	<script type="text/javascript" src='../../app/w/RodinResult/RodinResultSet.js'></script>
 	<script type='text/javascript' src='../../app/u/RODINutilities.js.php?skin=<?php print $RODINSKIN;?>'></script>
+	<script type='text/javascript' src='../../app/u/RODINsemfilters.js.php?skin=<?php print $RODINSKIN;?>'></script>
+  
 	<script type='text/javascript'>
 		var isIndexConnected = true;
-		// Holds the aggregated status per tab
-		var tabAggregatedStatusTabId = new Array();
-		var tabAggregatedStatus = new Array();
-		// Holds the results shown in the aggregated view per tab
-		var allWidgetsResultsSetsTabId = new Array();
-		var allWidgetsResultSets = new Array();
+		// Holds the results shown in the aggregated view
+		var allWidgetsResultSet = new RodinResultSet();
 		// Save the SID of the last search per tab
 		var lastSidTabId = new Array();
 		var lastSid = new Array();
@@ -149,11 +147,11 @@ EOI;
 				onClick="javascript: reload_frames_render('all');"
 				onMouseOver="javascript: i3 = document.getElementById('img_mainzoombutton3');zoomb3=i3.src;src='$B_ALL_ICON_HOVER'" 
 				onMouseOut="javascript: i3 = document.getElementById('img_mainzoombutton3');i3.src=zoomb3;">
-			<img id="img_mainzoombutton4" class="optionButton" src="$B_FILTER_ICON_NORMAL"
+			<!--img id="img_mainzoombutton4" class="optionButton" src="$B_FILTER_ICON_NORMAL"
 				title="$title4"
 				onClick="javascript: hide_un_highlighted_results();"
 				onMouseOver="javascript: i4 = document.getElementById('img_mainzoombutton4');zoomb4=i4.src;src='$B_FILTER_ICON_HOVER'"
-				onMouseOut="javascript: i4 = document.getElementById('img_mainzoombutton4');i4.src=zoomb4;">
+				onMouseOut="javascript: i4 = document.getElementById('img_mainzoombutton4');i4.src=zoomb4;"-->
 
 			<input id="selectedTextZoom" type="hidden" value="" />
 		</div>
@@ -165,7 +163,11 @@ EOH;
 		. '<span class="optionLabel" id="aggregateButtonLabel">' . lg("lblEnableAggregation") . ':</span>' . "\n"
 		. '<img id="aggregateButton" class="optionButton" src=""' . "\n"
 		. 'onClick="javascript: toggle_aggregation();" title="" />' . "\n"
-		. '</div>' . "\n";
+		. '</div>' . "\n"
+		. '<script type="text/javascript">' . "\n"
+		. 'aggregation_status = false;' . "\n"
+		. 'set_aggregation(aggregation_status, false);' . "\n"
+		. '</script>' . "\n";
 	
 #------------------ RODINCONTROL ----------------
 	$launchMetaSearchCode = "eclog(Date() + ' Metasearch Start'); "
@@ -362,27 +364,77 @@ EOH;
 			setCookieExpireInSeconds('lastActive', Math.round(new Date().getTime() / 1000), get_max_idle_timeout());
 			setLogoutTimeout();
 		}
-
-		window.onload(function() {
-			alert('miechi!!!!!');
-			init_aggregation();
-		});
 	</script>
 
 
 
 	<?php launch_hook('userinterface_end',$pagename);
-    $HOVERIN_RESTRICT="onmouseover=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,true)\"";
-    $HOVEROUT_RESTRICT="onmouseout=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,false)\"";
+    $HOVER1IN_RESTRICT="onmouseover=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,true)\"";
+    $HOVER1OUT_RESTRICT="onmouseout=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,false)\"";
   ?>
 	<!-- The following is the ontofacets menu:  -->
-	<ul id="facetsContextMenu" class="contextMenu">
+	<ul id="facetsContextMenu" class="extendedcontextMenu contextMenu">
     <li><h1 id="facetsContextMenuLabel"></h1></li>
+    <li class="morphofilter">
+      <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="4">
+            <a href="#morphofilter"><?php echo lg('lblContextMenuMorphoFilterX1');?>:
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td width="20px"/>
+        <form id="famenu" name="famenu" >
+          <td onmouseover="document.getElementById('ontomorphofilter1').checked=true;" title="Use direct word match">
+            <input id="ontomorphofilter1" checked type="radio" value="1" name="ontomorphofilters">direct
+          </td>
+          <td onmouseover="document.getElementById('ontomorphofilter2').checked=true;" title="Use Levensthein algorithm to match words">
+            <input id="ontomorphofilter2" type="radio" value="2" name="ontomorphofilters">leve
+          </td>
+          <td onmouseover="document.getElementById('ontomorphofilter3').checked=true;" title="Use soundex algorithm to match words">
+            <input id="ontomorphofilter3" type="radio" value="3" name="ontomorphofilters">soundex
+          </td>
+        </form>
+        </tr>
+      </table>
+    </li>
+    <li class="restricttoontoterm">
+      
+      <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="3">
+            <?php echo lg('lblContextMenuRestrictToOntoTermX1');?>:
+          </td>
+        </tr>
+        <tr>
+        <ul>
+          <td <?php print $HOVER1IN_RESTRICT ?>
+              <?php print $HOVER1OUT_RESTRICT ?>
+            style="display:block"
+            >
+          <li class="restricttoontoterm_f1" title="Use direct word correspondence to filter results">
+            <a href="#restricttoontoterm_f1"> <b><?php echo lg('lblContextMenuRestrictToOntoTerm1');?></b>  <b><label/></b> </a>
+          </li>
+          </td>
+          <td>
+          <li class="restricttoontoterm_f2"  title="Use skos text distance to filter results">
+            <a href="#restricttoontoterm_f2"> <b><?php echo lg('lblContextMenuRestrictToOntoTerm2');?></b>  <b><label/></b> </a>
+          </li>
+          </td>
+          <td>
+          <li class="restricttoontoterm_f3">
+            <a href="#restricttoontoterm_f3"> <?php echo lg('lblContextMenuRestrictToOntoTerm3');?>  <b><label/></b> </a>
+          </li>
+        </td>
+        </ul>
+        </tr>
+        </tr></table>
+      
+    </li>
+
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb"><?php echo lg('lblContextMenuAddToBreadcrumb'); ?></a></li>
-		<li class="restricttoontoterm" 
-        <?php print $HOVERIN_RESTRICT ?>
-        <?php print $HOVEROUT_RESTRICT ?> ><a href="#restricttoontoterm"><?php echo lg('lblContextMenuRestrictToOntoTerm1');?> <b><label/></b> <?php echo lg('lblContextMenuRestrictToOntoTerm2');?></a></li>
-		<li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets"><?php echo lg('lblContextMenuExploreOntoFacets');?></a></li>
+    <li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets"><?php echo lg('lblContextMenuExploreOntoFacets');?></a></li>
 	</ul>
 
 </div>

@@ -24,10 +24,13 @@ $GLOBALS['lgMap']["lblCollectingResults"]="Réception de résultats de cette sou
 $GLOBALS['lgMap']["lblGotNoResults"]="Aucun résultat n'a été trouvé";
 $GLOBALS['lgMap']["lblOneResultFound"]="1 résultat trouvé";
 $GLOBALS['lgMap']["lblNumberOfResultsFound"]="#1 résultats trouvés";
-$GLOBALS['lgMap']["lblContextMenuAddToBreadcrumb"]="Cliquez pour ajouter le mot aux breadcrumbs";
-$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Cliquez pour voire";
-$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="occurrences concernents ce mot";
+$GLOBALS['lgMap']["lblContextMenuMorphoFilterX1"]="Cliquez pour choisir un filtre morphologique";
+$GLOBALS['lgMap']["lblContextMenuAddToBreadcrumb"]="Hover pour ajouter le mot aux breadcrumbs";
+$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTermX1"]="Cliquez pour voire les occurrences concernents ce mot";
 $GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Cliquez pour explorer le mot dans les facettes ontologiques";
+$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Util. F1";
+$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="Util. F2";
+$GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm3"]="Util. F3";
 $GLOBALS['lgMap']["lblActionsOnWord"]="Cliquez à droite pour voir les actions possibles";
 $GLOBALS['lgMap']["titleOpenResult"]="Cliquez pour ouvrir le résultat dans un nouvel onglet";
 
