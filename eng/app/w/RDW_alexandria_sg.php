@@ -1,6 +1,6 @@
 <?php
 include_once("../u/RodinWidgetBase.php");
-require_once 'RodinResult/RodinResultManager.php';
+require_once '../u/RodinResult/RodinResultManager.php';
 
 print_htmlheader("ALEXANDRIA RODIN WIDGET");
 
@@ -583,10 +583,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
 	}
 
 	// Save search to DB
-	RodinResultManager::saveRodinSearchInSearchTable($sid, $q);
+	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResultsInResultsTable($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 	
 	return count($allResults);
 }

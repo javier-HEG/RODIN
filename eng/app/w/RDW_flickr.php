@@ -8,7 +8,7 @@
  ******************************************************************************** */
 
 include_once("../u/RodinWidgetBase.php");
-require_once 'RodinResult/RodinResultManager.php';
+require_once '../u/RodinResult/RodinResultManager.php';
 include_once("$DOCROOT/$RODINUTILITIES_GEN_URL/flickr/phpFlickr-2.3.0.1/phpFlickr.php");
 
 global $SEARCHSUBMITACTION;
@@ -63,6 +63,8 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
 	global $datasource;
 	global $RDW_REQUEST;
 
+
+
 	foreach ($RDW_REQUEST as $querystringparam => $d)
 		eval( "global \${$querystringparam};" );
 
@@ -116,10 +118,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
 	}
 
 	// Save search to DB
-	RodinResultManager::saveRodinSearchInSearchTable($sid, $q);
+	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResultsInResultsTable($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 	
 	return count($allResults);
 }

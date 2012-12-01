@@ -14,7 +14,7 @@
  ******************************************************************************** */
 
 include_once("../u/RodinWidgetBase.php");
-require_once 'RodinResult/RodinResultManager.php';
+include_once '../u/RodinResult/RodinResultManager.php';
 include_once "$DOCROOT/$RODINUTILITIES_GEN_URL/simplehtmldom/simple_html_dom.php";
 
 global $SEARCHSUBMITACTION;
@@ -160,10 +160,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	}
 
 	// Save search to DB
-	RodinResultManager::saveRodinSearchInSearchTable($sid, $q);
+	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResultsInResultsTable($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 
 	return count($allResults);
 }

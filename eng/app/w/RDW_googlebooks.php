@@ -11,7 +11,7 @@
  ******************************************************************************** */
 
 include_once("../u/RodinWidgetBase.php");
-require_once 'RodinResult/RodinResultManager.php';
+require_once '../u/RodinResult/RodinResultManager.php';
 
 // This widget depends on the a Javascript for the AJAX calls
 $ajaxFile = make_ajax_widget_filename();
@@ -348,11 +348,11 @@ function saveGoogleBooksResults($decodedResults) {
 	// Save search to DB
 	$sid = $decodedResults->search->sid;
 	$query = $decodedResults->search->query;
-	RodinResultManager::saveRodinSearchInSearchTable($sid, $query);
-	echo 'saveRodinSearchInSearchTable(' . $sid . ', ' . $query . ')<br />';
+	RodinResultManager::saveRodinSearch($sid, $query);
+	echo 'saveRodinSearch(' . $sid . ', ' . $query . ')<br />';
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResultsInResultsTable($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 	
 	return count($allResults);
 }

@@ -283,7 +283,11 @@ function highlight_semfilterresults(txt,bgcolor,highlight)
 {
   //alert ('checkPassivSemanticFilter ' + txt);
   /* Search for existence of txt in every widget*/
-  var morphological_filter = get_morphofilter(parseInt(get_rb_selected_val(document.forms.famenu.ontomorphofilters)),10);
+  var morphological_filter = '';
+  if (document.forms.famenu.ontomorphofilters)
+  {
+     morphological_filter = get_morphofilter(parseInt(get_rb_selected_val(document.forms.famenu.ontomorphofilters)),10);
+  }
   var match = false;
   var resulttermclassmame="result-word";
   var occurrences_in_results=0;

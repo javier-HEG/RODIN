@@ -1,6 +1,6 @@
 <?php
 /**
- * Script managing the search history cloud.
+ * Web Script managing the search history cloud.
  */
 
 include_once 'FRIdbUtilities.php';
@@ -21,8 +21,10 @@ switch ($action) {
 		$sizeby = $_REQUEST['sizeby'] ? $_REQUEST['sizeby'] : 'frequency';
 		
 		$pastQueries = collect_queries_tag($user);
-		
-		if (count($pastQueries) > 0) {
+    $children = count($pastQueries);
+    
+    
+		if ($children > 0) {
 			switch ($sizeby) {
 				case 'recency':
 					$history = array();
@@ -78,7 +80,7 @@ switch ($action) {
 					break;
 			}
 		} else {
-			print '<cloud count="0">';
+			print '<cloud count="0"/>';
 		}
 		
 		break;

@@ -42,7 +42,7 @@
 	<link rel="stylesheet" type="text/css" href="../styles/main.css?v=<?php echo __POSHVERSION;?>" />
 	<link rel="stylesheet" type="text/css" href="../../app/css/rodin.css?v=<?php echo __POSHVERSION;?>" />
 	<link rel="stylesheet" type="text/css" href="<?php print "$CSS_URL"; ?>/rodinBoards.css.php" />
-	<link rel="stylesheet" type="text/css" href="<?php print $RODINUTILITIES_GEN_URL; ?>/contextmenu/jquery.contextMenu.css" />
+	<link rel="stylesheet" type="text/css" href="<?php print $RODINU; ?>/contextmenu/jquery.contextMenu.css" />
 	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/contextMenuInRodin.css.php" />
 	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/rodinwidget.css.php" />
 	
@@ -56,7 +56,7 @@
 	<script type='text/javascript' src='../../app/u/wordProcessingTools.js'></script>
 	<script type='text/javascript' src='../../app/u/querystring.js'></script>
 	<script type="text/javascript" src='../../app/u/facetBoardInterface.js.php'></script>
-	<script type="text/javascript" src='../../app/w/RodinResult/RodinResultSet.js'></script>
+	<script type="text/javascript" src='../../app/u/RodinResult/RodinResultSet.js'></script>
 	<script type='text/javascript' src='../../app/u/RODINutilities.js.php?skin=<?php print $RODINSKIN;?>'></script>
 	<script type='text/javascript' src='../../app/u/RODINsemfilters.js.php?skin=<?php print $RODINSKIN;?>'></script>
   
@@ -71,7 +71,7 @@
 	<!-- For idle timer and context menus -->
 	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.7.1.min.js'></script>
 	<script type="text/javascript" src='../../../gen/u/idletimer/jquery.idle-timer.js'></script>
-	<script type="text/javascript" src='../../../gen/u/contextmenu/jquery.contextMenu.js'></script>  
+	<script type="text/javascript" src='<?php print $RODINU; ?>/contextmenu/jquery.contextMenu.js'></script>
 	<script type="text/javascript" src="../../../gen/u/autocomplete/jquery.autocomplete-min.js"></script>
 	<script type="text/javascript">
 		jQuery.noConflict();
@@ -177,6 +177,10 @@ EOH;
 		 . "return fri_parallel_metasearch(get_search_text(),document.getElementById('rodinsearch_m').value,-1,-1,{$_SESSION['user_id']},true,false,window.\$p)";
 	
 	$onKeyUpSearchFAction="javascript: bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode }";
+
+  if ($RESULTS_STORE_METHOD=='solr')
+  $SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
+
 ?>
 
 <body onUnload="$p.app.counter.stop();" bgcolor=<?php print $COLOR_PAGE_BACKGROUND;?>> 
@@ -185,6 +189,7 @@ EOH;
 <div id="information"></div>
 
 <div id="rodinmetasearch">
+  <?php print $SOLR_LOGO ?>
 	<input id="rodinsearch_s" type="text" value="<?php print $s; ?>"
 		onkeyup="<?php print $onKeyUpSearchFAction; ?>" />
 	<input id="metasearchrodinbutton" type="button"
@@ -373,6 +378,7 @@ EOH;
     $HOVER1OUT_RESTRICT="onmouseout=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,false)\"";
   ?>
 	<!-- The following is the ontofacets menu:  -->
+  <form name="famenu" action="">
 	<ul id="facetsContextMenu" class="extendedcontextMenu contextMenu">
     <li><h1 id="facetsContextMenuLabel"></h1></li>
     <li class="morphofilter">
@@ -385,7 +391,6 @@ EOH;
         </tr>
         <tr>
           <td width="20px"/>
-        <form id="famenu" name="famenu" >
           <td onmouseover="document.getElementById('ontomorphofilter1').checked=true;" title="Use direct word match">
             <input id="ontomorphofilter1" checked type="radio" value="1" name="ontomorphofilters">direct
           </td>
@@ -395,47 +400,46 @@ EOH;
           <td onmouseover="document.getElementById('ontomorphofilter3').checked=true;" title="Use soundex algorithm to match words">
             <input id="ontomorphofilter3" type="radio" value="3" name="ontomorphofilters">soundex
           </td>
-        </form>
         </tr>
       </table>
     </li>
     <li class="restricttoontoterm">
       
-      <table border="0" cellpadding="0" cellspacing="0">
+      <table border="1" cellpadding="0" cellspacing="0">
         <tr>
           <td colspan="3">
             <?php echo lg('lblContextMenuRestrictToOntoTermX1');?>:
           </td>
         </tr>
         <tr>
-        <ul>
           <td <?php print $HOVER1IN_RESTRICT ?>
               <?php print $HOVER1OUT_RESTRICT ?>
-            style="display:block"
             >
-          <li class="restricttoontoterm_f1" title="Use direct word correspondence to filter results">
-            <a href="#restricttoontoterm_f1"> <b><?php echo lg('lblContextMenuRestrictToOntoTerm1');?></b>  <b><label/></b> </a>
-          </li>
-          </td>
-          <td>
-          <li class="restricttoontoterm_f2"  title="Use skos text distance to filter results">
-            <a href="#restricttoontoterm_f2"> <b><?php echo lg('lblContextMenuRestrictToOntoTerm2');?></b>  <b><label/></b> </a>
-          </li>
-          </td>
-          <td>
-          <li class="restricttoontoterm_f3">
-            <a href="#restricttoontoterm_f3"> <?php echo lg('lblContextMenuRestrictToOntoTerm3');?>  <b><label/></b> </a>
-          </li>
-        </td>
-        </ul>
+            <table>
+              <tr>
+                <td>
+                  <ul>
+                  <li class="restricttoontoterm_f1" title="Use direct word correspondence to filter results">
+                    <a href="#restricttoontoterm_f1"> <b><?php echo lg('lblContextMenuRestrictToOntoTerm1');?></b>  <b><label/></b> </a>
+                  </li>
+                  <li class="restricttoontoterm_f2"  title="Use skos text distance to filter results">
+                    <a href="#restricttoontoterm_f2"> <b><?php echo lg('lblContextMenuRestrictToOntoTerm2');?></b>  <b><label/></b> </a>
+                  </li>
+                  <li class="restricttoontoterm_f3">
+                    <a href="#restricttoontoterm_f3"> <?php echo lg('lblContextMenuRestrictToOntoTerm3');?>  <b><label/></b> </a>
+                  </li>
+                </ul>
+              </tr>
+            </table>
         </tr>
-        </tr></table>
+      </table>
       
     </li>
 
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb"><?php echo lg('lblContextMenuAddToBreadcrumb'); ?></a></li>
     <li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets"><?php echo lg('lblContextMenuExploreOntoFacets');?></a></li>
 	</ul>
+  </form>
 
 </div>
 

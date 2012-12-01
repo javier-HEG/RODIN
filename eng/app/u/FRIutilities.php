@@ -183,6 +183,11 @@ function check_internetconn()
 }
 
 
+function plus($txt)
+{
+  $txt= str_replace('%20','+',$txt);
+  return str_replace(' ','+',$txt);
+}
 
 
 
@@ -610,7 +615,7 @@ function get_file_content($url, $verbose=false) {
 		
 		function fri_rss_reader($feed,$max=10,$debug=0)
 		{	
-		  $rss = get_file_content( $feed );
+		  $rss = file_get_contents( $feed );
 		  $sx_rss = simplexml_load_string($rss);		
 			if (!$sx_rss) {
 					echo "<br>Problem loading XML ($rss) (exit)\n";

@@ -126,7 +126,7 @@ else {
 	if (!preg_match('/fsrc/',$thisScriptPath))
 	{
 		print "<br>SYSTEM ERROR:($thisScriptPath) RODINROOT=$RODINROOT ... in ($candidatePath)";
-		fontprint("<br>Please run MAINTENANCE or inform the $RODINADMIN_LINK",'blue');
+		print "<br>Please run MAINTENANCE or inform the $RODINADMIN_LINK";
 		exit;
 	}
 }
@@ -327,6 +327,55 @@ if (file_exists("$SKINDIR/RODIN_COLORS.php"))
 #############################################
 # END OF VARIABLE DECLARATION
 #############################################
+
+
+#$RESULTS_STORE_METHOD='mysql'; #USE MYSQL TO STORE RODIN RESULTS
+$RESULTS_STORE_METHOD='solr'; #USE SOLR TO STORE RODIN RESULTS
+
+
+
+
+#############################################
+# SOLR INTEFACE
+#############################################
+
+$SOLR_INTERFACE_URI = "$RODIN/app/u/SOLRinterface";
+
+$SOLARIUMURL="$PROT://$HOST$RODINROOT/gen/u/solarium/library/Solarium";
+$SOLARIUMDIR="$DOCROOT$RODINROOT/gen/u/solarium/library/Solarium";
+$SOLR_PORT = 8885; // FRI !!!
+
+# SOLR RODIN CONFIG for collection rodin_result:
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']='/solr/rodin_result/';
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['timeout']=5;
+
+# SOLR RODIN CONFIG for collection rodin_search:
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['path']='/solr/rodin_search/';
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['timeout']=5;
+
+# SOLR RODIN CONFIG for collection rodin_onto:
+$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['path']='/solr/rodin_onto/';
+$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['timeout']=5;
+
+$SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
+#############################################
+# END OF SOLR INTEFACE
+#############################################
+
+
+
 
 
 

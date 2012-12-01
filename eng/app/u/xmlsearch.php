@@ -40,7 +40,7 @@
 	
 	//$C = getcontent_authenticated($url);	
 	//print "get content $url";
-	$XMLcontent =	get_file_content($url,false);
+	$XMLcontent =	file_get_contents($url,false);
 	//print "<br>XMICONTENT: ((($XMLcontent)))";
 	
 	

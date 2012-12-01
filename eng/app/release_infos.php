@@ -13,9 +13,10 @@
 <br />Please report any issue using <?php echo $MANTIS ?> 
 <br />
 <br />
-<br /><b>RODIN Release 2.8</b>
+<br /><b>RODIN Release 3</b>
 <br />===================
-<br />Semantic Filtering finished 
+<br />Semantic Filtering introduced
+<br />SOLR integration for results
 <br />
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
@@ -35,7 +36,7 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br />URL used for START &nbsp;: <?php echo $SRCreal; ?>/<b>start</b>?user=id
 <br />URL used for REFINE : <?php echo $SRCreal; ?>/<b>refine</b>?params - (see spec)
 <br />
-<br />CALLS ROGINDUI -> RODINSRC are stored in DB and can be viewed using <a href="<?php echo $SRC_INTERFACE_BASE_URL; ?>/calls.php" target="_blank"> this link</a>
+<br />CALLS ROGINDUI -> RODINSRC (can) be stored in DB and can be viewed using <a href="<?php echo $SRC_INTERFACE_BASE_URL; ?>/calls.php" target="_blank"> this link</a>
 
 </p>
 

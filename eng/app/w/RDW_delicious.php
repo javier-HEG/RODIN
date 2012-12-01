@@ -1,6 +1,6 @@
 <?php
 include_once("../u/RodinWidgetBase.php");
-require_once 'RodinResult/RodinResultManager.php';
+require_once '../u/RodinResult/RodinResultManager.php';
 
 		##############################################
 		##############################################
@@ -161,7 +161,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	$parameters = urlencode(deletequote(stripslashes($q))) . "?count=$m" . $FILTER_SECTION;
 	$feed = "$DELICIOUS_search_baseFEED$parameters";
 
-	$rssContent = get_file_content($feed);
+	$rssContent = file_get_contents($feed);
 	$rss = str_get_html($rssContent);
 	
 	// Browse RSS content looking for results 
@@ -198,10 +198,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	}
 	
 	// Save search to DB
-	RodinResultManager::saveRodinSearchInSearchTable($sid, $q);
+	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResultsInResultsTable($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 	
 	return count($allResults);
 }

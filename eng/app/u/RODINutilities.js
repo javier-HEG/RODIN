@@ -3356,13 +3356,15 @@ function get_rb_selected_val(radiobuttons)
 	//alert('get_rb_selected_val: '+radiobuttons);
 	var val='';
 	var name='';
-	for (var i=radiobuttons.length-1; i > -1; i--) {
-		if (radiobuttons[i].checked) {
-			val=radiobuttons[i].value;
-			name=radiobuttons[i].name;
-			break;
-	}	}
-
+  if (radiobuttons)
+  {
+    for (var i=radiobuttons.length-1; i > -1; i--) {
+      if (radiobuttons[i].checked) {
+        val=radiobuttons[i].value;
+        name=radiobuttons[i].name;
+        break;
+    }	}
+  }
 	//alert('get_rb_selected_val:('+name+') '+val);
 	return val;
 }

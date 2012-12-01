@@ -13531,7 +13531,7 @@ $p.app.widgets={
 
 		var params = { sid : getLastSidForTab(parent.tab[$p.app.tabs.sel].id) };
 
-		jQuery.post('../../app/w/RodinResult/RodinResultResponder.php', params, function(data) {
+		jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
 			$p.app.widgets.addRestustsToAggregatedView(data);
 		});
 	},

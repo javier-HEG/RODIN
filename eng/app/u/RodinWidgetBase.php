@@ -407,6 +407,8 @@ EOD;
 		global $EXTRAINCLUDE_GOOGLE_LANGUAGE_LOAD;
 		global $COLOR_WIDGET_BG, $COLOR_PAGE_BACKGROUND, $COLOR_PAGE_BACKGROUND2;
 		global $RODINSKIN;
+    global $RODINU;
+    global $RODINSEGMENT;
 		
 		$ADDITIONALINCLUDES = "\n$EXTRAINCLUDE_GOOGLE_LANGUAGE_LOAD";
 		
@@ -461,7 +463,7 @@ EOP;
 	<!-- JB : For idle timer & contextMenu -->
 	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.7.1.min.js'></script>
 	<script type="text/javascript" src='../../../gen/u/idletimer/jquery.idle-timer.js'></script>
-	<script type="text/javascript" src='../../../gen/u/contextmenu/jquery.contextMenu.js'></script> 
+	<script type="text/javascript" src='$RODINU/contextmenu/jquery.contextMenu.js'></script>
 	<script type="text/javascript">
 		jQuery.noConflict();
 	
@@ -487,7 +489,6 @@ EOP;
 					jQuery("span.result-word").add(".spotlightbox p.terms a").hover(
 						function () { jQuery(this).addClass("hovered-word"); },
 						function () { jQuery(this).removeClass("hovered-word");	});
-
 					jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
 						menu: 'widgetContextMenu',
             premenuitem_callback: 'check_semfilterresults',
@@ -524,7 +525,7 @@ EOP;
 		setContextMenu();
 	</script>
 	<!-- JB: Links to all results displayed in widget -->
-	<script type="text/javascript" src="RodinResult/RodinResultSet.js" > </script>
+	<script type="text/javascript" src="/rodin/$RODINSEGMENT/app/u/RodinResult/RodinResultSet.js" > </script>
 	<script type="text/javascript">
 		var widgetResultSet = new RodinResultSet();
 	</script>
@@ -541,16 +542,18 @@ EOP;
 			adaptWidgetInterfaceToWith('$iFrameIdFromAppId');
 		});
 	</script>
-	<link href="../../../gen/u/contextmenu/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+	<link href="$RODINU/contextmenu/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 	<link href="../css/contextMenuInRodin.css.php" rel="stylesheet" type="text/css" />
 </head>
 <body bgcolor='$COLOR_WIDGET_BG'>
+  <form name="famenu" action="">
 	<ul id="widgetContextMenu" class="contextMenu">
 		<li><h1 id="widgetContextMenuLabel"></h1></li>
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb">$addToBreadcrumbLabel</a></li>
 		<li class="restricttoontoterm" $HOVERIN_RESTRICT $HOVEROUT_RESTRICT><a href="#restricttoontoterm">$restrictToOntoTermLabel</a></li>
 		<li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets">$exploreOntologicalFacetsLabel</a></li>
 	</ul>
+ </form>
 EOP;
 		}
 	}
