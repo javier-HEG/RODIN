@@ -610,6 +610,19 @@ function permutate_widgets_result_render(reranked_widgetresults)
 }
 
 
+function rerank_widget_results_using(obj,ranked_term_raw,term,lang)
+{
+  var onto_div = obj.parentNode.parentNode.parentNode.parentNode.parentNode;
+  var onto_div_id = onto_div.id;
+  var ONTO_id = onto_div_id.substr(onto_div_id.lastIndexOf('_')+1);
+  
+  
+  var group_div = document.getElementById('fb_itemcontent_'+ONTO_id);
+  if (!group_div) alert('ALERT: NO OBJECT WITH ID='+'fb_itemcontent_'+ONTO_id);
+  var loaded_skos_terms = get_loaded_skos_context(group_div);
+  
+  alert('rerank_widget_results_using '+term+' in Ontology id '+ONTO_id+'\n\nUSING SKOS KONTEXT:\n\n'+loaded_skos_terms);
+}
 
 
 function rank_widgetresults(strSKOS_CONTEXT,arrWIDGETR)
@@ -702,12 +715,13 @@ function cleanresulttext(txt,result_number,len)
 
 
 
-function get_skos_context()
+function get_loaded_skos_context(obj)
 // Returns a str of words (terms) from the skos node corresponding to term
 {
+  //alert('get_loaded_skos_context in obj '+obj+' '+obj.id);
   var arrSKOS_CONTEXT= new Array();
   var strSKOS_CONTEXT='';
-  jQuery(".fb-term, .fb-term-hl").each(function(){
+  jQuery(".fb-term, .fb-term-hl",obj).each(function(){
     arrSKOS_CONTEXT.push(this.innerHTML);
   });
   for(var i=0;i<arrSKOS_CONTEXT.length;i++) {strSKOS_CONTEXT+= arrSKOS_CONTEXT[i]+' ';}

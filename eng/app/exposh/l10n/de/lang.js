@@ -49,6 +49,7 @@ lang["lblRightClickForOptions"]="Klicken Sie rechts, um mögliche Aktionen anzuz
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Klicken Sie, um die ontologischen Facetten von \"$$\" anzuzeigen";
+lang["lblClick2RankResults"]="Klicken Sie, um die Widgetsergebnisse nach ontologischen Kontext von \"$$\" zu sortieren";
 lang["lblOntoFacetsShowOnSurvista"]="Klicken Sie, um die visuelle Darstellung von \"$$\" anzuzeigen";
 lang["lblOntoFacetsTermActions"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 lang["lblOntoFacetsTermActions2"]="Klicken Sie links, um die Widgetsergebnissen nach diesem Wort zu filtern, Klicken Sie rechts, um mögliche Aktionen anzuzeigen";

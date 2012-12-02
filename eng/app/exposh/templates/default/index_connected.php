@@ -403,6 +403,8 @@ EOH;
         </tr>
       </table>
     </li>
+    
+    <!-- 20121202 FRI: contextmenu should be simpler!!! functionality now in direct icon buttons.
     <li class="restricttoontoterm">
       
       <table border="1" cellpadding="0" cellspacing="0">
@@ -435,7 +437,7 @@ EOH;
       </table>
       
     </li>
-
+    -->
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb"><?php echo lg('lblContextMenuAddToBreadcrumb'); ?></a></li>
     <li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets"><?php echo lg('lblContextMenuExploreOntoFacets');?></a></li>
 	</ul>

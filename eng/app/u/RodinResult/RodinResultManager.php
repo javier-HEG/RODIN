@@ -88,7 +88,7 @@ class RodinResultManager {
 
         //print "<hr>SAVING DOCUMENTS:<br>"; var_dump($documents);
         $documents= array($document);
-        solr_synch_update($sid,"search",$client, $documents);
+        solr_synch_update($sid,$solr_path,$client, $documents);
     }
     else {
       print "saveRodinSearchInSOLR system error init SOLR client";
@@ -366,14 +366,15 @@ public static function getRodinResultsFromSOLR($sid,$datasource) {
           ."wt=xml"
           ."&q=sid:$sid%20wdatasource:$datasource"
           ."&fl=*"
+          ."&omitHeader=true"
           ;
       $filecontent=file_get_contents($solr_result_query_url);
 			$solr_sxml= simplexml_load_string($filecontent);
-      //print "<hr>SOLR_QUERY: <a href='$solr_result_query_url' target='_blank'>$solr_result_query_url</a><br>";
-      #print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
-      #print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
+//      print "<hr>SOLR_QUERY: <a href='$solr_result_query_url' target='_blank'>$solr_result_query_url</a><br>";
+//      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
+//      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
 
-			$DOCS = $solr_sxml->xpath('/response/result/doc'); //find the doc list
+      $DOCS = $solr_sxml->xpath('/response/result/doc'); //find the doc list
       //print "<hr>".count($DOCS)." SOLR_DOCS: <br>"; var_dump($solr_sxml);
 
 

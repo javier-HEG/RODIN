@@ -206,15 +206,15 @@ class BasicRodinResult {
     $result_doc->sid        = $sid;
     $result_doc->id         = $result_doc->sid.'-'.$resultNumber.'-'.uniqid(); //SOLR ID unique!!!
     $result_doc->type       = $this->resultType;
-    $result_doc->title      = $this->title;
-    $result_doc->authors    = $this->authors;
+    $result_doc->title      = htmlspecialchars_decode($this->title);
+    $result_doc->authors    = htmlspecialchars_decode($this->authors);
     $result_doc->date       = $this->date;
-    $result_doc->urlPage    = $this->urlPage;
+    $result_doc->urlPage    = htmlspecialchars_decode($this->urlPage);
     $result_doc->wdatasource = $datasource; //rodin datasource id (the widget url)
 
     //Add specific attr/value fields:
 
-    $fulltext='';
+    $fulltext=$result_doc->title;
 
     foreach ($this->resultProperties as $propertyName=>$propertyValue) {
 			if ($propertyValue != '') {
@@ -223,11 +223,11 @@ class BasicRodinResult {
 
         $fields[]   = array($propertyName,'string',$propertyValue);
         $fulltext.=($fulltext<>'')?' ':'';
-        $fulltext.=$propertyValue;
+        $fulltext.=htmlspecialchars_decode($propertyValue);
 			}
 		}
     #Put everything together in order to find per search the value: TBD 
-    $result_doc->body       = $fulltext;
+    $result_doc->body       = htmlspecialchars_decode($fulltext);
       
 		return $result_doc;
 	}

@@ -106,7 +106,8 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	
 	TomaNota::deEsto($_SERVER[PHP_SELF], "search url : $url");
 
-	$xml = get_file_content($url);
+	//$xml = get_file_content($url);
+	$xml = get_cached_widget_response($url);
 	$simpleXmlElement = str_get_html($xml);
 
 	// Parse XML looking for results

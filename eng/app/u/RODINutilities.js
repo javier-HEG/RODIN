@@ -167,10 +167,8 @@ function format3pos(num)
 		  return <?php print $IDLE_MAXTIMEOUT; ?>;
   }
 
-	function fri_redirect(datasource,url,frameid,target)
-	{
-		//alert('fri_redirect('+datasource+','+url+','+frameid+','+target+')');
-		var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
+	function fri_redirect(datasource,url,frameid,target) {
+		var parentIsIndexConnected= ((typeof(parent.isIndexConnected)) != 'undefined');
 		
 		if (frameid == -1) {
 			var tab_id = parentIsIndexConnected ?
@@ -1485,7 +1483,8 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
  * AJAX callback function handling SRC responses. 
  */
 function handle_received_src_data(response,vars) {
-	var pclass = vars['pclass'];
+  
+  var pclass = vars['pclass'];
 	var module = vars['module'];
 	var newsid = vars['newsid'];
 	var service_id = vars['service_id'];
@@ -1512,8 +1511,8 @@ function handle_received_src_data(response,vars) {
 	var results = '';
 	var results_raw = '';
 	var we_had_some_results = false;
-		
-	if (response!=null) {
+
+if (response!=null) {
 		if (response.getElementsByTagName("refine")[0]) /*XML*/
 		{
 			 var tags =(response.getElementsByTagName("*"));
@@ -1659,26 +1658,26 @@ function handle_received_src_data(response,vars) {
               
           }
 					break;
-          case "restricttoontoterm_f1":
+          case "restricttoontoterm_f1": /* hide not higlighed terms */
             {
               RESULTFILTEREXPR = jQuery(el).text();
               reload_frames_render(TEXTZOOM);
               RESULTFILTEREXPR='';
             }
 					break;
-          case "restricttoontoterm_f2":
-            {
-              //RESULTFILTEREXPR = jQuery(el).text();
-              var reranked_widgetresults = dskos_rerank_widgets_results(RESULTFILTEREXPR);
-              permutate_widgets_result_render(reranked_widgetresults);
-              reload_frames_render(TEXTZOOM);
-            }
-					break;
-          case "restricttoontoterm_f3":
-            {
-                alert('restricttoontoterm_f3');
-            }
-					break;
+//          case "restricttoontoterm_f2":
+//            {
+//              //RESULTFILTEREXPR = jQuery(el).text();
+//              var reranked_widgetresults = dskos_rerank_widgets_results(RESULTFILTEREXPR);
+//              permutate_widgets_result_render(reranked_widgetresults);
+//              reload_frames_render(TEXTZOOM);
+//            }
+//					break;
+//          case "restricttoontoterm_f3":
+//            {
+//                alert('restricttoontoterm_f3');
+//            }
+//					break;
 
 					case "exploreInOntologicalFacets":
 						fb_set_node_ontofacet(jQuery(el).text());

@@ -594,84 +594,276 @@ function get_file_content($url, $verbose=false) {
 }
 
 
-	
-	
-	
-	
-	
-	
-	class fri_rss_reader
-	#
-	# Usage: $rss = new fri_rss_reader(url,3)
-	#
-	# $rss->n
-	# $rss->channel
-	# $rss->item
-	#
-	{
-		var $channel;
-		var $items;
-		var $n;
-		
-		function fri_rss_reader($feed,$max=10,$debug=0)
-		{	
-		  $rss = file_get_contents( $feed );
-		  $sx_rss = simplexml_load_string($rss);		
-			if (!$sx_rss) {
-					echo "<br>Problem loading XML ($rss) (exit)\n";
-		
-					foreach(libxml_get_errors() as $error) 
-					{
-							echo "\t", $error->message;
-					}
-					exit;
-			}
-		  	//echo "Channel Title: " . $rss->channel['title'] . "<p>";
-		  	$namespaces = $sx_rss->getDocNamespaces(true);
-			$namespaces[]=''; // even the empty space (for fulltext items)
-			
-			$cc=$sx_rss->children();
-			foreach($cc as $a=>$v)
-			{
-				if ($a=='channel')	
-				{
-					//print "BINGO CHANNEL";
-					$this->channel=$v[0];
-					break;
-				}
-			}
-			
-			$this->items=array();
-			
-			$i=-1;
-			foreach($this->channel->children() as $a=>$v)
-			{
-				//print "<br> add to item";
-				//print "<br> item name: $a";
-				if ($a=='item')
-				{
-					$i++;
-					if ($i >= $max && 0) {break;}
-					else
-					{
-						//print "<br>ITEM";
-						$item_attributes = array();
-						foreach($v[0]->children() as $attrname=>$attrvalue)
-						{
-							$item_attributes{$attrname}=$attrvalue;
-							//print "<br>local item $attr=>$val";
-						}		
-						$this->items[]=$item_attributes;
-					}
-				}
-			
-			}		
-			
-			$this->n=count($this->items);
-		}
-		
-	} // class fri_rss_reader
-	
+
+function get_cached_widget_response($url)
+######################################
+#
+# url: data source url to be retrieved
+# Fabio Ricci
+{
+  global $sid; // KEY for this request
+  //print "get_cached_content sid: $sid";
+ 
+   $cached_datasource_response = get_cache_response($url);
+  
+   if (! $cached_datasource_response)
+   {
+     //get the resonse from the data source
+     //print "CACHE CONTENT EXPIRED ... CALL AGAIIN";
+     
+     $datasource_response=get_file_content($url);
+     if (good_response($datasource_response))
+     {
+       //Store response
+       cache_response($url,$datasource_response);
+       
+       
+     } // got good response
+     
+   } // $cached_datasource_response
+  else
+    $datasource_response = $cached_datasource_response;
+  return $datasource_response; 
+}
+
+
+
+
+function cache_response($url,$datasource_response)
+// Cache response using either database or solr
+{
+  global $RESULTS_STORE_METHOD;
+    switch($RESULTS_STORE_METHOD)
+    {
+      case 'mysql': 
+            cache_response_DB($url,$datasource_response);
+            break;
+      case 'solr':
+            cache_response_SOLR($url,$datasource_response);
+    }
+}  
+
+
+function cache_response_DB($sid,$url,&$datasource_response)
+{
+  // Still needed???
+}
+
+
+
+function get_cache_response($url)
+{
+   global $RESULTS_STORE_METHOD;
+    switch($RESULTS_STORE_METHOD)
+    {
+      case 'mysql': 
+            $cached_datasource_response = get_cache_response_DB($url);
+            break;
+      case 'solr':
+            $cached_datasource_response = get_cache_response_SOLR($url);
+    }
+    return $cached_datasource_response;
+} // get_cache_response
+
+
+
+function get_cache_response_DB($url)
+{
+  return '';
+}
+
+
+
+function get_cache_response_SOLR($url)
+{
+  global $SOLR_RODIN_CONFIG;
+  global $USER;
+  
+  //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
+  $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['host'];
+  $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['port'];
+  $solr_path=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['path'];
+  //$solr_core=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['core'];
+  //$solr_timeout=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['timeout'];
+  $rodin_cache_expiry_hour=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour'];
+
+   //Query in the last $rodin_cache_expiry_hour for $url ...
+  
+  $TIME_RANGE=getTimeRangeExpression($rodin_cache_expiry_hour);
+  
+   $solr_select= "http://$solr_host:$solr_port$solr_path".'select?'
+           //."user=$USER"
+           ."&q=timestamp:$TIME_RANGE+".base64_encode($url)
+           ."&fl=cached,timestamp"
+           ."&rows=1"
+           ."&omitHeader=true"
+           ;
+  
+   //print "SOLR select: <a href='$solr_select' target='_blank'>solr zu url</a>";
+   
+   
+   $cachecontent=file_get_contents($solr_select);
+	 $solr_sxml= simplexml_load_string($cachecontent);
+//      print "<hr>SOLR_QUERY: <a href='$solr_result_query_url' target='_blank'>$solr_result_query_url</a><br>";
+//      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
+//      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
+			//$xpath = "/response/lst/lst/lst[@name='cached']"; // /itas (old)
+
+   $TIME_A = $solr_sxml->xpath("/response/result/doc/date[@name='timestamp']"); //find the doc list
+   $TIME = $CACHED_A[0];
+   //print "<br>TIME: ".htmlentities($TIME); 
+   
+   
+   $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
+   $CACHED_CONTENT = $CACHED_A[0];
+   //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
+   //var_dump($DOCS);
+   
+   
+   return $CACHED_CONTENT; // null erstemal
+  
+  
+} // get_cache_response_SOLR
+
+
+
+function cache_response_SOLR($url,&$datasource_response)
+{
+  require_once("../u/SOLRinterface/solr_init.php");
+  global $SOLR_RODIN_CONFIG;
+  global $SOLARIUMDIR;
+  global $USER;
+  //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
+  $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['host'];
+  $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['port'];
+  $solr_path=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['path'];
+  $solr_core=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['core'];
+  $solr_timeout=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['timeout'];
+  //$rodin_cache_expiry_hour=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour'];
+
+  // store in SOLR for the last stored response using $url
+   
+   if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
+    {
+      // create a new document for the data
+      $caching_doc = new Solarium_Document_ReadWrite();
+
+      $caching_doc->id         = base64_encode($url);
+      $caching_doc->idsource   = $url;
+      $caching_doc->user       = $USER;
+      $caching_doc->cached     = $datasource_response;
+
+      #do NOT reverse index this cached data in body
+      $documents= array($caching_doc);
+      solr_synch_update($sid,$solr_path,$client,$documents);
+    }
+    else {
+      print "cache_response_SOLR system error init SOLR client";
+    }
+   
+   
+   
+   
+}
+
+
+
+function good_response($datasource_response)
+// returns false if some network errors could be scanned in the response
+// else returns true
+{
+  return true; // short up
+} // good response
+
+
+
+function getTimeRangeExpression($rodin_cache_expiry_hour)
+{
+  //; [2012-12-02T22:15:00Z+TO+NOW]
+  
+  $oldest_allowed  = mktime(date("H")-$rodin_cache_expiry_hour+1, 0, 0, date("m"), date("d"),   date("Y"));
+  list($DAY,$MONTH,$YEAR,$HOUR,$MIN,$SEC)=explode('.',date("d.m.Y.H.i.s",$oldest_allowed));
+  
+  $SOLR_TIME_RANGE="[$YEAR-$MONTH-{$DAY}T{$HOUR}:$MIN:{$SEC}Z+TO+NOW]";
+  
+  return $SOLR_TIME_RANGE;
+}
+
+
+
+
+class fri_rss_reader
+#
+# Usage: $rss = new fri_rss_reader(url,3)
+#
+# $rss->n
+# $rss->channel
+# $rss->item
+#
+{
+  var $channel;
+  var $items;
+  var $n;
+
+  function fri_rss_reader($feed,$max=10,$debug=0)
+  {	
+    $rss = file_get_contents( $feed );
+    $sx_rss = simplexml_load_string($rss);		
+    if (!$sx_rss) {
+        echo "<br>Problem loading XML ($rss) (exit)\n";
+
+        foreach(libxml_get_errors() as $error) 
+        {
+            echo "\t", $error->message;
+        }
+        exit;
+    }
+      //echo "Channel Title: " . $rss->channel['title'] . "<p>";
+      $namespaces = $sx_rss->getDocNamespaces(true);
+    $namespaces[]=''; // even the empty space (for fulltext items)
+
+    $cc=$sx_rss->children();
+    foreach($cc as $a=>$v)
+    {
+      if ($a=='channel')	
+      {
+        //print "BINGO CHANNEL";
+        $this->channel=$v[0];
+        break;
+      }
+    }
+
+    $this->items=array();
+
+    $i=-1;
+    foreach($this->channel->children() as $a=>$v)
+    {
+      //print "<br> add to item";
+      //print "<br> item name: $a";
+      if ($a=='item')
+      {
+        $i++;
+        if ($i >= $max && 0) {break;}
+        else
+        {
+          //print "<br>ITEM";
+          $item_attributes = array();
+          foreach($v[0]->children() as $attrname=>$attrvalue)
+          {
+            $item_attributes{$attrname}=$attrvalue;
+            //print "<br>local item $attr=>$val";
+          }		
+          $this->items[]=$item_attributes;
+        }
+      }
+
+    }		
+
+    $this->n=count($this->items);
+  }
+
+} // class fri_rss_reader
+
 
 
 	

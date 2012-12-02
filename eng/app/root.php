@@ -333,8 +333,6 @@ if (file_exists("$SKINDIR/RODIN_COLORS.php"))
 $RESULTS_STORE_METHOD='solr'; #USE SOLR TO STORE RODIN RESULTS
 
 
-
-
 #############################################
 # SOLR INTEFACE
 #############################################
@@ -361,13 +359,24 @@ $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['path']='/solr/rodin_search
 $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['timeout']=5;
 
-# SOLR RODIN CONFIG for collection rodin_onto:
-$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['user']='rodin';
-$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['host']='localhost';
-$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['port']=$SOLR_PORT;
-$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['path']='/solr/rodin_onto/';
-$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['core']=null;
-$SOLR_RODIN_CONFIG['rodin_onto']['adapteroptions']['timeout']=5;
+# SOLR RODIN CONFIG for collection cached_rodin_widget_response:
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['path']='/solr/cached_rodin_widget_response/';
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour']=24; //1 day
+
+# SOLR RODIN CONFIG for collection cached_rodin_src_response:
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['path']='/solr/cached_rodin_src_response/';
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+
 
 $SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
 #############################################

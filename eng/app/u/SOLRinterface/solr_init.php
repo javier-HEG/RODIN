@@ -73,11 +73,21 @@ function solr_synch_update($sid,$txt,&$client,&$documents)
     if ($needDEBUGprecision)
     {
       fwrite($log, "\n--------------");
-      fwrite($log, "\nDOCUMENTS (body):");
+      fwrite($log, "\nDOCUMENTS (sid,body or cached info):");
       fwrite($log, "\n--------------");
       foreach($documents as $doc)
       {
-        fwrite($log, "\n\n".$doc->body);
+        if ($doc->sid)
+          fwrite($log, "\n\nSid: ".$doc->sid);
+        if ($doc->body) 
+          fwrite($log, "\nBody:\n".$doc->body);
+        // In case of a cache operation:
+        if ($doc->cached) 
+        {   
+          fwrite($log, "\nid: ".$doc->id);
+          fwrite($log, "\nidsource: ".$doc->idsource);
+          fwrite($log, "\nCached: \n".$doc->cached);
+        }  
       } 
       fwrite($log, "\n\n--------------");
     } 

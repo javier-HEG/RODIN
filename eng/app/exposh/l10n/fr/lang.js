@@ -42,6 +42,8 @@ lang["lblRightClickForOptions"]="Cliquez à droit pour voir les actions possible
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Cliquez pour explorer les facettes ontologiques de \"$$\"";
+
+lang["lblClick2RankResults"]="Cliquez pour ordonner les resultats des widgets par le contexte ontologique de \"$$\"";
 lang["lblOntoFacetsShowOnSurvista"]="Cliquez pour montrer une représentation graphique de \"$$\"";
 lang["lblOntoFacetsTermActions"]="Cliquez à droite pour voir les actions possibles";
 lang["lblOntoFacetsTermActions2"]="Cliquez à gauche pour filtrer les resultats des widgets sur ce mot, cliquez à droite pour voir les actions possibles";

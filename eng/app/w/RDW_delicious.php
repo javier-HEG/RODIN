@@ -161,7 +161,9 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	$parameters = urlencode(deletequote(stripslashes($q))) . "?count=$m" . $FILTER_SECTION;
 	$feed = "$DELICIOUS_search_baseFEED$parameters";
 
-	$rssContent = file_get_contents($feed);
+	//$rssContent = file_get_contents($feed);
+  $rssContent = get_cached_widget_response($feed);
+
 	$rss = str_get_html($rssContent);
 	
 	// Browse RSS content looking for results 

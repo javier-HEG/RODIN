@@ -1377,6 +1377,7 @@ function get_query_SOLR($sid)
         ."&q=sid:$sid%20user:$USER"
         ."&rows=1"
         ."&fl=query"
+        ."&omitHeader=true"
         ;
     $filecontent=file_get_contents($solr_result_query_url);
     $solr_sxml= simplexml_load_string($filecontent);
@@ -1928,6 +1929,7 @@ function collect_queries_tag_SOLR($USER) {
         ."wt=xml"
         ."&q=user:$USER"
         ."&fl=query"
+        ."&omitHeader=true"
         ;
     $filecontent=file_get_contents($solr_result_query_url);
     $solr_sxml= simplexml_load_string($filecontent);

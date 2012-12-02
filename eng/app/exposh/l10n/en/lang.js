@@ -42,6 +42,7 @@ lang["lblRightClickForOptions"]="Right-click to see available actions";
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Click to explore the ontological facets of your term \"$$\"";
+lang["lblClick2RankResults"]="Click to rank widget results with respect to the ontological context of term \"$$\"";
 lang["lblOntoFacetsShowOnSurvista"]="Click to show visual representation of your term \"$$\"";
 lang["lblOntoFacetsTermActions"]="Right-click to see available actions";
 lang["lblOntoFacetsTermActions2"]="Left-click to filter word in widgetresults, Right-click to see available actions";

@@ -632,6 +632,7 @@ function RDW_COLLECTRESULTS_EPI()
 	global $headerAreaHeight;
 	global $widgetresultdivid;
 	global $_w, $_h;
+  global $sid;
 
 	// Include global parameters with exactly the same names
 	// as the RDW_REQUEST parameters
