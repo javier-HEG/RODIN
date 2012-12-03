@@ -13,7 +13,7 @@ switch ($_REQUEST['lang']) {
 			<p><b>Doppelklick auf einen Knoten:</b> die Visualisierung wird neugestartet und das Netzwerk sowie die Relationen des ausgewählten Begriffs angezeigt.</p>
 
 			<p><b>Rechtsklick auf einen Begriff:</b>  entweder als Suchverfeinerung zu den Breadcrumbs hinzufügen oder zur Suche in den ontologischen Fassetten weiterverwenden.</p>
-		<?
+		<?php
 		break;
 }
 

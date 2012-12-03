@@ -50,7 +50,7 @@ switch ($_REQUEST['lang']) {
 					Dafür steht die Tag-Cloud unten links zur Verfügung. Es gibt zwei Anzeigemöglichkeiten. Gewöhnliche Tag-Cloud , wobei die Begriffe alphabetisch angezeigt werden. Je grösser das Wort ist, desto öfter wird nach ihm gesucht. Chronik, welche die Begriffe in der Reihenfolge ihrer Suche anzeigt.
 				</li>
 			</ol>
-		<?
+		<?php
 		break;
 }
 

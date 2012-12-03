@@ -14,7 +14,7 @@ switch ($_REQUEST['lang']) {
 				<li>Generelle Tag-Cloud, die Begriffe sind alphabetisch geordnet. Je grösser der Begriff dabei ist, desto öfter wurde nach ihm gesucht.</li>
 				<li>Chronik, welche die Begriffe in zeitlicher Suchabfolge aufzeigt.</li>
 			</ol>
-		<?
+		<?php
 		break;
 }
 

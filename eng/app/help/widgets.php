@@ -17,7 +17,7 @@ switch ($_REQUEST['lang']) {
 			<p>Das Widget kann minimiert, in einem eigenen Browser-Fenster geöffnet, aktualisiert oder gelöscht werden.</p>
 
 			<p>Mit einem Klick auf das Zahnrad lassen sich die Sucheinstellungen des jeweiligen Widgets einstellen. Die Einstellungen unterscheiden sich von Widget zu Widget.</p>
-		<?
+		<?php
 		break;
 }
 

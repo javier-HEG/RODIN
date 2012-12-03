@@ -18,7 +18,7 @@ switch ($_REQUEST['lang']) {
 				<li>1. selbst in den <b>Ontologien</b> gesucht oder</li>
 				<li>für eine <b>Suchverfeinerung</b> weiter verwendet werden.</li>
 			</ol>
-		<?
+		<?php
 		break;
 }
 
