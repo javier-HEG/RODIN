@@ -44,6 +44,7 @@
 	<link rel="stylesheet" type="text/css" href="<?php print "$CSS_URL"; ?>/rodinBoards.css.php" />
 	<link rel="stylesheet" type="text/css" href="<?php print $RODINUTILITIES_GEN_URL; ?>/contextmenu/jquery.contextMenu.css" />
 	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/contextMenuInRodin.css.php" />
+	<link rel="stylesheet" type="text/css" href="../../app/help/help.css"></script>
 	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/rodinwidget.css.php" />
 	
 	<script type="text/javascript" src="../portal/selections/waiting.js"></script>
@@ -75,10 +76,14 @@
 	<script type="text/javascript" src='../../../gen/u/idletimer/jquery.idle-timer.js'></script>
 	<script type="text/javascript" src='../../../gen/u/contextmenu/jquery.contextMenu.js'></script>  
 	<script type="text/javascript" src="../../../gen/u/autocomplete/jquery.autocomplete-min.js"></script>
+	<script type="text/javascript" src="../../../gen/u/simplemodal/jquery.simplemodal.min.js"></script>
 	<script type="text/javascript">
 		jQuery.noConflict();
 	</script>
 	<!-- RODIN:END -->
+	<!-- RODIN HELP -->
+	<script type="text/javascript" src="../../app/help/help.js"></script>
+	<!-- RODIN HELP: END -->
 </head>
 
 <?php 
@@ -176,7 +181,7 @@ EOH;
 	<input id="metasearchrodinbutton" type="button"
 		name="rodingensearchbutton" title="" value=""
 		onclick="javascript: <?php print $launchMetaSearchCode; ?>" />
-	<img id="rodinSearchHelpButton" src="<?php print "$RODINUTILITIES_GEN_URL/images/help.png"; ?>" title="Help coming soon" />	
+	<img id="rodinSearchHelpButton" src="../../posh/images/ico_help_rodin.gif" />	
 </div>
 
 <div id="breadcrumbs" class="breadCrumbsHidden">
@@ -214,6 +219,7 @@ EOH;
 				</span>
 				<img id="faceBoardTogle" onClick="javascript: toggleBoardExpanded('facetboard');" class="toggleBoardIcon" />
 				<script type="text/javascript">forceBoardExpanded('facetboard');</script>
+				<img id="ontologiesHelpButton" class="rodinHelpIcon" src="../../posh/images/ico_help_rodin.gif" />
 			</div>
 				
 			<div id="facetBoardContent" name="boardContent">
@@ -229,6 +235,7 @@ EOH;
 				</span>
 				<img id="cloudBoardToggle" onClick="javascript: toggleBoardExpanded('cloudboard');" class="toggleBoardIcon" />
 				<script type="text/javascript">forceBoardExpanded('cloudboard');</script>
+				<img id="tagcloudHelpButton" class="rodinHelpIcon" src="../../posh/images/ico_help_rodin.gif" />
 			</div>
 		
 			<div id="cloudBoardContent" name="boardContent">
@@ -352,7 +359,6 @@ EOH;
 		}
 
 		window.onload(function() {
-			alert('miechi!!!!!');
 			init_aggregation();
 		});
 	</script>
@@ -364,8 +370,15 @@ EOH;
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb"><?php echo lg('lblContextMenuAddToBreadcrumb'); ?></a></li>
 		<li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets"><?php echo lg('lblContextMenuExploreOntoFacets');?></a></li>
 	</ul>
-
 </div>
+
+<div id="rodinSearchHelp" style="display:none;"></div>
+<div id="rodinWidgetsHelp" style="display:none;"></div>
+<div id="rodinOntologiesHelp" style="display:none;"></div>
+<div id="rodinTagCloudHelp" style="display:none;"></div>
+<div id="visualizationHelp" style="display:none;"></div>
+<div id="rodinFaqHelp" style="display:none;"></div>
+<div id="rodinResultsHelp" style="display:none;"></div>
 
 </body>
 </html>

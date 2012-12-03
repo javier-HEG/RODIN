@@ -5967,6 +5967,14 @@ $p.app.menu={
 			'class': 'toggleBoardIcon'
 		});
 		l_toggle.injectInside(l_title);
+
+		l_help = new Element('img', {
+			'id': 'vmenuHelpButton',
+			'class': 'rodinHelpIcon',
+			'onClick': 'showWidgetsHelp()',
+			'src': '../../posh/images/ico_help_rodin.gif'
+		});
+		l_help.injectInside(l_title);
 		
 		l_title.injectInside($('menucontent'));
 		
@@ -13734,6 +13742,13 @@ $p.app.widgets={
 			restoreButtonImg.setAttribute("title", lg("titleSurvistaRestore"));
 			restoreButtonImg.setAttribute("onClick", "javascript: $p.app.widgets.restoreSurvista('" + rodinsegment + "', '" + lang + "');");
 			
+			var helpButtonImg = document.createElement('img');
+			helpButtonImg.setAttribute("style", "margin: 2px; cursor: pointer;");
+			helpButtonImg.setAttribute("id", "visualizationHelpButton");
+			helpButtonImg.setAttribute("src", "../images/ico_help_rodin.gif");
+			helpButtonImg.setAttribute("onClick", "javascript: showVisualizationHelp();");
+
+			menuDiv.appendChild(helpButtonImg);
 			menuDiv.appendChild(restoreButtonImg);
 			menuDiv.appendChild(maximizeButtonImg);
 			menuDiv.appendChild(closeButtonImg);

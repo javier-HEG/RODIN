@@ -28,10 +28,10 @@ div.rodinBoardTitleBar img.rodinBoardTitleImage {
 	vertical-align: middle;
 }
 
-div.rodinBoardTitleBar img.toggleBoardIcon {
+div.rodinBoardTitleBar img.toggleBoardIcon, img.rodinHelpIcon {
 	float: right;
 	cursor: pointer;
-	padding: 4px 2px 0px 2px;
+	padding: 2px;
 }
 
 div.rodinBoardTitleBar span.rodinBoardTitleLabel {
