@@ -28,3 +28,9 @@
 	right: -10px;
 	cursor: pointer;
 }
+
+img#rodinSearchHelpButton {
+	position: relative;
+	left: 0px;
+	top: 3px;
+}

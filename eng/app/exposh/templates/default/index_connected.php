@@ -181,7 +181,7 @@ EOH;
 	<input id="metasearchrodinbutton" type="button"
 		name="rodingensearchbutton" title="" value=""
 		onclick="javascript: <?php print $launchMetaSearchCode; ?>" />
-	<img id="rodinSearchHelpButton" src="../../posh/images/ico_help_rodin.gif" />	
+	<img id="rodinSearchHelpButton" src="<?php print "$RODINUTILITIES_GEN_URL/images/help.png"; ?>" />	
 </div>
 
 <div id="breadcrumbs" class="breadCrumbsHidden">

@@ -45,7 +45,7 @@ jQuery('#rodinBoards').ready(function() {
 jQuery('#modules').ready(function() {
 	jQuery('#rodinResultsHelp').load('../../app/help/results.php?lang' + __lang);
 
-	jQuery('#modules').prepend('<img id="rodinResultsHelpButton" src="../../posh/images/ico_help_rodin.gif" />');
+	jQuery('#modules').prepend('<img id="rodinResultsHelpButton" src="../../../gen/u/images/help.png" />');
 	jQuery('#rodinResultsHelpButton').css('position', 'absolute');
 	jQuery('#rodinResultsHelpButton').css('right', '6px');
 	jQuery('#rodinResultsHelpButton').css('top', '16px');

@@ -25,11 +25,6 @@ div#rodinmetasearch input#metasearchrodinbutton {
 	vertical-align: middle;
 }
 
-div#rodinmetasearch img#rodinSearchHelpButton {
-	position: relative;
-	left: 30px;
-}
-
 div#metasearchblock {
 	position:absolute;
 	top:0px;	
