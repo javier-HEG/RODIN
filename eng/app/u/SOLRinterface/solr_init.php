@@ -59,8 +59,8 @@ function solr_synch_update($sid,$txt,&$client,&$documents)
 # Several processes are synched on a file "$sid.lock"
 #
 {
-  $needsynchlog=true;
-  $needDEBUGprecision=true;
+  $needsynchlog=false;
+  $needDEBUGprecision=false;
   global $SOLR_RODIN_LOCKDIR;
   if ($needsynchlog)
   {

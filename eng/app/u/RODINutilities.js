@@ -46,7 +46,7 @@ function compute_ajax_sid (user)
 {
 	var sid='';
 	var now = new Date();
-	var mon = format2pos(now.getMonth() + 1);
+	var mon = format2pos((now.getMonth()) + 1);
 	var year= now.getYear() + 1900;
 	var day	= format2pos(now.getDate()); //monatstag
 	var hour= format2pos(now.getHours());
@@ -799,7 +799,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 					+'&sid='+sid
 					+'&cid='+cid+'.p'
 					+'&newsid='+newsid
-					+'&q=' /*dismissed*/
+					+'&q='+Base64.encode(terms) /*needed for cache recognition*/
 					+'&v='+Base64.encode(gui_refinement_request['quickq']) /*the current one*/
 					+'&l='+lang
 					+'&w='+gui_refinement_request['this_wid_uniq_id']

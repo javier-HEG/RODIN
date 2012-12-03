@@ -713,15 +713,11 @@ function get_cache_response_SOLR($url)
    $TIME = $CACHED_A[0];
    //print "<br>TIME: ".htmlentities($TIME); 
    
-   
    $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
    $CACHED_CONTENT = $CACHED_A[0];
    //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
-   //var_dump($DOCS);
-   
    
    return $CACHED_CONTENT; // null erstemal
-  
   
 } // get_cache_response_SOLR
 
@@ -760,10 +756,6 @@ function cache_response_SOLR($url,&$datasource_response)
     else {
       print "cache_response_SOLR system error init SOLR client";
     }
-   
-   
-   
-   
 }
 
 
