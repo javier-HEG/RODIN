@@ -518,9 +518,10 @@ EOH;
 		
 		global $sid;
 		global $datasource;
+    global $slrq;
 		global $render;
 		
-		render_widget_results($sid,$datasource,RDW_widget,$render);
+		render_widget_results($sid,$datasource,$slrq,RDW_widget,$render);
 
 		
 		return true; 
@@ -546,8 +547,9 @@ EOH;
 		global $sid;
 		global $datasource;
 		global $render;
+    global $slrq;
 
-		render_widget_results($sid,$datasource,RDW_full,$render);
+		render_widget_results($sid,$datasource,$slrq,RDW_full,$render);
 		return true; 
 	
 	} // DEFINITION_RDW_SHOWRESULT_WIDGET

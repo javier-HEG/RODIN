@@ -73,6 +73,7 @@ $SEARCHFILTER_TEXT_SIZE = 35;
 #
 $DOCROOT = $_SERVER['DOCUMENT_ROOT'];
 $USER = $_SESSION["user_id"];
+if (!$USER) $USER=$_REQUEST["pid"];
 
 $PROT = ($_SERVER['HTTPS']=='on') ? 'https' : 'http';
 $HOST = $_SERVER["SERVER_NAME"];
@@ -170,6 +171,8 @@ $IMG_REFINING_TITLE = "Calculating ontological facets to your query ...";
 
 //Zen filter icon
 $ZEN_FILTER_ICON = $RODINIMAGESURL . '/funnel.png';
+//MoreLikeThis icon
+$MLT_ICON = $RODINIMAGESURL . '/rank-icon.png';
 
 //Tag-cloud icon
 $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';
@@ -343,6 +346,9 @@ $SOLARIUMURL="$PROT://$HOST$RODINROOT/gen/u/solarium/library/Solarium";
 $SOLARIUMDIR="$DOCROOT$RODINROOT/gen/u/solarium/library/Solarium";
 $SOLR_PORT = 8885; // FRI !!!
 
+$SOLR_MLT_MINSCORE=1.0; //Accept/show in MLT queries only values showing this or higher scores
+
+
 # SOLR RODIN CONFIG for collection rodin_result:
 $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['user']='rodin';
 $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host']='localhost';
@@ -350,6 +356,15 @@ $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']=$SOLR_PORT;
 $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']='/solr/rodin_result/';
 $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['timeout']=5;
+
+$SOLR_RODIN_RESULT_URL="http://"
+                      .$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host']
+                      .':'
+                      .$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']
+                      .$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']
+                      ;
+
+$SOLR_ADD_DOC_URI="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/SOLRinterface/add_solr_doc.php";
 
 # SOLR RODIN CONFIG for collection rodin_search:
 $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['user']='rodin';

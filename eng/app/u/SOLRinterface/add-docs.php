@@ -16,16 +16,19 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 	}
 }
 
+print "wanr to require "."$SOLR_INTERFACE_URI/solr_init.php". " from ".getcwd();
+
 
 
 require_once("$SOLR_INTERFACE_URI/solr_init.php");
+
 $host   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host'];
 $port   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port'];
 $path   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path'];
 $core   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['core'];
 $timeout=$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['timeout'];
 
-
+$sid=1111111;
 
 if (($client = solr_client_init($host,$port,$path,$core,$timeout)))
 {
@@ -43,19 +46,6 @@ if (($client = solr_client_init($host,$port,$path,$core,$timeout)))
   $doc2->price = 340;
   $doc2->body = $doc2->id.' '.$doc2->name.' '.$doc2->price;
 
-  if (0)
-  {
-  // get an update query instance
-  $update = $client->createUpdate();
-
-  // add the documents and a commit command to the update query
-  $update->addDocuments(array($doc1, $doc2));
-  $update->addCommit();
-
-  // this executes the query and returns the result
-  $result = $client->update($update);
-  }
-   
   $documents= array($doc1,$doc2);
   $result = solr_synch_update($sid,"search",$client, $documents);
   

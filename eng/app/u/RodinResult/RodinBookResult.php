@@ -37,7 +37,6 @@ class RodinBookResult extends BasicRodinResult {
 				if ($this->getProperty('description') != '') {
 					$addToAll .= '<p style="margin: 6px 6px;"><em>' . $this->separateWordsInSpans($this->getProperty('description')) . '</em></p>';
 				}
-				
 				$addToAll .= $this->valueAsHtmlParagraph('ISBN:', $this->getProperty('isbn'), false);
 				$addToAll .= $this->valueAsHtmlParagraph('Publisher:', $this->getProperty('publisher'), false);
 				$addToAll .= $this->valueAsHtmlParagraph('Subjects:', $this->getProperty('subjects'), true);
@@ -49,7 +48,8 @@ class RodinBookResult extends BasicRodinResult {
 					$html .= '<img style="width: 40px; float: right; margin-right: 2px; padding: 2px; border: 1px solid lightgray;" src="' . $this->getProperty('cover') . '" />';
 
 				$html .= '<h1>' . $this->separateWordsInSpans($this->getTitle()) . '</h1>';
-				$html .= $this->valueAsHtmlParagraph('By', $this->getAuthors(), true);
+        $html .= $this->valueAsHtmlParagraphNumber('Score:', $this->getScore());
+        $html .= $this->valueAsHtmlParagraph('By', $this->getAuthors(), true);
 				$html .= $this->valueAsHtmlParagraph('Publication date:', $this->getDate(), false);
 				
 				if (isset($addToAll)) {

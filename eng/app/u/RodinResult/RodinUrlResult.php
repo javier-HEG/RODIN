@@ -38,7 +38,8 @@ class RodinUrlResult extends BasicRodinResult {
 			case 'token':
 				$html = '<div class="oo-result">';
 				$html .= '<h1>' . $this->separateWordsInSpans($this->getTitle()) . '</h1>';
-				$html .= $this->valueAsHtmlParagraph('By', $this->getAuthors(), true);
+				$html .= $this->valueAsHtmlParagraphNumber('Score:', $this->getScore());
+        $html .= $this->valueAsHtmlParagraph('By', $this->getAuthors(), true);
 				$html .= $this->valueAsHtmlParagraph('Publication date:', $this->getDate(), false);
 				$html .= $this->valueAsHtmlParagraph('URL:', $this->getProperty('url'), false);
 				

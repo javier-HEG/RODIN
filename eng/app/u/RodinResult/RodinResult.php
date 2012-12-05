@@ -9,8 +9,10 @@
 class BasicRodinResult {
 	private $urlPage;
 	private $title;
+	private $score; //SOLR score on morelikethis queries
 	private $authors;
 	private $date;
+	protected $id; // SOLR ID or DB RECORD ID
 	protected $sid;
 	
 	private $resultProperties;
@@ -53,7 +55,7 @@ class BasicRodinResult {
 		$html .= "<p><b>Author(s) : </b> {$this->authors}<br />";
 		$html .= "<b>Date : </b> {$this->date}<br />";
 		$html .= "<b>URL : </b> <a href=\"{$this->urlPage}\">{$this->urlPage}</a></p>";
-		
+
 		return $html;
 	}
 	
@@ -74,7 +76,8 @@ class BasicRodinResult {
 			
 			default:
 				$html .= '<h1>' . $this->separateWordsInSpans($this->title) . '</h1>';
-				$html .= $this->valueAsHtmlParagraph('By', $this->getAuthors(), true);
+  			$html .= $this->valueAsHtmlParagraphNumber('Score:', $this->getScore());
+  			$html .= $this->valueAsHtmlParagraph('By', $this->getAuthors(), true);
 				$html .= $this->valueAsHtmlParagraph('Publication date:', $this->getDate(), false);
 			break;
 		}
@@ -84,6 +87,22 @@ class BasicRodinResult {
 		return $html;
 	}
 	
+  
+  
+  /**
+	* Checks that value is not an empty string and return a paragraph HTML element
+	* containing the value, preceeded by the value name given
+	*/
+	protected function valueAsHtmlParagraphNumber($valueName, $value) {
+    if ($value<>null) 
+    {
+			$html = '<p><u>' . $valueName . '</u>&nbsp;'. ($value) . '</p>';
+		}
+
+    return $html;
+	}
+  
+  
 	/**
 	* Checks that value is not an empty string and return a paragraph HTML element
 	* containing the value, preceeded by the value name given
@@ -188,7 +207,7 @@ class BasicRodinResult {
 
 
 /**
-	 * Produces SOLR documents that has to be added in SOLR
+	 * Produces a document that can be added in SOLR
 	 * Method built following toInsertSqlCommand()
 	 *
 	 * @param $client - an instance of solarium
@@ -255,9 +274,26 @@ class BasicRodinResult {
 
 		return '<img src="' . $ZEN_FILTER_ICON . '" title="' . lg('titleLaunchZenFilter') . '" onclick="' . $jsZenFilter . '" />';
 	}
+  
+  public function htmlHeaderMLT($id,$sid) {
+		global $MLT_ICON;
+		global $widgetresultdivid;
+    global $SOLR_RODIN_CONFIG;
+
+		$solr_user= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['user'];
+    $solr_host= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host']; //=$HOST;
+    $solr_port= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']; //=$SOLR_PORT;
+    $solr_path= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']; //='/solr/rodin_result/';
+    $solr_mlt= "http://$solr_host:$solr_port$solr_path";
+
+		$jsMLT = "widget_morelikethis('$id','$sid','$solr_mlt');";
+
+		return '<img src="' . $MLT_ICON . '" title="' . lg('titleLaunchWidgetMLT') . '" onclick="' . $jsMLT . '" />';
+	}
 	
 	public function htmlHeader($resultIdentifier, $resultCounter, $sid) {
 		global $widgetresultdivid;
+		global $datasource;
 
 		$html = $resultCounter . '<br />';
 		
@@ -266,6 +302,7 @@ class BasicRodinResult {
 		}
 		
 		$html .= $this->htmlHeaderZenFilter($sid, $resultIdentifier) . '<br />';
+		$html .= $this->htmlHeaderMLT($this->id, $this->sid, $datasource, $resultIdentifier) . '<br />';
 		
 		return $html;
 	}
@@ -306,6 +343,7 @@ class BasicRodinResult {
 	public function __toString() {
 		$string = '[' . strtoupper(RodinResultManager::getRodinResultTypeName($this->resultType)) . ' ';
 		$string .= '[Title: "' . $this->title . '" ] ';
+		$string .= '[Score: "' . $this->score . '" ] ';
 		$string .= '[Authors: "' . $this->authors . '" ] ';
 		$string .= '[Date: "' . $this->date . '" ] ';
 		$string .= '[URL: "' . $this->urlPage . '" ] ';
@@ -349,6 +387,13 @@ class BasicRodinResult {
 		return $this->urlPage;
 	}
 	
+	public function setScore($score) {
+		$this->score = $score;
+	}
+	
+	public function getScore() {
+		return $this->score;
+	}
 	public function setTitle($title) {
 		$this->title = $title;
 	}
@@ -384,5 +429,13 @@ class BasicRodinResult {
 
 	public function getSid() {
 		return $this->sid;
+	}
+
+  public function setId($id) {
+		$this->id = $id;
+	}
+
+	public function getId() {
+		return $this->id;
 	}
 }

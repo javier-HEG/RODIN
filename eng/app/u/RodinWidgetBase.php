@@ -1,8 +1,7 @@
 <?php
-	// Load the session used by posh
-	session_name('myhomepage');
-	session_start();
-
+// Load the session used by posh
+session_name('myhomepage');
+session_start();
 	if (!isset($_SESSION['lang'])) {
 		if (isset($_REQUEST['l10n']) && $_REQUEST['l10n'] != 'undefined') {
 			$_SESSION['lang'] = $_REQUEST['l10n'] != '' ? $_REQUEST['l10n'] : 'en';
@@ -14,7 +13,7 @@
 	
 	$CACHE_EXTENSION='rodin'; //used by apache mod_rewrite to cache .php ext.
 
-	// CONSTEANTS FOR WIDGETS INTERFACE
+	// CONSTANTS FOR WIDGETS INTERFACE
 	define ("RDW_widget",'RDW_widget'); // open as widget
 	define ("RDW_full",'RDW_full'); // open as widget
 
@@ -85,6 +84,7 @@
 	$RDW_REQUEST['show'] = RDW_widget;
 	$RDW_REQUEST['sid'] = 0;
 	$RDW_REQUEST['nosrc'] = 0;
+	$RDW_REQUEST['slrq'] = ''; //solr extra select/ranking info
 	$RDW_REQUEST['n'] = $DEFAULTRODINSKIN;
 	$RDW_REQUEST['m'] = 10;
 	$RDW_REQUEST['q'] = 0;
@@ -154,7 +154,7 @@
 	 * @param int $headerAreaHeight
 	 */
  	function make_widget_div($widgetdivid, $iframe_height, $headerAreaHeight) {
- 		$widgetInnerHeight = $iframe_height - $headerAreaHeight;
+   	$widgetInnerHeight = $iframe_height - $headerAreaHeight;
  		$widgetSpotlightBox = '<div class="spotlightbox" style="visibility:hidden;" id="spotlight-box-' . $widgetdivid . '" title=""></div>';
 		return '<div class="widgetResultsDiv" id="$widgetdivid" style="height: ' . $widgetInnerHeight . 'px;\">' . $widgetSpotlightBox;
 	}

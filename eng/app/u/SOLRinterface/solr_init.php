@@ -53,7 +53,7 @@ function solr_client_init($solr_host='',$solr_port='', $solr_path='', $solr_core
 
 
 
-function solr_synch_update($sid,$txt,&$client,&$documents)
+function solr_synch_update($sid='default_sid',$txt,&$client,&$documents)
 ################################################
 #
 # Several processes are synched on a file "$sid.lock"

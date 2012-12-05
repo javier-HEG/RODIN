@@ -516,6 +516,9 @@ abstract class SRCengine implements SRCEngineInterface {
 						if ($refined_terms_raw<>'') $refined_terms_raw.="$TERM_SEPARATOR\n"; 
 							$refined_terms_raw.=base64_encode($TERMS_RAW{$term});
 						}
+            
+            //prepare_solr_mlt_context($nextterm);
+            
 					}
 				}
 			}

@@ -132,6 +132,7 @@ function format3pos(num)
 		qs.set('qe',eq);
 		qs.set('q',eq);
 		qs.set('m',f.m.value);
+    qs.set('slrq','');
 		qs.set('rerender',0);
 		qs.set('uncache',1); // force uncache -> to trigger onto_highlight actions
 		var host = parseUri(url).protocol 
@@ -635,7 +636,8 @@ function format3pos(num)
 				qs.set('qe',searchtxt);
 				qs.set('q',searchtxt);
 				qs.set('sid',SID);
-				qs.set('go','1');
+        qs.set('slrq','');
+        qs.set('go','1');
 				qs.set('textZoomRender', document.getElementById("selectedTextZoom").value);
 				qs.set('rerender',0);
 				qs.set('show','RDW_widget');
@@ -1138,145 +1140,6 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 
 		return false;
 	} /*fri_rodin_start_ontosearch_context_skos*/
-
-
-	
-	/**
-	 * Makes an AJAX call to our ZenFilter implementation.
-	 * @param textToFilter64 the text that needs to be filtered (Base64 encoded)
-	 * @param query64 the query that originated the results from which comes the text to be filetered (Base64 encoded)
-	 * @param zenFilterBox the div element in which filtered terms are to be displayed
-	 */
-	function rodin_zen_filter(textToFilter64, query64, zenFilterBox) {
-		zenFilterBox.style.visibility = "visible";
-		fillZenFilterBoxLoading(zenFilterBox);
-		
-		var zenFilterResponderUrl = '<?php print "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/ZenFilterResponder.php"; ?>';
-
-		jQuery.post(zenFilterResponderUrl,
-			{textToFilter: textToFilter64, query: query64, lang: parent.LANGUAGE_OF_RESULT_CODED},
-			function(data) {
-					rodin_zen_filter_handler(data, zenFilterBox);
-			});
-	}
-	
-	/**
-	 * Function called when the AJAX call to ZenFilter is successful.
-	 * @param data returned by the zen-filter responder
-	 * @param zenFilterBox the div element to fill with filtered terms
-	 */
-	function rodin_zen_filter_handler(data, zenFilterBox) {
-		var filtered = data.documentElement;
-		var termList = filtered.getElementsByTagName("term");
-		var methodUsed = filtered.getAttribute("lastMethodUsed");
-				
-		if (filtered && termList) {
-			fillZenFilterBoxWithTerms(zenFilterBox, termList, methodUsed);
-		} else
-			alert("[Javier] Zen Filtered : FAIL");
-	}
-	
-	/**
-	 * This function fills the spotlight box with a loading message
-	 * to be shown while the spotlight terms are computed.
-	 * @param zenFilterBox the zen-filter div element
-	 */
-	function fillZenFilterBoxLoading(zenFilterBox) {
-		var loadingElement = document.createElement("p");
-		loadingElement.setAttribute("class", "loading");
-		loadingElement.setAttribute("title", "");
-		loadingElement.appendChild(document.createTextNode(lg("lblZenFiltering")));
-		
-		zenFilterBox.innerHTML = "";
-		zenFilterBox.appendChild(loadingElement);
-	}
-	
-	/**
-	 * This function replaces the loading message in the spotlight box
-	 * with the list of terms that have been found. It also adds the
-	 * "Select all" and the "Close" buttons.
-	 * @param zenFilterBox the zen-filter's div element.
-	 * @param termList the list of found terms.
-	 * @param lastMethodUsed last method used to filter the result.
-	 */
-	function fillZenFilterBoxWithTerms(zenFilterBox, termList, lastMethodUsed) {
-		zenFilterBox.innerHTML = "";
-
-		var closeButton = document.createElement("a");
-		closeButton.setAttribute("class", "button");
-		closeButton.setAttribute("title", lg("close"));
-		closeButton.setAttribute("onmouseover", "javascript: this.className='buttonHover';");
-		closeButton.setAttribute("onmouseout", "javascript: this.className='button';");
-		closeButton.setAttribute("onclick", "javascript: closeZenFilterBox('" + zenFilterBox.getAttribute("id") + "');");
-		closeButton.appendChild(document.createTextNode(lg("close")));
-
-		var boxTitle = document.createElement("h1");
-		boxTitle.setAttribute("title", "");
-		boxTitle.appendChild(document.createTextNode(lg("lblZenFiltered")));
-		
-		boxTitle.appendChild(closeButton);
-		
-		zenFilterBox.appendChild(boxTitle);
-		
-		if (termList.length > 0) {
-			// Add the last method used info as title
-			boxTitle.setAttribute("title", lg("lblZenFilteredMethod" + lastMethodUsed));
-			
-			var addAllButton = document.createElement("a");
-			addAllButton.setAttribute("class", "button");
-			addAllButton.setAttribute("title", lg("titleZenFilterAddAll"));
-			addAllButton.setAttribute("onmouseover", "javascript: this.className='buttonHover';");
-			addAllButton.setAttribute("onmouseout", "javascript: this.className='button';");
-			addAllButton.setAttribute("onclick", "javascript: zenFilterBoxAddAll('" + zenFilterBox.getAttribute("id") + "');");
-			addAllButton.appendChild(document.createTextNode(lg("lblZenFilterAddAll")));
-			
-			boxTitle.appendChild(addAllButton);
-
-			var allTerms = document.createElement("p");
-			allTerms.setAttribute("title", "");
-			allTerms.setAttribute("class", "terms");
-
-			for (var i=0; i<termList.length; i++) {
-				var singleTermElement = document.createElement("a");
-				singleTermElement.setAttribute("class", "term");
-				singleTermElement.setAttribute("title", lg("titleActionsOnWord"));
-				singleTermElement.setAttribute("onmouseover", "javascript: this.className='hover';");
-				singleTermElement.setAttribute("onmouseout", "javascript: this.className='term';");
-				singleTermElement.appendChild(document.createTextNode(termList[i].textContent));
-
-				allTerms.appendChild(singleTermElement);
-				allTerms.appendChild(document.createTextNode(" "));
-			}
-
-			zenFilterBox.appendChild(allTerms);
-			
-			// update context menu binding
-			setContextMenu();
-		} else {
-			var noTerms = document.createElement("p");
-			noTerms.setAttribute("class", "terms");
-			noTerms.appendChild(document.createTextNode(lg("lblZenFilterNoResults")));
-			
-			zenFilterBox.appendChild(noTerms);
-		}
-	}
-	
-	function closeZenFilterBox(zenFilterBoxId) {
-		var zenFilterBox = document.getElementById(zenFilterBoxId);
-		zenFilterBox.innerHTML = "";
-		zenFilterBox.style.visibility = "hidden";
-	}
-	
-	function zenFilterBoxAddAll(zenFilterBoxId) {
-		var zenFilterBox = document.getElementById(zenFilterBoxId);
-		var termLinks = zenFilterBox.getElementsByTagName("p")[0].getElementsByTagName("a");
-		
-		for (var i=0; i<termLinks.length; i++) {
-			var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
-			correctParent.bc_add_breadcrumb_unique(termLinks[i].textContent, 'zen');
-		}
-	}
-
 
 
 	
@@ -2204,7 +2067,7 @@ if (response!=null) {
 
     //Add aggregated view module
     //take div inside the tab db_tab_id with id='module'+db_tab_id
-    var aggViewDiv = $('modules'+db_tab_id).children.aggregated_view_module
+    var aggViewDiv = parent.$('modules'+db_tab_id).children.aggregated_view_module
     if (aggViewDiv)
         iframesinfo.push(new Array(aggViewDiv,'aggregatedView',aggViewDiv.clientHeight));
 

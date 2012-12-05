@@ -367,9 +367,10 @@ EOX;
 		
 		global $sid;
 		global $datasource;
+    global $slrq;
 		
 
-		render_widget_results($sid,$datasource);
+		render_widget_results($sid,$datasource,$slrq);
 
 		
 		return true; 
@@ -394,8 +395,9 @@ EOX;
 	{
 		global $sid;
 		global $datasource;
+    global $slrq;
 		
-		render_widget_results($sid,$datasource,RDW_full);
+		render_widget_results($sid,$datasource,$slrq,RDW_full);
 		return true; 
 	
 	} // DEFINITION_RDW_SHOWRESULT_WIDGET

@@ -321,7 +321,7 @@ function generate_ontofacet(term, ranked_term_raw, lang, rodinsegment) {
   rankButton.setAttribute("src", "../../../gen/u/images/rank-icon.png");
   rankButton.setAttribute("style", "cursor:pointer;");
   rankButton.setAttribute("title", lg("lblClick2RankResults", term));
-  rankButton.setAttribute("onClick", "javascript:rerank_widget_results_using(this,'"+ ranked_term_raw + "', '" + term+ "', '" + lang + "');");
+  rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ ranked_term_raw + "', '" + term+ "', '" + lang + "');");
 		
 		tempTableCell.appendChild(rankButton);
     

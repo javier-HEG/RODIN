@@ -25,11 +25,8 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br /> - name of the widget
 <br /> - value used for the query
 <br /> - warning/error.
-<br />
-<br />
-<br />
-<br />
-<p>
+
+<!--p>
 <b>Integration with SRC - Details</b>
 <br />==============================
 <br />
@@ -37,7 +34,11 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br />URL used for REFINE : <?php echo $SRCreal; ?>/<b>refine</b>?params - (see spec)
 <br />
 <br />CALLS ROGINDUI -> RODINSRC (can) be stored in DB and can be viewed using <a href="<?php echo $SRC_INTERFACE_BASE_URL; ?>/calls.php" target="_blank"> this link</a>
-
+<br /-->
+<b>Integration with SOLR - Details</b>
+<br />
+<br /><a href="http://localhost:8885/solr/#/"> SOLR ADMIN </a>
+<br /><a href="http://localhost:8985"> SOLR LUCID </a>
 </p>
 
 

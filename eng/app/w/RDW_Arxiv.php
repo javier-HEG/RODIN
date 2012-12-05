@@ -220,9 +220,10 @@ function DEFINITION_RDW_STORERESULTS()
 function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	global $render;
 	
-	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $render);
+	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $slrq, $render);
 	
 	return true; 
 }
@@ -234,8 +235,9 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	
-	RodinResultManager::renderAllResultsInOwnTab($sid,$datasource);
+	RodinResultManager::renderAllResultsInOwnTab($sid,$datasource,$slrq);
 	
 	return true; 
 }

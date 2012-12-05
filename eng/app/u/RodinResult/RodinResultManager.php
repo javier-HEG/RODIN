@@ -345,51 +345,67 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
 	}
 
 
-public static function getRodinResultsFromSOLR($sid,$datasource) {
+public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
     global $SOLR_RODIN_CONFIG;
+    global $SOLR_MLT_MINSCORE;
+    global $USER;
+    global $m;
 		$allResults = array();
-
+    
+    $slrq='';
+    if ($slrq_base64)
+      $slrq=base64_decode($slrq_base64);
+    
 		$solr_user= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['user'];
     $solr_host= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host']; //=$HOST;
     $solr_port= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']; //=$SOLR_PORT;
     $solr_path= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']; //='/solr/rodin_result/';
 
-    #Fetch result from SOLR
-    $solr_select= "http://$solr_host:$solr_port$solr_path".'select?';
-
+    #Fetch result from SOLR using even $slrq (handler and some parameters) if set instead of the standard Handler
+    if ($slrq=='' && $sid<>'' && $datasource<>'')
+        $solr_select= "http://$solr_host:$solr_port$solr_path"
+                       ."select?q=sid:$sid%20wdatasource:$datasource&rows=$m";
+    else
+        $solr_select= "http://$solr_host:$solr_port$solr_path".$slrq;
+      
+    $MLT = (strstr('/mlt',$solr_select)>=0);
+    
 		$allResults = array();
 		try {
     
      //$solr_result_query_url=$solr_select."wt=xml&q=sid:$sid&wdatasource:$datasource&qt=/lucid&req_type=main&user=$solr_user&role=DEFAULT";
 			$solr_result_query_url=$solr_select
-          ."wt=xml"
-          ."&q=sid:$sid%20wdatasource:$datasource"
-          ."&fl=*"
-          ."&omitHeader=true"
-          ;
+                              ."&wt=xml"
+                              ."&fl=score,*"
+                              ."&omitHeader=true"
+                              ; 
       $filecontent=file_get_contents($solr_result_query_url);
 			$solr_sxml= simplexml_load_string($filecontent);
-//      print "<hr>SOLR_QUERY: <a href='$solr_result_query_url' target='_blank'>$solr_result_query_url</a><br>";
+      if ($USER==2)
+      print "<hr><a href='$solr_result_query_url' target='_blank' title='Get SOLR raw data in a new TAB'>raw data</a> MLT:$MLT<br>";
 //      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
 //      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
-
-      $DOCS = $solr_sxml->xpath('/response/result/doc'); //find the doc list
+      
+      //if (!$owner) $PRECISATION="[@name='response']";
+      $DOCS = $solr_sxml->xpath("/response/result$PRECISATION/doc"); //find the doc list results
       //print "<hr>".count($DOCS)." SOLR_DOCS: <br>"; var_dump($solr_sxml);
-
-
+       
+      $CNT=0;
       foreach($DOCS as $DOC)
       {
+        $CNT++;
+        $FORGET_RESULT=false;
+        $id='';
         $row=array();
-        #print "<hr>DOC:";
-        #print "<hr> SOLR_DOC: <br>"; var_dump($DOC);
+//        print "<hr>DOC:";
+//        print "<hr> SOLR_DOC: <br>"; var_dump($DOC);
 
         foreach($DOC->children() as $ATTRVAL)
         {
           //print "<hr> ATTRVAL: <br>"; var_dump($ATTRVAL);
           $attributes=$ATTRVAL->attributes();
           //print "<hr> ATTRIBUTES: <br>"; var_dump($attributes);
-
           $name=$attributes['name'];
 
           if (count($ATTRVAL->children()))
@@ -403,16 +419,26 @@ public static function getRodinResultsFromSOLR($sid,$datasource) {
           else
             $value=$ATTRVAL[0];
 
+          if ($name=='id') // we need the SOLR id...
+            $id=$value;
+          else if ($name=='wdatasource')
+          {
+            $owner= ($datasource==$value);
+            
+            $reference= ($CNT==1 && $owner);
+            
+            
+          } //  $name=='wdatasource'
+          
           #####################################################
           # Name/Value pair of result here available
           // print "<br>$name = <b>$value</b>";
           # Exclude SOLR fields
+          else
           if (
               $name<>'body'
             &&$name<>'_version_'
-            &&$name<>'wdatasource'
             &&$name<>'timestamp'
-            &&$name<>'id'
               )
             {
               $row[$name.'']=$value.''; // force string conv.
@@ -429,45 +455,65 @@ public static function getRodinResultsFromSOLR($sid,$datasource) {
         $pointer = explode('.', $row['xpointer']);
         $pointerBase = intval($pointer[0]);
         $pointerRemainder = count($pointer) > 1 ? intval($pointer[1]) : -1;
-        $result = RodinResultManager::buildRodinResultByType(intval($row['type']));
+        
+        if ($owner)
+        {  
+          $result = RodinResultManager::buildRodinResultByType(intval($row['type']));
 
-        $result->setSid($sid);
-        foreach($row as $attribute=>$value)
-        {
-          //$result = $allResults[$pointerBase];
-          switch ($attribute) {
-            case 'title':
-              $result->setTitle($value);
-            break;
-            case 'authors':
-              $result->setAuthors($value);
-            break;
-            case 'date':
-              $result->setDate($value);
-            break;
-            case 'urlPage':
-              $result->setUrlPage($value);
-            break;
-            default:
-            if (trim($attribute))
-            {
-              //print "<br>default attribute($attribute)=value($value)";
-              $result->setProperty($attribute, $value);
-            }
-            break;
-          } // switch attribute
-        } // foreach $row value
+          $result->setSid($sid);
+          $result->setId($id);
 
-         //print "<br>Setting new result to pointerBase=$pointerBase";
-        $allResults[] = $result;
+          foreach($row as $attribute=>$value)
+          {
+            //$result = $allResults[$pointerBase];
+            switch ($attribute) {
+              case 'score': //print "<br>Score: $value reference=$reference MLT:$MLT";
+                if ($MLT) // only on mlt we are interested in scoring
+                {
+                  if ($reference)
+                    $result->setScore("Reference");
+                  else
+                  { // SET ONLY IF SOME RELEVANCE FOUND
+                    //if ($value >= $SOLR_MLT_MINSCORE)
+                        $result->setScore(($value));
+                    //else $FORGET_RESULT=true;
+                  }
+                
+                }
+              break;
+              case 'title':
+                $result->setTitle($value);
+              break;
+              case 'authors':
+                $result->setAuthors($value);
+              break;
+              case 'date':
+                $result->setDate($value);
+              break;
+              case 'urlPage':
+                $result->setUrlPage($value);
+              break;
+              default:
+              if (trim($attribute))
+              {
+                //print "<br>default attribute($attribute)=value($value)";
+                $result->setProperty($attribute, $value);
+              }
+              break;
+            } // switch attribute
+          } // foreach $row value
 
+           //print "<br>Setting new result to pointerBase=$pointerBase";
+          if (!$FORGET_RESULT)
+            $allResults[] = $result;
 
+        } // owner
       } // foreach DOCS
 
 		} catch (Exception $e) {
 			print "RodinResultManager EXCEPTION: $e";
 		}
-		
+		//exit;
 		return $allResults;
 	}
 
@@ -523,7 +569,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource) {
 	 * Requires that the RodinResultSet.js file is included in page where
 	 * these results are rendered.
 	 */
-	public static function renderAllResultsInWidget($sid, $datasource, $render) {
+	public static function renderAllResultsInWidget($sid, $datasource, $slrq, $render) {
     global $RESULTS_STORE_METHOD;
     switch($RESULTS_STORE_METHOD)
     {
@@ -531,7 +577,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource) {
             $allResults = RodinResultManager::getRodinResultsFromResultsTable($sid, $datasource);
             break;
       case 'solr':
-        		$allResults = RodinResultManager::getRodinResultsFromSOLR($sid, $datasource);
+        		$allResults = RodinResultManager::getRodinResultsFromSOLR($sid, $datasource, $slrq);
     }
 
 		if (count($allResults) > 0) {
@@ -561,8 +607,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource) {
 		}
 	}
 
-	public static function renderAllResultsInOwnTab($sid, $datasource) {
-		RodinResultManager::renderAllResultsInWidget($sid, $datasource, 'all');
+	public static function renderAllResultsInOwnTab($sid, $datasource, $slrq) {
+		RodinResultManager::renderAllResultsInWidget($sid, $datasource, $slrq, 'all');
 		return true;
 	}
 }

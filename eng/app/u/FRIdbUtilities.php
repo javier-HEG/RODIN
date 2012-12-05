@@ -394,7 +394,7 @@ function build_result_EATV_array($sid, $datasource) {
  * @author Fabio Ricci
  * @deprecated
  */
-function render_widget_results($sid, $datasource, $mode=RDW_widget, $render='all', $format='html') {
+function render_widget_results($sid, $datasource, $slrq, $mode=RDW_widget, $render='all', $format='html') {
 	global $FONTRESULT, $ENDFONTRESULT;
 	global $APP_ID, $WIDGET_ID, $TAB_DB_ID, $USER_ID;
 	global $WIDGET_SEARCH_MAX;
@@ -842,7 +842,7 @@ EOS;
 
 
 
-function get_xml_widget_response($sid,$wid,$render)
+function get_xml_widget_response($sid,$wid,$slrq,$render)
 ############################################
 {
 	$WIDGETINFO = collect_widget_infos($wid);
@@ -859,7 +859,7 @@ function get_xml_widget_response($sid,$wid,$render)
 <error>No data source found for wid=$wid</error>
 ";
 	else
-		$RESPONSE=render_widget_results($sid,$datasource,0,$render,'xml');
+		$RESPONSE=render_widget_results($sid,$datasource,$slrq,0,$render,'xml');
 
 /*
 	$RESPONSE=<<<EOT
@@ -1358,6 +1358,8 @@ function get_query_SOLR($sid)
 
   global $SOLR_RODIN_CONFIG;
   global $USER;
+  
+  if (!$USER) print "System error: get_query_SOLR() USER is null!";
   
   $allResults = array();
 
