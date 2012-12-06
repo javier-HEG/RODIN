@@ -22,7 +22,6 @@ $config=array();
 
 
 
-
 function solr_client_init($solr_host='',$solr_port='', $solr_path='', $solr_core, $solr_timeout)
 ##########################
 {
@@ -181,5 +180,41 @@ function unlock_token($sid)
   return $unlink_result_code;
 }
 
-?>
 
+function get_solrbridge($solr_query_url)
+{
+  
+  //http://localhost:8885/solr/rodin_result/select?q=sid:20121205.162229.682.2%20wdatasource:/rodin/x/app/w/RDW_ArXiv.rodin&rows=10&wt=xml&fl=score,*&omitHeader=true
+  //==>
+  //http://http://195.176.237.62/rodin/x/app/u/solr_interface/solr_bridge.php?path=select&qs=base64endocedstuff;
+  global $HOST, $SOLR_BRIDGE;
+  
+//  print "<br>HOST: $HOST";
+//  print "<br>SOLR_BRIDGE: $SOLR_BRIDGE";
+  
+  if ($HOST<>localhost && strstr($solr_query_url,'localhost'))
+  {
+    //print "NEED OF SUBST....";
+    $BRIDGE=str_replace('localhost:8885',$HOST,$solr_query_url);
+    //http://195.176.237.62/solr/rodin_result/select?q=sid:20121205.162229.682.2%20wdatasource:/rodin/x/app/w/RDW_ArXiv.rodin&rows=10&wt=xml&fl=score,*&omitHeader=true
+    $PATTERN="/(.*)\/(.*)\/(.*)\?(.*)/";
+    if (preg_match($PATTERN,$BRIDGE,$match))
+    {
+      $collection=$match[2];
+      $method=$match[3];
+      $qs=$match[4];
+    }          
+
+    //$qs64=base64_encode($qs);
+    $BRIDGE = "$SOLR_BRIDGE?coll=$collection&method=$method&$qs";
+
+//    print "<br>path: $path";
+//    print "<br>qs: $qs";
+//    print "<br>BRIDGE: $BRIDGE_NICE";
+
+  }  
+  else
+    $BRIDGE = $solr_query_url;
+  return $BRIDGE;
+}
+?>

@@ -735,34 +735,39 @@ function src_widget_morelikethis(obj,ranked_term_raw,term,lang)
   var group_div = document.getElementById('fb_itemcontent_'+ONTO_id);
   if (!group_div) alert('ALERT: NO OBJECT WITH ID='+'fb_itemcontent_'+ONTO_id);
   var loaded_skos_terms = get_loaded_skos_context(group_div);
-  var id = Base64.encode(loaded_skos_terms);
-  var path = 'rodin_result';
   
-  var solr_add_doc_uri="<?php print $SOLR_ADD_DOC_URI;?>"
-              +"?id="+id
-              +"&path="+path
-              +"&doc="+loaded_skos_terms
-              +"&title=rankingcontext1"
-              ;
-  
-  //Call a SOLR registering service for this doc
-  //and prepare a mlt query
-  $p.ajax.call( solr_add_doc_uri,
-        {
-          'type':'load',
-          'callback':
-           {
-            'function':handle_post_solr_doc_update,
-            'variables':
-             {
-              'id':id,
-              'doc':loaded_skos_terms
-             }
-           }
-        }
-  )
-}
+  if (confirm("This will show ranked widget results accordingly to similarity with the current skos context:"
+          +"\n\n"+loaded_skos_terms.replace('+',' ')
+          +"\n\nContinue?"))
+  {
+    var id = Base64.encode(loaded_skos_terms);
+    var path = 'rodin_result';
 
+    var solr_add_doc_uri="<?php print $SOLR_ADD_DOC_URI;?>"
+                +"?id="+id
+                +"&path="+path
+                +"&doc="+loaded_skos_terms
+                +"&title=rankingcontext1"
+                ;
+
+    //Call a SOLR registering service for this doc
+    //and prepare a mlt query
+    $p.ajax.call( solr_add_doc_uri,
+          {
+            'type':'load',
+            'callback':
+             {
+              'function':handle_post_solr_doc_update,
+              'variables':
+               {
+                'id':id,
+                'doc':loaded_skos_terms
+               }
+             }
+          }
+    )
+  }
+}
 
 /**
 	 * callbyk after skos context insertion in SOLR
@@ -772,25 +777,51 @@ function src_widget_morelikethis(obj,ranked_term_raw,term,lang)
 function handle_post_solr_doc_update(response,vars) {
 	var id = vars['id'];
 	var doc = vars['doc'];
-	
-  var slrq='mlt?q=id:'+id+'&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1';
-  var solr_path="<?php print $SOLR_RODIN_RESULT_URL;?>";
-  var generic_solr_call=solr_path+slrq;
+	var ok = false;
+  // response ok?
   
-  alert('rerank_widget_results_using '
-      +'Ontology id '+id
-      +'\n\nUSING SKOS KONTEXT:\n\n'+doc
-      +'\n\nUSING URL:\n\n'+generic_solr_call);
-    
-  if (confirm("This will rerank every widget result with respect to the skos context:"
-          +"\n\n"+doc
-          +"\n\nusing "+generic_solr_call+"\n\nContinue?"))
-    {
-      slrq_to_widgets(slrq);
-    }  
+  if (response!=null) {
+		if (response.getElementsByTagName("add_solr_doc")[0]) /*XML*/
+		{
+			 var tags =(response.getElementsByTagName("*"));
+			 for(var i=0;i<tags.length;i++)
+			 {
+				 var tag=tags[i];
+				 //alert('t: '+tag.tagName+'='+tag.textContent);
+				 if (tag.tagName=='result')
+				 {
+					var add_result =tag.textContent;
+          ok= (add_result==0)
+          if (!ok)
+          {
+           alert('System error? wrong result got from SOLR UPDATE: '+add_result); 
+           break;
+          }
+          else if (tag.tagName=='error')
+          {
+           var errortxt=tag.textContent;
+           alert('Error adding context in SOLR: '+errortxt);
+           break;
+          }
+			 }
+     }
   }
+  
+  if (ok)
+  {
+    var slrq='mlt?q=id:'+id+'&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1';
+    var solr_path="<?php print $SOLR_RODIN_RESULT_URL;?>";
+    
 
+  //  alert('rerank_widget_results_using '
+  //      +'Ontology id '+id
+  //      +'\n\nUSING SKOS KONTEXT:\n\n'+doc
+  //      +'\n\nUSING URL:\n\n'+generic_solr_call);
 
+     slrq_to_widgets(slrq);
+    }
+  }
+}
 
 
 	/**
@@ -804,7 +835,9 @@ function handle_post_solr_doc_update(response,vars) {
     var slrq='mlt?q=id:'+solr_id+'&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1';
     var generic_solr_call=solr_path+slrq;
     //alert('widget_morelikethis generic_solr_call: '+generic_solr_call);
-    if (confirm("This will rerank every widget result with respect to this result \n\n using "+generic_solr_call+"\n\nContinue?"))
+    if (confirm("This will show ranked widget results accordingly to similarity with this result."
+      //+" \n\n using "+generic_solr_call
+      +"\n\nContinue?"))
     {
       slrq_to_widgets(slrq);
     }
@@ -838,7 +871,10 @@ function handle_post_solr_doc_update(response,vars) {
         var old_querystring = parseUri(iframe.src).query;
         var qs = new Querystring(old_querystring);
         
-        var  slrq_term=slrq+'&rows='+qs.get('m')+'&fq=wdatasource:'+parseUri(iframe.src).path;
+        var  slrq_term=slrq
+                    //    +'&rows='+qs.get('m') // Need more than that because of duplicated results
+                        +'&fq=wdatasource:'
+                        +parseUri(iframe.src).path;
 
         //qs.set('qe',searchtxt);
         //qs.set('q',searchtxt);

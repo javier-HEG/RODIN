@@ -3,27 +3,49 @@
 ###########################################
 ###########################################
 ###########################################
-		error_reporting(0); # disable error reporting for albator
+		error_reporting(E_ALL); # disable error reporting for rodin server
 
 	  $SOLR_URL = "http://localhost:8885/solr";
 
-	  $term=$_GET['term'];
-	  $freq=$_GET['freq'];
-	  $facet=$_GET['facet'];
-	  
-    $QS=$_SERVER['QUERY_STRING'];
+	  $method=$_GET['method']; //everything before (not solr)?
+	  $coll=$_GET['coll']; //everything before (not solr)?
+	  $QUERYSTRING=explode('&',$_SERVER['QUERY_STRING']);
+    $qs='';
+    $format='xml'; // default
     
-    $implodedQS=  implode('&', $QS);
-    
-    
-	  $X = ($freq)?$freq:$facet;
-	  
-	  $URL="$SOLR_URL/$freq?q=$term";
-	  
-		$solr_out = file_get_contents($URL);
+    foreach($QUERYSTRING as $pair)
+    {
+       list($k,$v) = explode('=',$pair);
+       if ($k<>'coll' && $k<>'method')
+       {
+//         print "<br>$k=>$v";
+         $qs.=$qs<>''?'&':'?';
+         $qs.="$k=$v";
+         
+         if ($k=='wt')
+           $format=$v;
+       }    
+    }
 
-		//header ("content-type: text/xml");
-		print $solr_out;
+    $URL="$SOLR_URL/$coll/$method$qs";
+
+//    print "<br>coll: $coll";
+//    print "<br>method: $method";
+//    print "<br>qs: $qs";
+//    print "<br>INNER LOCAL USED URL: $URL";
+    $contenttype='text/xml'; // default
+    switch ($format)
+    {
+      case 'xml': $contenttype='text/xml'; break;
+      case 'json': $contenttype='text/x-json'; break;
+      case 'csv': $contenttype='application/CSV';break;
+    }
+    
+    
+		$solr_out = file_get_contents($URL);
+ 		//print htmlentities($solr_out);
+		header ("content-type: $contenttype");
+		print ($solr_out);
 		
 ###########################################
 ###########################################

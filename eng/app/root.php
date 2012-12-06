@@ -365,6 +365,7 @@ $SOLR_RODIN_RESULT_URL="http://"
                       ;
 
 $SOLR_ADD_DOC_URI="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/SOLRinterface/add_solr_doc.php";
+$SOLR_BRIDGE="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/SOLRinterface/solr_bridge.php";
 
 # SOLR RODIN CONFIG for collection rodin_search:
 $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['user']='rodin';

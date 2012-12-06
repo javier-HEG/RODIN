@@ -347,6 +347,7 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
 
 public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
+    require_once("../u/SOLRinterface/solr_init.php");
     global $SOLR_RODIN_CONFIG;
     global $SOLR_MLT_MINSCORE;
     global $USER;
@@ -369,7 +370,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
     else
         $solr_select= "http://$solr_host:$solr_port$solr_path".$slrq;
       
-    $MLT = (strstr('/mlt',$solr_select)>=0);
+    $MLT = (strstr($solr_select,'/mlt'));
+    //print "MLT=strstr('/mlt',$solr_select)=$MLT ";
     
 		$allResults = array();
 		try {
@@ -378,12 +380,16 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 			$solr_result_query_url=$solr_select
                               ."&wt=xml"
                               ."&fl=score,*"
-                              ."&omitHeader=true"
+                            //  ."&omitHeader=true"
                               ; 
       $filecontent=file_get_contents($solr_result_query_url);
 			$solr_sxml= simplexml_load_string($filecontent);
-      if ($USER==2)
-      print "<hr><a href='$solr_result_query_url' target='_blank' title='Get SOLR raw data in a new TAB'>raw data</a> MLT:$MLT<br>";
+      if ($USER==2) //fabio=developer
+      {  
+        $solr_real_url=get_solrbridge($solr_result_query_url);
+        $EVTL_MLT=($MLT)?" (mlt)":""; 
+        print "<hr><a href='$solr_real_url' target='_blank' title='Get SOLR raw data in a new TAB'>raw data</a>$EVTL_MLT<br>";
+        }
 //      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
 //      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
       
@@ -392,8 +398,13 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
       //print "<hr>".count($DOCS)." SOLR_DOCS: <br>"; var_dump($solr_sxml);
        
       $CNT=0;
+      $NO_OF_DISPLAYED_RESULTS=0;
+      $dedup_hash= array();
       foreach($DOCS as $DOC)
       {
+        if ($NO_OF_DISPLAYED_RESULTS>$m)
+             break; // stop parsing and displyaing results
+          
         $CNT++;
         $FORGET_RESULT=false;
         $id='';
@@ -429,15 +440,31 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
             
             
           } //  $name=='wdatasource'
-          
+          else if ($name=='body') // compute hash deduplication discarding new result 
+          {
+            if ($MLT)
+            {
+              $md5_body=md5($value);
+//              print "<hr>$value";
+//              print "<br>$CNT: $md5_body";
+              if (! ($dedup_hash{$md5_body})) // still a new body value?
+              {
+                //print " NEW";
+                $dedup_hash{$md5_body}=true;
+              } 
+              else // known body -> cancel result display
+              {  //print " OLD";
+                 $FORGET_RESULT=true; 
+              }
+            }
+          } // body
           #####################################################
           # Name/Value pair of result here available
           // print "<br>$name = <b>$value</b>";
           # Exclude SOLR fields
           else
           if (
-              $name<>'body'
-            &&$name<>'_version_'
+              $name<>'_version_'
             &&$name<>'timestamp'
               )
             {
@@ -478,7 +505,6 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
                         $result->setScore(($value));
                     //else $FORGET_RESULT=true;
                   }
-                
                 }
               break;
               case 'title':
@@ -505,11 +531,15 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
            //print "<br>Setting new result to pointerBase=$pointerBase";
           if (!$FORGET_RESULT)
+          {
             $allResults[] = $result;
-
+            $NO_OF_DISPLAYED_RESULTS++;
+          }
         } // owner
       } // foreach DOCS
-
+     
+      //foreach($dedup_hash as $k=>$v) print "<br>$k=>$v"; //debug - show hash
+     
 		} catch (Exception $e) {
 			print "RodinResultManager EXCEPTION: $e";
 		}
