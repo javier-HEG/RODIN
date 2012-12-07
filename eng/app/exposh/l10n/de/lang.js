@@ -23,7 +23,7 @@ lang["lblCollectingResultsWait"]="fuer Ihre Suche nach \"$$\" gesammelt, bitte w
 lang["msgPleaseAddWidgetsToTab"]="Fügen Sie bitte ein Widget hinzu und versuchen Sie es erneut";
 
 //TagCloud
-lang["titleClickOnTag"]="Klicken Sie, um den Begriff in die Suchfelder hinzu zu fügen";
+lang["titleClickOnTag"]="Klicken Sie, um den Begriff in die Suchfelder hinzu zu fügen, Doppelkicken Sie um danach zu suchen";
 lang["lblConfirmWant2EraseTagCloud"]="Möchten Sie wirklich alle Suchwörter löschen?";
 lang["lblTagCloudeReload"]="Neu anzeigen";
 lang["lblTagCloudeErase"]="Loeschen";

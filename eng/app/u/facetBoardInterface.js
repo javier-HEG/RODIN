@@ -462,9 +462,12 @@ function fillCloudBoard(response, vars) {
 }
 
 function createTagCloudItem(tag, position) {
+  var setword="javascript: bc_clearBreadcrumbIfNeeded('" + tag.textContent + "'); fb_set_node_ontofacet('" + tag.textContent + "'); setMetaSearchInputText('" + tag.textContent + "');";
+		
 	var tagElement = jQuery("<a />", {
 		class: "cloudTag color" + (position % 2),
-		onClick: "javascript: bc_clearBreadcrumbIfNeeded('" + tag.textContent + "'); fb_set_node_ontofacet('" + tag.textContent + "'); setMetaSearchInputText('" + tag.textContent + "');",
+		onClick: setword,
+		ondblclick: setword+"document.getElementById('metasearchrodinbutton').click();",
 		title: lg("titleClickOnTag"),
 		style: "font-size: " + (12 + parseInt(tag.getAttribute("size")) + "px"),
 		text: tag.textContent

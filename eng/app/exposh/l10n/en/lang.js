@@ -51,7 +51,7 @@ lang["lblSingleResultFound"]="$$ result";
 lang["lblResultsFound"]="$$ results";
 
 //TagCloud
-lang["titleClickOnTag"]="Click to send the term to the search field";
+lang["titleClickOnTag"]="Click to send the term to the search field, double click to search directly";
 lang["lblConfirmWant2EraseTagCloud"]="Do you really want to erase all your past searches?";
 lang["lblTagCloudeReload"]="Refresh";
 lang["lblTagCloudeErase"]="Erase";

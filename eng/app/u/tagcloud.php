@@ -132,6 +132,7 @@ class wordCloud
 	function showCloud($returnType = "html")
 	#########################################
 	{
+    print "ddddd"; 
 		global $USER_ID;
     if (!$USER_ID) $USER_ID=$_REQUEST['pid'];
     //print "USER_ID=$USER_ID";

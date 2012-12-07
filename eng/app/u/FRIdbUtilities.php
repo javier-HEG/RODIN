@@ -1932,6 +1932,7 @@ function collect_queries_tag_SOLR($USER) {
         ."&q=user:$USER"
         ."&fl=query"
         ."&omitHeader=true"
+        ."&rows=100000"
         ;
     $filecontent=file_get_contents($solr_result_query_url);
     $solr_sxml= simplexml_load_string($filecontent);

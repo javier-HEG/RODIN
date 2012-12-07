@@ -52,7 +52,7 @@ lang["lblSingleResultFound"]="$$ résultat";
 lang["lblResultsFound"]="$$ résultats";
 
 //TagCloud
-lang["titleClickOnTag"]="Cliquez pour envoyer le terme aux champs de recherche";
+lang["titleClickOnTag"]="Cliquez pour envoyer le terme aux champs de recherche, clicquez doublement pour demarrer la recherche";
 lang["lblConfirmWant2EraseTagCloud"]="Voulez vouz vraiment effacer tous les requêtes effectuées?";
 lang["lblTagCloudeReload"]="Cliquez pour reafficher";
 lang["lblTagCloudeErase"]="Cliquez pour effacer";
