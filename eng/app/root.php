@@ -331,7 +331,6 @@ if (file_exists("$SKINDIR/RODIN_COLORS.php"))
 # END OF VARIABLE DECLARATION
 #############################################
 
-
 #$RESULTS_STORE_METHOD='mysql'; #USE MYSQL TO STORE RODIN RESULTS
 $RESULTS_STORE_METHOD='solr'; #USE SOLR TO STORE RODIN RESULTS
 

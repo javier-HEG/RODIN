@@ -2,6 +2,7 @@
 // In case this script was called outside of a widget
 include_once('RodinWidgetBase.php');
 
+	 
 
 $STATEMACHINE_DEBUG = $_GET['smdebug'];
 if ($STATEMACHINE_DEBUG)
@@ -114,7 +115,7 @@ if ($STATEMACHINE_DEBUG && !RDW_GENERICAJAXREQUEST)
 	print "<br>selfredirect: $selfredirect";
 }
 
-
+ 
 // following must be available, therefore it must be placed here
 $widgetresultdivid="results_".uniqid();
 

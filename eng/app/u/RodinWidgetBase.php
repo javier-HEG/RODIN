@@ -11,6 +11,7 @@ session_start();
 	require_once("FRIdbUtilities.php");
 	include_once "$DOCROOT/$RODINUTILITIES_GEN_URL/simplehtmldom/simple_html_dom.php";
 	
+  
 	$CACHE_EXTENSION='rodin'; //used by apache mod_rewrite to cache .php ext.
 
 	// CONSTANTS FOR WIDGETS INTERFACE
@@ -624,9 +625,5 @@ EOP;
 		}
 		else print "<br>unregister_default_prefs  $app_id PREFS DELETED";
 	}	
-
-
-	
-
 	
 ?>

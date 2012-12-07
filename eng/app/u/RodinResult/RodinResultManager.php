@@ -135,12 +135,10 @@ class RodinResultManager {
 		
 		if (is_array($results) && count($results) > 0) {
 			try {
-				$db = new RODIN_DB();
-				$conn = $db->DBconn;
 				switch($RESULTS_STORE_METHOD)
         {
           case 'mysql': 
-        				$query = RodinResultManager::saveRodinResultsInResultsTableMySQLCode($results, $sid, $datasource, $conn);
+        				RodinResultManager::saveRodinResultsInResultsTableMySQL($results, $sid, $datasource, $conn);
                 break;
           case 'solr':
         				RodinResultManager::saveRodinResultsInResultsSOLR($results, $sid, $datasource);
@@ -202,12 +200,11 @@ class RodinResultManager {
 	}
   
 
-	public static function saveRodinResultsInResultsTableMySQLCode($results, $sid, $datasource, $conn = null) {
+	public static function saveRodinResultsInResultsTableMySQL(&$results, $sid, $datasource, $conn = null) {
 		if ($conn == null) {
 			$db = new RODIN_DB();
 			$safeConn = $db->DBconn;
 		}
-		
 		// Code to insert the number of results in xPointer -1
 		$numberOfResults = count($results);
 		$sql = 'INSERT INTO result (`sid`,`datasource`,`xpointer`,`node`,`follow`,`attribute`,`type`,`value`,`url`,`visible`) '
@@ -222,11 +219,19 @@ class RodinResultManager {
 			$resultNumber++;
 		}
 
-		if ($conn == null) {
-			$db->close();
-		}
+    $sql.=';';
+    
+    mysql_query($sql, $safeConn);
+		$modified = mysql_affected_rows();
+
+    if ($modified < 0) {
+      return mysql_errno() . ": " . mysql_error();
+    }
+
+    //print "$modified lines with <br>$sql"; exit;
+    
 		
-		return $sql . ';';
+		
 	}
 	
 
@@ -293,13 +298,15 @@ class RodinResultManager {
 public static function getRodinResultsFromResultsTable($sid, $datasource) {
 		$allResults = array();
 
-		try {
+    try {
 			$db = new RODIN_DB();
 			$conn = $db->DBconn;
 
 			$query = "SELECT * FROM result WHERE sid = '$sid' AND datasource='$datasource' ORDER BY xpointer ASC";
 			$resultset= mysql_query($query, $conn);
 
+      //print "Getting results to $sid ... $query";
+      
 			if ($resultset)	{
 				while ($row = mysql_fetch_assoc($resultset)) {
 					$pointer = explode('.', $row['xpointer']);

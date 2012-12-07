@@ -544,6 +544,8 @@ abstract class SRCengine implements SRCEngineInterface {
     $cache_id="$BASECLASSNAME-$action-$lang-$q/$v";
     
     $xmlCached_src_content = get_cached_src_response($cache_id);
+    
+    
     if (!src_cached_content_quality_control($xmlCached_src_content))
     { // ask service and rebuild cache
 
@@ -563,6 +565,8 @@ abstract class SRCengine implements SRCEngineInterface {
           break;
 
         case 'preall':
+          
+
           $RESULTS_P = $this->preprocess_refine(($v), $this->getWordbinding(), $lang);
 
           $RESULTS_B = $this->refine('broader', $RESULTS_P->results, ($q), $this->maxresults, $lang);
@@ -655,8 +659,7 @@ function src_cached_content_quality_control($SRC_XML_CACHE_CONTENT)
   //Has the answer at least data inside one of (broader/related/narrower)?
   $need_src_log=true;
 
-  $ok = (trim($SRC_XML_CACHE_CONTENT));
-  
+  $ok = (trim($SRC_XML_CACHE_CONTENT));  
   if ($ok) //Test any of the skos objects nonempty
   {
     if ($need_src_log)

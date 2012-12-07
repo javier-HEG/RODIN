@@ -112,6 +112,7 @@ function get_cached_src_response_SOLR($cache_id)
 {
   global $SOLR_RODIN_CONFIG;
   global $USER;
+  $CACHED_CONTENT='';
   
   $need_src_log=false;
   if ($need_src_log)
@@ -147,22 +148,31 @@ function get_cached_src_response_SOLR($cache_id)
    if ($need_src_log)
        fwrite($log, "\n$now get url: $solr_select");
 
-   
    $cachecontent=file_get_contents($solr_select);
-	 $solr_sxml= simplexml_load_string($cachecontent);
-//      print "<hr>SOLR_QUERY: <a href='$solr_result_query_url' target='_blank'>$solr_result_query_url</a><br>";
-//      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
-//      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
-			//$xpath = "/response/lst/lst/lst[@name='cached']"; // /itas (old)
-
-   $TIME_A = $solr_sxml->xpath("/response/result/doc/date[@name='timestamp']"); //find the doc list
-   $TIME = $CACHED_A[0];
-   //print "<br>TIME: ".htmlentities($TIME); 
-   
-   $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
-   $CACHED_CONTENT = $CACHED_A[0];
-   //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
+   $solr_sxml= simplexml_load_string($cachecontent);
+//   print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
+//   print "<hr>SOLR_CONTENT: <br>(((".htmlentities($cachecontent).")))";
+//   print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
       
+      
+   //Is there a response? how many found elements?
+   $FOUND_RES = $solr_sxml->xpath("/response/result"); //find the doc list
+   $FOUND_RES = $FOUND_RES[0];
+   $ATTR = $FOUND_RES->attributes();
+   $NO_OF_RESULTS= $ATTR['numFound'];
+   //print "<hr>Found results: $NO_OF_RESULTS";
+
+   if ($NO_OF_RESULTS > 0)
+   {
+   	 //$xpath = "/response/lst/lst/lst[@name='cached']"; // /itas (old)
+     $TIME_A = $solr_sxml->xpath("/response/result/doc/date[@name='timestamp']"); //find the doc list
+     $TIME = $CACHED_A[0];
+     //print "<br>TIME: ".htmlentities($TIME); 
+
+     $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
+     $CACHED_CONTENT = $CACHED_A[0];
+     //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
+   }
    return $CACHED_CONTENT; // null erstemal
   
 } // get_cached_src_response_SOLR
@@ -225,6 +235,7 @@ function cache_src_response_SOLR($cache_id,$xml_src_content)
 
       #do NOT reverse index this cached data in body
       $documents= array($caching_doc);
+      $sid=uniqid(); //we do not bother... here 
       solr_synch_update($sid,$solr_path,$client,$documents);
     }
     else {

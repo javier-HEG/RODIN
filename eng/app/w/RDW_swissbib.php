@@ -104,12 +104,13 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 		. '&version=1.1&operation=searchRetrieve&recordSchema=info%3Asrw%2Fschema%2F1%2Fmarcxml-v1.1'
 		. '&maximumRecords=' . $m . '&startRecord=1&resultSetTTL=300&recordPacking=xml';
 	
+  
+  
 	TomaNota::deEsto($_SERVER[PHP_SELF], "search url : $url");
 
 	//$xml = get_file_content($url);
 	$xml = get_cached_widget_response($url);
-	$simpleXmlElement = str_get_html($xml);
-
+  $simpleXmlElement = str_get_html($xml);
 	// Parse XML looking for results
 	$allResults = array();
 

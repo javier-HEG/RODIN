@@ -728,6 +728,7 @@ function get_loaded_skos_context(obj)
 
 function src_widget_morelikethis(obj,ranked_term_raw,term,lang)
 {
+  /*get id inside oo-container where obj is*/
   var onto_div = obj.parentNode.parentNode.parentNode.parentNode.parentNode;
   var onto_div_id = onto_div.id;
   var ONTO_id = onto_div_id.substr(onto_div_id.lastIndexOf('_')+1);

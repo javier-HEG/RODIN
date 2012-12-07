@@ -61,6 +61,7 @@ function solr_synch_update($sid='default_sid',$txt,&$client,&$documents)
   $needsynchlog=false;
   $needDEBUGprecision=false;
   global $SOLR_RODIN_LOCKDIR;
+  
   if ($needsynchlog)
   {
     $LOGfilename="$SOLR_RODIN_LOCKDIR/synch.LOG.txt";
@@ -92,7 +93,6 @@ function solr_synch_update($sid='default_sid',$txt,&$client,&$documents)
     } 
   }
 
-  
   wait2lock_token($sid);
 
   if ($needsynchlog)

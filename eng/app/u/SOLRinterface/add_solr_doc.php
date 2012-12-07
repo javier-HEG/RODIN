@@ -14,8 +14,6 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 	}
 }
 
-
-
 require_once("$SOLR_INTERFACE_URI/solr_init.php");
 
 $id=$_REQUEST['id'];
@@ -32,10 +30,10 @@ $path="/solr/$path/";
 if ($doc=='' || $path==''|| $id=='')
 {
   header("content-type: text/xml");
-  $output= "<add_solr_doc>"
+  print "<add_solr_doc>"
 		."<error>Wrong parameters provided: (id=$id) (path=$path) (doc=$doc)</error>"
 		."</add_solr_doc>";
-
+  
  exit;
 }  
 

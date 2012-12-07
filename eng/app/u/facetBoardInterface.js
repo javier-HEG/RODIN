@@ -323,9 +323,9 @@ function generate_ontofacet(term, ranked_term_raw, lang, rodinsegment) {
   rankButton.setAttribute("title", lg("lblClick2RankResults", term));
   rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ ranked_term_raw + "', '" + term+ "', '" + lang + "');");
 		
-		tempTableCell.appendChild(rankButton);
+	tempTableCell.appendChild(rankButton);
     
-    // Show the Survista button only if the raw form is a ZBW URI or a DBPedia category
+  // Show the Survista button only if the raw form is a ZBW URI or a DBPedia category
 	if (ranked_term_raw.indexOf("http://zbw") >= 0 || ranked_term_raw.indexOf("http://dbpedia.org/resource/Category:") >= 0) {
 	  var survistaButton = document.createElement('img');
 		survistaButton.setAttribute("src", "../../../gen/u/images/survista-icon.png");
@@ -335,6 +335,7 @@ function generate_ontofacet(term, ranked_term_raw, lang, rodinsegment) {
 		
 		tempTableCell.appendChild(survistaButton);
 	}
+  
 	
 	tableRow.appendChild(tempTableCell);
 

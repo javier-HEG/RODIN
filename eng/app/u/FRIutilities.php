@@ -601,6 +601,7 @@ function get_cached_widget_response($url)
 # url: data source url to be retrieved
 # Fabio Ricci
 {
+ 
   global $sid; // KEY for this request
   //print "get_cached_content sid: $sid";
  
@@ -612,12 +613,13 @@ function get_cached_widget_response($url)
      //print "CACHE CONTENT EXPIRED ... CALL AGAIIN";
      
      $datasource_response=get_file_content($url);
+     
+     //print "Got resp: (((".htmlentities($datasource_response).")))";
+     
      if (good_response($datasource_response))
      {
        //Store response
-       cache_response($url,$datasource_response);
-       
-       
+       cache_response($url,$datasource_response);  
      } // got good response
      
    } // $cached_datasource_response
@@ -644,7 +646,7 @@ function cache_response($url,$datasource_response)
 }  
 
 
-function cache_response_DB($sid,$url,&$datasource_response)
+function cache_response_DB($url,&$datasource_response)
 {
   // Still needed???
 }
@@ -679,6 +681,8 @@ function get_cache_response_SOLR($url)
   global $SOLR_RODIN_CONFIG;
   global $USER;
   
+  $CACHED_CONTENT='';
+  
   //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
   $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['host'];
   $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['port'];
@@ -699,25 +703,40 @@ function get_cache_response_SOLR($url)
            ."&omitHeader=true"
            ;
   
-   //print "SOLR select: <a href='$solr_select' target='_blank'>solr zu url</a>";
-   
+   //print "SOLR select: <a href='$solr_select' target='_blank'> solr zu url</a>";
    
    $cachecontent=file_get_contents($solr_select);
-	 $solr_sxml= simplexml_load_string($cachecontent);
-//      print "<hr>SOLR_QUERY: <a href='$solr_result_query_url' target='_blank'>$solr_result_query_url</a><br>";
-//      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
+	 
+   
+   
+   $solr_sxml= simplexml_load_string($cachecontent);
+//      print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
+//      print "<hr>FILE_CONTENT: <br>(((".htmlentities($cachecontent).")))";
+//      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($solr_sxml)."))) "; var_dump($solr_sxml);
 //      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
 			//$xpath = "/response/lst/lst/lst[@name='cached']"; // /itas (old)
+   
+   //Is there a response? how many found elements?
+    $FOUND_RES = $solr_sxml->xpath("/response/result"); //find the doc list
+    $FOUND_RES = $FOUND_RES[0];
+    $ATTR = $FOUND_RES->attributes();
+    $NO_OF_RESULTS= $ATTR['numFound'];
+    //print "<hr>Found results: $NO_OF_RESULTS";
 
-   $TIME_A = $solr_sxml->xpath("/response/result/doc/date[@name='timestamp']"); //find the doc list
-   $TIME = $CACHED_A[0];
-   //print "<br>TIME: ".htmlentities($TIME); 
+    if ($NO_OF_RESULTS > 0)
+    {
+      $TIME_A = $solr_sxml->xpath("/response/result/doc/date[@name='timestamp']"); //find the doc list
+      $TIME = $CACHED_A[0];
+      //print "<br>TIME: ".htmlentities($TIME); 
+
+      $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
+      $CACHED_CONTENT = $CACHED_A[0];
+      //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
+    }
+    else {
+    } 
    
-   $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
-   $CACHED_CONTENT = $CACHED_A[0];
-   //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
-   
-   return $CACHED_CONTENT; // null erstemal
+    return $CACHED_CONTENT; // null erstemal
   
 } // get_cache_response_SOLR
 
@@ -739,8 +758,10 @@ function cache_response_SOLR($url,&$datasource_response)
 
   // store in SOLR for the last stored response using $url
    
+
    if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
     {
+
       // create a new document for the data
       $caching_doc = new Solarium_Document_ReadWrite();
 
@@ -751,6 +772,8 @@ function cache_response_SOLR($url,&$datasource_response)
 
       #do NOT reverse index this cached data in body
       $documents= array($caching_doc);
+      
+      $sid=uniqid(); // we do not bother here
       solr_synch_update($sid,$solr_path,$client,$documents);
     }
     else {
