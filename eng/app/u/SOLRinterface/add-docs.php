@@ -22,11 +22,11 @@ print "wanr to require "."$SOLR_INTERFACE_URI/solr_init.php". " from ".getcwd();
 
 require_once("$SOLR_INTERFACE_URI/solr_init.php");
 
-$host   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host'];
-$port   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port'];
-$path   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path'];
-$core   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['core'];
-$timeout=$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['timeout'];
+$host   =$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['host'];
+$port   =$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['port'];
+$path   =$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['path'];
+$core   =$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['core'];
+$timeout=$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['timeout'];
 
 $sid=1111111;
 
@@ -42,12 +42,12 @@ if (($client = solr_client_init($host,$port,$path,$core,$timeout)))
   // and a second one
   $doc2 = new Solarium_Document_ReadWrite();
   $doc2->id = 124;
-  $doc2->name = 'testdoc-2';
+  $doc2->name = 'testdoc-2 äääää';
   $doc2->price = 340;
   $doc2->body = $doc2->id.' '.$doc2->name.' '.$doc2->price;
 
   $documents= array($doc1,$doc2);
-  $result = solr_synch_update($sid,"search",$client, $documents);
+  $result = solr_synch_update($sid,"search",$client, $documents, true, true);
   
   
   echo '<b>Update query executed<b><br/>';

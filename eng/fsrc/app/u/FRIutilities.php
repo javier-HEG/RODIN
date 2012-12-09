@@ -1181,7 +1181,6 @@ function show_xml_string($txt)
 
 
 
-
 $FRIUTILITIES=1;
 
 

@@ -93,7 +93,13 @@ EOQ;
 		$i=0;
 		print "<table border=1>";
 		foreach($rows as $row) 	
-		{	$i++;
+		{	$i++; 
+    
+    if ($i>200) break;
+    
+    print "<hr>";
+    var_dump($row);
+    
 			print "<tr>";
 			print "<td>$i";
 			print "</td>";
@@ -105,6 +111,8 @@ EOQ;
 			print "</td>";
 			print "<td nowrap>";
 			print $row['o'];
+      if ($row["o lang"])
+        print " (".$row["o lang"].")";
 			print "</td>";
 			print "</tr>";
 		}

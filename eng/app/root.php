@@ -392,6 +392,24 @@ $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout']=5;
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour']=24*7; //1 week
 
+# SOLR STW for collection ZBW STW:
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['path']='/solr/zbw_stw/';
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['zbw_stw']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+
+
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['path']='/solr/solariumtests/';
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['timeout']=5;
+
+
 
 $SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
 #############################################

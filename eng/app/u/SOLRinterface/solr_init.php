@@ -52,19 +52,17 @@ function solr_client_init($solr_host='',$solr_port='', $solr_path='', $solr_core
 
 
 
-function solr_synch_update($sid='default_sid',$txt,&$client,&$documents)
+function solr_synch_update($sid='default_sid',$txt,&$client,&$documents,$needsynchlog=false,$needDEBUGprecision=false)
 ################################################
 #
 # Several processes are synched on a file "$sid.lock"
-#
+# no lock if $sid==false or ''
 {
-  $needsynchlog=false;
-  $needDEBUGprecision=false;
   global $SOLR_RODIN_LOCKDIR;
-  
+  $want_label_dump=false;
   if ($needsynchlog)
   {
-    $LOGfilename="$SOLR_RODIN_LOCKDIR/synch.LOG.txt";
+    $LOGfilename="$SOLR_RODIN_LOCKDIR/index.LOG.txt";
    
     $log=fopen($LOGfilename,"a");
     $now=date("d.m.Y H:i:s").'.'.substr(microtime(false),2,6);
@@ -73,34 +71,39 @@ function solr_synch_update($sid='default_sid',$txt,&$client,&$documents)
     if ($needDEBUGprecision)
     {
       fwrite($log, "\n--------------");
-      fwrite($log, "\nDOCUMENTS (sid,body or cached info):");
+       fwrite($log, "\nDOCUMENTS (sid,body or cached info):");
       fwrite($log, "\n--------------");
       foreach($documents as $doc)
       {
-        if ($doc->sid)
-          fwrite($log, "\n\nSid: ".$doc->sid);
-        if ($doc->body) 
-          fwrite($log, "\nBody:\n".$doc->body);
-        // In case of a cache operation:
-        if ($doc->cached) 
-        {   
-          fwrite($log, "\nid: ".$doc->id);
-          fwrite($log, "\nidsource: ".$doc->idsource);
-          fwrite($log, "\nCached: \n".$doc->cached);
-        }  
+        foreach($doc AS $field => $value)
+        {
+          if (is_array($value))
+          {
+            foreach($value as $x)
+            {
+              fwrite($log, "\n$field: ".$x);
+              if($want_label_dump) fwrite($log, "\n$field: ".string_to_ascii($x));
+            } 
+          }  
+          else 
+          {
+            fwrite($log, "\n$field: ".$value);
+            if($want_label_dump) fwrite($log, "\nanalyse: ".string_to_ascii($value));
+
+          }
+        } 
       } 
       fwrite($log, "\n\n--------------");
     } 
   }
 
-  wait2lock_token($sid);
+  if ($sid) wait2lock_token($sid);
 
   if ($needsynchlog)
   {
     $now=date("d.m.Y H:i:s").'.'.substr(microtime(false),2,6);
     fwrite($log, "\n$now SYNCHED ($sid,$txt)");
   }
-
 
   // get an update query instance
   $update = $client->createUpdate();
@@ -120,7 +123,7 @@ function solr_synch_update($sid='default_sid',$txt,&$client,&$documents)
   }
 
 
-  unlock_token($sid); //give free to next one
+  if ($sid) unlock_token($sid); //give free to next one
 
 
   if ($needsynchlog)
@@ -131,8 +134,6 @@ function solr_synch_update($sid='default_sid',$txt,&$client,&$documents)
 
   return $update_result_code;
 }
-
-
 
 
 
@@ -217,4 +218,48 @@ function get_solrbridge($solr_query_url)
     $BRIDGE = $solr_query_url;
   return $BRIDGE;
 }
+
+
+// System for quickly getting init inside loops
+$SOLRCLIENT=null;
+function init_SOLRCLIENT($collection_name,$errortext_not_init)
+{
+  global $SOLR_RODIN_CONFIG;
+  global $SOLARIUMDIR;
+  global $SOLRCLIENT;
+  
+  $resultNumber=0;
+  #USE SOLR COLLECTION 'rodin_result':
+  if (! $SOLRCLIENT)
+  {
+    $solr_host   =$SOLR_RODIN_CONFIG[$collection_name]['adapteroptions']['host'];
+    $solr_port   =$SOLR_RODIN_CONFIG[$collection_name]['adapteroptions']['port'];
+    $solr_path   =$SOLR_RODIN_CONFIG[$collection_name]['adapteroptions']['path'];
+    $solr_core   =$SOLR_RODIN_CONFIG[$collection_name]['adapteroptions']['core'];
+    $solr_timeout=$SOLR_RODIN_CONFIG[$collection_name]['adapteroptions']['timeout'];
+    $solr_cache_expiry=$SOLR_RODIN_CONFIG[$collection_name]['rodin']['cache_expiring_time_hour']; 
+
+  //    print "<br>saveRodinResultsInResultsSOLR SOLARIUMDIR=$SOLARIUMDIR";
+  //    print "<br>saveRodinResultsInResultsSOLR SOLR_RODIN_CONFIG:<br>"; var_dump($SOLR_RODIN_CONFIG);
+
+    if ((! ($SOLRCLIENT=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout))))
+    { print $errortext_not_init; } 
+  } 
+  return $SOLRCLIENT;
+}
+
+
+
+
+function string_to_ascii($string)
+{
+    $ascii = NULL;
+    for ($i = 0; $i < strlen($string); $i++) 
+    { 
+    	$ascii .=' '. $string[$i].'('. ord($string[$i]).')'; 
+    }
+    
+    return($ascii);
+}
+
 ?>
