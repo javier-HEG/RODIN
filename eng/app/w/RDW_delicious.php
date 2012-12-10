@@ -1,6 +1,6 @@
 <?php
 include_once("../u/RodinWidgetBase.php");
-require_once 'RodinResult/RodinResultManager.php';
+require_once '../u/RodinResult/RodinResultManager.php';
 
 		##############################################
 		##############################################
@@ -161,7 +161,9 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	$parameters = urlencode(deletequote(stripslashes($q))) . "?count=$m" . $FILTER_SECTION;
 	$feed = "$DELICIOUS_search_baseFEED$parameters";
 
-	$rssContent = get_file_content($feed);
+	//$rssContent = file_get_contents($feed);
+  $rssContent = get_cached_widget_response($feed);
+
 	$rss = str_get_html($rssContent);
 	
 	// Browse RSS content looking for results 
@@ -198,10 +200,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	}
 	
 	// Save search to DB
-	RodinResultManager::saveRodinSearchInSearchTable($sid, $q);
+	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResultsInResultsTable($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 	
 	return count($allResults);
 }
@@ -223,9 +225,10 @@ function DEFINITION_RDW_STORERESULTS()
 function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	global $render;
 	
-	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $render);
+	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $slrq, $render);
 	
 	return true; 
 }
@@ -237,8 +240,9 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	
-	RodinResultManager::renderAllResultsInOwnTab($sid,$datasource);
+	RodinResultManager::renderAllResultsInOwnTab($sid,$datasource,$slrq);
 	
 	return true; 
 }

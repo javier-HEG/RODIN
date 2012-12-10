@@ -73,6 +73,7 @@ $SEARCHFILTER_TEXT_SIZE = 35;
 #
 $DOCROOT = $_SERVER['DOCUMENT_ROOT'];
 $USER = $_SESSION["user_id"];
+if (!$USER) $USER=$_REQUEST["pid"];
 
 $PROT = ($_SERVER['HTTPS']=='on') ? 'https' : 'http';
 $HOST = $_SERVER["SERVER_NAME"];
@@ -126,7 +127,7 @@ else {
 	if (!preg_match('/fsrc/',$thisScriptPath))
 	{
 		print "<br>SYSTEM ERROR:($thisScriptPath) RODINROOT=$RODINROOT ... in ($candidatePath)";
-		fontprint("<br>Please run MAINTENANCE or inform the $RODINADMIN_LINK",'blue');
+		print "<br>Please run MAINTENANCE or inform the $RODINADMIN_LINK";
 		exit;
 	}
 }
@@ -170,6 +171,8 @@ $IMG_REFINING_TITLE = "Calculating ontological facets to your query ...";
 
 //Zen filter icon
 $ZEN_FILTER_ICON = $RODINIMAGESURL . '/funnel.png';
+//MoreLikeThis icon
+$MLT_ICON = $RODINIMAGESURL . '/rank-icon.png';
 
 //Tag-cloud icon
 $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';
@@ -278,6 +281,9 @@ $B_TOKEN_ICON_HOVER = "$RODINUTILITIES_GEN_URL/images/button-token-hover.png";
 $B_ALL_ICON_NORMAL = "$RODINUTILITIES_GEN_URL/images/button-all-normal.png";
 $B_ALL_ICON_SELECTED = "$RODINUTILITIES_GEN_URL/images/button-all-selected.png";
 $B_ALL_ICON_HOVER = "$RODINUTILITIES_GEN_URL/images/button-all-hover.png";
+$B_FILTER_ICON_NORMAL = "$RODINUTILITIES_GEN_URL/images/button-filter-normal.png";
+$B_FILTER_ICON_SELECTED = "$RODINUTILITIES_GEN_URL/images/button-filter-selected.png";
+$B_FILTER_ICON_HOVER = "$RODINUTILITIES_GEN_URL/images/button-filter-hover.png";
 #######################################
 
 #######################################
@@ -324,6 +330,94 @@ if (file_exists("$SKINDIR/RODIN_COLORS.php"))
 #############################################
 # END OF VARIABLE DECLARATION
 #############################################
+
+#$RESULTS_STORE_METHOD='mysql'; #USE MYSQL TO STORE RODIN RESULTS
+$RESULTS_STORE_METHOD='solr'; #USE SOLR TO STORE RODIN RESULTS
+
+
+#############################################
+# SOLR INTEFACE
+#############################################
+
+$SOLR_INTERFACE_URI = "$RODIN/app/u/SOLRinterface";
+
+$SOLARIUMURL="$PROT://$HOST$RODINROOT/gen/u/solarium/library/Solarium";
+$SOLARIUMDIR="$DOCROOT$RODINROOT/gen/u/solarium/library/Solarium";
+$SOLR_PORT = 8885; // FRI !!!
+
+$SOLR_MLT_MINSCORE=1.0; //Accept/show in MLT queries only values showing this or higher scores
+
+
+# SOLR RODIN CONFIG for collection rodin_result:
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']='/solr/rodin_result/';
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['timeout']=5;
+
+$SOLR_RODIN_RESULT_URL="http://"
+                      .$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host']
+                      .':'
+                      .$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']
+                      .$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']
+                      ;
+
+$SOLR_ADD_DOC_URI="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/SOLRinterface/add_solr_doc.php";
+$SOLR_BRIDGE="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/SOLRinterface/solr_bridge.php";
+
+# SOLR RODIN CONFIG for collection rodin_search:
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['path']='/solr/rodin_search/';
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['timeout']=5;
+
+# SOLR RODIN CONFIG for collection cached_rodin_widget_response:
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['path']='/solr/cached_rodin_widget_response/';
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour']=24; //1 day
+
+# SOLR RODIN CONFIG for collection cached_rodin_src_response:
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['path']='/solr/cached_rodin_src_response/';
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+
+# SOLR STW for collection ZBW STW:
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['path']='/solr/zbw_stw/';
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['zbw_stw']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+
+
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['path']='/solr/solariumtests/';
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['timeout']=5;
+
+
+
+$SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
+#############################################
+# END OF SOLR INTEFACE
+#############################################
+
+
+
 
 
 

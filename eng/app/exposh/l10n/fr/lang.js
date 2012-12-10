@@ -8,6 +8,7 @@ lang["lblDuplicatedWidget"]="Le widget $$ est déjà ouvert dans ce tab";
 lang["titleTextZoomOneSelected"]="Affichant une seule ligne par résultat";
 lang["titleTextZoomTwoSelected"]="Affichant une partie du résultat";
 lang["titleTextZoomThreeSelected"]="Affichant l'ensemble du résultat";
+lang["titleTextZoomFourSelected"]="Affichant l'ensemble du résultat filtrés";
 lang["titleAggregationButtonOn"]="Activer le regroupement des résultats";
 lang["titleAggregationButtonOff"]="Désactiver le regroupement des résultats";
 
@@ -41,14 +42,17 @@ lang["lblRightClickForOptions"]="Cliquez à droit pour voir les actions possible
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Cliquez pour explorer les facettes ontologiques de \"$$\"";
+
+lang["lblClick2RankResults"]="Cliquez pour ordonner les resultats des widgets par le contexte ontologique de \"$$\"";
 lang["lblOntoFacetsShowOnSurvista"]="Cliquez pour montrer une représentation graphique de \"$$\"";
 lang["lblOntoFacetsTermActions"]="Cliquez à droite pour voir les actions possibles";
+lang["lblOntoFacetsTermActions2"]="Cliquez à gauche pour filtrer les resultats des widgets sur ce mot, cliquez à droite pour voir les actions possibles";
 lang["lblSRCTimeout"]="Le temps alloué à l'exploration des facettes ontologiques a été dépassé sans trouver des résultats.";
 lang["lblSingleResultFound"]="$$ résultat";
 lang["lblResultsFound"]="$$ résultats";
 
 //TagCloud
-lang["titleClickOnTag"]="Cliquez pour envoyer le terme aux champs de recherche";
+lang["titleClickOnTag"]="Cliquez pour envoyer le terme aux champs de recherche, clicquez doublement pour demarrer la recherche";
 lang["lblConfirmWant2EraseTagCloud"]="Voulez vouz vraiment effacer tous les requêtes effectuées?";
 lang["lblTagCloudeReload"]="Cliquez pour reafficher";
 lang["lblTagCloudeErase"]="Cliquez pour effacer";

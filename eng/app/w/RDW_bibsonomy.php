@@ -6,7 +6,7 @@
 
 include_once("../u/RodinWidgetBase.php");
 include_once "$DOCROOT/$RODINUTILITIES_GEN_URL/bibsonomy/bibsonomy_api.php";
-require_once 'RodinResult/RodinResultManager.php';
+require_once '../u/RodinResult/RodinResultManager.php';
 
 $BIBSONOMY_APPLICATION_ID = getWK('BIBSONOMY_APPLICATION_ID');
 $BIBSONOMY_USER = getWK('BIBSONOMY_USER');
@@ -126,6 +126,7 @@ function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
  * @param string $chaining_url
  */
 function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
+
 	global $BIBSONOMY_USER, $BIBSONOMY_APPLICATION_ID;
 
 	global $datasource;
@@ -255,10 +256,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	}
 	
 	// Save search to DB
-	RodinResultManager::saveRodinSearchInSearchTable($sid, $q);
+	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResultsInResultsTable($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 	
 	return count($allResults);
 }
@@ -282,9 +283,10 @@ function DEFINITION_RDW_STORERESULTS()
 function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	global $render;
 	
-	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $render);
+	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $slrq, $render);
 	
 	return true; 
 }
@@ -297,8 +299,9 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	
-	RodinResultManager::renderAllResultsInOwnTab($sid,$datasource);
+	RodinResultManager::renderAllResultsInOwnTab($sid,$datasource,$slrq);
 	
 	return true; 
 }

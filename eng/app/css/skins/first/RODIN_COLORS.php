@@ -17,6 +17,7 @@ $COLOR_PAGE_BACKGROUND3 = "rgba(170,165,150,1)"; // same as #aaa596;
 $COLOR_PAGE_BACKGROUND3_TRANSLUCID = "rgba(170,165,150,0.75)";
 $COLOR_WARNINGS							="#aa3333"; 
 $COLOR_BLACK								="black";
+$COLOR_FACET_NORMAL					="#888";
 $COLOR_PAGE_WHITE						="white";
 $COLOR_PAGE_INPUT						="white";
 $COLOR_MENUTITLEBAR					="#EAA400";
@@ -53,6 +54,7 @@ $COLOR_ZEN_FILTER_HOVER = "#aaa";
 
 $COLOR_WIDGET_PREFS_BG = "lightgray";
 $COLOR_WIDGET_PREFS_BG_BORDER = "gray";
+$COLOR_BG_HIGHLIGHT = "#5f5";
 
 $RODIN_COLORS = 1;
 #############################################

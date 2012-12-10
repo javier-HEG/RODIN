@@ -28,9 +28,9 @@ else
 
 //siehe http://arc.semsol.org/docs/v2/getting_started
 
-include("sroot.php");
+include("../sroot.php");
 //print "qua: ".getcwd();
-include_once("../../u/arc/ARC2.php");
+include_once("../../gen/u/arc/ARC2.php");
 
 
 $LOCALCONFIG=$ARCCONFIG;
@@ -46,23 +46,30 @@ if (!$store->isSetUp()) {
 
 $thislink	=$_SERVER['PHP_SELF'];
 $term			=$_REQUEST['term'];
+$desc			=$_REQUEST['desc'];
 $L				=$_REQUEST['L'];
 if (!$L) $L='de';
 $LANGUAGES=explode(',',$L);
 
 
 
-if (!$term) $term="Wachstumsbranche";
+//if (!$term) $term="Wachstumsbranche";
+if (!$desc) $desc="http://zbw.eu/stw/descriptor/19406-5";
 
-$related				=exec_sparql('related' ,$term);
-$relatedAlt			=exec_sparql('related' ,$term,'altLabel');
-$relatedHidden	=exec_sparql('related' ,$term,'hiddenLabel');
-$broader				=exec_sparql('broader' ,$term);
-$broaderAlt			=exec_sparql('broader' ,$term,'altLabel');
-$broaderHidden	=exec_sparql('broader' ,$term,'hiddenLabel');
-$narrower				=exec_sparql('narrower',$term);
-$narrowerAlt		=exec_sparql('narrower',$term,'altLabel');
-$narrowerHidden	=exec_sparql('narrower',$term,'hiddenLabel');
+
+if ($desc)
+  $p_o_resource = get_resource(trim($desc));
+  
+else if ($term)  
+list($related,
+        $relatedAlt,
+        $relatedHidden,
+        $broader,
+        $broaderAlt,
+        $broaderHidden,
+        $narrower,
+        $narrowerAlt,
+        $narrowerHidden) = get_stw_node($term);
 
 
 
@@ -75,87 +82,100 @@ $SUBMITONENTER=" onKeyPress=\"return submitenter(this,event)\"";
 
 print <<<EOP
 <form name='f'>
-	<b><i>Dein Term: </i></b><input type="text" name='term' value='$term' title='Gib ein oder mehrer Wörter und bestaetige mit ENTER' $SUBMITONENTER>
+	<b><i>Dein Term: </i></b><input type="text" name='term' value='$term' title='Gib ein oder mehrer Wï¿½rter und bestaetige mit ENTER' $SUBMITONENTER>
 	&nbsp;<b><i>die Sprache(n): </i></b><input type="text" size="4" name='L' value='$L' title='Gib eine - en - oder mehrere Sprachbezeichnungen - en,de - ein' $SUBMITONENTER>  	
-	
+	<br><b><i>Deskriptor: </i></b><input size="50" type="text" name='desc' value='$desc' title='Gib einen Deskriptor ein und bestaetige mit ENTER' $SUBMITONENTER>
 	
 </form>
 EOP;
 
 
-
-
-//FRI
-//List all:
-print "<br><b><i>Related:</i></b><hr>";
-foreach ($related as $word)
+if ($desc)
 {
-	print $word."<br>";
-}
-if ($relatedAlt) 
+  print "<br> Triples on desc $desc:<br><table>";
+  foreach($p_o_resource as $pair)
+  {
+    list($p,$o)=$pair;
+    print "<tr><td>$p</td><td> <b>$o</b></td></tr>";
+  }
+  print "</table>";
+
+} // desc
+
+
+
+if ($term)
 {
-	print "<br> <i>(alternatives:)</i><br>";
-  foreach ($relatedAlt as $word) print $word."<br>";
-}
+  //FRI
+  //List all:
+  print "<br><b><i>Related:</i></b><hr>";
+  foreach ($related as $word)
+  {
+    print $word."<br>";
+  }
+  if ($relatedAlt) 
+  {
+    print "<br> <i>(alternatives:)</i><br>";
+    foreach ($relatedAlt as $word) print $word."<br>";
+  }
 
-if ($relatedHidden) 
-{
-	print "<br> <i>(hidden:)</i><br>";
-  foreach ($relatedHidden as $word) print $word."<br>";
-}
-
-
-
-
-
-
-print "<br><b><i>Broader:</i></b><hr>";
-foreach ($broader as $word)
-{
-	print $word."<br>";
-}
-
-
-if ($broaderAlt) 
-{
-	print "<br> <i>(alternatives:)</i><br>";
-  foreach ($broaderAlt as $word) print $word."<br>";
-}
-
-if ($broaderHidden) 
-{
-	print "<br> <i>(hidden:)</i><br>";
-  foreach ($broaderHidden as $word) print $word."<br>";
-}
+  if ($relatedHidden) 
+  {
+    print "<br> <i>(hidden:)</i><br>";
+    foreach ($relatedHidden as $word) print $word."<br>";
+  }
 
 
 
 
 
 
-
-print "<br><b><i>Narrower:</i></b><hr>";
-foreach ($narrower as $word)
-{
-	print $word."<br>";
-}
-
-if ($narrowerAlt) 
-{
-	print "<br> <i>(alternatives:)</i><br>";
-  foreach ($narrowerAlt as $word) print $word."<br>";
-}
-
-if ($narrowerHidden) 
-{
-	print "<br> <i>(hidden:)</i><br>";
-  foreach ($narrowerHidden as $word) print $word."<br>";
-}
+  print "<br><b><i>Broader:</i></b><hr>";
+  foreach ($broader as $word)
+  {
+    print $word."<br>";
+  }
 
 
+  if ($broaderAlt) 
+  {
+    print "<br> <i>(alternatives:)</i><br>";
+    foreach ($broaderAlt as $word) print $word."<br>";
+  }
+
+  if ($broaderHidden) 
+  {
+    print "<br> <i>(hidden:)</i><br>";
+    foreach ($broaderHidden as $word) print $word."<br>";
+  }
 
 
-function exec_sparql($verb,$term,$labeltype='prefLabel')
+
+  print "<br><b><i>Narrower:</i></b><hr>";
+  foreach ($narrower as $word)
+  {
+    print $word."<br>";
+  }
+
+  if ($narrowerAlt) 
+  {
+    print "<br> <i>(alternatives:)</i><br>";
+    foreach ($narrowerAlt as $word) print $word."<br>";
+  }
+
+  if ($narrowerHidden) 
+  {
+    print "<br> <i>(hidden:)</i><br>";
+    foreach ($narrowerHidden as $word) print $word."<br>";
+  }
+
+} // term
+
+
+
+
+
+function exec_sparql($verb,$desc)
 ##################################
 # 
 # Computes the query to SKOS $verb
@@ -197,6 +217,69 @@ EOQ;
 
 
 
+
+function get_resource($desc)
+##################################
+# 
+# returns the resource from the descritpor
+#
+{
+	global $store;
+	global $LANGUAGES;
+	
+	$QUERY=<<<EOQ
+	
+	select ?p ?o
+	where
+		 {
+			<$desc> 	?p 			?o .
+		 } 
+EOQ;
+  $p_o_arr=array();
+	if ($rows = $store->query($QUERY, 'rows')) 
+	{
+		foreach($rows as $row) 	
+		{
+			$p_o_arr[]=array($row['p'],$row['o']);
+		}
+	}
+	return $p_o_arr;
+}
+
+
+
+function get_stw_node_on_desc($desc)
+{
+  
+}
+
+
+
+
+function get_stw_node($term)
+{
+    $related				=exec_sparql('related' ,$term);
+    $relatedAlt			=exec_sparql('related' ,$term,'altLabel');
+    $relatedHidden	=exec_sparql('related' ,$term,'hiddenLabel');
+    $broader				=exec_sparql('broader' ,$term);
+    $broaderAlt			=exec_sparql('broader' ,$term,'altLabel');
+    $broaderHidden	=exec_sparql('broader' ,$term,'hiddenLabel');
+    $narrower				=exec_sparql('narrower',$term);
+    $narrowerAlt		=exec_sparql('narrower',$term,'altLabel');
+    $narrowerHidden	=exec_sparql('narrower',$term,'hiddenLabel');
+    
+    return array(
+        $related,
+        $relatedAlt,
+        $relatedHidden,
+        $broader,
+        $broaderAlt,
+        $broaderHidden,
+        $narrower,
+        $narrowerAlt,
+        $narrowerHidden
+    );
+}
 
 
 

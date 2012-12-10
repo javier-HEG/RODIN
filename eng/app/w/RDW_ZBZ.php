@@ -353,6 +353,7 @@ EOT;
 	{
 		global $RDW_REQUEST;
 		global $datasource;
+    global $slrq;
 		global $render;
 		# The followin globals here all registered querystring parameters:
 		foreach ($RDW_REQUEST as $querystringparam => $d) eval( "global \${$querystringparam};" );
@@ -364,7 +365,7 @@ EOT;
 
 		// render_googlebooksresults(RDW_widget);
 
-		render_widget_results($sid,$datasource,RDW_widget,$render);
+		render_widget_results($sid,$datasource,$slrq,RDW_widget,$render);
 
 
 		return $res;

@@ -7,7 +7,8 @@ lang["lblRodinIsLoading"]="RODIN will finish loading in a few seconds";
 lang["lblDuplicatedWidget"]="Widget $$ is already open in this tab";
 lang["titleTextZoomOneSelected"]="Currently showing compact view";
 lang["titleTextZoomTwoSelected"]="Currently showing normal view";
-lang["titleTextZoomThreeSelected"]="Currently showing detailed view";
+lang["titleTextZoomThreeSelected"]="Currently showing a detailed view";
+lang["titleTextZoomFourSelected"]="Currently showing a filtered view";
 lang["titleAggregationButtonOn"]="Enable result aggregation";
 lang["titleAggregationButtonOff"]="Disable result aggregation";
 
@@ -41,14 +42,16 @@ lang["lblRightClickForOptions"]="Right-click to see available actions";
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Click to explore the ontological facets of your term \"$$\"";
+lang["lblClick2RankResults"]="Click to rank widget results with respect to the ontological context of term \"$$\"";
 lang["lblOntoFacetsShowOnSurvista"]="Click to show visual representation of your term \"$$\"";
 lang["lblOntoFacetsTermActions"]="Right-click to see available actions";
+lang["lblOntoFacetsTermActions2"]="Left-click to filter word in widgetresults, Right-click to see available actions";
 lang["lblSRCTimeout"]="Timeout exceeded without response from the ontology engine.";
 lang["lblSingleResultFound"]="$$ result";
 lang["lblResultsFound"]="$$ results";
 
 //TagCloud
-lang["titleClickOnTag"]="Click to send the term to the search field";
+lang["titleClickOnTag"]="Click to send the term to the search field, double click to search directly";
 lang["lblConfirmWant2EraseTagCloud"]="Do you really want to erase all your past searches?";
 lang["lblTagCloudeReload"]="Refresh";
 lang["lblTagCloudeErase"]="Erase";

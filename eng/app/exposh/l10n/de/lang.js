@@ -8,6 +8,7 @@ lang["lblDuplicatedWidget"]="Widget $$ wurde bereits hinzugefügt";
 lang["titleTextZoomOneSelected"]="Zur Zeit wird das Resultat jeweils in einer Linie angezeigt";
 lang["titleTextZoomTwoSelected"]="Zur Zeit wird nur jeweils ein Teil eines Resultates angezeigt";
 lang["titleTextZoomThreeSelected"]="Zur Zeit wird jeweils das gesamte Resultat angezeigt";
+lang["titleTextZoomFourSelected"]="Zur Zeit wird jeweils das gefilterte Resultat angezeigt";
 lang["titleAggregationButtonOn"]="Enable result aggregation";
 lang["titleAggregationButtonOff"]="Disable result aggregation";
 
@@ -22,7 +23,7 @@ lang["lblCollectingResultsWait"]="fuer Ihre Suche nach \"$$\" gesammelt, bitte w
 lang["msgPleaseAddWidgetsToTab"]="Fügen Sie bitte ein Widget hinzu und versuchen Sie es erneut";
 
 //TagCloud
-lang["titleClickOnTag"]="Klicken Sie, um den Begriff in die Suchfelder hinzu zu fügen";
+lang["titleClickOnTag"]="Klicken Sie, um den Begriff in die Suchfelder hinzu zu fügen, Doppelkicken Sie um danach zu suchen";
 lang["lblConfirmWant2EraseTagCloud"]="Möchten Sie wirklich alle Suchwörter löschen?";
 lang["lblTagCloudeReload"]="Neu anzeigen";
 lang["lblTagCloudeErase"]="Loeschen";
@@ -48,8 +49,10 @@ lang["lblRightClickForOptions"]="Klicken Sie rechts, um mögliche Aktionen anzuz
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Klicken Sie, um die ontologischen Facetten von \"$$\" anzuzeigen";
+lang["lblClick2RankResults"]="Klicken Sie, um die Widgetsergebnisse nach ontologischen Kontext von \"$$\" zu sortieren";
 lang["lblOntoFacetsShowOnSurvista"]="Klicken Sie, um die visuelle Darstellung von \"$$\" anzuzeigen";
 lang["lblOntoFacetsTermActions"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
+lang["lblOntoFacetsTermActions2"]="Klicken Sie links, um die Widgetsergebnissen nach diesem Wort zu filtern, Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 lang["lblSRCTimeout"]="Die Zeit ist überschritten ohne dass Resultate gefunden werden konnten.";
 lang["lblSingleResultFound"]="$$ Ergebnis";
 lang["lblResultsFound"]="$$ Ergebnisse";

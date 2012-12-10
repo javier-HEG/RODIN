@@ -42,7 +42,7 @@
 	<link rel="stylesheet" type="text/css" href="../styles/main.css?v=<?php echo __POSHVERSION;?>" />
 	<link rel="stylesheet" type="text/css" href="../../app/css/rodin.css?v=<?php echo __POSHVERSION;?>" />
 	<link rel="stylesheet" type="text/css" href="<?php print "$CSS_URL"; ?>/rodinBoards.css.php" />
-	<link rel="stylesheet" type="text/css" href="<?php print $RODINUTILITIES_GEN_URL; ?>/contextmenu/jquery.contextMenu.css" />
+	<link rel="stylesheet" type="text/css" href="<?php print $RODINU; ?>/contextmenu/jquery.contextMenu.css" />
 	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/contextMenuInRodin.css.php" />
 	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/rodinwidget.css.php" />
 	
@@ -56,16 +56,14 @@
 	<script type='text/javascript' src='../../app/u/wordProcessingTools.js'></script>
 	<script type='text/javascript' src='../../app/u/querystring.js'></script>
 	<script type="text/javascript" src='../../app/u/facetBoardInterface.js.php'></script>
-	<script type="text/javascript" src='../../app/w/RodinResult/RodinResultSet.js'></script>
+	<script type="text/javascript" src='../../app/u/RodinResult/RodinResultSet.js'></script>
 	<script type='text/javascript' src='../../app/u/RODINutilities.js.php?skin=<?php print $RODINSKIN;?>'></script>
+	<script type='text/javascript' src='../../app/u/RODINsemfilters.js.php?skin=<?php print $RODINSKIN;?>'></script>
+  
 	<script type='text/javascript'>
 		var isIndexConnected = true;
-		// Holds the aggregated status per tab
-		var tabAggregatedStatusTabId = new Array();
-		var tabAggregatedStatus = new Array();
-		// Holds the results shown in the aggregated view per tab
-		var allWidgetsResultsSetsTabId = new Array();
-		var allWidgetsResultSets = new Array();
+		// Holds the results shown in the aggregated view
+		var allWidgetsResultSet = new RodinResultSet();
 		// Save the SID of the last search per tab
 		var lastSidTabId = new Array();
 		var lastSid = new Array();
@@ -73,7 +71,7 @@
 	<!-- For idle timer and context menus -->
 	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.7.1.min.js'></script>
 	<script type="text/javascript" src='../../../gen/u/idletimer/jquery.idle-timer.js'></script>
-	<script type="text/javascript" src='../../../gen/u/contextmenu/jquery.contextMenu.js'></script>  
+	<script type="text/javascript" src='<?php print $RODINU; ?>/contextmenu/jquery.contextMenu.js'></script>
 	<script type="text/javascript" src="../../../gen/u/autocomplete/jquery.autocomplete-min.js"></script>
 	<script type="text/javascript">
 		jQuery.noConflict();
@@ -118,14 +116,20 @@ EOI;
 	global $B_MIN_ICON_SELECTED, $B_MIN_ICON_HOVER, $B_MIN_ICON_NORMAL;
 	global $B_TOKEN_ICON_SELECTED, $B_TOKEN_ICON_HOVER, $B_TOKEN_ICON_NORMAL;
 	global $B_ALL_ICON_SELECTED, $B_ALL_ICON_HOVER, $B_ALL_ICON_NORMAL;
+	global $B_FILTER_ICON_SELECTED, $B_FILTER_ICON_HOVER, $B_FILTER_ICON_NORMAL;
 	
 	$title1=lg("titleTextZoomOne");
 	$title2=lg("titleTextZoomTwo");
 	$title3=lg("titleTextZoomThree");
+	$title4=lg("titleTextZoomFour");
 	
 	$textZoomLabel = lg("lblMetaSearchPrefsTextZoom");
 	
 	$textZoomButtons=<<<EOH
+  <script type="text/javascript">
+    RESULTFILTEREXPR='';
+    TEXTZOOM='token';
+	</script>
 		<div id="textZoomButtonsDiv" class="searchOptionDiv">
 			<span class="optionLabel">{$textZoomLabel}:</span>
 			<img id="img_mainzoombutton1" class="optionButton" src="$B_MIN_ICON_NORMAL"
@@ -143,6 +147,12 @@ EOI;
 				onClick="javascript: reload_frames_render('all');"
 				onMouseOver="javascript: i3 = document.getElementById('img_mainzoombutton3');zoomb3=i3.src;src='$B_ALL_ICON_HOVER'" 
 				onMouseOut="javascript: i3 = document.getElementById('img_mainzoombutton3');i3.src=zoomb3;">
+			<!--img id="img_mainzoombutton4" class="optionButton" src="$B_FILTER_ICON_NORMAL"
+				title="$title4"
+				onClick="javascript: hide_un_highlighted_results();"
+				onMouseOver="javascript: i4 = document.getElementById('img_mainzoombutton4');zoomb4=i4.src;src='$B_FILTER_ICON_HOVER'"
+				onMouseOut="javascript: i4 = document.getElementById('img_mainzoombutton4');i4.src=zoomb4;"-->
+
 			<input id="selectedTextZoom" type="hidden" value="" />
 		</div>
 		<script type="text/javascript">set_zoom_text_icons("token");</script>
@@ -153,7 +163,11 @@ EOH;
 		. '<span class="optionLabel" id="aggregateButtonLabel">' . lg("lblEnableAggregation") . ':</span>' . "\n"
 		. '<img id="aggregateButton" class="optionButton" src=""' . "\n"
 		. 'onClick="javascript: toggle_aggregation();" title="" />' . "\n"
-		. '</div>' . "\n";
+		. '</div>' . "\n"
+		. '<script type="text/javascript">' . "\n"
+		. 'aggregation_status = false;' . "\n"
+		. 'set_aggregation(aggregation_status, false);' . "\n"
+		. '</script>' . "\n";
 	
 #------------------ RODINCONTROL ----------------
 	$launchMetaSearchCode = "eclog(Date() + ' Metasearch Start'); "
@@ -163,6 +177,10 @@ EOH;
 		 . "return fri_parallel_metasearch(get_search_text(),document.getElementById('rodinsearch_m').value,-1,-1,{$_SESSION['user_id']},true,false,window.\$p)";
 	
 	$onKeyUpSearchFAction="javascript: bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode }";
+
+  if ($RESULTS_STORE_METHOD=='solr')
+  $SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
+
 ?>
 
 <body onUnload="$p.app.counter.stop();" bgcolor=<?php print $COLOR_PAGE_BACKGROUND;?>> 
@@ -171,6 +189,7 @@ EOH;
 <div id="information"></div>
 
 <div id="rodinmetasearch">
+  <?php print $SOLR_LOGO ?>
 	<input id="rodinsearch_s" type="text" value="<?php print $s; ?>"
 		onkeyup="<?php print $onKeyUpSearchFAction; ?>" />
 	<input id="metasearchrodinbutton" type="button"
@@ -206,7 +225,7 @@ EOH;
 	
 	<div id="rodinBoards" class="allBoards">
 		<div id="addWidgetBoard" class="singleRodinBoard"></div>
-		<div id="facetboard" class="singleRodinBoard">
+    <div id="facetboard" class="singleRodinBoard" onmouseover="mark_ontoterms_on_resultmatch()">
 			<div id="facetsBoardTitleBar" class="rodinBoardTitleBar"> 
 				<img id="refining_busy_info2" src="<?php print $IMG_REFINING_DONE; ?>" class="rodinBoardTitleImage" />
 				<span id="facetboard_title" class="rodinBoardTitleLabel">
@@ -350,20 +369,79 @@ EOH;
 			setCookieExpireInSeconds('lastActive', Math.round(new Date().getTime() / 1000), get_max_idle_timeout());
 			setLogoutTimeout();
 		}
-
-		window.onload(function() {
-			alert('miechi!!!!!');
-			init_aggregation();
-		});
 	</script>
-	
-	<?php launch_hook('userinterface_end',$pagename);?>
-	
-	<ul id="facetsContextMenu" class="contextMenu">
-		<h1 id="facetsContextMenuLabel"></h1>
+
+
+
+	<?php launch_hook('userinterface_end',$pagename);
+    $HOVER1IN_RESTRICT="onmouseover=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,true)\"";
+    $HOVER1OUT_RESTRICT="onmouseout=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,false)\"";
+  ?>
+	<!-- The following is the ontofacets menu:  -->
+  <form name="famenu" action="">
+	<ul id="facetsContextMenu" class="extendedcontextMenu contextMenu">
+    <li><h1 id="facetsContextMenuLabel"></h1></li>
+    <li class="morphofilter">
+      <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="4">
+            <a href="#morphofilter"><?php echo lg('lblContextMenuMorphoFilterX1');?>:
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td width="20px"/>
+          <td onmouseover="document.getElementById('ontomorphofilter1').checked=true;" title="Use direct word match">
+            <input id="ontomorphofilter1" checked type="radio" value="1" name="ontomorphofilters">direct
+          </td>
+          <td onmouseover="document.getElementById('ontomorphofilter2').checked=true;" title="Use Levensthein algorithm to match words">
+            <input id="ontomorphofilter2" type="radio" value="2" name="ontomorphofilters">leve
+          </td>
+          <td onmouseover="document.getElementById('ontomorphofilter3').checked=true;" title="Use soundex algorithm to match words">
+            <input id="ontomorphofilter3" type="radio" value="3" name="ontomorphofilters">soundex
+          </td>
+        </tr>
+      </table>
+    </li>
+    
+    <!-- 20121202 FRI: contextmenu should be simpler!!! functionality now in direct icon buttons.
+    <li class="restricttoontoterm">
+      
+      <table border="1" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="3">
+            <?php echo lg('lblContextMenuRestrictToOntoTermX1');?>:
+          </td>
+        </tr>
+        <tr>
+          <td <?php print $HOVER1IN_RESTRICT ?>
+              <?php print $HOVER1OUT_RESTRICT ?>
+            >
+            <table>
+              <tr>
+                <td>
+                  <ul>
+                  <li class="restricttoontoterm_f1" title="Use direct word correspondence to filter results">
+                    <a href="#restricttoontoterm_f1"> <b><?php echo lg('lblContextMenuRestrictToOntoTerm1');?></b>  <b><label/></b> </a>
+                  </li>
+                  <li class="restricttoontoterm_f2"  title="Use skos text distance to filter results">
+                    <a href="#restricttoontoterm_f2"> <b><?php echo lg('lblContextMenuRestrictToOntoTerm2');?></b>  <b><label/></b> </a>
+                  </li>
+                  <li class="restricttoontoterm_f3">
+                    <a href="#restricttoontoterm_f3"> <?php echo lg('lblContextMenuRestrictToOntoTerm3');?>  <b><label/></b> </a>
+                  </li>
+                </ul>
+              </tr>
+            </table>
+        </tr>
+      </table>
+      
+    </li>
+    -->
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb"><?php echo lg('lblContextMenuAddToBreadcrumb'); ?></a></li>
-		<li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets"><?php echo lg('lblContextMenuExploreOntoFacets');?></a></li>
+    <li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets"><?php echo lg('lblContextMenuExploreOntoFacets');?></a></li>
 	</ul>
+  </form>
 
 </div>
 

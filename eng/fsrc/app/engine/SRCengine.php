@@ -516,6 +516,9 @@ abstract class SRCengine implements SRCEngineInterface {
 						if ($refined_terms_raw<>'') $refined_terms_raw.="$TERM_SEPARATOR\n"; 
 							$refined_terms_raw.=base64_encode($TERMS_RAW{$term});
 						}
+            
+            //prepare_solr_mlt_context($nextterm);
+            
 					}
 				}
 			}
@@ -525,90 +528,113 @@ abstract class SRCengine implements SRCEngineInterface {
 		return new SRCEngineResult(trim($refined_terms), trim($refined_terms_raw));
 	} // refine
 	
-	public function webRefine($sid, $q, $v, $w, $lang, $maxdur, $c, $cid, $action) {
+  
+  /**
+	 *
+	 * Tunes the ontolgy on term in $v and construct a response to 
+   * a refinement. Use a cache technique for equal requests.
+	 * @param 
+	 */
+	public function webRefine($sid, $qb64, $vb64, $w, $lang, $maxdur, $c, $cid, $action) {
 		global $DEFAULT_MAX_REFINE_RESULTS;
-		
-		if ($this->srcdebug) {
-			print "sid=($sid) q=($q) v=(".base64_decode($v).") w=($w) lang=($lang) action=($action)";
-		}
+    global $BASECLASSNAME;
+		$q=base64_decode($qb64);
+    $v=base64_decode($vb64);
+    
+    $cache_id="$BASECLASSNAME-$action-$lang-$q/$v";
+    
+    $xmlCached_src_content = get_cached_src_response($cache_id);
+    
+    
+    if (!src_cached_content_quality_control($xmlCached_src_content))
+    { // ask service and rebuild cache
 
-		switch($action) {
-			case 'pre':
-				$RESULTS_P = $this->preprocess_refine(base64_decode($v),$this->getWordbinding(),$lang);
-				
-				$srv = base64_encode($RESULTS_P->results);			
-				$SRV_DATA = "<![CDATA[ $srv ]]>";
-				
-				$ok = $RESULTS_P->ok;
-				$explanation = $RESULTS_P->explanation;
-				break;
-				
-			case 'preall':
-				$RESULTS_P = $this->preprocess_refine(base64_decode($v), $this->getWordbinding(), $lang);
-				
-				$RESULTS_B = $this->refine('broader', $RESULTS_P->results, base64_decode($q), $this->maxresults, $lang);
-				$RESULTS_N = $this->refine('narrower', $RESULTS_P->results, base64_decode($q), $this->maxresults, $lang);
-				$RESULTS_R = $this->refine('related', $RESULTS_P->results, base64_decode($q), $this->maxresults, $lang);
-				
-				// Needs to be cleaned because they're obtained directly from
-				// $this->get_english_candidate_compounds
-				$srv_p = base64_encode($this->cleanup_viki_tokens($RESULTS_P->results));
-				$srv_p_raw = base64_encode($RESULTS_P->results_raw);
-				
-				$srv_b = base64_encode($RESULTS_B->results);
-				$srv_b_raw = base64_encode($RESULTS_B->results_raw);
-				$srv_n = base64_encode($RESULTS_N->results);
-				$srv_n_raw = base64_encode($RESULTS_N->results_raw);
-				$srv_r = base64_encode($RESULTS_R->results);
-				$srv_r_raw = base64_encode($RESULTS_R->results_raw);
-				
-				$SRV_DATA = <<<SRV
-					<pre><![CDATA[ $srv_p ]]></pre>
-					<pre_raw><![CDATA[ $srv_p_raw ]]></pre_raw>
-					<broader><![CDATA[ $srv_b ]]></broader>
-					<broader_raw><![CDATA[ $srv_b_raw ]]></broader_raw>
-					<narrower><![CDATA[ $srv_n ]]></narrower>
-					<narrower_raw><![CDATA[ $srv_n_raw ]]></narrower_raw>
-					<related><![CDATA[ $srv_r ]]></related>
-					<related_raw><![CDATA[ $srv_r_raw ]]></related_raw>
+      if ($this->srcdebug) {
+        print "sid=($sid) q=($q) v=(".($v).") w=($w) lang=($lang) action=($action)";
+      }
+
+      switch($action) {
+        case 'pre':
+          $RESULTS_P = $this->preprocess_refine(($v),$this->getWordbinding(),$lang);
+
+          $srv = base64_encode($RESULTS_P->results);			
+          $SRV_DATA = "<![CDATA[ $srv ]]>";
+
+          $ok = $RESULTS_P->ok;
+          $explanation = $RESULTS_P->explanation;
+          break;
+
+        case 'preall':
+          
+
+          $RESULTS_P = $this->preprocess_refine(($v), $this->getWordbinding(), $lang);
+
+          $RESULTS_B = $this->refine('broader', $RESULTS_P->results, ($q), $this->maxresults, $lang);
+          $RESULTS_N = $this->refine('narrower', $RESULTS_P->results, ($q), $this->maxresults, $lang);
+          $RESULTS_R = $this->refine('related', $RESULTS_P->results, ($q), $this->maxresults, $lang);
+
+          // Needs to be cleaned because they're obtained directly from
+          // $this->get_english_candidate_compounds
+          $srv_p = base64_encode($this->cleanup_viki_tokens($RESULTS_P->results));
+          $srv_p_raw = base64_encode($RESULTS_P->results_raw);
+
+          $srv_b = base64_encode($RESULTS_B->results);
+          $srv_b_raw = base64_encode($RESULTS_B->results_raw);
+          $srv_n = base64_encode($RESULTS_N->results);
+          $srv_n_raw = base64_encode($RESULTS_N->results_raw);
+          $srv_r = base64_encode($RESULTS_R->results);
+          $srv_r_raw = base64_encode($RESULTS_R->results_raw);
+
+          $SRV_DATA = <<<SRV
+            <pre><![CDATA[ $srv_p ]]></pre>
+            <pre_raw><![CDATA[ $srv_p_raw ]]></pre_raw>
+            <broader><![CDATA[ $srv_b ]]></broader>
+            <broader_raw><![CDATA[ $srv_b_raw ]]></broader_raw>
+            <narrower><![CDATA[ $srv_n ]]></narrower>
+            <narrower_raw><![CDATA[ $srv_n_raw ]]></narrower_raw>
+            <related><![CDATA[ $srv_r ]]></related>
+            <related_raw><![CDATA[ $srv_r_raw ]]></related_raw>
 SRV;
 
-				$ok = $RESULTS_P->ok;
-				$explanation = $RESULTS_P->explanation;
-				break;
-		default:
-			//Search for refinement
-			set_time_limit ( $MAX_SRC_EXEC_TIME_LIMIT );
-			if (!$lang) $lang=$_REQUEST['l'];
-			$RESULTS_R=$this->refine( $action, base64_decode($v),base64_decode($q),$DEFAULT_MAX_REFINE_RESULTS, $lang);
-			$srv=base64_encode( htmlentities( $RESULTS_R->results ) );
-			$srv_raw=base64_encode( htmlentities( $RESULTS_R->results_raw ) );
-			$SRV_DATA= "<![CDATA[  $srv   ]]>";
-			$SRV_DATA_RAW= "<![CDATA[  $srv_raw   ]]>";
-			
-			$ok=$RESULTS_P->ok;
-			$explanation=$RESULTS_R->explanation;
-		}
-	
-		$xml = <<<EOF
-			<refine>
-				<cid>$cid</cid>
-				<c>$c</c>
-				<v><![CDATA[ $v ]]></v>  
-				<l>$lang</l>
-				<w>$w</w>
-				<q>$q</q>
-				<sid>$sid</sid>
-				<srv>$SRV_DATA</srv>  
-				<srv_raw>$SRV_DATA_RAW</srv_raw>
-				<maxDur>$maxdur</maxDur>
-				<rts>1255287670</rts>
-				<cdur>3030</cdur>
-				<action>$action</action>
-			</refine>
-EOF;
+          $ok = $RESULTS_P->ok;
+          $explanation = $RESULTS_P->explanation;
+          break;
+      default:
+        //Search for refinement
+        set_time_limit ( $MAX_SRC_EXEC_TIME_LIMIT );
+        if (!$lang) $lang=$_REQUEST['l'];
+        $RESULTS_R=$this->refine( $action, ($v),($q),$DEFAULT_MAX_REFINE_RESULTS, $lang);
+        $srv=base64_encode( htmlentities( $RESULTS_R->results ) );
+        $srv_raw=base64_encode( htmlentities( $RESULTS_R->results_raw ) );
+        $SRV_DATA= "<![CDATA[  $srv   ]]>";
+        $SRV_DATA_RAW= "<![CDATA[  $srv_raw   ]]>";
 
-		return $xml;			
+        $ok=$RESULTS_P->ok;
+        $explanation=$RESULTS_R->explanation;
+      }
+
+      $xml_src_content = <<<EOF
+<refine>
+  <cid>$cid</cid>
+  <c>$c</c>
+  <v><![CDATA[ $v ]]></v>  
+  <l>$lang</l>
+  <w>$w</w>
+  <q>$q</q>
+  <sid>$sid</sid>
+  <srv>$SRV_DATA</srv>  
+  <srv_raw>$SRV_DATA_RAW</srv_raw>
+  <maxDur>$maxdur</maxDur>
+  <rts>1255287670</rts>
+  <cdur>3030</cdur>
+  <action>$action</action>
+</refine>
+EOF;
+      cache_src_response($cache_id,$xml_src_content);
+    } 
+    else 
+      $xml_src_content = $xmlCached_src_content;
+		return $xml_src_content;			
 	}
 	
 	/**
@@ -622,6 +648,56 @@ EOF;
 	}
 
 } // class SRCengine
+
+
+/*
+ * Returns true if the content is a valid nonempty content
+ * false otherwise 
+ */
+function src_cached_content_quality_control($SRC_XML_CACHE_CONTENT)
+{
+  //Has the answer at least data inside one of (broader/related/narrower)?
+  $need_src_log=true;
+
+  $ok = (trim($SRC_XML_CACHE_CONTENT));  
+  if ($ok) //Test any of the skos objects nonempty
+  {
+    if ($need_src_log)
+    {
+      global $SOLR_RODIN_LOCKDIR;
+      $LOGfilename="$SOLR_RODIN_LOCKDIR/SRC_cache.LOG.txt";
+      $log=fopen($LOGfilename,"a");
+      $now=date("d.m.Y H:i:s").'.'.substr(microtime(false),2,6);
+      fwrite($log, "\n\n$now src_cached_content_quality_control ($SRC_XML_CACHE_CONTENT)");
+     }
+     
+    $pattern_empty_broader  ="/\<broader\>\<\!\[CDATA\[  \]\]\>\<\/broader\>/";
+    $pattern_empty_narrower ="/\<narrower\>\<\!\[CDATA\[  \]\]\>\<\/narrower\>/";
+    $pattern_empty_related  ="/\<related\>\<\!\[CDATA\[  \]\]\>\<\/related\>/";
+
+    if (preg_match($pattern_empty_broader,$SRC_XML_CACHE_CONTENT)
+      &&preg_match($pattern_empty_narrower,$SRC_XML_CACHE_CONTENT)
+      &&preg_match($pattern_empty_related,$SRC_XML_CACHE_CONTENT)
+        )
+    {
+      if ($need_src_log) fwrite($log, "\n\n$now MATCHED empty content in \n\n$SRC_XML_CACHE_CONTENT");
+      $ok=false;
+    }
+    else
+    {
+      if ($need_src_log)
+        fwrite($log, "\n\n$now NOT MATCHED empty content in \n\n$SRC_XML_CACHE_CONTENT");
+    }
+
+  } //Test any of the skos objects nonempty
+  
+  return $ok; // debug
+}
+
+
+
+
+
 
 
 /**

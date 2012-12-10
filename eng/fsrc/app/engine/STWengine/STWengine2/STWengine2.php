@@ -41,8 +41,8 @@ class STWengine2 extends STWengine
 	protected function refine_method($term,$action,$lang)
 	############################################################
   # Find Terme related to $action 
-
-	{ global $RODINSEGMENT;
+	{ 
+    global $RODINSEGMENT;
 		$METHODNAME=$this->myFNameDebug(__FUNCTION__,__FILE__,__LINE__);
 		/* Terms in STW are First letter capital */
 		/* Try to make them like this to SQL-Match them */
@@ -54,15 +54,17 @@ class STWengine2 extends STWengine
 		
 		if ($node) # Request is on a node (label) exactely
 		{
-			list($labels,$descriptors) =  $this->exec_skos_node_sparql($this->get_zbw_store(),$action,$node,$lang,$lang);
+     list($labels,$descriptors) =  $this->exec_skos_node_sparql($this->get_zbw_store(),$action,$node,$lang,$lang);
 		} # node
 		###########################################
 		else //text
 		{
-			$term= $this->formatAsInSTW($term);
+      
+      $term= $this->formatAsInSTW($term);
 			// ----- Search for Labels in STW SKOS Store ------
 			list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_zbw_store(),$action,$term,'X',$lang,$lang);
 				
+      
 			if ($this->getVerbose()) print "<br>Checking RODINSEGMENT $RODINSEGMENT";
 			#8.8.2011: REQUIREMENT RENE SCHNEIDER: On /st/ and on /x/ no XXL			
 // 			if ($RODINSEGMENT<>'st' && $RODINSEGMENT <>'x' )
@@ -74,19 +76,23 @@ class STWengine2 extends STWengine
 					if ($this->getVerbose()) print "<br><b>NO $action terms</b> to ($term) found directly in Ontology! <b>Loosening down search to pattern matching XX</b><br>";
 					$SearchType='XX';			
 					list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_zbw_store(),$action,$term,'XX',$lang,$lang);
-				}
+        }
 				
-				if ($RODINSEGMENT<>'st' && $RODINSEGMENT <>'x' )
+				if ($RODINSEGMENT<>'st' && $RODINSEGMENT <>'x'  &&  0)
 				{
+          
 					if (count($labels)==0)
 					{
 						if ($this->getVerbose()) print "<br><b>NO $action terms</b> to ($term) found directly in Ontology! <b>Loosening down search to pattern matching XXL</b><br>";
 								list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_zbw_store(),$action,$term,'XXL',$lang,$lang);
 					}
+          
 				}
 			}
 			
 		}  //text	
+    // 
+    // 
 		############################################################
 		if (count($labels))
 		{
@@ -116,6 +122,8 @@ class STWengine2 extends STWengine
 					print "<br>$te";
 			}
 		} // text
+    
+    
 		return array($skos_terms,$skos_concepts); // for each action
 	
 	} // 

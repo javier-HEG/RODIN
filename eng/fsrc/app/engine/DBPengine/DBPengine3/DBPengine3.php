@@ -59,7 +59,6 @@ class DBPengine3 extends DBPengine
 			$href_dbpedia_normal="<a href=\"$DBPEDIA_BASE/page/".dirtydown_viki_tokens($word)."\" title='As DBPedia resource' target=_blank>Resource</a>";	
 			print "<br>find_dbpedia <b>$action</b> to <i><b>'$term'</b></i>: $href_dbpedia_category/$href_dbpedia_normal:<br>";
 		}
-	
 		
 		$skos_terms=$this->get_dbpedia_skos_terms($term,$lang,$action);
 		
@@ -75,6 +74,7 @@ class DBPengine3 extends DBPengine
 	} // refine_method
 	
 	
+  
 	
 function get_dbpedia_skos_terms($term,$language,$action)
 /*
@@ -118,7 +118,7 @@ function get_dbpedia_triples_broader_direct($term,$language='en')
 	//Dann gewinne Resource-Name nach Disambiguation
 	if ($this->getSrcDebug()) print "<br>$METHODNAME<br>get_dbpedia_triples_direct($term)...";
 
-	//Selektiere alles, was gebraucht wird, um einen Triple-"Einkauf" zu tŠtigen:
+	//Selektiere alles, was gebraucht wird, um einen Triple-"Einkauf" zu tï¿½tigen:
 	// B = broaders zu $term
 	// N = narrower zo $term
 	// R = related zu $term (schwieriger)
@@ -230,8 +230,8 @@ EOQ;
 	if ($this->getSrcDebug()) 
 		print_endpoint_results($endpointResults);
 	
-	// Berechne die Gewichtung von jedem Broaderterm und wŠhle/liefere die ersten $m terme zurŸck
-	$ordered_results_array=waight_and_order_refine_results($endpointResults);
+	// Berechne die Gewichtung von jedem Broaderterm und wï¿½hle/liefere die ersten $m terme zurï¿½ck
+	$ordered_results_array=weight_and_order_refine_results($endpointResults);
 	
 	// returns an array of pairs (cleanterm, raw_term)
 	return $ordered_results_array;
@@ -257,7 +257,7 @@ function get_dbpedia_triples_narrower_direct($term,$language='en')
 	//Dann gewinne Resource-Name nach Disambiguation
 	if ($this->getSrcDebug()) print "<br>get_dbpedia_triples_direct($term)...";
 
-	//Selektiere alles, was gebraucht wird, um einen Triple-"Einkauf" zu tŠtigen:
+	//Selektiere alles, was gebraucht wird, um einen Triple-"Einkauf" zu tï¿½tigen:
 	// B = broaders zu $term
 	// N = narrower zo $term
 	// R = related zu $term (schwieriger)
@@ -389,8 +389,8 @@ EOQ;
 	if ($this->getSrcDebug()) 
 		print_endpoint_results($endpointResults);
 	
-		// Berechne die Gewichtung von jedem Broaderterm und wŠhle/liefere die ersten $m terme zurŸck
-	$ordered_results_array=waight_and_order_refine_results($endpointResults);
+		// Berechne die Gewichtung von jedem Broaderterm und wï¿½hle/liefere die ersten $m terme zurï¿½ck
+	$ordered_results_array=weight_and_order_refine_results($endpointResults);
 	
 	
 	
@@ -414,7 +414,7 @@ function get_dbpedia_triples_related_direct($term,$language='en')
 	//Dann gewinne Resource-Name nach Disambiguation
 	if ($this->getSrcDebug()) print "<br>get_dbpedia_triples_direct($term)...";
 
-	//Selektiere alles, was gebraucht wird, um einen Triple-"Einkauf" zu tŠtigen:
+	//Selektiere alles, was gebraucht wird, um einen Triple-"Einkauf" zu tï¿½tigen:
 	// B = broaders zu $term
 	// N = narrower zo $term
 	// R = related zu $term (schwieriger)
@@ -527,8 +527,8 @@ WHERE
 	if ($srcdebug) 
 		print_endpoint_results($endpointResults);
 	
-		// Berechne die Gewichtung von jedem Broaderterm und wŠhle/liefere die ersten $m terme zurŸck
-	$ordered_results_array=waight_and_order_refine_results($endpointResults);
+		// Berechne die Gewichtung von jedem Broaderterm und wï¿½hle/liefere die ersten $m terme zurï¿½ck
+	$ordered_results_array=weight_and_order_refine_results($endpointResults);
 	
 	
 	

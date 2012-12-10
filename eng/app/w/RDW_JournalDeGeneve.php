@@ -314,9 +314,10 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h)
 {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	global $render;
 		
-	render_widget_results($sid,$datasource,RDW_widget,$render);
+	render_widget_results($sid,$datasource,$slrq,RDW_widget,$render);
 	
 	return true; 
 }
@@ -332,8 +333,9 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w,$h)
 {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	
-	render_widget_results($sid,$datasource,RDW_full);
+	render_widget_results($sid,$datasource,$slrq,RDW_full);
 	return true; 
 }
 

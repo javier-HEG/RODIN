@@ -2,21 +2,23 @@
 // In case this script was called outside of a widget
 include_once('RodinWidgetBase.php');
 
+	 
+
 $STATEMACHINE_DEBUG = $_GET['smdebug'];
 if ($STATEMACHINE_DEBUG)
 	$headerAreaHeight+=450;
 
 $USER_ID					= $_REQUEST['pid'];
-$CLONEDFROM_APPID			= $_REQUEST['cloned_from_app_id'];
+$CLONEDFROM_APPID	= $_REQUEST['cloned_from_app_id'];
 
 //print "USERID=$USER_ID";
 $RDW_POST					=(count($_POST)>0);
-$RDW_SAVE_PREFS				=(is_a_value($_REQUEST['save']));
-$RDW_RERENDER				=(is_a_value($_REQUEST['rerender']));
-$RDW_DELETE_PREFS			=(is_a_value($_REQUEST['delete']));
-$RDW_DOWNLOAD				=(is_a_value($_REQUEST['download']));
+$RDW_SAVE_PREFS		=(is_a_value($_REQUEST['save']));
+$RDW_RERENDER			=(is_a_value($_REQUEST['rerender']));
+$RDW_DELETE_PREFS	=(is_a_value($_REQUEST['delete']));
+$RDW_DOWNLOAD			=(is_a_value($_REQUEST['download']));
 $RDW_STORERESULTS 			= is_a_value($_GET['sr']); // Request should be handled as a POST !
-$RDW_GENERICAJAXREQUEST		=(is_a_value($_REQUEST['ajax'])|| $RDW_POST || $RDW_SAVE_PREFS || $RDW_DELETE_PREFS ||
+$RDW_GENERICAJAXREQUEST	=(is_a_value($_REQUEST['ajax'])|| $RDW_POST || $RDW_SAVE_PREFS || $RDW_DELETE_PREFS ||
 $RDW_GENERICAJAXREQUEST); // respond with a number or 0
 	//if ($RDW_POST) $STATEMACHINE_DEBUG=0; //in post mode we answer as php server to an ajax client=> reduce verbosity
 
@@ -113,7 +115,7 @@ if ($STATEMACHINE_DEBUG && !RDW_GENERICAJAXREQUEST)
 	print "<br>selfredirect: $selfredirect";
 }
 
-
+ 
 // following must be available, therefore it must be placed here
 $widgetresultdivid="results_".uniqid();
 
@@ -584,6 +586,7 @@ EOT;
 	print $T;
 	$govalue=RDW_COLLECTRESULTS;
 	$T=<<<EOT
+		\n<input type="hidden" name="slrq" value="$slrq" />
 		\n<input type="hidden" name="go" value="$govalue" />
 		\n<input type="hidden" name="p" value="$p" />
 		\n<input type="hidden" name="app_id" value="$APP_ID" />
@@ -623,7 +626,7 @@ function RDW_COLLECTRESULTS_EPI()
 	global $WEBROOT;
 	global $datasource;
 	global $NEED_PHP_INTERNET_ACCESS;
-		global $q, $qe;
+	global $q, $qe;
 	global $USER_ID;
 	global $APP_ID;
 	global $CLONEDFROM_APPID;
@@ -631,6 +634,7 @@ function RDW_COLLECTRESULTS_EPI()
 	global $headerAreaHeight;
 	global $widgetresultdivid;
 	global $_w, $_h;
+  global $sid;
 
 	// Include global parameters with exactly the same names
 	// as the RDW_REQUEST parameters
@@ -639,6 +643,9 @@ function RDW_COLLECTRESULTS_EPI()
 		//print "<br>RDW_REQUEST $querystringparam=>$defaultvalue";
 		eval( "global \${$querystringparam};" );
 	}
+
+  $ALLOW_REDIRECT=true;
+  #$ALLOW_REDIRECT=false;
 
 	##################################
 	#
@@ -720,12 +727,20 @@ function RDW_COLLECTRESULTS_EPI()
 			$q=$qe;
 
 		$sr = DEFINITION_RDW_COLLECTRESULTS($selfredirect);
-		
+
+    if ($STATEMACHINE_DEBUG && $RDW_COLLECTRESULTS )
+    {
+      print "<br> Result: ".print_r($sr)."<br>";
+      var_dump($sr);
+    }
 		// $sr can also be a false value
 		if ($sr === false)
 			$res = false;
 		else if (is_object($sr))
+    {
+      print "Storing result";
 			store_widget_results($sr);
+    }
 
 		$ATTRIBUTESDISPLAYDEFS = collect_resultattributes($sr);
 
@@ -808,7 +823,7 @@ function RDW_COLLECTRESULTS_EPI()
 
 		// This variable tells if the widget should continue to the 
 		// next state, in that case it redirects itself.
-		if ($res) {
+		if ($res && $ALLOW_REDIRECT) {
 			print inject_javascript(
 				"fri_redirect('$datasource','$selfredirect','$_x','_self'); // using frame id in $_x"
 			);
@@ -1010,7 +1025,7 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 	global $datasource;
 	global $headerAreaHeight;
 	global $minwidth;
-		global $widgetresultdivid;
+	global $widgetresultdivid;
 	global $attributes_str;
 	global $APP_ID;
 	global $_w, $_h;

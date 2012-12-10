@@ -318,7 +318,7 @@ div#fb_container {
 }
 
 a.fb-term {
-	color:<?php print $COLOR_BLACK; ?>;
+	color:<?php print $COLOR_FACET_NORMAL; ?>;
 	text-align: left;
 	text-decoration: none;
 	font-family:"Arial";
@@ -326,7 +326,24 @@ a.fb-term {
 	cursor: pointer;
 }
 
-a:hover.fb-term {
+a.fb-term-hl {
+	color:<?php print $COLOR_BLACK; ?>;
+	font-weight: bold;
+  font-style: oblique;
+  text-align: left;
+	text-decoration: none;
+	font-family:"Arial";
+	font-size: 13px; /*like portaneo vidgetmenu */
+	cursor: pointer;
+}
+
+a:hover.fb-term
+{
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+}
+
+a:hover.fb-term-hl
+{
 	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
 }
 

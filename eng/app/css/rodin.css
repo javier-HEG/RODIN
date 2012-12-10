@@ -4,6 +4,16 @@
 	text-decoration:none;	
 }
 
+
+#solrlogo
+{
+  width:43px;
+  position:relative;
+  left:166px;
+  top:6px;
+  z-index:-1;
+}
+
 div#rodinmetasearch {
 	/* Same as div#breadcrumbs in rodinBoard.css */
     width: 800px;
@@ -136,3 +146,4 @@ srcmultiplecontainer.span.reftextarea
 	font-weight: normal;
 	color: #3399FF;
 }
+

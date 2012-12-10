@@ -8,8 +8,8 @@
 	#
 	$user		=$_REQUEST['user'];
 	$sid		=$_REQUEST['sid'];
-	$q			=$_REQUEST['q']; //base64encoded
-	$v			=$_REQUEST['v']; //base64encoded
+	$qb64		=$_REQUEST['q']; //base64encoded
+	$vb64		=$_REQUEST['v']; //base64encoded
 	$w			=$_REQUEST['w'];
 	$lang		=$_REQUEST['l'];
 	$maxdur	=$_REQUEST['maxdur'];
@@ -27,7 +27,7 @@
 	switch($METHODNAME)
 	{
 		case('webstart'): print $SRC->webStart($user); break;
-		case('webrefine'): print $SRC->webRefine($sid,$q,$v,$w,$lang,$maxdur,$c,$cid,$action); break;
+		case('webrefine'): print $SRC->webRefine($sid,$qb64,$vb64,$w,$lang,$maxdur,$c,$cid,$action); break;
 	}
 	
 ?>

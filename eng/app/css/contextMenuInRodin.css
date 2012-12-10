@@ -4,6 +4,11 @@
 	width: 180px;
 }
 
+.extendedcontextMenu {
+	width: 220px;
+  
+}
+
 .contextMenu h1 {
 	font-size: 12px;
 	font-weight: bold;
@@ -34,6 +39,16 @@
 
 .contextMenu li.addToBreadcrumb a {
 	background-image: url('<?php echo $RODINIMAGESWEB; ?>/add-to-breadcrumb.png');
+}
+
+.contextMenu li.morphofilter table {
+	background-image: url('<?php echo $RODINIMAGESWEB; ?>/morphofilter_icon.png');
+  background-repeat: no-repeat;
+}
+
+.contextMenu li.restricttoontoterm table {
+	background-image: url('<?php echo $RODINIMAGESWEB; ?>/semfilter_icon.png');
+  background-repeat: no-repeat;
 }
 
 .contextMenu li.exploreOntoFacets a {

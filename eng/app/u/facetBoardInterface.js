@@ -316,9 +316,18 @@ function generate_ontofacet(term, ranked_term_raw, lang, rodinsegment) {
 	tempTableCell = document.createElement('td');
 	tempTableCell.setAttribute("align", "right");
 	
-	// Show the Survista button only if the raw form is a ZBW URI or a DBPedia category
+	// Show the rank button
+  var rankButton = document.createElement('img');
+  rankButton.setAttribute("src", "../../../gen/u/images/rank-icon.png");
+  rankButton.setAttribute("style", "cursor:pointer;");
+  rankButton.setAttribute("title", lg("lblClick2RankResults", term));
+  rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ ranked_term_raw + "', '" + term+ "', '" + lang + "');");
+		
+	tempTableCell.appendChild(rankButton);
+    
+  // Show the Survista button only if the raw form is a ZBW URI or a DBPedia category
 	if (ranked_term_raw.indexOf("http://zbw") >= 0 || ranked_term_raw.indexOf("http://dbpedia.org/resource/Category:") >= 0) {
-		var survistaButton = document.createElement('img');
+	  var survistaButton = document.createElement('img');
 		survistaButton.setAttribute("src", "../../../gen/u/images/survista-icon.png");
 		survistaButton.setAttribute("style", "cursor:pointer;");
 		survistaButton.setAttribute("title", lg("lblOntoFacetsShowOnSurvista", term));
@@ -326,6 +335,7 @@ function generate_ontofacet(term, ranked_term_raw, lang, rodinsegment) {
 		
 		tempTableCell.appendChild(survistaButton);
 	}
+  
 	
 	tableRow.appendChild(tempTableCell);
 
@@ -452,9 +462,12 @@ function fillCloudBoard(response, vars) {
 }
 
 function createTagCloudItem(tag, position) {
+  var setword="javascript: bc_clearBreadcrumbIfNeeded('" + tag.textContent + "'); fb_set_node_ontofacet('" + tag.textContent + "'); setMetaSearchInputText('" + tag.textContent + "');";
+		
 	var tagElement = jQuery("<a />", {
 		class: "cloudTag color" + (position % 2),
-		onClick: "javascript: bc_clearBreadcrumbIfNeeded('" + tag.textContent + "'); fb_set_node_ontofacet('" + tag.textContent + "'); setMetaSearchInputText('" + tag.textContent + "');",
+		onClick: setword,
+		ondblclick: setword+"document.getElementById('metasearchrodinbutton').click();",
 		title: lg("titleClickOnTag"),
 		style: "font-size: " + (12 + parseInt(tag.getAttribute("size")) + "px"),
 		text: tag.textContent

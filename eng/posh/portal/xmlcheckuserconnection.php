@@ -23,7 +23,7 @@
 #
 # !! be careful, this file must be saved under uft8 format, and display an e accentuated here : é
 # ***************************************
-
+/* FRI : disabled at 3.nov.2012
 $folder="";
 $not_access=0;
 $pagename="portal/xmlcheckuserconnection.php";
@@ -39,4 +39,6 @@ $file->header("checks");
 echo '<userid>'.$_SESSION['user_id'].'</userid>';
 
 $file->footer("checks");
+ * 
+ */
 ?>

@@ -485,9 +485,10 @@ EOH;
 	{
 		global $sid;
 		global $datasource;
+    global $slrq;
 		global $render;
 
-		render_widget_results($sid,$datasource,RDW_widget,$render);
+		render_widget_results($sid,$datasource,$slrq,RDW_widget,$render);
 		return $res;
 
 	} // DEFINITION_RDW_SHOWRESULT_WIDGET()
@@ -507,13 +508,14 @@ EOH;
 	{
 		global $sid;
 		global $datasource;
+    global $slrq;
 		$res=true;
 
 		// ADD HERE CODE TO RENDER THE STORED RESULTS in mode "RDW_full"
 		// Remember to add "global" Statements to see some important vars
 		// Returns true if you want to allow chaining / further computations
 
-		render_widget_results($sid,$datasource);
+		render_widget_results($sid,$datasource,$slrq);
 
 
 		return $res;

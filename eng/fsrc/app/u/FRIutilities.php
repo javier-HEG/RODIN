@@ -91,6 +91,165 @@ function dirtydown_viki_tokens($tokens)
 
 
 
+function get_cached_src_response($cache_id)
+{
+   global $RESULTS_STORE_METHOD;
+    switch($RESULTS_STORE_METHOD)
+    {
+      case 'mysql': 
+            $cached_src_response = get_cached_src_response_DB($cache_id);
+            break;
+      case 'solr':
+            $cached_src_response = get_cached_src_response_SOLR($cache_id);
+    }
+    return $cached_src_response;
+} // get_cache_response
+
+
+
+
+function get_cached_src_response_SOLR($cache_id)
+{
+  global $SOLR_RODIN_CONFIG;
+  global $USER;
+  $CACHED_CONTENT='';
+  
+  $need_src_log=false;
+  if ($need_src_log)
+  {
+    global $SOLR_RODIN_LOCKDIR;
+    $LOGfilename="$SOLR_RODIN_LOCKDIR/SRC_cache.LOG.txt";
+    $log=fopen($LOGfilename,"a");
+    $now=date("d.m.Y H:i:s").'.'.substr(microtime(false),2,6);
+    fwrite($log, "\n\n$now get_cached_src_response_SOLR (cache_id=$cache_id)");
+  }
+  
+  //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['user'];
+  $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['host'];
+  $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['port'];
+  $solr_path=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['path'];
+  //$solr_core=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core'];
+  //$solr_timeout=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout'];
+  $rodin_cache_expiry_hour=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour'];
+
+   //Query in the last $rodin_cache_expiry_hour for $url ...
+  
+  $TIME_RANGE=getTimeRangeExpression($rodin_cache_expiry_hour);
+  
+   $solr_select= "http://$solr_host:$solr_port$solr_path".'select?'
+           //."user=$USER"
+           ."&q=timestamp:$TIME_RANGE+".base64_encode($cache_id)
+           ."&fl=cached,timestamp,idsource"
+           ."&rows=1"
+           ."&omitHeader=true"
+           ;
+  
+   //print "SOLR select: <a href='$solr_select' target='_blank'>solr zu url</a>";
+   if ($need_src_log)
+       fwrite($log, "\n$now get url: $solr_select");
+
+   $cachecontent=file_get_contents($solr_select);
+   $solr_sxml= simplexml_load_string($cachecontent);
+//   print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
+//   print "<hr>SOLR_CONTENT: <br>(((".htmlentities($cachecontent).")))";
+//   print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
+      
+      
+   //Is there a response? how many found elements?
+   $FOUND_RES = $solr_sxml->xpath("/response/result"); //find the doc list
+   $FOUND_RES = $FOUND_RES[0];
+   $ATTR = $FOUND_RES->attributes();
+   $NO_OF_RESULTS= $ATTR['numFound'];
+   //print "<hr>Found results: $NO_OF_RESULTS";
+
+   if ($NO_OF_RESULTS > 0)
+   {
+   	 //$xpath = "/response/lst/lst/lst[@name='cached']"; // /itas (old)
+     $TIME_A = $solr_sxml->xpath("/response/result/doc/date[@name='timestamp']"); //find the doc list
+     $TIME = $CACHED_A[0];
+     //print "<br>TIME: ".htmlentities($TIME); 
+
+     $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
+     $CACHED_CONTENT = $CACHED_A[0];
+     //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
+   }
+   return $CACHED_CONTENT; // null erstemal
+  
+} // get_cached_src_response_SOLR
+
+
+
+
+
+
+
+function cache_src_response($cache_id,$xml_src_content)
+// Cache response using either database or solr
+{
+  global $RESULTS_STORE_METHOD;
+  switch($RESULTS_STORE_METHOD)
+  {
+    case 'mysql': 
+          cache_src_response_DB($cache_id,$xml_src_content);
+          break;
+    case 'solr':
+          cache_src_response_SOLR($cache_id,$xml_src_content);
+  }
+}  
+
+
+
+function cache_src_response_DB($cache_id,$xml_src_content)
+{
+  // still needed?
+  return '';
+}
+
+
+
+function cache_src_response_SOLR($cache_id,$xml_src_content)
+{
+  require_once("../../../../../../app/u/SOLRinterface/solr_init.php");
+  global $SOLR_RODIN_CONFIG;
+  global $SOLARIUMDIR;
+  global $USER;
+  //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
+  $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['host'];
+  $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['port'];
+  $solr_path=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['path'];
+  $solr_core=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core'];
+  $solr_timeout=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout'];
+  //$rodin_cache_expiry_hour=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour'];
+
+  // store in SOLR for the last stored response using $url
+   
+   if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
+    {
+      // create a new document for the data
+      $caching_doc = new Solarium_Document_ReadWrite();
+
+      $caching_doc->id         = base64_encode($cache_id);
+      $caching_doc->idsource   = $cache_id;
+      $caching_doc->user       = $USER;
+      $caching_doc->cached     = $xml_src_content;
+
+      #do NOT reverse index this cached data in body
+      $documents= array($caching_doc);
+      $sid=uniqid(); //we do not bother... here 
+      solr_synch_update($sid,$solr_path,$client,$documents);
+    }
+    else {
+      print "cache_src_response_SOLR system error init SOLR client";
+    }
+}
+
+
+
+
+
+
+
+
 function collect_pipe_elements($pipeTERMS_xml) 
 ##############################################
 {
@@ -186,9 +345,8 @@ function print_endpoint_results($endpointResults)
 function get_dbpediaendpoint_results($query, $SubtractFromValue=null) {
 	global $DBPEDIA_SPARQL_ENDPOINT, $DBPEDIATIMEOUT_MSEC, $FSRC_CURL_TIMEOUT_SEC;
 	global $SRCDEBUG, $VERBOSE;
-	
-	$RESULT=NULL;
-	
+  $RESULT=NULL;
+
 	// could still add 'should-sponge' parameter
 	$parameters = array('default-graph-uri' => 'http://dbpedia.org', 'debug' => 'on',
 		'query' => urldecode($query), 'format' => 'rdf/xml', 'timeout' => $DBPEDIATIMEOUT_MSEC);
@@ -482,7 +640,7 @@ function cleanup_array_delete($arr)
  * Returns an array of the form (cleanterm, rawterm), sorted by
  * the ramification degree of terms.
  */
-function waight_and_order_refine_results($endpointResults) {
+function weight_and_order_refine_results($endpointResults) {
 	global $SRCDEBUG, $VERBOSE;
 	
 	$DEGREE = array();
@@ -1020,7 +1178,6 @@ function show_xml_string($txt)
 	$txt=str_replace('>',"&gt;",$txt);
 	return $txt;
 }
-
 
 
 

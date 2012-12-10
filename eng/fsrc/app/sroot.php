@@ -54,6 +54,7 @@
 	$UPATH="$RODINROOT/$RODINSEGMENT/fsrc/app/u";
 	$PATH2U="../../../../fsrc/gen/u";
 	$PATH2RU="../../../../../gen/u"; //Utilities from RODIN app
+	$PATH2app="../../../app"; //Utilities from RODIN app
 
 	
 	#ARC DB & Default configuration

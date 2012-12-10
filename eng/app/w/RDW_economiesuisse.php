@@ -238,7 +238,7 @@ EOH;
 	  	exit;
 	  	*/
 	  	/*
-	  	$rss = get_file_content( $feed );
+	  	$rss = file_get_contents( $feed );
 		$sx_rss = simplexml_load_string($rss);		
 		if (!$sx_rss) {
 				echo "<br>Problem loading XML ($rss) (exit)\n";
@@ -518,9 +518,10 @@ EOH;
 		
 		global $sid;
 		global $datasource;
+    global $slrq;
 		global $render;
 		
-		render_widget_results($sid,$datasource,RDW_widget,$render);
+		render_widget_results($sid,$datasource,$slrq,RDW_widget,$render);
 
 		
 		return true; 
@@ -546,8 +547,9 @@ EOH;
 		global $sid;
 		global $datasource;
 		global $render;
+    global $slrq;
 
-		render_widget_results($sid,$datasource,RDW_full,$render);
+		render_widget_results($sid,$datasource,$slrq,RDW_full,$render);
 		return true; 
 	
 	} // DEFINITION_RDW_SHOWRESULT_WIDGET

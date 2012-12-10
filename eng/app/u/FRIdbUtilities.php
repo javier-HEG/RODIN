@@ -117,8 +117,11 @@ function store_widget_results(&$DecodedSearchresults)
 #
 # Stores results in DB
 # returns the number of stored results
+# FRI 28.11.2012
+# STORING EACH RESULT ALSO IN SOLR !!
 #
 {
+  require_once('RodinResult/RodinSOLRResult.php');
 	global $DBconn;
 	global $FONTRED;
 	$ERROR=false;
@@ -183,9 +186,9 @@ function store_widget_results(&$DecodedSearchresults)
 
 				if ($row)
 				foreach ($row as $num=>$ext_otv) {
-					$attr		=	$ext_otv[0];
+					$attr   =	$ext_otv[0];
 					$type		=	$ext_otv[1];
-					$value		=	cleanup($ext_otv[2]);
+					$value	=	cleanup($ext_otv[2]);
 					$url		=	cleanup($ext_otv[3]);
 					$visible	=	$ext_otv[4];
 					$visible	=	$visible==1?'true':'false';
@@ -194,6 +197,10 @@ function store_widget_results(&$DecodedSearchresults)
 
 					$DB_RESULT_INSERT.=", ('$sid','$datasource','$xpointer','$node','$follow','$attr','$type','$value', '$url',$visible)";
 
+          if (!solr_store_result($sid,$datasource,$xpointer,$node,$follow,$attr,$type,$value,$url,$visible))
+          {
+            fontprint ("ERROR STORING RESULT IN SOLR",'red');
+          }
 					//print "<br />&nbsp;&nbsp;&nbsp; $attr is a $type with value $value and url $url and visible=$visible";
 				}
 			}
@@ -245,7 +252,7 @@ function collect_resultattributes(&$DecodedSearchresults)
 	global $DBconn;
 	$ERROR=false;
 	$debug=0;
-	//print "<br><b>store_widget_results</b><br><br>";
+	//print "<br><b>collect_resultattributes</b><br><br>";
 	//var_dump($DecodedSearchresults); echo "<hr />";
 	//print "<hr />";
 	$searchid= $DecodedSearchresults->searchid;
@@ -387,7 +394,7 @@ function build_result_EATV_array($sid, $datasource) {
  * @author Fabio Ricci
  * @deprecated
  */
-function render_widget_results($sid, $datasource, $mode=RDW_widget, $render='all', $format='html') {
+function render_widget_results($sid, $datasource, $slrq, $mode=RDW_widget, $render='all', $format='html') {
 	global $FONTRESULT, $ENDFONTRESULT;
 	global $APP_ID, $WIDGET_ID, $TAB_DB_ID, $USER_ID;
 	global $WIDGET_SEARCH_MAX;
@@ -835,7 +842,7 @@ EOS;
 
 
 
-function get_xml_widget_response($sid,$wid,$render)
+function get_xml_widget_response($sid,$wid,$slrq,$render)
 ############################################
 {
 	$WIDGETINFO = collect_widget_infos($wid);
@@ -852,7 +859,7 @@ function get_xml_widget_response($sid,$wid,$render)
 <error>No data source found for wid=$wid</error>
 ";
 	else
-		$RESPONSE=render_widget_results($sid,$datasource,0,$render,'xml');
+		$RESPONSE=render_widget_results($sid,$datasource,$slrq,0,$render,'xml');
 
 /*
 	$RESPONSE=<<<EOT
@@ -1321,12 +1328,87 @@ function fetch_record($Q,$DBID='rodin')
 
 
 
+function get_query($sid)
+/**
+ * Returns the query made for a particular SID, or null
+ * if no search was made with such ID.
+ */
+{
+  global $RESULTS_STORE_METHOD;
+  switch($RESULTS_STORE_METHOD)
+  {
+    case 'mysql':
+          get_query_DB($sid);
+          break;
+    case 'solr':
+          get_query_SOLR($sid);
+          break;
+  }
+}
+
 
 /**
  * Returns the query made for a particular SID, or null
  * if no search was made with such ID.
  */
-function get_query($sid) {
+
+
+function get_query_SOLR($sid)
+{
+
+  global $SOLR_RODIN_CONFIG;
+  global $USER;
+  
+  if (!$USER) print "System error: get_query_SOLR() USER is null!";
+  
+  $allResults = array();
+
+  $solr_user= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['user'];
+  $solr_host= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['host']; //=$HOST;
+  $solr_port= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['port']; //=$SOLR_PORT;
+  $solr_path= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['path']; //='/solr/rodin_result/';
+
+  #Fetch result from SOLR
+  $solr_select= "http://$solr_host:$solr_port$solr_path".'select?';
+
+  try {
+
+   //$solr_result_query_url=$solr_select."wt=xml&q=sid:$sid&wdatasource:$datasource&qt=/lucid&req_type=main&user=$solr_user&role=DEFAULT";
+    $solr_result_query_url=$solr_select
+        ."wt=xml"
+        ."&q=sid:$sid%20user:$USER"
+        ."&rows=1"
+        ."&fl=query"
+        ."&omitHeader=true"
+        ;
+    $filecontent=file_get_contents($solr_result_query_url);
+    $solr_sxml= simplexml_load_string($filecontent);
+    #print "<hr>SOLR_QUERY: <a href='$solr_result_query_url' target='_blank'>$solr_result_query_url</a><br>";
+    #print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
+    #print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
+
+    $DOCS = $solr_sxml->xpath('/response/result/doc/str'); //find the doc list
+    $Query= $DOCS[0];
+    #print "<br> Query: $Query";
+
+    return $Query;
+  }
+
+  catch (Exception $e) {
+		print "<br>get_query_SOLR EXCEPTION! $e";
+	}
+}
+
+
+
+
+
+
+/**
+ * Returns the query made for a particular SID, or null
+ * if no search was made with such ID.
+ */
+function get_query_DB($sid) {
 	$res = null;
 	
 	try {
@@ -1353,25 +1435,6 @@ function get_query($sid) {
 }
 
 
-function loechemich_query_db($QUERY)
-{
-	try {
-		$DB = new RODIN_DB();
-		$DBconn=$DB->DBconn;
-
-    $sid_ret = mysql_query($QUERY);
-		if ($sid_ret!=null)
-		{
-			$resultset= mysql_result($sid_ret,0);
-			$DB->close();
-		}
-	}
-	catch (Exception $e)
-	{
-		inform_bad_db($e);
-	}
-	return $resultset;
-}
 
 
 
@@ -1710,9 +1773,66 @@ EOQ;
 }
 
 
-
-
 function eraseTagCloud($USER)
+##############################
+#
+# Erases the searches of USER
+#
+{
+  global $RESULTS_STORE_METHOD;
+  switch($RESULTS_STORE_METHOD)
+  {
+    case 'mysql':
+          eraseTagCloud_DB($USER);
+          break;
+    case 'solr':
+          eraseTagCloud_SOLR($USER);
+  }
+}
+
+
+
+/**
+ * Erases the searches of USER
+ *
+ * @param string $USER the id of the user making the request
+ */
+function eraseTagCloud_SOLR($USER) {
+
+  global $SOLR_RODIN_CONFIG;
+
+  $elements=0;
+  $solr_user= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['user'];
+  $solr_host= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['host']; //=$HOST;
+  $solr_port= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['port']; //=$SOLR_PORT;
+  $solr_path= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['path']; //='/solr/rodin_result/';
+
+  #delete result from SOLR
+
+  $solr_delete= "http://$solr_host:$solr_port$solr_path"."update?stream.body=<delete><query>user:$USER</query></delete>&commit=true";
+
+  try {
+
+   //$solr_result_query_url=$solr_select."wt=xml&q=sid:$sid&wdatasource:$datasource&qt=/lucid&req_type=main&user=$solr_user&role=DEFAULT";
+    
+    $filecontent=file_get_contents($solr_delete);
+    $solr_sxml= simplexml_load_string($filecontent);
+    #print "<hr>SOLR_QUERY: <a href='$solr_delete' target='_blank'>".htmlentities($solr_delete)."</a><br>";
+    #print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
+    #print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
+
+  }
+
+  catch (Exception $e) {
+		print "<br>get_query_SOLR EXCEPTION! $e";
+	}
+}
+
+
+
+
+
+function eraseTagCloud_DB($USER)
 ##############################
 #
 # Erases the searches of USER
@@ -1774,9 +1894,78 @@ EOQ;
  * @param string $USER the id of the user making the request
  */
 function collect_queries_tag($USER) {
+
+   global $RESULTS_STORE_METHOD;
+    switch($RESULTS_STORE_METHOD)
+    {
+      case 'mysql':
+            return collect_queries_tag_DB($USER);
+            break;
+      case 'solr':
+        		return collect_queries_tag_SOLR($USER);
+    }
+}
+
+
+/**
+ * Returns a vector of the queries launched by a user.
+ *
+ * @param string $USER the id of the user making the request
+ */
+function collect_queries_tag_SOLR($USER) {
+
+  global $SOLR_RODIN_CONFIG;
+  $queries = array();
+
+  $solr_user= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['user'];
+  $solr_host= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['host']; //=$HOST;
+  $solr_port= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['port']; //=$SOLR_PORT;
+  $solr_path= $SOLR_RODIN_CONFIG['rodin_search']['adapteroptions']['path']; //='/solr/rodin_result/';
+
+  #Fetch result from SOLR
+  $solr_select= "http://$solr_host:$solr_port$solr_path".'select?';
+
+  try {
+
+    $solr_result_query_url=$solr_select
+        ."wt=xml"
+        ."&q=user:$USER"
+        ."&fl=query"
+        ."&omitHeader=true"
+        ."&rows=100000"
+        ;
+    $filecontent=file_get_contents($solr_result_query_url);
+    $solr_sxml= simplexml_load_string($filecontent);
+//    print "<hr>collect_queries_tag_SOLR: <a href='$solr_result_query_url' target='_blank'>$solr_result_query_url</a><br>";
+//    print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
+//    print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
+
+    $DOCS = $solr_sxml->xpath('/response/result/doc'); //find the doc list
+    foreach($DOCS as $DOC)
+    {
+      $queries[]= $DOC->str.'';
+    }
+
+    return $queries;
+  }
+
+  catch (Exception $e) {
+		print "<br>get_query_SOLR EXCEPTION! $e";
+	}
+}
+
+
+
+
+/**
+ * Returns a vector of the queries launched by a user.
+ *
+ * @param string $USER the id of the user making the request
+ */
+function collect_queries_tag_DB($USER) {
  	// TODO Can be optimized by adding a "user" column to the table
 	$queries = array();
-	
+
 	try {
 		$DB = new RODIN_DB('rodin');
 		$DBconn=$DB->DBconn;
@@ -1789,9 +1978,10 @@ function collect_queries_tag($USER) {
 	} catch (Exception $e) {
 		inform_bad_db($e);
 	}
-	
+
 	return $queries;
 }
+
 
 
 
@@ -2138,7 +2328,7 @@ EOQ;
 			##########################################
 			print "<br>Controlling item_$id.xml ...";
 			$chacheItemChanged=false;
-			$sxml = simplexml_load_string(get_file_content($XMLcacheItem));
+			$sxml = simplexml_load_string(file_get_contents($XMLcacheItem));
 			if ($sxml->url<>$url){
 				fontprint( "<br>item_$id.xml:  (update from ".$sxml->url." to <b>$url</b>)", '#229');
 				$sxml->url=$url;
@@ -2440,7 +2630,7 @@ function check_replace_in_file($filename, $filedir, $filetype, $patterns, $subst
 	{
 		####################################################################
 
-		$filecontent = get_local_file_content($filepath,$filetype);
+		$filecontent = file_get_contents($filepath,$filetype);
 		$tellable_filecontent = tell_text($filecontent);
 
 		if ($filetype=='php')

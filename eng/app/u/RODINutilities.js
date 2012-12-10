@@ -13,6 +13,7 @@ SRC_CURRENT_INTERFACE_ID =-1;
 SRC_CURRENT_INTERFACE_TAB_ID = -1;
 ONTOS_SYNCH=-1;
 ONTOSEARCH_LOCKED=false;
+ONTOTERMS_REDO_HIGHLIGHTING=true;
 PORTANEO_TAB_INFO = new Array;
 
 /* foreach extension to Array */
@@ -21,6 +22,10 @@ Array.prototype.foreach = function( callback ) {
 	    callback( k, this[ k ] );
 	  }
 }
+
+Array.prototype.insert = function (index, item) {
+  this.splice(index, 0, item);
+};
 
 
 function fri_adjust_logo_decoration()
@@ -41,7 +46,7 @@ function compute_ajax_sid (user)
 {
 	var sid='';
 	var now = new Date();
-	var mon = format2pos(now.getMonth() + 1);
+	var mon = format2pos((now.getMonth()) + 1);
 	var year= now.getYear() + 1900;
 	var day	= format2pos(now.getDate()); //monatstag
 	var hour= format2pos(now.getHours());
@@ -127,7 +132,9 @@ function format3pos(num)
 		qs.set('qe',eq);
 		qs.set('q',eq);
 		qs.set('m',f.m.value);
+    qs.set('slrq','');
 		qs.set('rerender',0);
+		qs.set('uncache',1); // force uncache -> to trigger onto_highlight actions
 		var host = parseUri(url).protocol 
 							+ '://' 
 							+ parseUri(url).host
@@ -161,10 +168,8 @@ function format3pos(num)
 		  return <?php print $IDLE_MAXTIMEOUT; ?>;
   }
 
-	function fri_redirect(datasource,url,frameid,target)
-	{
-		//alert('fri_redirect('+datasource+','+url+','+frameid+','+target+')');
-		var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
+	function fri_redirect(datasource,url,frameid,target) {
+		var parentIsIndexConnected= ((typeof(parent.isIndexConnected)) != 'undefined');
 		
 		if (frameid == -1) {
 			var tab_id = parentIsIndexConnected ?
@@ -228,7 +233,8 @@ function format3pos(num)
 	}
 	
 	function detectLanguage_launchMetaSearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass) {
-		LANGUAGE_OF_RESULT = '';
+    ONTOTERMS_REDO_HIGHLIGHTING=true;
+    LANGUAGE_OF_RESULT = '';
 		LANGUAGE_OF_RESULT_OK = true;
 
 		var languageDetectorUrl = '<?php print "../../app/u/LanguageDetector.php"; ?>';
@@ -464,6 +470,11 @@ function format3pos(num)
 	{
 		//alert('aftersearch_actions:  '+what);
 		unlock_ontosearch_dialog(what);
+
+    //Force always the comp of onto highlights:
+    ONTOTERMS_REDO_HIGHLIGHTING=true;
+    mark_ontoterms_on_resultmatch();
+
 	}
 	
 	
@@ -471,11 +482,11 @@ function format3pos(num)
 	function fri_rodin_metasearch_wrap(blankurlresult,variables)
 	{
 		var search			=variables['search'];
-		var maxresults		=variables['maxresults'];
+		var maxresults	=variables['maxresults'];
 		var db_tab_id		=variables['db_tab_id'];
 		var nbcol 			=variables['nbcol']
-		var usr 			=variables['usr']
-		var interactive 	=variables['interactive']
+		var usr         =variables['usr']
+		var interactive =variables['interactive']
 		var nbcol 			=variables['nbcol']
 		var nbcol 			=variables['nbcol']
 		var cloud 			=variables['cloud']
@@ -625,7 +636,8 @@ function format3pos(num)
 				qs.set('qe',searchtxt);
 				qs.set('q',searchtxt);
 				qs.set('sid',SID);
-				qs.set('go','1');
+        qs.set('slrq','');
+        qs.set('go','1');
 				qs.set('textZoomRender', document.getElementById("selectedTextZoom").value);
 				qs.set('rerender',0);
 				qs.set('show','RDW_widget');
@@ -638,8 +650,9 @@ function format3pos(num)
 				if (parent.NOSRC)
 					qs.set('nosrc','1');
 
+        //Mark last ifram exec:
 				if (i==iframes.length - 1) {
-					qs.set('uncache',true);
+					qs.set('uncache',1);
 				}
 				
 				var server = '<?php print $WEBROOT; ?>';
@@ -788,7 +801,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 					+'&sid='+sid
 					+'&cid='+cid+'.p'
 					+'&newsid='+newsid
-					+'&q=' /*dismissed*/
+					+'&q='+Base64.encode(terms) /*needed for cache recognition*/
 					+'&v='+Base64.encode(gui_refinement_request['quickq']) /*the current one*/
 					+'&l='+lang
 					+'&w='+gui_refinement_request['this_wid_uniq_id']
@@ -1117,11 +1130,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 										 }
 									}
 						);						
-					} // 
-						
-						
-						
-						
+					} 
 				}
 			}
 		}
@@ -1131,145 +1140,6 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 
 		return false;
 	} /*fri_rodin_start_ontosearch_context_skos*/
-
-
-	
-	/**
-	 * Makes an AJAX call to our ZenFilter implementation.
-	 * @param textToFilter64 the text that needs to be filtered (Base64 encoded)
-	 * @param query64 the query that originated the results from which comes the text to be filetered (Base64 encoded)
-	 * @param zenFilterBox the div element in which filtered terms are to be displayed
-	 */
-	function rodin_zen_filter(textToFilter64, query64, zenFilterBox) {
-		zenFilterBox.style.visibility = "visible";
-		fillZenFilterBoxLoading(zenFilterBox);
-		
-		var zenFilterResponderUrl = '<?php print "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/ZenFilterResponder.php"; ?>';
-
-		jQuery.post(zenFilterResponderUrl,
-			{textToFilter: textToFilter64, query: query64, lang: parent.LANGUAGE_OF_RESULT_CODED},
-			function(data) {
-					rodin_zen_filter_handler(data, zenFilterBox);
-			});
-	}
-	
-	/**
-	 * Function called when the AJAX call to ZenFilter is successful.
-	 * @param data returned by the zen-filter responder
-	 * @param zenFilterBox the div element to fill with filtered terms
-	 */
-	function rodin_zen_filter_handler(data, zenFilterBox) {
-		var filtered = data.documentElement;
-		var termList = filtered.getElementsByTagName("term");
-		var methodUsed = filtered.getAttribute("lastMethodUsed");
-				
-		if (filtered && termList) {
-			fillZenFilterBoxWithTerms(zenFilterBox, termList, methodUsed);
-		} else
-			alert("[Javier] Zen Filtered : FAIL");
-	}
-	
-	/**
-	 * This function fills the spotlight box with a loading message
-	 * to be shown while the spotlight terms are computed.
-	 * @param zenFilterBox the zen-filter div element
-	 */
-	function fillZenFilterBoxLoading(zenFilterBox) {
-		var loadingElement = document.createElement("p");
-		loadingElement.setAttribute("class", "loading");
-		loadingElement.setAttribute("title", "");
-		loadingElement.appendChild(document.createTextNode(lg("lblZenFiltering")));
-		
-		zenFilterBox.innerHTML = "";
-		zenFilterBox.appendChild(loadingElement);
-	}
-	
-	/**
-	 * This function replaces the loading message in the spotlight box
-	 * with the list of terms that have been found. It also adds the
-	 * "Select all" and the "Close" buttons.
-	 * @param zenFilterBox the zen-filter's div element.
-	 * @param termList the list of found terms.
-	 * @param lastMethodUsed last method used to filter the result.
-	 */
-	function fillZenFilterBoxWithTerms(zenFilterBox, termList, lastMethodUsed) {
-		zenFilterBox.innerHTML = "";
-
-		var closeButton = document.createElement("a");
-		closeButton.setAttribute("class", "button");
-		closeButton.setAttribute("title", lg("close"));
-		closeButton.setAttribute("onmouseover", "javascript: this.className='buttonHover';");
-		closeButton.setAttribute("onmouseout", "javascript: this.className='button';");
-		closeButton.setAttribute("onclick", "javascript: closeZenFilterBox('" + zenFilterBox.getAttribute("id") + "');");
-		closeButton.appendChild(document.createTextNode(lg("close")));
-
-		var boxTitle = document.createElement("h1");
-		boxTitle.setAttribute("title", "");
-		boxTitle.appendChild(document.createTextNode(lg("lblZenFiltered")));
-		
-		boxTitle.appendChild(closeButton);
-		
-		zenFilterBox.appendChild(boxTitle);
-		
-		if (termList.length > 0) {
-			// Add the last method used info as title
-			boxTitle.setAttribute("title", lg("lblZenFilteredMethod" + lastMethodUsed));
-			
-			var addAllButton = document.createElement("a");
-			addAllButton.setAttribute("class", "button");
-			addAllButton.setAttribute("title", lg("titleZenFilterAddAll"));
-			addAllButton.setAttribute("onmouseover", "javascript: this.className='buttonHover';");
-			addAllButton.setAttribute("onmouseout", "javascript: this.className='button';");
-			addAllButton.setAttribute("onclick", "javascript: zenFilterBoxAddAll('" + zenFilterBox.getAttribute("id") + "');");
-			addAllButton.appendChild(document.createTextNode(lg("lblZenFilterAddAll")));
-			
-			boxTitle.appendChild(addAllButton);
-
-			var allTerms = document.createElement("p");
-			allTerms.setAttribute("title", "");
-			allTerms.setAttribute("class", "terms");
-
-			for (var i=0; i<termList.length; i++) {
-				var singleTermElement = document.createElement("a");
-				singleTermElement.setAttribute("class", "term");
-				singleTermElement.setAttribute("title", lg("titleActionsOnWord"));
-				singleTermElement.setAttribute("onmouseover", "javascript: this.className='hover';");
-				singleTermElement.setAttribute("onmouseout", "javascript: this.className='term';");
-				singleTermElement.appendChild(document.createTextNode(termList[i].textContent));
-
-				allTerms.appendChild(singleTermElement);
-				allTerms.appendChild(document.createTextNode(" "));
-			}
-
-			zenFilterBox.appendChild(allTerms);
-			
-			// update context menu binding
-			setContextMenu();
-		} else {
-			var noTerms = document.createElement("p");
-			noTerms.setAttribute("class", "terms");
-			noTerms.appendChild(document.createTextNode(lg("lblZenFilterNoResults")));
-			
-			zenFilterBox.appendChild(noTerms);
-		}
-	}
-	
-	function closeZenFilterBox(zenFilterBoxId) {
-		var zenFilterBox = document.getElementById(zenFilterBoxId);
-		zenFilterBox.innerHTML = "";
-		zenFilterBox.style.visibility = "hidden";
-	}
-	
-	function zenFilterBoxAddAll(zenFilterBoxId) {
-		var zenFilterBox = document.getElementById(zenFilterBoxId);
-		var termLinks = zenFilterBox.getElementsByTagName("p")[0].getElementsByTagName("a");
-		
-		for (var i=0; i<termLinks.length; i++) {
-			var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
-			correctParent.bc_add_breadcrumb_unique(termLinks[i].textContent, 'zen');
-		}
-	}
-
 
 
 	
@@ -1476,7 +1346,8 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
  * AJAX callback function handling SRC responses. 
  */
 function handle_received_src_data(response,vars) {
-	var pclass = vars['pclass'];
+  
+  var pclass = vars['pclass'];
 	var module = vars['module'];
 	var newsid = vars['newsid'];
 	var service_id = vars['service_id'];
@@ -1503,8 +1374,8 @@ function handle_received_src_data(response,vars) {
 	var results = '';
 	var results_raw = '';
 	var we_had_some_results = false;
-		
-	if (response!=null) {
+
+if (response!=null) {
 		if (response.getElementsByTagName("refine")[0]) /*XML*/
 		{
 			 var tags =(response.getElementsByTagName("*"));
@@ -1633,15 +1504,44 @@ function handle_received_src_data(response,vars) {
 	// Set ontofacets context menu
 	(function(jQuery){
 		jQuery(document).ready( function() {
-			jQuery(".fb-term").contextMenu({
-				menu: 'facetsContextMenu'
+			jQuery(".fb-term, .fb-term-hl").contextMenu({
+				menu: 'facetsContextMenu',
+        //premenuitem_callback: 'check_semfilterresults',
+        min_occurrences: 1, /*Build menuitem starting from 2 occurrences*/
+        conditioned_menuitem_id: 2 /*give menuitem obj to callback function for change*/
 			}, function(action, el, pos) {
-				
+
 				switch(action) {
 					case "addToBreadcrumb":
 						bc_add_breadcrumb_unique(jQuery(el).text(),'result');
 					break;
-					
+
+          case "restricttoontoterm":
+          {
+              
+          }
+					break;
+          case "restricttoontoterm_f1": /* hide not higlighed terms */
+            {
+              RESULTFILTEREXPR = jQuery(el).text();
+              reload_frames_render(TEXTZOOM);
+              RESULTFILTEREXPR='';
+            }
+					break;
+//          case "restricttoontoterm_f2":
+//            {
+//              //RESULTFILTEREXPR = jQuery(el).text();
+//              var reranked_widgetresults = dskos_rerank_widgets_results(RESULTFILTEREXPR);
+//              permutate_widgets_result_render(reranked_widgetresults);
+//              reload_frames_render(TEXTZOOM);
+//            }
+//					break;
+//          case "restricttoontoterm_f3":
+//            {
+//                alert('restricttoontoterm_f3');
+//            }
+//					break;
+
 					case "exploreInOntologicalFacets":
 						fb_set_node_ontofacet(jQuery(el).text());
 						detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, $p);
@@ -1651,7 +1551,8 @@ function handle_received_src_data(response,vars) {
 			});
 		});
 	})(jQuery);
-		
+
+  	
 	//Stop wheel and start aftersearchactions, if last process:
 	wtslog('handle_received_src_data (check end metasearch, service_id='+service_id+', srv=('+srv+'), v=('+v+')): ','ONTOS_SYNCH',ONTOS_SYNCH,ONTOS_SYNCH-1,-1);
 	
@@ -1965,10 +1866,12 @@ function handle_received_src_data(response,vars) {
 		var mainbuttonimg1 = document.getElementById('img_mainzoombutton1');
 		var mainbuttonimg2 = document.getElementById('img_mainzoombutton2');
 		var mainbuttonimg3 = document.getElementById('img_mainzoombutton3');
+		//var mainbuttonimg4 = document.getElementById('img_mainzoombutton4');
 		
 		mainbuttonimg1.src = '<?php print $B_MIN_ICON_NORMAL; ?>';
 		mainbuttonimg2.src = '<?php print $B_TOKEN_ICON_NORMAL; ?>';
 		mainbuttonimg3.src = '<?php print $B_ALL_ICON_NORMAL; ?>';
+		//mainbuttonimg4.src = '<?php print $B_FILTER_ICON_NORMAL; ?>';
 		
 		switch(render) {
 		case('min'):
@@ -1983,105 +1886,39 @@ function handle_received_src_data(response,vars) {
 			mainbuttonimg3.src = '<?php print $B_ALL_ICON_SELECTED; ?>';
 			mainbuttonimg3.title= lg("titleTextZoomThreeSelected");
 			break;
-		}
+    case('filter'):
+			mainbuttonimg4.src = '<?php print $B_FILTER_ICON_SELECTED; ?>';
+			mainbuttonimg4.title= lg("titleTextZoomFourSelected");
+			break;
+    }
 		
 		parent.zoomb1 = mainbuttonimg1.src;
 		parent.zoomb2 = mainbuttonimg2.src;
 		parent.zoomb3 = mainbuttonimg3.src;
+		//parent.zoomb4 = mainbuttonimg4.src;
 		
 		document.getElementById("selectedTextZoom").value = render;
 	}
 	
 	/**
-	 * Sets aggregation buttons to correspond to the aggregation status of the
-	 * selected tab, will initi aggregation to OFF if no aggregation status was
-	 * previously set
-	 */
-	function init_aggregation() {
-		var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
-
-		if (index > -1) {
-			var currentStatus = tabAggregatedStatus[index];
-			set_aggregation(currentStatus);
-		} else
-			set_aggregation(false);
-	}
-
-	/**
-	 * Updates the icons of the aggregated widgets
-	 */
-	function refresh_aggregated_widget_icons() {
-		var pertitentIframes = getPertinentIframesInfos(tab[$p.app.tabs.sel].id);
-
-		// get iframes' icons
-		var menuDiv = jQuery('#aggregated_view_menu_' + tab[$p.app.tabs.sel].id);
-		menuDiv.empty();
-
-		var labelDiv = jQuery('<div class="aggregationLabel"></div>');
-		labelDiv.text('Aggregated results from:');
-		menuDiv.append(labelDiv);
-		
-		for (var i = 0; i < pertitentIframes.length; i++) {
-			var iconTable = jQuery(pertitentIframes[i][1]);
-
-			var iconLabel = jQuery('td', iconTable).text();
-			
-			var iconImage = jQuery('img', iconTable);
-			iconImage.css('height', '20px');
-			iconImage.css('vertical-align', 'bottom');
-
-			var iconDiv = jQuery('<div class="hmod widgetIcon"></div>');
-			iconDiv.append(iconImage);
-			iconDiv.append(iconLabel);
-
-			menuDiv.append(iconDiv);
-		};
-	}
-
-	/**
 	 * Changes the status of the result aggregation ON/OFF
-	 * NB. If no status has been set yet, it sets it to OFF
 	 */
 	function toggle_aggregation() {
-		var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
-
-		if (index < -1)
-			init_aggregation();
-		
-		index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id)
-		set_aggregation(!tabAggregatedStatus[index]);			
+		set_aggregation(!aggregation_status, true);
 	}
 
 	/**
 	 * Sets the aggregation status to a particular state
 	 */
-	function set_aggregation(state) {
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = tabAggregatedStatusTabId.indexOf(tabId);
-
-		if (index > -1)
-			tabAggregatedStatus[index] = state;
-		else {
-			tabAggregatedStatusTabId.push(tabId);
-			index = tabAggregatedStatusTabId.indexOf(tabId);
-			tabAggregatedStatus[index] = state;
-		}
+	function set_aggregation(state, set_aggregated_view) {
+		aggregation_status = state;
 
 		var button = jQuery("#aggregateButton");
 		var label = jQuery("#aggregateButtonLabel");
 
-		// Show/hide the div containing the widgets
-		var tabHomeModule = jQuery("#home" + tabId);
-		if (state) {
-			tabHomeModule.hide();
-		} else {
-			tabHomeModule.show();
-		}
-
-		// Show/hide the aggregated view
-		if (state) {
-			$p.app.widgets.openAggregatedView();
-			refresh_aggregated_widget_icons();
+		if (aggregation_status) {
+			if (set_aggregated_view)
+				$p.app.widgets.openAggregatedView();
 
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			button.attr("title", lg("titleAggregationButtonOff"));
@@ -2097,7 +1934,8 @@ function handle_received_src_data(response,vars) {
 				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			});
 		} else {
-			$p.app.widgets.closeAggregatedView();
+			if (set_aggregated_view)
+				$p.app.widgets.closeAggregatedView();
 
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
 			button.attr("title", lg("titleAggregationButtonOn"));
@@ -2115,51 +1953,12 @@ function handle_received_src_data(response,vars) {
 		}
 	}
 
-	/**
-	 * This fonctions, relies on the contextMenu jQuery library
-	 * to attach the context menu to the results shown within widgets
-	 * or in the aggregated view
-	 */
-	function setContextMenu() {
-		(function(jQuery){
-			jQuery(document).ready(function() {
-				jQuery("span.result-word").add(".spotlightbox p.terms a").hover(
-					function () { jQuery(this).addClass("hovered-word"); },
-					function () { jQuery(this).removeClass("hovered-word");	});
-			
-				jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
-					menu: 'widgetContextMenu'
-				}, function(action, el, pos) {
-					var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
-					
-					switch(action) {
-						case "addToBreadcrumb":
-							correctParent.bc_add_breadcrumb_unique(jQuery(el).text(),'result');
-						break;
-						
-						case "exploreInOntologicalFacets":
-							correctParent.fb_set_node_ontofacet(jQuery(el).text().toLowerCase());
-							correctParent.detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, correctParent.$p);
-							correctParent.$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=widget&name=' + get_datasource_name('$widgetDatasource'), {'type':'load'});
-						break;
-					}
-				});
-			});
-		})(jQuery);
-	}
+
 
 	function reload_frames_render(render) {
 		set_zoom_text_icons(render);
 		
 		var	tab_id = parent.tab[parent.$p.app.tabs.sel].id;
-
-		var index = tabAggregatedStatusTabId.indexOf(tab_id);
-		var currentAggregationStatus = tabAggregatedStatus[index];
-		if (currentAggregationStatus) {
-			var resultSetIndex = allWidgetsResultsSetsTabId.indexOf(tab_id);
-			allWidgetsResultSets[resultSetIndex].askResulsToRender(render);
-		}
-
 		var pertinentIframes = getPertinentIframesInfos(tab_id);			
 		for(var i=0;i<pertinentIframes.length;i++) {
 			var iframe = pertinentIframes[i][0];
@@ -2181,7 +1980,7 @@ function handle_received_src_data(response,vars) {
 
 		pclass.ajax.call( action,
 				{
-					'type':'load',
+					'type':'load'
 				}
 		);	
 	}
@@ -2265,6 +2064,14 @@ function handle_received_src_data(response,vars) {
 			
 			//alert('getPertinentIframesInfos('+db_tab_id+') liefert:\n'+iframesinfo.length+' Objekte');
 		}
+
+    //Add aggregated view module
+    //take div inside the tab db_tab_id with id='module'+db_tab_id
+    var aggViewDiv = parent.$('modules'+db_tab_id).children.aggregated_view_module
+    if (aggViewDiv)
+        iframesinfo.push(new Array(aggViewDiv,'aggregatedView',aggViewDiv.clientHeight));
+
+
 		return iframesinfo;
 	} // getPertinentIframesInfos
 	
@@ -2915,6 +2722,10 @@ function expand_td(id)
 
 
 
+
+
+
+
 function collapse_result_items(classref)
 {
 	var TDs=getElementsByClassName(classref,null);
@@ -3401,5 +3212,23 @@ function permitted_ontosearch()
 	return !ONTOSEARCH_LOCKED;
 }
 
+
+function get_rb_selected_val(radiobuttons)
+{
+	//alert('get_rb_selected_val: '+radiobuttons);
+	var val='';
+	var name='';
+  if (radiobuttons)
+  {
+    for (var i=radiobuttons.length-1; i > -1; i--) {
+      if (radiobuttons[i].checked) {
+        val=radiobuttons[i].value;
+        name=radiobuttons[i].name;
+        break;
+    }	}
+  }
+	//alert('get_rb_selected_val:('+name+') '+val);
+	return val;
+}
 
 //alert('RODINutilities.js loaded');

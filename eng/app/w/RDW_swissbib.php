@@ -14,7 +14,7 @@
  ******************************************************************************** */
 
 include_once("../u/RodinWidgetBase.php");
-require_once 'RodinResult/RodinResultManager.php';
+include_once '../u/RodinResult/RodinResultManager.php';
 include_once "$DOCROOT/$RODINUTILITIES_GEN_URL/simplehtmldom/simple_html_dom.php";
 
 global $SEARCHSUBMITACTION;
@@ -104,11 +104,13 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 		. '&version=1.1&operation=searchRetrieve&recordSchema=info%3Asrw%2Fschema%2F1%2Fmarcxml-v1.1'
 		. '&maximumRecords=' . $m . '&startRecord=1&resultSetTTL=300&recordPacking=xml';
 	
+  
+  
 	TomaNota::deEsto($_SERVER[PHP_SELF], "search url : $url");
 
-	$xml = get_file_content($url);
-	$simpleXmlElement = str_get_html($xml);
-
+	//$xml = get_file_content($url);
+	$xml = get_cached_widget_response($url);
+  $simpleXmlElement = str_get_html($xml);
 	// Parse XML looking for results
 	$allResults = array();
 
@@ -160,10 +162,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	}
 
 	// Save search to DB
-	RodinResultManager::saveRodinSearchInSearchTable($sid, $q);
+	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResultsInResultsTable($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 
 	return count($allResults);
 }
@@ -185,9 +187,10 @@ function DEFINITION_RDW_STORERESULTS()
 function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
+  global $slrq;
 	global $render;
 
-	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $render);
+	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $slrq, $render);
 
 	return true; 
 }
@@ -199,8 +202,9 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
+  global $slrq;
 
-	RodinResultManager::renderAllResultsInOwnTab($sid,$datasource);
+	RodinResultManager::renderAllResultsInOwnTab($sid,$datasource,$slrq);
 
 	return true; 
 }

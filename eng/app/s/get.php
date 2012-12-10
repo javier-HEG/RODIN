@@ -27,11 +27,11 @@ X1R.get w_response (Answer to X1.get w_results )
         </value>
 	      </record>
 	      <record>
-	      	…
+	      	ï¿½
       </record>
-…
+ï¿½
 	    </document>
-	    …
+	    ï¿½
    </response>
 	</rodin_get> 
 */
@@ -42,6 +42,9 @@ X1R.get w_response (Answer to X1.get w_results )
 	$a= $_REQUEST['a']; 
 	$wid= $_REQUEST['wid']; 
 	$show= $_REQUEST['show']; 
+  $slrq= $_REQUEST['slrq']; 
+  
+  
 	if (  $show<>'all' 
 			&&$show<>'token'
 			&&$show<>'min' ) $show='token';
@@ -60,7 +63,7 @@ else
 {
 
 	if ($a=='w_response')
-		$RESPONSE=get_xml_widget_response($sid,$wid,$show);
+		$RESPONSE=get_xml_widget_response($sid,$wid,$slrq,$show);
 	
 	
 $OUT.=<<<EOT
