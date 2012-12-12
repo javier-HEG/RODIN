@@ -130,8 +130,8 @@ class RodinResultManager {
 	}
 	
 	public static function saveRodinResults($results, $sid, $datasource) {
+    	global $RESULTS_STORE_METHOD;
 		$modified = 0;
-    global $RESULTS_STORE_METHOD;
 		
 		if (is_array($results) && count($results) > 0) {
 			try {
@@ -312,14 +312,16 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
 					$pointer = explode('.', $row['xpointer']);
 					$pointerBase = intval($pointer[0]);
 					$pointerRemainder = count($pointer) > 1 ? intval($pointer[1]) : -1;
+					$datasource = $row['datasource'];
 
 					if ($pointerBase > -1) {
 						// A new result to be loaded
 						if ($pointerRemainder == 0) {
 							$result = RodinResultManager::buildRodinResultByType(intval($row['value']));
-							$allResults[$pointerBase] = $result;
+							$allResults[$datasource . '-' . $pointerBase] = $result;
+
 						} else {
-							$result = $allResults[$pointerBase];
+							$result = $allResults[$datasource . '-' . $pointerBase];
 							$attribute = $row['attribute'];
 							switch ($attribute) {
 								case 'title':
@@ -348,18 +350,18 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
 			print "RodinResultManager EXCEPTION: $e";
 		}
 
-		return $allResults;
+		return array_values($allResults);
 	}
 
 
 public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
-
     require_once("../u/SOLRinterface/solr_init.php");
     global $SOLR_RODIN_CONFIG;
     global $SOLR_MLT_MINSCORE;
     global $USER;
     global $m;
-		$allResults = array();
+
+	$allResults = array();
     
     $slrq='';
     if ($slrq_base64)
