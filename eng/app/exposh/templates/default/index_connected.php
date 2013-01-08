@@ -165,9 +165,10 @@ EOH;
 //------------------ Agregated view controls ----------------
 	$aggregatedViewSwitch = '<div id="aggregateButtonDiv" class="searchOptionDiv">' . "\n"
 		. '<span class="optionLabel" id="aggregateButtonLabel">' . lg("lblEnableAggregation") . ':</span>' . "\n"
-		. '<img id="aggregateButton" class="optionButton" src=""' . "\n"
+		. '<img id="aggregateButton" class="optionButton" src="'.$RODINUTILITIES_GEN_URL.'/images/button-aggregate-on.png"' . "\n"
 		. 'onClick="javascript: toggle_aggregation();" title="" />' . "\n"
 		. '</div>' . "\n";
+
 	
 #------------------ RODINCONTROL ----------------
 	$launchMetaSearchCode = "eclog(Date() + ' Metasearch Start'); "
@@ -181,13 +182,33 @@ EOH;
   if ($RESULTS_STORE_METHOD=='solr')
   $SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
 
+  list($message,$test_rodin_komponenten_ok,$noofproblems) = rodin_service_diagnostics();
+  if ($test_rodin_komponenten_ok)
+  {
+    print<<<EOP
+ 		<script type="text/javascript">
+    DIAGNOSTIC_MESSAGE='';
+    DIAGNOSTIC_PROBLEMS=0;
+    DIAGNOSTIC_OK=true;
+    </script>
+EOP;
+  } else {
+
+    print<<<EOP
+		<script type="text/javascript">
+    DIAGNOSTIC_MESSAGE='$message';
+    DIAGNOSTIC_PROBLEMS=$noofproblems;
+    DIAGNOSTIC_OK=false;
+    </script>
+EOP;
+    }
 ?>
 
 <body onUnload="$p.app.counter.stop();" bgcolor=<?php print $COLOR_PAGE_BACKGROUND;?>> 
 <div id="cache" style="position:absolute;left:0;top:0;z-index:8;display:none;"></div>
 <div id="headlink" name="headlink"></div>
 <div id="information"></div>
-
+<div id="crashwarning" align=center></div>
 <div id="rodinmetasearch">
   <?php print $SOLR_LOGO ?>
 	<input id="rodinsearch_s" type="text" value="<?php print $s; ?>"
@@ -444,6 +465,18 @@ EOH;
   </form>
 
 </div>
+	<script type="text/javascript">
+    if (! DIAGNOSTIC_OK)
+    {
+      var d = $("crashwarning");
+      d.innerHTML=DIAGNOSTIC_MESSAGE;
+      /*Center DIV*/
+      d.style.left=((document.body.offsetWidth / 2) - 530 / 2)   +'px';
+      d.style.height=DIAGNOSTIC_PROBLEMS * 60 + 190;
+      d.style.visibility='visible';
+      d.style.display='inline-block';
+    }  
+	</script>
 
 </body>
 </html>

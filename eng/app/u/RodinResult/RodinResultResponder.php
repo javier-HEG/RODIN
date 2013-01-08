@@ -44,7 +44,6 @@ while ($i < $uptoResult) {
 	$jsonSingleResult['minContent'] = json_encode($result->toInWidgetHtml('min'));
 	$jsonSingleResult['tokenContent'] = json_encode($result->toInWidgetHtml('token'));
 	$jsonSingleResult['allContent'] = json_encode($result->toInWidgetHtml('all'));
-
 	// Check the size of the response if this result was added
 	$tmpAllResults = $jsonAllResults;
 	$tmpAllResults[] = $jsonSingleResult;
@@ -55,10 +54,10 @@ while ($i < $uptoResult) {
 		break;
 	
 	$jsonAllResults[] = $jsonSingleResult;
-	$i++;
 }
 
 header('Content-type: application/json; charset=utf-8');
 echo json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $i, 'results' => $jsonAllResults));
+
 
 ?>

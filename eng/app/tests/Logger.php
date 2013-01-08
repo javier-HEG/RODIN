@@ -5,8 +5,8 @@
  */
 class Logger {
 	const LOGGER_ACTIVATED = true;
-	
-	const LOGIN_ACTION = 0;
+
+  const LOGIN_ACTION = 0;
 	const LOGOUT_ACTION = 1;
 	const ADD_WIDGET_ACTION = 2;
 	const REMOVE_WIDGET_ACTION = 3;
@@ -37,6 +37,8 @@ class Logger {
 //	const LOAD_HISTORY_CLOUD_ACTION = 22;
 //	const CHANGE_TEXT_ZOOM_ACTION = 23;
 //	const ACCESS_USER_CONFIGURATION_ACTION = 24;
+	const LOG_SRC_TIME = 25;
+	const LOG_SRC_IMPORT = 26;
 	
 	public static function emptyLogFile() {
 		$filename = $_SERVER['DOCUMENT_ROOT'] . "/rodin/usabilityLogFile.txt";
@@ -138,6 +140,12 @@ class Logger {
     			break;
     		case Logger::CHANGE_WIDGET_TAB :
     			return 'widget move to tab (causes log of its removal)';
+    			break;
+        case Logger::LOG_SRC_TIME :
+    			return 'SRC';
+    			break;
+        case Logger::LOG_SRC_IMPORT :
+    			return 'SRC-import';
     			break;
     		default:
     			return 'unknown action';

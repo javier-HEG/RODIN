@@ -35,7 +35,7 @@ function generate_facetboard($INIT_SRC_REF_TABS) {
 	
 	$ontoFacetsLaunchSearchTitle = lg("lblOntoExploreFacets");
 	$ontoFacetsSearchFieldTitle = lg("titleOntoFacetsSearch");
-	
+	//FRI - changed LoggerResponder.php?action=10 --> action=25
 	$FACETBOARD = <<<EOF
 		<div id="facet-nodelabel" class="facet-nodelabel boardConfiguration">
 				<input id="ontofacet_center" type="text" title="$ontoFacetsSearchFieldTitle"
@@ -43,7 +43,7 @@ function generate_facetboard($INIT_SRC_REF_TABS) {
 				<img id="ontofacet_center_wait" style="display: none;" src="$RODINIMAGESURL/magnifier-onto-wait.png" title="Undefined" />
 				<img id="ontofacet_center_search" style="cursor:pointer;" src="$RODINIMAGESURL/magnifier-onto.png" title="$ontoFacetsLaunchSearchTitle"				
 					onclick="var text=document.getElementById('ontofacet_center').value;
-						\$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + text + '&from=field', {'type':'load'});
+						\$p.ajax.call('../../app/tests/LoggerResponder.php?action=25&query=' + text + '&from=field', {'type':'load'});
 						detectLanguageInOntoFacets_launchOntoSearch(text, 0, 0, 0, 0, 0, 0,\$p);" />
 				<input id="ontofacet_center_language" type="hidden" value="un" />
 		</div>

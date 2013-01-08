@@ -54,6 +54,7 @@ $options = array(
 
 $output = parametrizable_curl($src_url, $parameters, $options);
 
+
 if (strstr($output, "Operation timed out")) {
 	if ($VERBOSE) {
 		print "<h2>Operation timed out</h2>";

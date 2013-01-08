@@ -14,10 +14,47 @@
   z-index:-1;
 }
 
+
+div#crashwarning {
+  
+  z-index: 120;
+  background-color: white;
+  border-color: black;
+  border-width: 2px;
+  border :2px;
+  border-style:solid;
+  position: fixed;
+  top: 100px;
+  
+  width: 470px;
+  padding: 30px;
+  float:left;
+  
+  
+  display: none;
+  visibility: hidden;
+}  
+
+.error
+{
+  color: red;
+} 
+.errorexplanation
+{
+  color:#999;
+} 
+
+.admicontact
+{
+  color: #3399FF;
+  text-decoration:#3399FF;
+  text-decoration-line: underline;
+} 
+
 div#rodinmetasearch {
 	/* Same as div#breadcrumbs in rodinBoard.css */
     width: 800px;
-	margin-left: auto;
+    margin-left: auto;
     margin-right: auto;
     margin-bottom: 4px;
 }
@@ -147,3 +184,19 @@ srcmultiplecontainer.span.reftextarea
 	color: #3399FF;
 }
 
+.urigray
+{
+  color: #ccc;
+}
+
+.uribold
+{
+  color: black;
+  font-weight: bold;
+}
+
+.uriliteral
+{
+  color: #3399FF;
+  font-weight: bold;
+}

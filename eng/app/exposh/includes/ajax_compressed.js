@@ -7718,13 +7718,14 @@ $p.app.tabs={
 		eval(tab[$p.app.tabs.sel].fct);
 
 		$p.app.tabs.select(v_id);
-		
+    
 		// Check if the aggregation has been initialized
 		var tabId = tab[$p.app.tabs.sel].id;
 		var index = tabAggregatedStatusTabId.indexOf(tabId);
 		if (index == -1)
 			init_aggregation();
 
+		
 		$p.ajax.call('../../app/tests/LoggerResponder.php?action=4&name=' + tab[$p.app.tabs.sel].label, {'type':'load'});
 	},
 	/*
@@ -13487,7 +13488,7 @@ $p.app.widgets={
 	 * $p.app.widgets.openAggregatedView
 	 */
 	openAggregatedView:function() {
-		var tabId = tab[$p.app.tabs.sel].id;
+    var tabId = tab[$p.app.tabs.sel].id;
 		var index = allWidgetsResultsSetsTabId.indexOf(tabId);
 
 		if (index == -1) {
@@ -13516,22 +13517,22 @@ $p.app.widgets={
 			moduleDiv.setAttribute("class", "module");
 			moduleDiv.setAttribute("id", "aggregated_view_module_" + tabId);
 			moduleDiv.setAttribute("style", "display: block; position: relative; margin: 5px;");
-			
-			var menuDiv = document.createElement('div');
+      
+      var menuDiv = document.createElement('div');
 			menuDiv.setAttribute("id", "aggregated_view_menu_" + tabId);
 			menuDiv.setAttribute("class", "aggregatedViewMenu");
 
 			var resultsContainer = document.createElement('div');
 			resultsContainer.setAttribute("id", allWidgetsResultSets[index].containerDivId);
 			resultsContainer.setAttribute("class", "widgetResultsDiv");
-
+			
 			moduleDiv.appendChild(menuDiv);
 			moduleDiv.appendChild(resultsContainer);
 			
 			modulesHome.insertBefore(moduleDiv, firstChild);
 		}
-
-		// Refrech the aggregated widgets' list
+    
+		// Refresh the aggregated widgets' list
 		refresh_aggregated_widget_icons();
 
 		// Refresh the view content
@@ -13589,18 +13590,19 @@ $p.app.widgets={
 			jQuery.post('../../app/w/RodinResult/RodinResultResponder.php', params, function(data) {
 				$p.app.widgets.addRestustsToAggregatedView(data);
 			});
+
 		}
+
 	},
 	/**
 	 * $p.app.widgets.closeAggregatedView
 	 */
 	closeAggregatedView:function() {
-		var tabId = tab[$p.app.tabs.sel].id;
-
-		// Let's get a handle on the tab element
+    var tabId = tab[$p.app.tabs.sel].id;
+	// Let's get a handle on the tab element
 		var modulesHome = document.getElementById('modules' + tabId);
 		firstChild = modulesHome.getChildren()[0];
-
+		
 		// We show and hide only if the first child is defined.
 		// Which isn't the case if the tab is loading for the
 		// first time, then, nothing needs to be removed anyway
@@ -13614,6 +13616,7 @@ $p.app.widgets={
 			if (firstChild.getAttribute('id') == 'aggregated_view_module_' + tabId) {
 				modulesHome.removeChild(document.getElementById('aggregated_view_module_' + tabId));
 			}
+
 		}
 	},
 

@@ -20,7 +20,7 @@ switch ($action) {
 		$maxResults = $_REQUEST['max'] ? $_REQUEST['max'] : 10;
 		$sizeby = $_REQUEST['sizeby'] ? $_REQUEST['sizeby'] : 'frequency';
 		
-		$pastQueries = collect_queries_tag($user);
+		$pastQueries = collect_queries_tag($RODINSEGMENT,$user);
     $children = count($pastQueries);
     
     

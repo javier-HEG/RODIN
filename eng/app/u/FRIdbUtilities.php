@@ -895,8 +895,121 @@ EOT;
 
 
 
+/*
+ * Checks if RODIN's components are alive and are connected
+ * returns true (in case RODIN might work) or a message to display 
+ * DB 
+ * SOLR
+ */
+function rodin_service_diagnostics()
+{
+  include_once("SOLRinterface/solr_interface.php");
+  $ok=true;
+  $now=date("d.m.Y H:i:s");
+  global $USER;
+  global $RODINSEGMENT;
+  global $RODINIMAGESURL;
+  
+  $old_ERROR_REPORTING = error_reporting(NULL);
+  
+  $noofproblems=0;
+  $USERNAME = $_SESSION['longname'];
+  $SERVER = $_SERVER['SERVER_NAME'];
 
+  $icon="<img src=\"$RODINIMAGESURL/icon_working.gif\"></img>&nbsp;";
+  $prefix="<table border=0>"
+     ."<tr><td>$icon</td><td><b>RODIN</b> diagnostics self check at <b>$now</b> user \"<b>$USERNAME</b>\" (<b>$USER</b>)"
+     ." on Server \"<b>$SERVER</b>\" segment \"<b>$RODINSEGMENT</b>\":</td></tr>"
+          ;
+  
+  $title_contact="Click to send an email message to this person";
+  $title_mantis="Click to issue a mantis task on this issue";
 
+  
+    
+  //Test Internet connection
+  $internet_ok = check_internetconn();
+  if (!$internet_ok)
+  {
+    //print " problem INTERNET";
+    $LOCALREASON='Internet access';
+    $MALFUNCTION_REASON.=$MALFUNCTION_REASON?', ':'';
+    $MALFUNCTION_REASON.=$LOCALREASON;
+    $noofproblems++;
+    $message.="<tr height=15/>"
+            ."<tr><td/><td><span class=\"error\">$LOCALREASON</span> from inside server $SERVER seems to fail</td></tr>"
+            ."<tr><td/><td><span class=\"errorexplanation\">(This means, that almost no widget will provide you with search results)</span></td></tr>";
+  }
+  
+  //Test SOLR connectability
+  $SOLR_COLLECTIONS=array(  'rodin_result',
+                            'rodin_search',
+                            'cached_rodin_widget_responsed',
+                            'cached_rodin_src_response',
+                            'zbw_stw',
+                            'gesis_thesoz'  );
+  
+  list($problemtext,$solr_connected) = test_solr_connected($SOLR_COLLECTIONS);
+  if (!$solr_connected)
+  {
+    $LOCALREASON='SOLR connectivity';
+    $MALFUNCTION_REASON.=$MALFUNCTION_REASON?', ':'';
+    $MALFUNCTION_REASON.=$LOCALREASON;
+    $noofproblems++;
+    $message.="<tr height=15/>"
+            ."<tr><td/><td><span class=\"error\">$LOCALREASON</span> seems to fail - is SOLR <b>running</b> on this server?</td></tr>"
+            //."<tr><td/><td>$problemtext</td></tr>"
+            ."<tr><td/><td><span class=\"errorexplanation\">(This is fatal to RODIN: no search possible)</span></td></tr>";
+  }
+
+  //Test SOLR http accessability:
+  list($problemtext,$solr_http_queryable) = solr_collection_http_access();
+  if (!$solr_http_queryable)
+  {
+    $LOCALREASON='SOLR local http access';
+    $MALFUNCTION_REASON.=$MALFUNCTION_REASON?', ':'';
+    $MALFUNCTION_REASON.=$LOCALREASON;
+    $noofproblems++;
+    $message.="<tr height=15/>"
+            ."<tr><td/><td><span class=\"error\">$LOCALREASON</span> seems to fail</td></tr>"
+            ."<tr><td/><td><span class=\"errorexplanation\">(This is fatal to RODIN: no search possible)</span></td></tr>";
+  }
+  
+  
+  if ($noofproblems>0) // add icon and address
+  {
+     $subject="Malfunction ($MALFUNCTION_REASON) RODIN/$RODINSEGMENT/$USERNAME on Server $SERVER_IP at $now";
+
+    if (!$internet_ok) 
+    {
+      $EVTL_CENTRE_INFO = "<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:heginfo@hesge.ch?subject=$subject\">HEG - Info (HES)</a></td><td> tel. +41-22-3881777 </td></tr>";
+    }
+    
+    $suffix="<tr height=15/>"
+          ."<tr><td/><td>Please retry later or contact one of the following persons: </td></tr>"
+          ."<tr><td/><td><table>"
+          .$EVTL_CENTRE_INFO
+          ."<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:eliane.blumer@hesge.ch?subject=$subject\">Eliane Blumer</a></td><td> tel. +41-22-3881850 </td></tr>"
+          ."<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:javier.belmonte@hesge.ch?subject=$subject\">Javier Belmonte</a></td><td> tel. +41-22-3881796 </td></tr>"
+          ."<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:fabio.ricci@ggaweb.ch?subject=$subject\">Fabio Ricci</a></td><td> tel. +41-76-5281961 </td></tr>"
+            ."</table></td></tr>"
+          ."<tr><td/><td>or <a class=\"admicontact\" target=\"blank\" title=\"$title_mantis\" href=\"$WEBROOT/mantis/bug_report_advanced_page.php?summary=$subject\">issue a mantis task</a></td></tr>"
+          ."<tr height=15/>"
+          ."<tr><td colspan=2><a class=\"admicontact\" onclick=\"javascript:window.location.reload()\" title=\"click to reload RODIN\" href=\"#\">Retry</a></td></tr>"
+          ."</table>"
+          ;
+    
+    
+    
+    
+    $message=$prefix.$message.$suffix;
+    
+  }
+
+  error_reporting($old_ERROR_REPORTING);
+
+  return array($message,$noofproblems==0,$noofproblems);
+}
 
 
 
@@ -1893,16 +2006,16 @@ EOQ;
  * 
  * @param string $USER the id of the user making the request
  */
-function collect_queries_tag($USER) {
+function collect_queries_tag($seg,$user) {
 
    global $RESULTS_STORE_METHOD;
     switch($RESULTS_STORE_METHOD)
     {
       case 'mysql':
-            return collect_queries_tag_DB($USER);
+            return collect_queries_tag_DB($user);
             break;
       case 'solr':
-        		return collect_queries_tag_SOLR($USER);
+        		return collect_queries_tag_SOLR($seg,$user);
     }
 }
 
@@ -1912,7 +2025,7 @@ function collect_queries_tag($USER) {
  *
  * @param string $USER the id of the user making the request
  */
-function collect_queries_tag_SOLR($USER) {
+function collect_queries_tag_SOLR($seg,$user) {
 
   global $SOLR_RODIN_CONFIG;
   $queries = array();
@@ -1929,7 +2042,7 @@ function collect_queries_tag_SOLR($USER) {
 
     $solr_result_query_url=$solr_select
         ."wt=xml"
-        ."&q=user:$USER"
+        ."&q=user:$user%20seg:$seg%20"
         ."&fl=query"
         ."&omitHeader=true"
         ."&rows=100000"
@@ -2180,7 +2293,7 @@ function initialize_SRC_MODULES( $USER_ID )
 				FROM src_interface
 				WHERE	forRODINuser=$USER_ID
 					AND Activated=1
-				ORDER BY POS
+				ORDER BY POS ASC
 			";
 			$DB = new RODIN_DB('rodin');
 			$DBconn=$DB->DBconn;

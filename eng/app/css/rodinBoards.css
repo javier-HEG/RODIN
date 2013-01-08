@@ -211,6 +211,12 @@ div#fb_itemname {
 }
 
 
+.cached 
+{
+  font-style: italic;
+  color:#000080;
+}
+  
 .facetcontrol-td {
 	font-family:"Arial";
 	font-size: small; /*like portaneo vidgetmenu */

@@ -1,7 +1,7 @@
 function RodinResultSet() {
 	this.results = new Array();
-	this.containerDivId = null;
-	
+		this.containerDivId = null;
+
 	this.askResulsToRender = function (textZoom) {
 		for (var i = 0; i < this.results.length; i++) {
 			this.results[i].render(textZoom);
@@ -45,7 +45,7 @@ function RodinResult(resultId) {
 	this.headerDiv = null;
 	this.contentDiv = null;
 
-	this.header = null;
+  this.header = null;
 	this.minHeader = null;
 	this.minContent = null;
 	this.tokenConthistent = null;

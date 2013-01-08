@@ -14,6 +14,7 @@ exec($script, $resp);
 
 $lang = $resp[0];
 
+
 print "<language>$lang</language>";
 
 print '</detection>';

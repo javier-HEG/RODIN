@@ -157,7 +157,7 @@ function fb_addToFacetBoardValidatedTerms(src_service_id, base64codedterms, base
 		}
 		
 		for (var i = 0; i < ranked_preterms.length; i++) {
-			var termTableRow = generate_ontofacet(ranked_preterms[i], Base64.decode(ranked_preterms_raw[i]), parent.LANGUAGE_OF_RESULT_CODED, rodinsegment);
+			var termTableRow = generate_ontofacet(ranked_preterms[i], Base64.decode(ranked_preterms_raw[i]), null, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment);
 			table.append(termTableRow);
 		}
 	}
@@ -166,7 +166,7 @@ function fb_addToFacetBoardValidatedTerms(src_service_id, base64codedterms, base
 /**
  * Adds a list of terms (together with their URIs) to the facetboard explorer.
  */
-function fb_add_to_facetboard(src_service_id, action, base64codedterms, base64codedrawterms) {
+function fb_add_to_facetboard(src_service_id, cached, action, base64codedterms, base64codedrawterms, base64lightcodedroots) {
 	var fb_itemname_expander2id = 'fb_itemname_expander2_'+src_service_id;
 	var fb_table_name = 'fb_table_'+fb_action2art(action)+'_'+src_service_id;
 	var fb_counterobj_name = 'fb_itemcount_'+fb_action2art(action)+'_'+src_service_id;
@@ -179,7 +179,11 @@ function fb_add_to_facetboard(src_service_id, action, base64codedterms, base64co
 	
 	var terms = (base64codedterms!='') ? Base64.decode(base64codedterms) : '';
 	var terms_raw = base64codedrawterms;
-	
+
+  if (cached) //show SRC content is cached
+  {	fb_itemname_expander2.setAttribute("class","facetcontrol-td cached");
+    /*alert('set fb_itemname_expander2id cached');*/}
+   else
 	fb_itemname_expander2.setAttribute("class","facetcontrol-td");
 	fb_itemname_expander2.setAttribute("title",'');
 
@@ -187,15 +191,20 @@ function fb_add_to_facetboard(src_service_id, action, base64codedterms, base64co
 		if (terms) {
 			var ranked_preterms = terms.split(',');
 			var ranked_preterms_raw = terms_raw.split(',');
-			
+			var ranked_preroots = base64lightcodedroots.split('|');
+      
+      //alert('ranked_preroots: '+ranked_preroots[0])
+      
+			var ranked_root = new Array;
 			var ranked_term = new Array;
 			var ranked_term_raw = new Array;
 			
 			ranked_preterms.foreach(function(k, v) {
 				if (v != '') {
 					ranked_term[k] = v.trim();
-					
-					if (ranked_preterms_raw != '') {
+					ranked_root[k] = ranked_preroots[k];
+
+          if (ranked_preterms_raw != '') {
 						ranked_term_raw[k] = Base64.decode(ranked_preterms_raw[k]).trim();
 					} else {
 						ranked_term_raw[k] = '';
@@ -204,6 +213,7 @@ function fb_add_to_facetboard(src_service_id, action, base64codedterms, base64co
 			});
 			
 			fb_table.ranked_terms = ranked_term;
+			fb_table.ranked_roots = ranked_root;
 			fb_table.ranked_terms_raw = ranked_term_raw;
 			fb_render_terms(fb_general_itemcount, fb_counterobj, fb_table, action);
 		}
@@ -256,6 +266,7 @@ function fb_init_src_display(src_service_id, action) {
 function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, action) {
 	var ranked_term = fb_tablebody.ranked_terms;
 	var ranked_term_raw = fb_tablebody.ranked_terms_raw;
+  var ranked_roots = fb_tablebody.ranked_roots;
 	var rodinsegment = '<?php echo $RODINSEGMENT; ?>';
 	var rankinfos = fb_tablebody.rows[0];
 	var tBody = null;
@@ -287,16 +298,17 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, acti
 	// Add eachnew element to table
 	ranked_term.foreach( function(k, term) {
 		tBody = fb_tablebody.getElementsByTagName('tbody')[0];
-		newTR = generate_ontofacet(term, ranked_term_raw[k], parent.LANGUAGE_OF_RESULT_CODED, rodinsegment); 
+		newTR = generate_ontofacet(term, ranked_term_raw[k], ranked_roots[k], parent.LANGUAGE_OF_RESULT_CODED, rodinsegment); 
 		tBody.appendChild(newTR);
 	});
 }
 
 
-/**
+/*
+ * FACETBOARD CONSTRUCTION
  * Generates the table row for the given term.
  */
-function generate_ontofacet(term, ranked_term_raw, lang, rodinsegment) {
+function generate_ontofacet(term, ranked_term_raw, rootbase46, lang, rodinsegment) {
 	var tableRow = document.createElement('tr');
 	tableRow.setAttribute("class", "fb-term-row");
 	
@@ -316,18 +328,24 @@ function generate_ontofacet(term, ranked_term_raw, lang, rodinsegment) {
 	tempTableCell = document.createElement('td');
 	tempTableCell.setAttribute("align", "right");
 	
-	// Show the rank button
-  var rankButton = document.createElement('img');
-  rankButton.setAttribute("src", "../../../gen/u/images/rank-icon.png");
-  rankButton.setAttribute("style", "cursor:pointer;");
-  rankButton.setAttribute("title", lg("lblClick2RankResults", term));
-  rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ ranked_term_raw + "', '" + term+ "', '" + lang + "');");
-		
-	tempTableCell.appendChild(rankButton);
-    
+  if (rootbase46)
+  {
+    // Show the rank button
+    var rankButton = document.createElement('img');
+    rankButton.setAttribute("src", "../../../gen/u/images/rank-icon.png");
+    rankButton.setAttribute("style", "cursor:pointer;");
+    rankButton.setAttribute("title", lg("lblClick2RankResults", term));
+
+    rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ rootbase46 + "', '" + term+ "', '" + lang + "');");
+
+    tempTableCell.appendChild(rankButton);
+  }
+  
+  
   // Show the Survista button only if the raw form is a ZBW URI or a DBPedia category
 	if (ranked_term_raw.indexOf("http://zbw") >= 0 || ranked_term_raw.indexOf("http://dbpedia.org/resource/Category:") >= 0) {
 	  var survistaButton = document.createElement('img');
+    
 		survistaButton.setAttribute("src", "../../../gen/u/images/survista-icon.png");
 		survistaButton.setAttribute("style", "cursor:pointer;");
 		survistaButton.setAttribute("title", lg("lblOntoFacetsShowOnSurvista", term));

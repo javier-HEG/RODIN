@@ -1,0 +1,179 @@
+<html>
+<head>
+  
+    <link rel="stylesheet" type="text/css" href="../../../../app/css/rodin.css" />
+
+<title> RDF SKOS Partial Evaluator SOLR INDEXER (for zbw_stw)
+</title> 
+</head>
+<body>
+
+<?php
+
+//siehe http://arc.semsol.org/docs/v2/getting_started
+
+include("../../sroot.php");
+$PATH2U="../../../gen/u";
+include_once("$PATH2U/arc/ARC2.php");
+include_once("$DOCROOT$UPATH1/SOLRinterface/solr_interface.php");
+include_once("../FRIutilities.php");
+include_once("SKOS_SOLR_partial_evaluator_resources.php");
+
+//We need on the server at HEG to enhance php execution time limit, 
+//since this server is slowlee and need more time than the local power macs
+set_time_limit ( 100000 ); // Feature in 5.3.0 deprecated, in 5.4.0 deleted - but useful
+
+$storename=$_GET['storename'];
+if (!$storename)
+{
+	print "Please provide a storename and a solr_collection to take data";
+	exit;
+}
+$solr_collection = $_GET['solr_collection'];
+if (!$solr_collection)
+	$solr_collection = $storename;
+
+
+//*************************************************************************
+$mode = $_REQUEST['mode'];    // fast, bigdata
+if (!$mode) $mode = 'fast';
+
+$printline = $_REQUEST['printline'];    // 1 --> descriptor line printed
+$doindex = $_REQUEST['doindex'];        // 1 --> we really INDEX into SOLR
+$indexdebug = $_REQUEST['indexdebug'];  // 1 --> each indexed document is shown in debug file (see solr_interface)
+$showdetails= $_REQUEST['showdetails']; // 1 --> each RDF resource are shown details (and even in the debug file)
+$MAXLOOPSTEPS=$_REQUEST['loop'];        // n (>0) --> perform only n steps (index/show only n resources from store)
+
+//*************************************************************************
+//?storename=bnf_rameau&doindex=1&loop=&printline=1&indexdebug=0&mode=bigdata
+
+if ($storename && $solr_collection)
+{
+	print "<h2> SOLR SKOS Partial Evaluator </h2>";
+	print "<h3>Indexing triple store '$storename' to SOLR -> collection '$solr_collection'</h3>";
+	if ($mode=='bigdata')
+		print "<h3>USING BIG DATA (indexing) = one skos obj at a time</h3>";
+	else {
+	if ($mode=='fast')
+		print "<h3>USING FAST (indexing) = all skos objs in one shot</h3>";
+	}
+}
+
+
+$seephperrors = $_REQUEST['seephperrors'];
+if ($seephperrors) error_reporting(E_ALL); // forces error reporting
+
+
+$SUBMITONENTER=" onKeyPress=\"return submitenter(this,event)\"";
+
+//exec_sparql_explore("dbpediastw');
+//exec_sparql_explore('zbw');
+solr_skos_indexing_evaluator($storename,$solr_collection,$mode);
+
+
+
+function solr_skos_indexing_evaluator($storename,$solr_collection,$mode)
+##################################
+# 
+# navigates the SKOS thesaurus
+# gathers SKOS entities
+# index them on SOLR together with namespaces
+{
+  global $printline;
+  global $doindex;
+  global $indexdebug;
+  global $showdetails;
+  global $zbw_stw_namespaces;
+  global $gesis_thesoz_namespaces;
+  global $bnf_rameau_namespaces;
+  global $loc_sh_namespaces;
+	global $ARCCONFIG;
+  
+  $namespaces=get_namespaces_from_DB();
+	
+	$LOCALARCCONFIG = $ARCCONFIG;
+	$LOCALARCCONFIG{'store_name'} = $storename;
+	
+	$store = ARC2::getStore($LOCALARCCONFIG);
+	if (!$store->isSetUp()) {
+	  $store->setUp();
+	}
+ 	
+ 	$SOLRCLIENT = init_SOLRCLIENT($solr_collection,'solr_skos_indexing_evaluator system error init SOLRCLIENT');
+	 
+	// WE DO NOT NEED TO STORE namespaces into SOLR ANYMORE
+	// NAMESPACES ARE IN the DB 
+  // solr_index_skos_namespaces($namespaces,$solr_collection);
+  
+  print "<table>";
+  
+  
+	$descriptors = get_descriptors_skos($storename);
+  
+  $cnt_descriptors = count($descriptors);
+  
+  print "<tr height='40'><td/><td><b>$cnt_descriptors descriptors</b> found in store!</td></tr>";
+  if ($doindex) print "<tr height='40'><td/><td><b>Indexing RDF entities into SOLR collection '$solr_collection' ...</b></td></tr>";
+  else 
+  {  
+    if($printline)
+    print "<tr height='40'><td/><td><b>Showing RDF entities ...</b></td></tr>";
+  }
+   
+  $documents=array();
+  foreach($descriptors as $descriptor)
+  {
+
+    $i++;
+    //if ($i==2) break;
+
+    $descriptor_pretty = prettyprintURI($descriptor,$namespaces);
+    $descriptor_clean= separate_namespace($namespaces,$descriptor,'_');
+
+    if($printline) print "<tr height='20'><th align='right'>$i</th><th valign='bottom' align='left' colspan='2'>$descriptor_pretty </th><th/></tr>";
+
+    $p_o_resource=get_skos_resource($descriptor,$store);
+    
+    //print "<hr>"; var_dump($p_o_resource);
+  if ($showdetails)
+  {
+    foreach($p_o_resource as $triple)
+    {
+      list($p,$o,$lang)=$triple;
+      
+      $pred= separate_namespace($namespaces,$p);
+      $obj= separate_namespace($namespaces,$o);
+      
+      print "<tr><td/><td>$pred</td><td> <b>$obj</b></td></tr>";
+    }
+  }
+  if ($doindex) 
+  {
+    $doc = prepare_skos_entity_solr_document($SOLRCLIENT,$namespaces,$descriptor_clean,$p_o_resource,$storename,$solr_collection,$mode,$indexdebug, $showdetails);
+    
+    if ($mode=='fast')
+    {
+	    if ($doc)
+	      $documents[] = $doc;
+		} 
+      //print "<hr>doc: ";var_dump($doc);
+   }
+  } // foreach descriptor
+  print "</table>";  
+    
+  if ($mode=='fast') // Index all in one
+	{
+	  if ($SOLRCLIENT)
+	  {
+	    //index $documents all in one
+	    solr_synch_update(false, $solr_collection, $SOLRCLIENT, $documents, $indexdebug, $showdetails);
+	  } // SOLRCLIENT
+	}
+} // solr_skos_indexing_evaluator
+
+
+
+
+?>
+</body>
+</html>

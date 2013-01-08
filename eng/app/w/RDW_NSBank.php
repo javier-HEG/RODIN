@@ -225,6 +225,7 @@ EOH;
 	
 		$xml = get_file_content($url);
 
+    exit;
 
 $XMLNS1=<<<EOX
 xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -240,17 +241,10 @@ EOX;
 		// WORKAROUND: Cleanup rdf & ns info (not compat with simplexml)
 		$xml=str_replace("<dc:","<",$xml);
 		$xml=str_replace("/dc:","/",$xml);
-		
-		$xml=str_replace($XMLNS1,"",$xml);
+    $xml=str_replace($XMLNS1,"",$xml);
 		$xml=str_replace($XMLNS2,"",$xml);
-		
-		
-		
-		$sxml= new SimpleXMLElement($xml);
-
-
-	
-		//Test: parse dublin core simple:
+    $sxml= new SimpleXMLElement($xml);
+//Test: parse dublin core simple:
 		foreach ($sxml->dc as $DC)
 		{
 			foreach($DC as $attrname=>$attrvalue)

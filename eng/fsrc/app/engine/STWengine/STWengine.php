@@ -27,8 +27,6 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) { include_once("$updir$filename");break;}
 	
 
-	
-
 
 
 
@@ -39,11 +37,12 @@ abstract class STWengine extends SRCengine
 	function __construct() 
 	#########################
 	{
-		parent::__construct();
+   	parent::__construct();
 		$this->setStores();
-				
+    $this->currentclassname='STWengine';
+
 		//print "<br> STWengine<hr>"; var_dump($this);print "<hr>";
-		
+	
 	} //constructor 
 	
 	
@@ -56,19 +55,16 @@ abstract class STWengine extends SRCengine
 		
 		$this->store = NULL;
 		
-		$localArcConfig['store_name'] = 'zbw';
-		$this->set_zbw_store(ARC2::getStore($localArcConfig));
-		
-		if (!$this->get_zbw_store()->isSetUp()) {
-	  		$this->get_zbw_store()->setUp();
+		$localArcConfig['store_name'] = 'zbw_stw';
+
+    $ARCCONFIG = $GLOBALS['ARCCONFIG'];
+   
+		$this->set_store(ARC2::getStore($localArcConfig));
+
+		if (!$this->get_store()->isSetUp()) {
+	  		$this->get_store()->setUp();
 		}
 		
-		$localArcConfig['store_name'] = 'zbwdbpedia';
-		$this->set_zbwdbpedia_store(ARC2::getStore($localArcConfig));
-		
-		if (!$this->get_zbwdbpedia_store()->isSetUp()) {
-	  		$this->get_zbwdbpedia_store()->setUp();
-		}
 	}
 	
 	/**
@@ -76,23 +72,33 @@ abstract class STWengine extends SRCengine
 	 * in our server, this function will always "suceed".
 	 */
 	protected function testDataSourceResponsiveness($user) {
-		return "<user>$user</user>";
+      $response="<user>$user</user>";
+    return $response;
 	}
 
+  
+ /**
+  * Formats $term as in STW, first letter capital.
+	*/
+	protected function formatAsInThesaurus($term) {
+		return ucfirst(strtolower($term));
+	}
+
+  
 	/**
 	 * @see SRCengine.preprocess_refine() for details.
 	 */
 	protected function preprocess_refine($terms, $wordbinding='STW', $lang='en') {
 		if ($this->getSrcDebug()) {
-			print "<br>preprocess_refine($terms, $wordbinding, $lang);";
+			print "<br>STWengine->preprocess_refine($terms, $wordbinding, $lang);";
 		}
 		
 		// TODO Implement ZBW_cleanup() and replace
 		$terms = ZBW_dirtydown($terms);
 		
-		list($node, $label) = $this->extractNode($terms);
+		list($descriptor, $label) = $this->extractDescriptor($terms);
 
-		if ($node) {
+		if ($descriptor) {
 			// Then $terms are already concept URIs
 			$preResults = new SRCEngineResult($terms);
 		} else {
@@ -133,10 +139,13 @@ abstract class STWengine extends SRCengine
 	 * 
 	 * @param string $term
 	 */
-	protected function extractNode($term) {
+	protected function extractDescriptor($term) {
 		$ok= false;
 		$node = $label = 0;
-		
+    
+		if ($this->getSrcDebug()) {
+			print "<br><b>STWengine->extractDescriptor($term):";
+		}
 		$thsysBase = "http://zbw.eu/stw/thsys/";
 		$descriptorBase = "http://zbw.eu/stw/descriptor/";
 		$regExpThsys = "/^http:\/\/zbw\.eu\/stw\/thsys\/(\d*) \((.*)\)$/";
@@ -170,7 +179,7 @@ abstract class STWengine extends SRCengine
 			print "<br>stw_validate_term($term,$lang='en') ...";
 		}
 		
-		$suggested_term = $this->checkterm_in_stw($term,'X',$lang, $this->get_zbw_store());
+		$suggested_term = $this->checkterm_in_stw($term,'X',$lang, $this->get_store());
 		
 		if ($suggested_term != '') { // let's get the terms URI
 			$query = <<<EOQ
@@ -182,7 +191,7 @@ abstract class STWengine extends SRCengine
 					}
 EOQ;
 
-			$store = $this->get_zbw_store();
+			$store = $this->get_store();
 			if ($rows = $store->query($query, 'rows')) {
 				return array($term, base64_encode($rows[0]['uri']));
 			} else {
@@ -198,10 +207,10 @@ EOQ;
 	 * returns a suggested term or ''.
 	 */
 	protected function checkterm_in_stw($term, $SearchType, $lang, $store) {			
-		if ($this->getSrcDebug()) {	
-			print "<br>STORE: <br>";
-			var_dump($store);
-		}
+//		if ($this->getSrcDebug()) {	
+//			print "<br>STORE: <br>";
+//			var_dump($store);
+//		}
 		
 		switch($SearchType) {
 			case 'X':

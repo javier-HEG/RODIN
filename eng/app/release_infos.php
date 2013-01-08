@@ -5,18 +5,19 @@
 
 <a href="http://campus.hesge.ch/id_bilingue/projekte/rodin/index_de.htm" target=_blank>RODIN</a>
 <br />
-<br /><b>DEVELOPMENT / RELEASE INFOS</b>
+<br /><b>DEVELOPMENT / RELEASE INFOS </b>
 <br />
-<br />01.01.2012 
-<br />Fabio Ricci (FRI) - Tel. 076-5281961
+<br />18.12.2012 
+<br />By Fabio Ricci (FRI) - Tel. 076-5281961
 <br />and Javier Belmonte (BEL)
 <br />Please report any issue using <?php echo $MANTIS ?> 
 <br />
 <br />
-<br /><b>RODIN Release 3</b>
+<br /><b>RODIN Release 2.5</b>
 <br />===================
 <br />Semantic Filtering introduced
 <br />SOLR integration for results
+<br />New SKOSxl ontology source SOZ "theSoz" integrated per Dec 18th 2012
 <br />
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
@@ -25,7 +26,26 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br /> - name of the widget
 <br /> - value used for the query
 <br /> - warning/error.
-
+<br /> - 
+<br /> - Completed features per 12.12.12:
+<br /> - --------------------------------
+<br /> - Aggregated view (still sth to do...)
+<br /> - STW on SOLR
+<br /> - Results higlighting
+<br /> - Semantic filtering
+<br /> - Higher speed through SRC optimization
+<?php 
+  if ($_ENV['USER']=='fabio' || $_ENV['USER']='riccif')
+  {
+    $SRC_CONTROL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/select_src.php";
+    $SRC_PEVAL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/SKOS_SOLR_partial_evaluator.php";
+    $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u";
+    
+    print "<br><a href='$SRC_U_LINK' target='blank'>SRC METHODS</a>";
+    print "<br><a href='$SRC_CONTROL_LINK' target='blank'>SRC MANAGEMENT FOR CURRENT SEGMENT</a>";
+    print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR ZBW</a><br><br>";
+  }
+?>
 <!--p>
 <b>Integration with SRC - Details</b>
 <br />==============================

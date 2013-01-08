@@ -16,7 +16,7 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 }
 
 
-require_once("$SOLR_INTERFACE_URI/solr_init.php");
+require_once("$SOLR_INTERFACE_URI/solr_interface.php");
 $host   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host'];
 $port   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port'];
 $path   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path'];

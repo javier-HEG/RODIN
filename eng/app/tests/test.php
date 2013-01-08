@@ -5,30 +5,34 @@
  */
 
 require_once("../u/RodinResult/RodinResultManager.php");
-require_once("../u/SOLRinterface/solr_init.php");
+require_once("../u/SOLRinterface/solr_interface.php");
 //    global $SOLR_RODIN_CONFIG;
 //    global $SOLARIUMDIR;
 //    global $USER;
  
-$expr="";
-$expr2=str_replace("/","\/",$expr);
-    $pattern="/$expr2(.*)/";
-    
-    //print "<br>Pattern $pattern ";
- $term="Statistik und Ãkonometrie";   
- 
-    if (preg_match($pattern,$term,$match))
-    {
-      $matched=1;
-      $nsterm=$ns;
-      $nakedterm=$match[1]; //cut first "/"
-      if ($nakedterm[0]=='/')
-          $nakedterm=substr($nakedterm,1);
-      
-      $returnterm=$ns.$sep.$nakedterm;
-      //print " YES ";
-      break;
-    }
-  }
+
+
+$expr="http://lod.gesis.org/thesoz/term/10034304-en";
+
+
+list($left,$right) = splitn($expr,'/',3);
+print "<hr>splitn($expr,'/',3) = ($left, $right)<br>";
+
+list($left,$right) = splitn($expr,'/',4);
+print "<hr>splitn($expr,'/',4) = ($left, $right)<br>";
+
+
+list($left,$right) = splitrn($expr,'/',1);
+print "<hr>splitrn($expr,'/',1) = ($left, $right)<br>";
+
+list($left,$right) = splitrn($expr,'/',2);
+print "<hr>splitrn($expr,'/',2) = ($left, $right)<br>";
+
+list($left,$right) = splitrn($expr,'/',3);
+print "<hr>splitrn($expr,'/',3) = ($left, $right)<br>";
+
+
+
+
 
 ?>

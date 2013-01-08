@@ -106,7 +106,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	
   
   
-	TomaNota::deEsto($_SERVER[PHP_SELF], "search url : $url");
+	//TomaNota::deEsto($_SERVER[PHP_SELF], "search url : $url");
 
 	//$xml = get_file_content($url);
 	$xml = get_cached_widget_response($url);
@@ -131,6 +131,9 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 		$controlNumber = getDataFromRecord($recordData, array('035' => 'a'));
 		$singleResult->setUrlPage($swissbib_permalink_baseurl . urlencode('"' . $controlNumber . '"'));
 
+    print "PAGE: ".$singleResult->getUrlPage();
+    exit;
+    
 		$date = getDataFromRecord($recordData, array('260' => 'c'));
 		if (preg_match("/\d{4}/", $date, $match))
 			$date = '01.01.' . $match[0];
@@ -156,7 +159,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 				break;
 		}
 
-		TomaNota::deEsto($_SERVER[PHP_SELF], "singleResult ($formatRaw) : $singleResult");
+		//TomaNota::deEsto($_SERVER[PHP_SELF], "singleResult ($formatRaw) : $singleResult");
 
 		$allResults[] = $singleResult;
 	}

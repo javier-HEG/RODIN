@@ -162,7 +162,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	$feed = "$DELICIOUS_search_baseFEED$parameters";
 
 	//$rssContent = file_get_contents($feed);
-  $rssContent = get_cached_widget_response($feed);
+        $rssContent = get_cached_widget_response($feed);
 
 	$rss = str_get_html($rssContent);
 	

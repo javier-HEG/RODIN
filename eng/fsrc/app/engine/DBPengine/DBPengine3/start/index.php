@@ -1,7 +1,10 @@
 <?php 
 
-$CLASSNAME = basename(dirname(dirname($_SERVER['PHP_SELF']))); // 
+if (!$CLASSNAME) $CLASSNAME = basename(dirname(dirname($_SERVER['PHP_SELF']))); // 
 $METHODNAME = 'web'.basename(dirname($_SERVER['PHP_SELF'])); // 
+
+//Change to $path if set!
+if ($path) $chdir_res=chdir($path);
 
 
 $filename="$CLASSNAME.php"; $maxretries=10;

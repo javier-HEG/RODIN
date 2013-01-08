@@ -205,8 +205,8 @@ EOSQ;
 		}
 EOSQ;
 
-			$broader_prefLabels = $this->exec_ARCstore($this->get_zbw_store(), $QUERY_ZBW_PREFERRED, $language, 'label', 'get_zbw_skos_broader_terms()');
-			$broader_altlabels = $this->exec_ARCstore($this->get_zbw_store(), $QUERY_ZBW_ALTERNATIVE, $language, 'label', 'get_zbw_skos_broader_terms()');
+			$broader_prefLabels = $this->exec_ARCstore($this->get_store(), $QUERY_ZBW_PREFERRED, $language, 'label', 'get_zbw_skos_broader_terms()');
+			$broader_altlabels = $this->exec_ARCstore($this->get_store(), $QUERY_ZBW_ALTERNATIVE, $language, 'label', 'get_zbw_skos_broader_terms()');
 			
 		} // each descriptor
 	

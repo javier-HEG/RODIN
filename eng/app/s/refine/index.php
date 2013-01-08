@@ -3,13 +3,17 @@
  * SRC REFINE
  * Call: http://<Path to SRC>/refine?user=<num>
  */
-
 require_once "../../u/FRIdbUtilities.php";
-  
-$VERBOSE = (param_named('VERBOSE',$_REQUEST));
-	 
+require_once "../../tests/Logger.php";
+
 $user = $_REQUEST['user'];
 $service_id	= $_REQUEST['service_id'];
+$VERBOSE = (param_named('VERBOSE',$_REQUEST));
+
+
+//LOG SRC TIME HERE:
+Logger::logAction(25, array('from'=>'s/refine/index.php','msg'=>'Started Service ID='.$service_id));
+
 
 if ($VERBOSE) {
 	header("content-type: text/html");
@@ -100,7 +104,7 @@ if ($action<>'dummy' && $action<>'dummytimeout') {
 		CURLOPT_HTTPHEADER => array('Accept:text/xml'),
 		CURLOPT_TIMEOUT => $FSRC_CURL_TIMEOUT_SEC
 	);
-
+  
 	$output = parametrizable_curl($SRCurl, array(), $options);
 	
 	if (strstr($output, "Operation timed out") || strstr($output, "Couldn't resolve host") || $output=='') {
@@ -149,15 +153,21 @@ EOU;
 		</refine>
 EOO;
 }
-	
+
+
+Logger::logAction(25, array('from'=>'s/refine/index.php','msg'=>'Delivered Service ID='.$service_id));
+
 ###################################
 # Print out output
 ###################################
 if ($VERBOSE) {
-	print "<h2>Output</h2>";
-	print '<div style="border: 1px solid gray;">' . html_printable_xml($output) . '</div>';
+	print "<h2>Output:</h2>";
+	//print '<div style="border: 1px solid gray;">' . html_printable_xml($output) . '</div>';
+  print $output;
 } else {
 	header("content-type: text/xml");
 	print $output;
 }
+
+
 ?>

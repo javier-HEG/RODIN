@@ -2,7 +2,7 @@
 
 <?php
 
-$filenamex="u/SOLRinterface/solr_init.php";
+$filenamex="u/SOLRinterface/solr_interface.php";
 #######################################
 $max=10;
 //print "<br>FRIutilities: try to require $filenamex at cwd=".getcwd()."<br>";
@@ -16,11 +16,11 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 	}
 }
 
-print "wanr to require "."$SOLR_INTERFACE_URI/solr_init.php". " from ".getcwd();
+print "wanr to require "."$solr_interface.php_URI/solr_interface.php". " from ".getcwd();
 
 
 
-require_once("$SOLR_INTERFACE_URI/solr_init.php");
+require_once("$solr_interface.php_URI/solr_interface.php");
 
 $host   =$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['host'];
 $port   =$SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['port'];

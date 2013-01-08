@@ -136,7 +136,9 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 						
 	$options = array(CURLOPT_HTTPHEADER => array('Accept:application/json'));
 
-	$jsonString = parametrizable_curl($searchsource_baseurl . 'search', $parameters, $options);
+	$jsonString = get_cached_widget_response_curl($searchsource_baseurl . 'search', $parameters, $options);
+	
+        //$jsonString = parametrizable_curl($searchsource_baseurl . 'search', $parameters, $options);
 	
 	$jsonInfo = json_decode($jsonString, true);
 
@@ -150,6 +152,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 		foreach ($jsonInfo['hits']['hits'] as $record) {
 			// Get result data from record
 			$options = array(CURLOPT_HTTPHEADER => array('Accept:application/json'));
+      // HERE NO CACHE???
 			$jsonRecordString = parametrizable_curl($searchsource_baseurl . 'record/' . $record['id'], array(), $options);
 			$jsonRecordResult = json_decode($jsonRecordString, true);
 			$jsonRecordInfo = $jsonRecordResult['record'];

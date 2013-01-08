@@ -134,20 +134,90 @@ function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
  * @param string $chaining_url
  */
 function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
-	global $datasource;
-	global $RDW_REQUEST;
-	global $GOOGLEAPIKEY;
-	global $thisSCRIPT;
+   include_once("../tests/Logger.php");
+    global $datasource;
+    global $RDW_REQUEST;
+    global $GOOGLEAPIKEY;
+    global $thisSCRIPT;
+    global $q,$m, $USER, $sid, $show;
+    global $WEBROOT,$RODINROOT,$RODINSEGMENT;
+    if (!$sid) $sid=$_REQUEST['sid'];
+        
+        
+    $url_cache_rodin_results="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/rodin_cache_result.php";
 
-	foreach ($RDW_REQUEST as $querystringparam => $d)
-		eval( "global \${$querystringparam};" );
+    //Prepare cacheid for widget
+    $cacheid="googlebooks.widget:"; 
+        
+    foreach ($RDW_REQUEST as $querystringparam => $d)
+    {
+            //print "<br>qs: $querystringparam=$d";
+      eval( "global \${$querystringparam};" );
+    }
 
-	if ($_REQUEST['xBooks'] != "'fullOnly'")
-		$restriction = "google.search.BookSearch.TYPE_FULL_VIEW_BOOKS";
-	else
-		$restriction = "google.search.BookSearch.TYPE_ALL_BOOKS";
-		
-	echo <<< EOAPIR
+    $cacheid.="$q-$m";
+    $cacheid64=  base64_encode($cacheid);
+
+//        //****************************
+//        if (Logger::LOGGER_ACTIVATED) {
+//			$info['name'] = 'googlebooks collectresults';
+//			$info['msg'] = "requesting cacheid: (($cacheid)) 64encoded=$cacheid64";
+//			Logger::logAction($action=25, $info);
+//        }
+//        //****************************
+//        
+        
+        
+        $codedJSONstring = urlencode(get_cache_response($cacheid));
+//        //****************************
+//        if (Logger::LOGGER_ACTIVATED) {
+//			$info['name'] = 'googlebooks collectresults';
+//			$info['msg'] = "got from cache: (($codedJSONstring))";
+//			Logger::logAction($action=25, $info);
+//        }
+//        //****************************
+        //Prepare params initialisation to be used in
+        //either cached and uncached way:
+        $INIT_PARAMS=<<<EOPIP
+// Parse the current page's querystring
+var url = '$thisSCRIPT';
+var qs = new Querystring();
+m = $m;
+q = qs.get('q', qs.get('qe', ''));
+sid = qs.get("sid", "0");
+uncache = qs.get("uncache", "0");
+show = qs.get("show", "RDW_widget");
+codedJSONstring = '$codedJSONstring';
+EOPIP;
+        
+        if ($codedJSONstring) // no cache content yet
+        {
+            //print "GOOGLEBOOKS Cache exists: ((($htmlString)))";
+            print<<<EOP
+<script type="text/javascript">
+    //alert('cache got: $codedJSONstring');
+        $INIT_PARAMS
+	var poststr = 'ajax=1&sid='+sid+'&q='+q+'&m='+m+'&sr='+codedJSONstring+'&uncache='+uncache+'&show='+show+'&cacheid64=$cacheid64';
+  //alert('cache call poststr: '+poststr);
+  //alert('cache:redirecting complete: '+url+'?'+poststr+'\\n\\nchaining_url: $chaining_url');
+	var request = makeRequest(url, poststr, "window.open('$chaining_url','_self')");
+</script>
+</head>
+<body>
+	<p id="heading_p" />
+</body>
+</html>
+EOP;
+            
+        }
+        else
+        {
+            if ($_REQUEST['xBooks'] != "'fullOnly'")
+                    $restriction = "google.search.BookSearch.TYPE_FULL_VIEW_BOOKS";
+            else
+                    $restriction = "google.search.BookSearch.TYPE_ALL_BOOKS";
+
+            echo <<< EOAPIR
 <script src="http://www.google.com/jsapi?key=$GOOGLEAPIKEY" type="text/javascript"></script>
 <script type="text/javascript">
 	// Activate Google Books search
@@ -194,31 +264,28 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 
 		JSONstring = JSON.stringify(allResults);
 		codedJSONstring = encodeURIComponent(JSONstring);
-		
+                //Post to RODIN cache
+                if (JSONstring!='')
+                {
+                    var cache_res = makeRequest('$url_cache_rodin_results', 'cacheid=$cacheid64&user=$USER&sid=$sid&datasource=$datasource&content='+codedJSONstring, null);
+                }
 		// Processing complete! Make the AJAX call and leave page
 		var url = '$thisSCRIPT';
+    //alert('about to cache: '+codedJSONstring);
 		var poststr = 'ajax=1&sid='+sid+'&q='+q+'&m='+m+'&sr='+codedJSONstring+'&uncache='+uncache+'&show='+show;
-		var request = makeRequest(url, poststr, "window.open('$chaining_url','_self')");
+		//alert('save:redirecting: '+url+'?'+poststr+'\\n\\nchaining_url: $chaining_url');
+    var request = makeRequest(url, poststr, "window.open('$chaining_url','_self')");
 	}
 
 	function OnLoad() {
-		// Parse the current page's querystring
-		var qs = new Querystring();
 
 		// TODO The following parameters are used in
 		// processSearchResults() as global parameters
 
-		// The number of results is limited to 5 because the
-		// request URL made in processSearchResults() would
-		// be too long
-		m = Math.min(qs.get("m", "5"), 5);
-		q = qs.get('q', qs.get('qe', ''));
-		sid = qs.get("sid", "0");
-		uncache = qs.get("uncache", "0");
-		show = qs.get("show", "RDW_widget");
-		
+		$INIT_PARAMS
+                    
 		bookSearch = new google.search.BookSearch();
-		
+
 		// Set restriction according to preferences
 		bookSearch.setRestriction($restriction, null);
 		bookSearch.setResultSetSize(bookSearch.LARGE_RESULTSET);
@@ -242,7 +309,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 </body>
 </html>
 EOAPIR;
-
+        } // cached
 	return false; // stop chaining at php/ajax level
 }
 
@@ -253,14 +320,16 @@ EOAPIR;
 * responsible for saving the results passed as a JSON object
 */
 function DEFINITION_RDW_STORERESULTS() {
+  
 	$DecodedSearchresults = json_decode($_REQUEST['sr']);
-
+  // we must use this current sid for storing the results:
+  $DecodedSearchresults->search->sid= $_REQUEST['sid'];
 	$cnt = saveGoogleBooksResults($DecodedSearchresults);
-	
-	// This output is not visible since it's made by an AJAX query
-	print "$cnt results for $sid stored in DB";
 
-	return true;
+	// This output is not visible since it's made by an AJAX query
+	//print "$cnt results for $sid stored in DB";
+
+  return true;
 }
 
 

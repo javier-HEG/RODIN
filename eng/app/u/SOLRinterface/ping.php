@@ -20,7 +20,7 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 }
 
 
-require_once("$SOLR_INTERFACE_URI/solr_init.php");
+require_once("$SOLR_INTERFACE_URI/solr_interface.php");
 
 
 print "<br>SOLARIUMURL: <a href='$SOLARIUMURL' target='_blank'>$SOLARIUMURL</a>";

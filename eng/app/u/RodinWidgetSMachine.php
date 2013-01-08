@@ -829,7 +829,6 @@ function RDW_COLLECTRESULTS_EPI()
 			);
 		}
 	} // internet connection
-
 	return $res;
 } // RDW_COLLECTRESULTS_EPI
 

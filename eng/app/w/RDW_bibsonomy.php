@@ -159,7 +159,9 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 
 	// Instantiate BibSonomy accessor
 	$bib = new BibSonomy($BIBSONOMY_USER, $BIBSONOMY_APPLICATION_ID );
-	$sxml = $bib->getAllPublicPosts($r, $tags, $u);
+  
+  $sxml = getAllPublicPosts_cached($bib, $r, $tags, $q, $u);
+  //$sxml = $bib->getAllPublicPosts($r, $tags, $u);
 	
 	// Parse results creating results
 	$allResults = array();
@@ -290,6 +292,31 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	
 	return true; 
 }
+
+/**
+ * use rodin_cache - calls bibsonomy proc to get data
+ * and store it into cache.
+ */
+function getAllPublicPosts_cached(&$bibsonomy_interface,$r, &$tags, $q, $u)
+{
+  //	$sxml = $bibsonomy_interface->getAllPublicPosts($r, $tags, $u);
+  $cacheid = "$r-$q-$u";
+  $bibsonomy_xml_response = get_cache_response($cacheid);
+  if ($bibsonomy_xml_response && count($bibsonomy_xml_response->posts->post) > 0)
+  {   
+    $bibsonomy_sxml_response = simplexml_load_string($bibsonomy_xml_response);
+  }
+  else
+  {
+    $bibsonomy_sxml_response = $bibsonomy_interface->getAllPublicPosts($r, $tags, $u);
+    $xml_content = $bibsonomy_sxml_response->asXML();
+    cache_response($cacheid,$xml_content);
+  }
+  
+  return $bibsonomy_sxml_response;
+}
+
+
 
 
 /**

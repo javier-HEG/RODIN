@@ -183,7 +183,7 @@ class BasicRodinResult {
 	 * @param $sid    - the search id
 	 * @param $query - the user query
 	 */
-	public static function toInsertSOLRsearch(&$client, $sid, $query, $user) {
+	public static function toInsertSOLRsearch(&$client, $sid, $query, $seg, $user) {
 
     //print "<br>toInsertSOLRdocument ($datasource)<br>";
 
@@ -194,6 +194,7 @@ class BasicRodinResult {
     $result_doc->id         = $result_doc->sid.'-'.uniqid(); //SOLR ID unique!!!
     $result_doc->query      = $query;
     $result_doc->user       = $user;
+    $result_doc->seg        = $seg;
 
     //Add specific attr/value fields:
 
@@ -215,7 +216,7 @@ class BasicRodinResult {
 	 * @param $datasource
 	 * @param $resultNumber
 	 */
-	public function toInsertSOLRdocument(&$client, $sid, $datasource, $resultNumber) {
+	public function toInsertSOLRdocument(&$client, $sid, $datasource, $resultNumber, $seg, $user) {
     
     //print "<br>toInsertSOLRdocument ($datasource)<br>";
 
@@ -223,12 +224,14 @@ class BasicRodinResult {
     $result_doc = new Solarium_Document_ReadWrite();
 
     $result_doc->sid        = $sid;
+    $result_doc->seg        = $seg;
+    $result_doc->user       = $user;
     $result_doc->id         = $result_doc->sid.'-'.$resultNumber.'-'.uniqid(); //SOLR ID unique!!!
     $result_doc->type       = $this->resultType;
-    $result_doc->title      = htmlspecialchars_decode($this->title);
-    $result_doc->authors    = htmlspecialchars_decode($this->authors);
+    $result_doc->title      = encode4solr($this->title);
+    $result_doc->authors    = encode4solr($this->authors);
     $result_doc->date       = $this->date;
-    $result_doc->urlPage    = htmlspecialchars_decode($this->urlPage);
+    $result_doc->urlPage    = encode4solr($this->urlPage);
     $result_doc->wdatasource = $datasource; //rodin datasource id (the widget url)
 
     //Add specific attr/value fields:
@@ -242,15 +245,19 @@ class BasicRodinResult {
 
         $fields[]   = array($propertyName,'string',$propertyValue);
         $fulltext.=($fulltext<>'')?' ':'';
-        $fulltext.=htmlspecialchars_decode($propertyValue);
 			}
 		}
     #Put everything together in order to find per search the value: TBD 
-    $result_doc->body       = htmlspecialchars_decode($fulltext);
+    $result_doc->body = encode4solr($fulltext);
       
 		return $result_doc;
 	}
 
+  
+  
+  
+  
+  
 
 	public function headerDiv($resultIdentifier) {
 		$color = RodinResultManager::getRodinResultTypeColor($this->resultType);

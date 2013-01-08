@@ -1,6 +1,6 @@
 <?php
 
-$filenamex="u/SOLRinterface/solr_init.php";
+$filenamex="u/SOLRinterface/solr_interface.php";
 #######################################
 $max=10;
 //print "<br>FRIutilities: try to require $filenamex at cwd=".getcwd()."<br>";
@@ -14,10 +14,17 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 	}
 }
 
-require_once("$SOLR_INTERFACE_URI/solr_init.php");
+require_once("$SOLR_INTERFACE_URI/solr_interface.php");
 
 $id=$_REQUEST['id'];
-$doc=$_REQUEST['doc'];
+
+foreach(explode(',',$id) as $base64ids)
+{
+  $doc=$doc?', ':'';
+  $doc.=base64_decode($base64ids);
+}
+
+$lang= $_REQUEST['lang'];
 $path=$_REQUEST['path']; // i.e. rodin_result
 $title=$_REQUEST['title']; // i.e. skos-context
 
@@ -45,6 +52,7 @@ if (($client = solr_client_init($host,$port,$path,$core,$timeout)))
   $document = new Solarium_Document_ReadWrite();
   $document->id = $id;
   $document->title = $title;
+  $document->lang = $lang;
   $document->body = $doc;
   $documents= array($document);
   $result = solr_synch_update('add_solr_doc',$path,$client, $documents);

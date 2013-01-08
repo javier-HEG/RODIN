@@ -27,7 +27,8 @@ class STWengine2 extends STWengine
 	#########################
 	{
 		parent::__construct();
-		
+		$this->currentclassname='STWengine2';
+
 		$this->setWordbinding('STW');
 		//print "<br> STWengine2<hr>"; var_dump($this->get_zbwdbpedia_store());print "<hr>";
 	} //STWengine1 
@@ -49,20 +50,20 @@ class STWengine2 extends STWengine
 		if ($this->getSrcDebug()) print "<br>$METHODNAME($term)...";
 		
 		############################################
-		list($node,$label) = $this->extractNode($term);
+		list($node,$label) = $this->extractDescriptor($term);
 		############################################
 		
 		if ($node) # Request is on a node (label) exactely
 		{
-     list($labels,$descriptors) =  $this->exec_skos_node_sparql($this->get_zbw_store(),$action,$node,$lang,$lang);
+     list($labels,$descriptors) =  $this->exec_skos_node_sparql($this->get_store(),$action,$node,$lang,$lang);
 		} # node
 		###########################################
 		else //text
 		{
       
-      $term= $this->formatAsInSTW($term);
+      $term= $this->formatAsInThesaurus($term);
 			// ----- Search for Labels in STW SKOS Store ------
-			list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_zbw_store(),$action,$term,'X',$lang,$lang);
+			list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_store(),$action,$term,'X',$lang,$lang);
 				
       
 			if ($this->getVerbose()) print "<br>Checking RODINSEGMENT $RODINSEGMENT";
@@ -75,7 +76,7 @@ class STWengine2 extends STWengine
 				{
 					if ($this->getVerbose()) print "<br><b>NO $action terms</b> to ($term) found directly in Ontology! <b>Loosening down search to pattern matching XX</b><br>";
 					$SearchType='XX';			
-					list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_zbw_store(),$action,$term,'XX',$lang,$lang);
+					list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_store(),$action,$term,'XX',$lang,$lang);
         }
 				
 				if ($RODINSEGMENT<>'st' && $RODINSEGMENT <>'x'  &&  0)
@@ -84,7 +85,7 @@ class STWengine2 extends STWengine
 					if (count($labels)==0)
 					{
 						if ($this->getVerbose()) print "<br><b>NO $action terms</b> to ($term) found directly in Ontology! <b>Loosening down search to pattern matching XXL</b><br>";
-								list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_zbw_store(),$action,$term,'XXL',$lang,$lang);
+								list($labels,$descriptors) =  $this->exec_skos_sparql($this->get_store(),$action,$term,'XXL',$lang,$lang);
 					}
           
 				}
@@ -169,18 +170,6 @@ class STWengine2 extends STWengine
 			?d1 	skos:$verb 			?d2 .
 			?d2 	skos:prefLabel 	 ?x.
 		 }
-		 UNION
-		 {
-			?d1 	skos:prefLabel  '$term' .
-			?d1 	skos:$verb 		?d2 .
-			?d2 	skos:altLabel 	?x .
-		 }
-		 UNION
-		{
-			?d1 	skos:altLabel  '$term' .
-			?d1 	skos:$verb 		?d2 .
-			?d2 	skos:altLabel 	?x .
-		 }
 	}
 EOQ;
 		break;
@@ -225,20 +214,6 @@ EOQ;
 			?d2 	skos:prefLabel ?x	 .
 			FILTER regex(?p, "$term", "i")
 		 }
-		 UNION
-		 {
-			?d1 	skos:prefLabel ?p  .
-			?d1 	skos:$verb 		?d2 .
-			?d2 	skos:altLabel 	?x .
-			FILTER regex(?p, "$term", "i")
-		 }
-		 UNION
-		{
-			?d1 	skos:altLabel  ?p .
-			?d1 	skos:$verb 		?d2 .
-			?d2 	skos:altLabel 	?x .
-			FILTER regex(?p, "$term", "i") 
-		}
 	}
 EOQ;
 		} //switch

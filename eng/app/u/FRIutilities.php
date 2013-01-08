@@ -92,8 +92,56 @@ function ckeck_sid($sid,$messge)
 
 
 
+function fri_objectToArray($d) {
+  if (is_object($d)) {
+    $d = get_object_vars($d);
+  }
+ return $d;
+}
 
 
+function objectToArray($d) {
+		if (is_object($d)) {
+			// Gets the properties of the given object
+			// with get_object_vars function
+      print "... IS_OBJECT ... ";
+			$d = get_object_vars($d);
+      
+      print "<br>objectToArray<br>d: ";var_dump($d);print "<hr>";
+    }
+ 
+		if (is_array($d)) {
+			/*
+			* Return array converted to object
+			* Using __FUNCTION__ (Magic constant)
+			* for recursive call
+			*/
+      print "... IS_ARRAY ... ";
+			return array_map(__FUNCTION__, $d);
+		}
+		else {
+      print "... IS_BOH ... ";
+			// Return array
+			return $d;
+		}
+	}
+  
+  
+  function arrayToObject($d) {
+		if (is_array($d)) {
+			/*
+			* Return array converted to object
+			* Using __FUNCTION__ (Magic constant)
+			* for recursive call
+			*/
+			return (object) array_map(__FUNCTION__, $d);
+		}
+		else {
+			// Return object
+			return $d;
+		}
+	}
+ 
 
 
 
@@ -159,27 +207,32 @@ function check_internetconn()
 #####################################
 {
 	$res=true;
-	if (0)
+  $dockeck=true;
+	if ($dockeck)
 	{
-	global $INTERNET_CHECK_TIMEOUT;
-	// fsockopen  ( string $hostname  [, int $port= -1  [, int &$errno  [, string &$errstr  [, float $timeout= ini_get("default_socket_timeout")  ]]]] )
-	$domain = "www.search.ch";
-	$port = 80;
-	if (! $sock = @fsockopen($domain, $port, $num, $error, $INTERNET_CHECK_TIMEOUT))
-	{
-		$res=false;
-		//print " INTERNET NOK ";
-
-	}
-	else
-	{
-		//print " INTERNET OK ";
-		$res=true;
-		fclose($sock);
-	}
+    //print "check_internetconn";
+    global $INTERNET_CHECK_TIMEOUT;
+    // fsockopen  ( string $hostname  [, int $port= -1  [, int &$errno  [, string &$errstr  [, float $timeout= ini_get("default_socket_timeout")  ]]]] )
+    $domain = "www.search.ch";
+    $port = 80;
+    
+    $result=parametrizable_curl("http://$domain:$port");
+    
+    //print "RESULT OF URLCHECK: (((".htmlentities($result).")))";
+    $errorwarning = 'This error indicates that the gateway could not find the IP address of the website you are trying to access';
+    
+    if ($result=='' || strstr($result,$errorwarning))
+    {
+      $res=false;
+      //print " INTERNET NOK ";
+    }
+    else
+    {
+      //print " INTERNET OK ";
+      $res=true;
+    }
 	}
 	return $res;
-
 }
 
 
@@ -203,6 +256,14 @@ function inform_exc($e)
 }
 
 
+function inform_bad_internal_web($e)
+{
+		$ERROR=true;
+		$now=date("d.m.Y H:i:s");
+		$RODINADMIN="<a href=\"mailto:fabio.fr.ricci@hesge.ch\" subject=\"RODIN\">RODIN administrator</a>";
+		print "<hr>BAD internal web service (Please inform the $RODINADMIN with the exact timeSTAMP ($now)):<br>$FONTRED $e</font><hr>";
+		exit;
+}
 
 
 function inform_bad_external_web($e)
@@ -253,6 +314,36 @@ print "<font style='color:$txtcolor; font:$fontart;font-size:$fontsize;'>$txt</f
 
 }
 
+
+/*
+ * return a string split to the nth occurence of needle:
+ */
+function splitn($string, $needle, $offset)
+{
+    $newString = $string;
+    $totalPos = 0;
+    $length = strlen($needle);
+    for($i = 0; $i < $offset; $i++)
+    {
+        $pos = strpos($newString, $needle);
+
+        // If you run out of string before you find all your needles
+        if($pos === false)
+            return false;
+        $newString = substr($newString, $pos+$length);
+        $totalPos += $pos+$length;
+    }
+    return array(substr($string, 0, $totalPos-$length),substr($string, $totalPos));
+}
+
+
+function splitrn($string, $needle, $offset)
+{
+  $rstring= strrev($string);
+  
+  list($rright,$rleft) = splitn($rstring, $needle, $offset);
+  return array(strrev($rleft), strrev($rright));
+}
 
 
 
@@ -516,6 +607,20 @@ function is_in_bag($wert, &$ARR, $searchinvalues=false)
 } #is_in_bag
 
 
+function fri_file_get_contents($url)
+{
+    try {
+        file_get_contents($url);
+    }    
+    catch (Exception $e)
+    {
+        inform_bad_internal_web($e);
+        return '';
+    }
+    
+}
+
+
 
   function get_local_file_content($URL,$filetype='txt')
   #################################
@@ -594,14 +699,52 @@ function get_file_content($url, $verbose=false) {
 }
 
 
+/*
+ * url: data source url to be retrieved
+ * Author: Fabio Ricci for HEG
+ */
+function get_cached_widget_response_curl($url, $parameters, $options)
+{
+  global $sid; // KEY for this request
+  //print "get_cached_content sid: $sid";
+  $cacheurl="$url?$parameters";
+  $cached_datasource_response = (get_cache_response($cacheurl));
+  
+   if (! $cached_datasource_response)
+   {
+     //get the resonse from the data source
+     //print "CACHE CONTENT EXPIRED ... CALL AGAIIN";
+     
+     $datasource_response= (parametrizable_curl($url, $parameters, $options));
+     
+     //print "Got resp: (((".htmlentities($datasource_response).")))";
+     
+     if (good_response($datasource_response))
+     {
+       //Store response
+       cache_response($cacheurl,$datasource_response);  
+     } // got good response
+     
+   } // $cached_datasource_response
+  else
+    $datasource_response = $cached_datasource_response;
+  return $datasource_response; 
+}
 
+
+
+
+
+
+/*
+ * url: data source url to be retrieved
+ * Author: Fabio Ricci for HEG
+ */
 function get_cached_widget_response($url)
 ######################################
 #
-# url: data source url to be retrieved
-# Fabio Ricci
+# 
 {
- 
   global $sid; // KEY for this request
   //print "get_cached_content sid: $sid";
  
@@ -627,6 +770,8 @@ function get_cached_widget_response($url)
     $datasource_response = $cached_datasource_response;
   return $datasource_response; 
 }
+
+
 
 
 
@@ -678,8 +823,11 @@ function get_cache_response_DB($url)
 
 function get_cache_response_SOLR($url)
 {
+//include_once("../tests/Logger.php");
+
   global $SOLR_RODIN_CONFIG;
   global $USER;
+  global $RODINSEGMENT;
   
   $CACHED_CONTENT='';
   
@@ -697,7 +845,7 @@ function get_cache_response_SOLR($url)
   
    $solr_select= "http://$solr_host:$solr_port$solr_path".'select?'
            //."user=$USER"
-           ."&q=timestamp:$TIME_RANGE+".base64_encode($url)
+           ."&q=timestamp:$TIME_RANGE+user:$USER+seg:$RODINSEGMENT+id:".base64_encode($url)
            ."&fl=cached,timestamp"
            ."&rows=1"
            ."&omitHeader=true"
@@ -707,10 +855,25 @@ function get_cache_response_SOLR($url)
    
    $cachecontent=file_get_contents($solr_select);
 	 
-   
+//    //****************************
+//    if (Logger::LOGGER_ACTIVATED) {
+//                    $info=array();
+//                    $info['name'] = 'get_cache_response_SOLR url= '+$url;
+//                    $info['msg'] = "got cachecontent: (($cachecontent))";
+//                    Logger::logAction($action=25, $info);
+//    }
+//    if (Logger::LOGGER_ACTIVATED) {
+//                    $info=array();
+//                    $info['name'] = 'get_cache_response_SOLR solr_select= '+$solr_select;
+//                    $info['msg'] = "got cachecontent: (($cachecontent))";
+//                    Logger::logAction($action=25, $info);
+//    }
+//    //****************************
+
+    
    
    $solr_sxml= simplexml_load_string($cachecontent);
-//      print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
+//    print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
 //      print "<hr>FILE_CONTENT: <br>(((".htmlentities($cachecontent).")))";
 //      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($solr_sxml)."))) "; var_dump($solr_sxml);
 //      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
@@ -742,12 +905,13 @@ function get_cache_response_SOLR($url)
 
 
 
-function cache_response_SOLR($url,&$datasource_response)
+function cache_response_SOLR($cacheid,$response)
 {
-  require_once("../u/SOLRinterface/solr_init.php");
+  require_once("../u/SOLRinterface/solr_interface.php");
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
   global $USER;
+  global $RODINSEGMENT;
   //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
   $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['host'];
   $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['port'];
@@ -755,26 +919,24 @@ function cache_response_SOLR($url,&$datasource_response)
   $solr_core=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['core'];
   $solr_timeout=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['timeout'];
   //$rodin_cache_expiry_hour=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour'];
-
   // store in SOLR for the last stored response using $url
    
-
    if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
-    {
-
+   {
       // create a new document for the data
       $caching_doc = new Solarium_Document_ReadWrite();
 
-      $caching_doc->id         = base64_encode($url);
-      $caching_doc->idsource   = $url;
+      $caching_doc->id         = base64_encode($cacheid);
+      $caching_doc->cacheid    = $cacheid;
+      $caching_doc->seg        = $RODINSEGMENT;
       $caching_doc->user       = $USER;
-      $caching_doc->cached     = $datasource_response;
+      $caching_doc->cached     = ($response);
 
       #do NOT reverse index this cached data in body
       $documents= array($caching_doc);
       
-      $sid=uniqid(); // we do not bother here
-      solr_synch_update($sid,$solr_path,$client,$documents);
+      solr_synch_update($sid='',$solr_path,$client,$documents,false,false);
+      
     }
     else {
       print "cache_response_SOLR system error init SOLR client";
@@ -789,6 +951,105 @@ function good_response($datasource_response)
 {
   return true; // short up
 } // good response
+
+
+
+
+
+/**
+ * Checks the permissions on a filepath
+ * starting from the filename up to root
+ * and gives a print of the permissions found.
+ * @author Fabio Ricci
+ */
+
+function filesystempermissionanalyse($path)
+{
+  if ($path=='')   ; // nix
+  else
+  {
+    if (!file_exists($path))
+    {
+      print "<br><b>Does not exist</b> $path";
+      //filesystempermissionanalyse($lowerdir);
+    }
+    else
+    {  
+      $info = read_permissions($path);
+
+      print "<br>$path <b>$info</b>";
+      
+    }
+    //switch analyse recursively down
+    $path_parts=pathinfo($path);
+
+    if ($path<>'/')
+    {
+      $lowerdir=$path_parts['dirname'];
+      //print "<br> TRY WITH LOWER ONE: $lowerdir";
+      filesystempermissionanalyse($lowerdir);
+    }
+  }
+}
+
+
+
+
+
+function read_permissions($path)
+{
+    $perms = fileperms($path);
+
+    if (($perms & 0xC000) == 0xC000) {
+        // Socket
+        $info = 's';
+    } elseif (($perms & 0xA000) == 0xA000) {
+        // Symbolic Link
+        $info = 'l';
+    } elseif (($perms & 0x8000) == 0x8000) {
+        // Regular
+        $info = '-';
+    } elseif (($perms & 0x6000) == 0x6000) {
+        // Block special
+        $info = 'b';
+    } elseif (($perms & 0x4000) == 0x4000) {
+        // Directory
+        $info = 'd';
+    } elseif (($perms & 0x2000) == 0x2000) {
+        // Character special
+        $info = 'c';
+    } elseif (($perms & 0x1000) == 0x1000) {
+        // FIFO pipe
+        $info = 'p';
+    } else {
+        // Unknown
+        $info = 'u';
+    }
+    // Owner
+    $info .= (($perms & 0x0100) ? 'r' : '-');
+    $info .= (($perms & 0x0080) ? 'w' : '-');
+    $info .= (($perms & 0x0040) ?
+                (($perms & 0x0800) ? 's' : 'x' ) :
+                (($perms & 0x0800) ? 'S' : '-'));
+
+    // Group
+    $info .= (($perms & 0x0020) ? 'r' : '-');
+    $info .= (($perms & 0x0010) ? 'w' : '-');
+    $info .= (($perms & 0x0008) ?
+                (($perms & 0x0400) ? 's' : 'x' ) :
+                (($perms & 0x0400) ? 'S' : '-'));
+
+    // World
+    $info .= (($perms & 0x0004) ? 'r' : '-');
+    $info .= (($perms & 0x0002) ? 'w' : '-');
+    $info .= (($perms & 0x0001) ?
+                (($perms & 0x0200) ? 't' : 'x' ) :
+                (($perms & 0x0200) ? 'T' : '-'));
+
+    return $info;
+}
+
+
 
 
 
@@ -1334,6 +1595,8 @@ function html_printable_xml($txt)
  * Utility function making a CURL access to a web service. The parameters
  * are passed through a GET call but a POST call is possible using the options
  * parameter.
+ * 
+ * FRI: Optimisation: call the service directly if service is directly on the server
  *
  * @param String $url the base URL of the service.
  * @param array $get the parameters sent to the service.
@@ -1356,35 +1619,171 @@ function parametrizable_curl($url, array $get = array(), array $options = array(
 		// CURLOPT_CONNECTTIMEOUT => 5
 	);
 	
-	// Use the proxy configuration only if the URL is remote (not local)
-	// and we're not running it directly on the server
-	$urlIsRemote = stripos($url, $WEBROOT) === false;
-	
-	if ($PROXY_NAME != '' && $urlIsRemote) {
-		$defaults[CURLOPT_HTTPPROXYTUNNEL] = "TRUE";
-		$defaults[CURLOPT_PROXYTYPE] = "CURLPROXY_HTTP";
-		$defaults[CURLOPT_PROXY] = "$PROXY_NAME:$PROXY_PORT";
-		$defaults[CURLOPT_PROXYUSERPWD] = "$PROXY_AUTH_USERNAME:$PROXY_AUTH_PASSWD";
-	}
+  
+  //We suppose we are always in GET mode (url is complete)
+  list($path,$qsparams)=service_is_a_php_on_this_server($url);
+  if ($path) // Path was found -> open service directly
+  $result = open_direct_php($path,$qsparams,$options);
+  else // use curl 
+  {
+    // Use the proxy configuration only if the URL is remote (not local)
+    // and we're not running it directly on the server
+    $urlIsRemote = stripos($url, $WEBROOT) === false;
 
-	$finalOptions = $options + $defaults;
-	
-	if (count($get) > 0) {
-		$url .= (strpos($url, '?') === FALSE ? '?' : '') . http_build_query($get);
-	}
-	
-	$ch = curl_init($url);
-	curl_setopt_array($ch, $finalOptions);
+    if ($PROXY_NAME != '' && $urlIsRemote) {
+      $defaults[CURLOPT_HTTPPROXYTUNNEL] = "TRUE";
+      $defaults[CURLOPT_PROXYTYPE] = "CURLPROXY_HTTP";
+      $defaults[CURLOPT_PROXY] = "$PROXY_NAME:$PROXY_PORT";
+      $defaults[CURLOPT_PROXYUSERPWD] = "$PROXY_AUTH_USERNAME:$PROXY_AUTH_PASSWD";
+    }
 
-	$result = @curl_exec($ch);
+    $finalOptions = $options + $defaults;
 
-//	if( ! $result = curl_exec($ch)) {
-//		trigger_error(curl_error($ch));
-//	}
+    if (count($get) > 0) {
+      $url .= (strpos($url, '?') === FALSE ? '?' : '') . http_build_query($get);
+    }
 
-	curl_close($ch);
+    $ch = curl_init($url);
+    curl_setopt_array($ch, $finalOptions);
 
+    $result = @curl_exec($ch);
+
+  //	if( ! $result = curl_exec($ch)) {
+  //		trigger_error(curl_error($ch));
+  //	}
+
+    curl_close($ch);
+  }
 	return $result;
+}
+
+
+
+
+/* Returns include path of the service if found */
+function service_is_a_php_on_this_server($url)
+{
+//  print "<br>service_is_a_php_on_this_server($url)<br>";
+  global $HOST;
+  global $PORT;
+  global $DOCROOT;
+  
+  $FILEPATH=null;
+  
+  if ($PORT<>'') 
+    $PORTEXPR=":$PORT";
+  
+  $SERVEREXPR="http://$HOST$PORTEXPR";
+    
+//  print "<br>Checking Server params";
+//  print "<br>HOST: $HOST";
+//  print "<br>PORT: $PORT";
+//  print "<br>DOCROOT: $DOCROOT";
+//  print "<br>SERVEREXPR: $SERVEREXPR";
+//  print "<br>strstr($url,$SERVEREXPR)=".strstr($url,$SERVEREXPR);
+
+  if (strstr($url,$SERVEREXPR))
+  {
+    // Try to identify if path is on the same machine
+    
+    $FILEPATH=str_replace($SERVEREXPR,$DOCROOT,$url);
+    // cut str from '?' inclusive on
+    $pos = strrpos($FILEPATH, '?');
+    if (!($pos === false)) {
+      $QSPARAMS=substr($FILEPATH,$pos+1); // stuff rights from '?'
+      $FILEPATH=substr($FILEPATH,0,$pos-1); // stuff left of '?'
+    }  
+    
+//    print "<br><br>Try to test existence of file ($FILEPATH)";
+    
+    if (file_exists($FILEPATH))
+    {
+//      print " <b>SUCCESS</b> ($FILEPATH) ";
+    }
+    else {
+//      print " NOTFOUND ($FILEPATH) ";
+      $FILEPATH='';
+  } }
+  
+//  print "<br>Returning path: $FILEPATH";
+//  print "<br>Returning qsparams: $QSPARAMS";
+  
+  return array($FILEPATH,$QSPARAMS);
+}
+
+
+
+
+/*
+ * Include the file and start it directly here
+ */
+function open_direct_php($path,$qsparams,&$options)
+{
+  //global root vars because we are inside a function
+  //and will will include a prog.
+  // The following vars are needed from the constructor of the SRCengine and subclasses!!!!!
+  // or globals used by protected methods inside these engines...
+  global $RODINROOT;
+  global $RODINSEGMENT;
+  global $TERM_SEPARATOR;
+  global $SPARQL_LIMIT_RESULTS;
+  global $DEFAULT_MAX_REFINE_RESULTS;
+  global $VERBOSE;
+  global $SRCDEBUG;
+  global $ARCCONFIG;
+  global $DBPEDIA_BASE;
+  global $DBPEDIA_PREFIX;
+  global $WIKIPEDIASEARCH;
+  global $DBPEDIA_SPARQL_ENDPOINT;
+  
+//  global $CAN_ACCESS_ADMIN_VAR;
+//  global $MAX_DB_RETRIES, $USLEEP_RETRY;
+//	global $verbose, $RODINROOT, $RODINSEGMENT;
+//	global $ADMINDBBASENAME, $RODINADMIN_HOST, $RODINADMIN_DBNAME, $RODINADMIN_USERNAME, $RODINADMIN_USERPASS;
+//  global $ARCDB_DBNAME,	$ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;	
+//	global $SRCDB_DBNAME,	$SRCDB_USERNAME, $SRCDB_USERPASS, $SRCDB_DBHOST;	
+		
+//  print "<br>open_direct_php path: $path";
+//  print "<br>open_direct_php qsparams: $qsparams";
+  
+  //set params as tough these were the right params:
+  
+  $QS=explode('&',$qsparams);
+  $_REQUEST = array(); // init REQUEST!!!
+  
+  foreach ($QS as $pair) {
+
+    //Check number of occurrences of '=' in $pair
+    //if more than one, take the first = as split
+    //this can be a base64 value
+    $ssc= substr_count($pair,'=');
+    if ($ssc>1)
+    {
+      $key=substr($pair,0,strpos($pair,'='));
+      $value=substr($pair,strpos($pair,'=')+1);
+      //print "<br>SPECIAL: $key $value";
+    }
+    else
+      list($key,$value) = explode('=',$pair);
+  
+    $_REQUEST{$key} = $value;
+    if ($key=='user') $userfound=true;
+  }
+  if (!$userfound) { 
+    global $user;
+    $_REQUEST{'user'} = $user;
+  }
+  $_REQUEST{'directloading'} = true; // signalize the prog is loaded directly
+  
+  $CLASSNAME = basename(dirname(($path))); // 
+  $_REQUEST{'CLASSNAME'} = $CLASSNAME;
+ 
+  
+  require_once $path.'/index.php';
+  
+  //The program must prepare an $OUTPUT to be returned
+  
+  return $OUTPUT;
 }
 
 
@@ -1727,8 +2126,17 @@ function explodeX($delimiters,$string)
 }
 
 
+
+
+function noparams(&$REQ)
+{
+	return (count($REQ) == 0);
+}
+
+
 function param_named($paramname,&$REQ)
 {
+	$found=false;
 	foreach($REQ as $Param=>$boh)
 		if ($paramname==$Param)
 		{
@@ -1738,15 +2146,6 @@ function param_named($paramname,&$REQ)
 		
 	return $found;
 }
-
-
-
-
-function noparams(&$REQ)
-{
-	return (count($REQ) == 0);
-}
-
 
 
 

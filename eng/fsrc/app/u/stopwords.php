@@ -28,7 +28,7 @@ function cleanup_stopwords($words) {
 	$stopWords = get_stopwords();
 	
 	foreach($words as $word) {
-		if (!in_array($word, $stopWords))
+    if (!in_array($word, $stopWords))
 			$cleaned_words[]=$word;
 	}
 
@@ -84,7 +84,11 @@ function cleanup_stopwords_str($words_str)
 {
 	$arr= explode(" ",$words_str);
 	$stop_cleaned_words_arr= cleanup_stopwords($arr);
-	$stop_cleaned_words_str= implode(' ',$stop_cleaned_words_arr);
+	$stop_cleaned_words_str= trim(implode(' ',$stop_cleaned_words_arr));
+  
+  if ($stop_cleaned_words_str=='')
+    $stop_cleaned_words_str=$words_str;
+  
 	return $stop_cleaned_words_str;
 }
 

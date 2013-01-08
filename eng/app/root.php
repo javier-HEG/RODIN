@@ -10,7 +10,10 @@
 include_once("tests/TomaNota.php");
 include_once("tests/Logger.php");
 
-$_SESSION['RODINVERSION'] = '0.5';
+$_SESSION['RODINVERSION'] = '2.5';
+
+
+
 
 $RODIN_APPNAME = "RODIN";
 
@@ -135,6 +138,9 @@ else {
 $RODIN = "$DOCROOT$RODINROOT/$RODINSEGMENT";
 $RODINU = "$RODINROOT/$RODINSEGMENT/app/u";
 
+//print "<br>root.php: RODINSEGMENT: $RODINSEGMENT";
+//print "<br>root.php: RODIN: $RODIN";
+
 $STOPWORD_SERVER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/stopwords.php";
 $TAGCLOUDRESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/TagCloudResponder.php";
 $AUTOCOMPLETERESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/AutoCompleteResponder.php";
@@ -254,6 +260,41 @@ $USE_LOCAL_DBPEDIA = true;
 $LOCAL_DBPEDIA_DB_NAME = 'rodinarc_local';
 $LOCAL_DBPEDIA_ARC_NAME = 'test';
 ########################################################################
+
+
+
+#######################################
+# SRC Params
+#
+$SRC_MAXRESULTS = 15;
+
+#ARC DB & Default configuration
+	$ARCDB_DBNAME = getA('ARCDB_DBNAME');
+	$ARCDB_USERNAME = getA('ARCDB_USERNAME');
+	$ARCDB_USERPASS = getA('ARCDB_USERPASS');
+	$SRCDB_DBHOST = getA('ARCDB_DBHOST');
+					
+	$ARCCONFIG = array(
+		/* db */
+		'db_name' => $ARCDB_DBNAME,
+		'db_user' => $ARCDB_USERNAME,
+		'db_pwd'  => $ARCDB_USERPASS,
+	
+		/* store */
+		'store_name' => '', // must be set
+	
+		/* stop after 100 errors */
+		'max_errors' => 100,
+	);
+	
+	#SRC DB
+	$SRCDB_DBNAME				=getA('SRCDB_DBNAME');
+	$SRCDB_USERNAME			=getA('SRCDB_USERNAME');
+	$SRCDB_USERPASS			=getA('SRCDB_USERPASS');
+	$SRCDB_DBHOST				=getA('SRCDB_DBHOST');
+
+	
+
 
 #######################################
 # Google API use variables
@@ -390,9 +431,9 @@ $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['port']=$SOLR_
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['path']='/solr/cached_rodin_src_response/';
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout']=5;
-$SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour']=2; //24*7; //1 week
 
-# SOLR STW for collection ZBW STW:
+# SOLR for collection ZBW STW:
 $SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['user']='rodin';
 $SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['host']='localhost';
 $SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['port']=$SOLR_PORT;
@@ -400,6 +441,33 @@ $SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['path']='/solr/zbw_stw/';
 $SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['timeout']=5;
 $SOLR_RODIN_CONFIG['zbw_stw']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+//
+# SOLR for collection GESIS theSoz:
+$SOLR_RODIN_CONFIG['gesis_thesoz']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['gesis_thesoz']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['gesis_thesoz']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['gesis_thesoz']['adapteroptions']['path']='/solr/gesis_thesoz/';
+$SOLR_RODIN_CONFIG['gesis_thesoz']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['gesis_thesoz']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['gesis_thesoz']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+
+# SOLR for collection BNF RAMEAU:
+$SOLR_RODIN_CONFIG['bnf_rameau']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['bnf_rameau']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['bnf_rameau']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['bnf_rameau']['adapteroptions']['path']='/solr/bnf_rameau/';
+$SOLR_RODIN_CONFIG['bnf_rameau']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['bnf_rameau']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['bnf_rameau']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+
+# SOLR for collection LOC SH:
+$SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['path']='/solr/loc_sh/';
+$SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['loc_sh']['rodin']['cache_expiring_time_hour']=24*7; //1 week
 
 
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['user']='rodin';
@@ -410,7 +478,6 @@ $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['timeout']=5;
 
 
-
 $SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
 #############################################
 # END OF SOLR INTEFACE
@@ -418,7 +485,7 @@ $SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
 
 
 
-
+ 
 
 
 function get_rodin_skin()
@@ -663,9 +730,10 @@ function limitusernamelength($uname, $limitlen=16)
 
 
 
+
+
+
 $ROOT=1;
-
-
 
 ####################################
 ?>

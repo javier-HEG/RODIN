@@ -399,8 +399,11 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
 	foreach ($sourceToLook as $matter => $xmlsource) {
 		$parameters = "q=" . urlencode($q) . "&m=$m" . "&source=$xmlsource" . $FILTER_SECTION;
 		$url = "$searchsource_uri?$parameters";
-		$xmlContent = get_file_content($url);
-		$xml = str_get_html($xmlContent);
+		
+                //$xmlContent = get_file_content($url);
+		$xmlContent = get_cached_widget_response($url);
+
+                $xml = str_get_html($xmlContent);
 			
 		if (!$xml) {
 			echo "<br>Problem loading XML ($xmlContent) (exit)\n";

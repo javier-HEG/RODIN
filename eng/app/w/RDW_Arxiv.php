@@ -147,7 +147,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 					
 	$url = $searchsource_baseurl . $parameters;
 	//$xmlString = get_file_content($url);
-  $xmlString = get_cached_widget_response($url);
+        $xmlString = get_cached_widget_response($url);
   
 	$xml = str_get_html($xmlString);
 	

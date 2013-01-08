@@ -66,8 +66,9 @@ class RodinResultManager {
 
   public static function saveRodinSearchInSOLR($sid, $query)
   {
-    require_once("../u/SOLRinterface/solr_init.php");
+    require_once("../u/SOLRinterface/solr_interface.php");
     global $SOLR_RODIN_CONFIG;
+    global $RODINSEGMENT;
     global $SOLARIUMDIR;
     global $USER;
     $resultNumber=0;
@@ -84,7 +85,7 @@ class RodinResultManager {
     if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
     {
         
-       $document = BasicRodinResult::toInsertSOLRsearch($client, $sid, $query, $USER);
+       $document = BasicRodinResult::toInsertSOLRsearch($client, $sid, $query, $RODINSEGMENT, $USER);
 
         //print "<hr>SAVING DOCUMENTS:<br>"; var_dump($documents);
         $documents= array($document);
@@ -130,8 +131,8 @@ class RodinResultManager {
 	}
 	
 	public static function saveRodinResults($results, $sid, $datasource) {
-    	global $RESULTS_STORE_METHOD;
 		$modified = 0;
+    global $RESULTS_STORE_METHOD;
 		
 		if (is_array($results) && count($results) > 0) {
 			try {
@@ -156,8 +157,10 @@ class RodinResultManager {
   public static function saveRodinResultsInResultsSOLR($results, $sid, $datasource)
   {
     //print "<br>saveRodinResultsInResultsSOLR(<b> $sid, $datasource</b>)";
-    require_once("../u/SOLRinterface/solr_init.php");
+    require_once("../u/SOLRinterface/solr_interface.php");
     global $SOLR_RODIN_CONFIG;
+    global $RODINSEGMENT;
+    global $USER;
     global $SOLARIUMDIR;
     $resultNumber=0;
     #USE SOLR COLLECTION 'rodin_result':
@@ -183,7 +186,12 @@ class RodinResultManager {
 //          print "\n<hr><br>RESULT: ";
 //          var_dump($result);
 
-          $documents[] = $result->toInsertSOLRdocument($client, $sid, $datasource, str_pad($resultNumber, $numberOfResultsOrderOfMagnitude + 1, '0', STR_PAD_LEFT));
+          $documents[] = $result->toInsertSOLRdocument($client, 
+                                                        $sid, 
+                                                        $datasource, 
+                                                        str_pad($resultNumber, $numberOfResultsOrderOfMagnitude + 1, '0', STR_PAD_LEFT), 
+                                                        $RODINSEGMENT, 
+                                                        $USER );
           
           $resultNumber++;
         } // foreach record
@@ -319,7 +327,6 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
 						if ($pointerRemainder == 0) {
 							$result = RodinResultManager::buildRodinResultByType(intval($row['value']));
 							$allResults[$datasource . '-' . $pointerBase] = $result;
-
 						} else {
 							$result = $allResults[$datasource . '-' . $pointerBase];
 							$attribute = $row['attribute'];
@@ -355,27 +362,35 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
 
 
 public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
-    require_once("../u/SOLRinterface/solr_init.php");
+
+    require_once("../u/SOLRinterface/solr_interface.php");
     global $SOLR_RODIN_CONFIG;
     global $SOLR_MLT_MINSCORE;
     global $USER;
+    global $RODINSEGMENT;
     global $m;
-
-	$allResults = array();
     
     $slrq='';
     if ($slrq_base64)
       $slrq=base64_decode($slrq_base64);
     
-		$solr_user= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['user'];
+    $solr_user= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['user'];
     $solr_host= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host']; //=$HOST;
     $solr_port= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']; //=$SOLR_PORT;
     $solr_path= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']; //='/solr/rodin_result/';
 
+//    print "<br>solr_user: $solr_user";
+//    print "<br>solr_host: $solr_host";
+//    print "<br>solr_port: $solr_port";
+//    print "<br>solr_path: $solr_path";
+//    print "<br>datasource: $datasource";
+//    print "<br>sid: $sid";
+//    print "<br>USER: $USER";
+    
     #Fetch result from SOLR using even $slrq (handler and some parameters) if set instead of the standard Handler
     if ($slrq=='' && $sid<>'' && $datasource<>'')
         $solr_select= "http://$solr_host:$solr_port$solr_path"
-                       ."select?q=sid:$sid%20wdatasource:$datasource&rows=$m";
+                       ."select?q=sid:$sid%20wdatasource:$datasource%20user:$USER%20seg:$RODINSEGMENT&rows=$m";
     else
         $solr_select= "http://$solr_host:$solr_port$solr_path".$slrq;
       
@@ -384,21 +399,25 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
     
 		$allResults = array();
 		try {
-    
+ 
      //$solr_result_query_url=$solr_select."wt=xml&q=sid:$sid&wdatasource:$datasource&qt=/lucid&req_type=main&user=$solr_user&role=DEFAULT";
 			$solr_result_query_url=$solr_select
                               ."&wt=xml"
                               ."&fl=score,*"
                             //  ."&omitHeader=true"
                               ; 
+//      print "<hr>SOLR SELECT: <br>(((".htmlentities($solr_select).")))";
+//      print "<hr>SOLR QUERY: <br>(((".htmlentities($solr_result_query_url).")))";
+ 
       $filecontent=file_get_contents($solr_result_query_url);
-			$solr_sxml= simplexml_load_string($filecontent);
-      if ($USER==2) //fabio=developer
+      $solr_sxml= simplexml_load_string($filecontent);
+      if (($RODINSEGMENT='eng' || $RODINSEGMENT='x' || $RODINSEGMENT='st') 
+              || ( $RODINSEGMENT<>'p' && $USER==4 ) ) //fabio=developer on x, st (not on p=4)
       {  
         $solr_real_url=get_solrbridge($solr_result_query_url);
         $EVTL_MLT=($MLT)?" (mlt)":""; 
         print "<hr><a href='$solr_real_url' target='_blank' title='Get SOLR raw data in a new TAB'>raw data</a>$EVTL_MLT<br>";
-        }
+      }
 //      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
 //      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
       
@@ -476,8 +495,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
               $name<>'_version_'
             &&$name<>'timestamp'
               )
-            {
-              $row[$name.'']=$value.''; // force string conv.
+            { //We have to utf8_decode, since we coded on storing
+              $row[$name.'']=utf8_decode($value).''; // force string conv.
             }
           #####################################################
         } // foreach DOC->Children()

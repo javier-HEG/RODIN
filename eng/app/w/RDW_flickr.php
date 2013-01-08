@@ -77,6 +77,12 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
 
 	// Search for most interesting photos with the query in their text
 	$searchConfig = array("text"=>"$q", "sort"=>"interestingness-desc", "per_page"=>$m);
+  /*
+   * DO NOT try to cache this: you have to store serializations of both objects
+   * $flickr and $searchResults and after deserialization the class and the subcoasses are
+   * just stdClass ... every class is lost ... very difficult to reconstruct
+   */
+  
 	$searchResults = $flickr->photos_search($searchConfig);
 
 	// Parse the list and fill the result set

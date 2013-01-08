@@ -41,6 +41,8 @@ abstract class DBPengine extends SRCengine
 		parent::__construct();
 		$this->setStores();
 		$this->setWordbinding('DBP');
+    $this->currentclassname='DBPengine';
+
 		//print "<br> STWengine<hr>"; var_dump($this);print "<hr>";
 		
 	} //constructor 
@@ -147,12 +149,20 @@ abstract class DBPengine extends SRCengine
 				
 			if($this->getSrcDebug()) 
 				print "<br>preprocess_refine returning (".$stop_cleaned_words_str.")";	
-				
+      
 				$RESULTS_P = new SRCEngineResult(trim($stop_cleaned_words_str), $english_candidate_compounds_str_raw);
 		}
 		return $RESULTS_P;
 	}
 		
+  
+  /**
+  * Formats $term as in DBpedia, first letter capital.
+	*/
+	protected function formatAsInThesaurus($term) {
+		return ucfirst(strtolower($term));
+	}
+
 	
 	
 	
@@ -233,10 +243,14 @@ abstract class DBPengine extends SRCengine
 	
 	protected function validateTermInOntology($term, $lang = 'en') {
 		if($this->getSrcDebug()) {
-			print "<br>dbp_validate_term($term,$lang='en') ...";
+			print "<br>DPengine3->validateTermInOntology($term,$lang='en') ...";
 		}
 		
 		$foundTerm = $this->checkterm_in_dbpedia($term,'X',$lang);
+		
+    if($this->getSrcDebug()) {
+			print "\n<br>checkterm_in_dbpedia($term): ";var_dump($foundTerm);
+		}
 		
 		if ($foundTerm != '') {
 			return array(str_replace('_', ' ', $foundTerm), base64_encode('http://dbpedia.org/resource/Category:' . $foundTerm));
@@ -258,6 +272,11 @@ abstract class DBPengine extends SRCengine
 		
 		$suggested_term = $this->scrap_wikipedia_suggestion($term);
 		
+    if($this->getSrcDebug()) {
+			print "<br>DPengine->suggest_dbpedia_term($term) ...= ($suggested_term)";
+			print "<br>DPengine->suggest_dbpedia_term redirected_term=$redirected_term";
+		}
+    
 		// Enough already? Disambiguate useless
 		// $redirected_term = get_dbpedia_redirect($suggested_term,$lang);
 		
@@ -265,12 +284,35 @@ abstract class DBPengine extends SRCengine
 			$redirected_term = $suggested_term;
 		}
 		
+    if($this->getSrcDebug()) {
+			print "\n<br>DPengine->suggest_dbpedia_term redirected_term=$redirected_term";
+		}
+    
 		// Disambiguate and keep the first $maxterms results only
 		$disambiguated_terms = wikipedia_disambiguate($redirected_term, $lang);
+    
+    if($this->getSrcDebug()) {
+			print "\n<br>DPengine->suggest_dbpedia_term disambiguated_terms: "; var_dump($disambiguated_terms);
+		}
+    
 		$disambiguated_terms = array_slice($disambiguated_terms, 0, $maxterms);
+
+    if($this->getSrcDebug()) {
+			print "\n<br>DPengine->suggest_dbpedia_term disambiguated_terms: "; var_dump($disambiguated_terms);
+		}
 			
 		$res_disambiguated_terms = implode($TERM_SEPARATOR, $disambiguated_terms);
+    
+    if($this->getSrcDebug()) {
+			print "\n<br>DPengine->suggest_dbpedia_term res_disambiguated_terms: ($res_disambiguated_terms)";
+		}
+
 		$res_disambiguated_terms = cleanup_commas($res_disambiguated_terms);
+    
+    if($this->getSrcDebug()) {
+			print "\n<br>DPengine->suggest_dbpedia_term cleaned up commas: res_disambiguated_terms: ($res_disambiguated_terms)";
+		}
+    
 		
 		if ($SRCDEBUG) {
 			print "<br><b>find_dbpedia_terms($term)</b>";
@@ -340,6 +382,7 @@ abstract class DBPengine extends SRCengine
 	global $PATH2U;
 	include_once("$PATH2U/arc/ARC2.php");
 	global $SRCDEBUG;
+$SRCDEBUG=1;
 
 	global $ARCCONFIG;
 	global $DBPEDIA_SPARQL_ENDPOINT;
@@ -389,7 +432,7 @@ abstract class DBPengine extends SRCengine
 	return trim($redirect);
 } //get_dbpedia_triples
 	
-} // class STWengine
+} // class DBPengine
 
 
 

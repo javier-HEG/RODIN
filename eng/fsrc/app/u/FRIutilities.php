@@ -87,8 +87,32 @@ function dirtydown_viki_tokens($tokens)
 	$tokens = str_replace(' ','_',$tokens);
 	return $tokens;
 }
-		
+	
 
+
+/*
+ * inject a value for TAG inside XMLDOC
+ * and returs the changed XDMDOC
+ * It works on a text basis.
+ */
+function xml_inject($XMLDOC, $TAG, $VALUE)
+{
+  $PATTERN="/<$TAG>(.*)<\/$TAG>/";
+  $SUBSTITUTION="<$TAG>$VALUE</$TAG>";
+  $XMLDOC= preg_replace($PATTERN,$SUBSTITUTION,$XMLDOC);
+  return $XMLDOC;
+}
+
+
+function xml_extract($XMLDOC,$TAG)
+{
+  $PATTERN="/<$TAG>(.*)<\/$TAG>/";
+     if (preg_match($PATTERN,$XMLDOC,$match))
+     {
+       $VALUE = $match[1];
+     }
+   return $VALUE;
+}
 
 
 function get_cached_src_response($cache_id)
@@ -106,12 +130,25 @@ function get_cached_src_response($cache_id)
 } // get_cache_response
 
 
+function get_cached_src_response_DB($cache_id)
+{
+  // DUMMY - not yet implemented
+  
+  return array($CACHED_CONTENT,
+                $CREATION_TIMESTAMP,
+                $age_in_sec,
+                $max_age_in_sec,
+                $expiring_in_sec); 
+} 
+
 
 
 function get_cached_src_response_SOLR($cache_id)
 {
   global $SOLR_RODIN_CONFIG;
-  global $USER;
+  global $RODINSEGMENT;
+  $USER = $_REQUEST['user'];
+ 
   $CACHED_CONTENT='';
   
   $need_src_log=false;
@@ -130,15 +167,15 @@ function get_cached_src_response_SOLR($cache_id)
   $solr_path=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['path'];
   //$solr_core=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core'];
   //$solr_timeout=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout'];
-  $rodin_cache_expiry_hour=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour'];
-
+  $src_cache_expiry_hours=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour'];
+  $max_age_in_sec = $src_cache_expiry_hours * 3600;
+  
    //Query in the last $rodin_cache_expiry_hour for $url ...
   
-  $TIME_RANGE=getTimeRangeExpression($rodin_cache_expiry_hour);
+  $TIME_RANGE=getTimeRangeExpression($src_cache_expiry_hours);
   
-   $solr_select= "http://$solr_host:$solr_port$solr_path".'select?'
-           //."user=$USER"
-           ."&q=timestamp:$TIME_RANGE+".base64_encode($cache_id)
+  $solr_select= "http://$solr_host:$solr_port$solr_path".'select?'
+           ."&q=user:$USER%20seg:$RODINSEGMENT%20timestamp:$TIME_RANGE%20".base64_encode($cache_id)
            ."&fl=cached,timestamp,idsource"
            ."&rows=1"
            ."&omitHeader=true"
@@ -160,8 +197,8 @@ function get_cached_src_response_SOLR($cache_id)
    $FOUND_RES = $FOUND_RES[0];
    $ATTR = $FOUND_RES->attributes();
    $NO_OF_RESULTS= $ATTR['numFound'];
-   //print "<hr>Found results: $NO_OF_RESULTS";
-
+//   print "<hr>Found results: $NO_OF_RESULTS";
+   
    if ($NO_OF_RESULTS > 0)
    {
    	 //$xpath = "/response/lst/lst/lst[@name='cached']"; // /itas (old)
@@ -172,8 +209,21 @@ function get_cached_src_response_SOLR($cache_id)
      $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
      $CACHED_CONTENT = $CACHED_A[0];
      //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
+     
+      $CREATION_TIMESTAMP = xml_extract($CACHED_CONTENT,'timestamp0');
+      if ($CREATION_TIMESTAMP==0) print "ERROR CREATION_TIMESTAMP==0";
+      $now=time();
+      $age_in_sec= $now - $CREATION_TIMESTAMP;
+
+      $expiring_in_sec = $max_age_in_sec - $age_in_sec;
+//      print "CREATION_TIMESTAMP0 = ($CREATION_TIMESTAMP) - $age_in_sec secs old";
    }
-   return $CACHED_CONTENT; // null erstemal
+  
+   return array($CACHED_CONTENT,
+                $CREATION_TIMESTAMP,
+                $age_in_sec,
+                $max_age_in_sec,
+                $expiring_in_sec); 
   
 } // get_cached_src_response_SOLR
 
@@ -209,10 +259,11 @@ function cache_src_response_DB($cache_id,$xml_src_content)
 
 function cache_src_response_SOLR($cache_id,$xml_src_content)
 {
-  require_once("../../../../../../app/u/SOLRinterface/solr_init.php");
+  require_once("../../../../../../app/u/SOLRinterface/solr_interface.php");
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
-  global $USER;
+  global $RODINSEGMENT;
+  $USER = $_REQUEST['user'];
   //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
   $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['host'];
   $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['port'];
@@ -231,19 +282,18 @@ function cache_src_response_SOLR($cache_id,$xml_src_content)
       $caching_doc->id         = base64_encode($cache_id);
       $caching_doc->idsource   = $cache_id;
       $caching_doc->user       = $USER;
-      $caching_doc->cached     = $xml_src_content;
+      $caching_doc->seg        = $RODINSEGMENT;
+      $caching_doc->cached     = utf8_encode($xml_src_content);
 
       #do NOT reverse index this cached data in body
       $documents= array($caching_doc);
       $sid=uniqid(); //we do not bother... here 
-      solr_synch_update($sid,$solr_path,$client,$documents);
+      solr_synch_update($sid,$solr_path,$client,$documents,false,false);
     }
     else {
       print "cache_src_response_SOLR system error init SOLR client";
     }
 }
-
-
 
 
 
@@ -1178,6 +1228,320 @@ function show_xml_string($txt)
 	$txt=str_replace('>',"&gt;",$txt);
 	return $txt;
 }
+
+
+
+
+
+
+
+
+
+
+/*
+ * Prints an information and
+ * returns the tasks to be processed
+ */
+function print_info($storename,$txt,$elsetxt='',$want_statistics=false)
+{
+  global $ARCCONFIG;
+  $LOCALCONFIG=$ARCCONFIG;
+  $LOCALCONFIG{'store_name'}=$storename;
+  $store = ARC2::getStore($LOCALCONFIG);
+  if (!$store->isSetUp()) {
+     $store->setUp();
+  }
+  $num_triples_before=count_ARC_triples($store);
+  $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
+  //Print an info on loaded tasks:
+  $LOAD_TASK = get_ARC_load_tasks_from_DB($storename,0,$want_statistics);
+  $CNT = count($LOAD_TASK);
+  
+  if ($CNT)
+  {
+    $i=0;
+    print "<br><u>TRIPLE STORE '<b>$storename</b>' (currently $num_triples_before_formatted triples)</u>:";
+    print "<br>The following <b>$CNT triple load tasks</b> $txt";
+    print "<table>";
+    foreach ($LOAD_TASK as $arr)
+    { 
+      list($storename,$filepath,$statistics,$timestamp_statistics) = $arr;
+      if ($want_statistics)
+      {
+        print "<tr><td valign='top' align='right'>".($i++).":</td><td valign='top' ><b>$storename</b> $filepath</td>"
+              ."<td/><td><i><b>$timestamp_statistics</b><br>$statistics</i></td></tr>";
+      } 
+      else
+      {
+        print "<tr><td align='right'>".($i++).":</td><td><b>$storename</b>: $filepath</td></tr>";
+      }  
+    } // foreach
+    print "</table>";
+  } else 
+  {
+    if ($elsetxt<>'')
+      print $elsetxt;
+  }  
+  return $LOAD_TASK;
+ } 
+
+
+  function delete_each_triple_load_task($storename='')
+  {
+    $EVTL_STORENAME=$storename==''?'':"AND storename='$storename'";
+    $EVTL_STORENAME_TXT=$storename==''?'':"in store '$storename'";
+    global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
+    //print "DB: $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST";
+    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
+		@mysql_select_db($ARCDB_DBNAME);
+    
+    $Q=<<<EOQ
+    DELETE FROM $ARCDB_DBNAME.`triplefiles_toload` 
+    WHERE true
+    $EVTL_STORENAME
+EOQ;
+    
+    $resultset = mysql_query($Q);
+		if (($numofrows=mysql_affected_rows())<1)
+			throw(New Exception(mysql_error($DBconn)."<hr>Problem deleting triple load tasks for storename '$storename' - Query:".$Q."<br><br>"));
+    mysql_close($DBconn);
+    
+    print "<br>$numofrows triple load tasks DELETED $EVTL_STORENAME_TXT !";
+    
+   
+    return true;
+    
+  } // delete_each_triple_load_task
+
+
+  function store_statistics_for_this_loaded_triple_file($statistics,$filepath,$storename)
+  {
+    global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
+    //print "DB: $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST";
+    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
+		@mysql_select_db($ARCDB_DBNAME);
+    
+    $statistics=mysql_real_escape_string($statistics);
+    
+    
+    
+    $Q=<<<EOQ
+    UPDATE $ARCDB_DBNAME.`triplefiles_toload` 
+    SET `statistics` = '$statistics', 
+     `timestamp_statistics` = NOW() 
+    WHERE `storename` = '$storename' 
+    AND `filepath` = '$filepath' 
+EOQ;
+    
+    $resultset = mysql_query($Q);
+		if (($numofrows=mysql_affected_rows())<>1)
+			throw(New Exception(mysql_error($DBconn)."<hr>Not Just one row (=$numofrows)in update - Query:".$Q."<br><br>"));
+    mysql_close($DBconn);
+    return true;
+    
+  } // store_statistics_for_this_loaded_triple_file
+  
+  
+ 
+  
+
+  /*
+   * Returns a vector of list($storename,$filepath)
+   * In case $want_statistics is set, only the done tasks are returned
+   */
+  function get_ARC_load_tasks_from_DB($storename='',$maxfiles=0,$want_statistics=false)
+  {
+    $EVTL_STORENAME=$storename==''?'':"AND storename='$storename'";
+    $EVTL_LIMIT=$maxfiles>0?"LIMIT $maxfiles":'';
+    $EVTL_STATISTICS=$want_statistics?"AND statistics<>''":"AND statistics=''";
+    $EVTL_SORT=$want_statistics?'ORDER BY timestamp_statistics ASC':'';
+    global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
+    //print "DB: $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST";
+    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
+		@mysql_select_db($ARCDB_DBNAME);
+    
+    $Q=<<<EOQ
+    SELECT * 
+    FROM $ARCDB_DBNAME.`triplefiles_toload`
+    WHERE true
+    $EVTL_STATISTICS
+    $EVTL_STORENAME
+    $EVTL_SORT
+    $EVTL_LIMIT
+    ; 
+EOQ;
+    
+    $resultset = mysql_query($Q);
+    
+    //print "$Q<br><br>";var_dump($resultset);
+    
+    while ($row = mysql_fetch_assoc($resultset)) {
+			$TASKS[] = array($row['storename'],$row['filepath'], $row['statistics'], $row['timestamp_statistics']);
+		}
+    mysql_close($DBconn);
+
+    //print "<br>TASKS: ";var_dump($TASKS);
+    
+    return $TASKS;
+  } // get_load_tasks
+
+
+  /*
+   * Register storename and filepath in table todo
+   */
+  function register_triples_file($storename,$filepath)
+  {
+    global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
+    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
+		@mysql_select_db($ARCDB_DBNAME);
+    
+    $Q=<<<EOQ
+    INSERT INTO $SRCDB_DBNAME.`triplefiles_toload` 
+          (`filepath`,`storename`) 
+    VALUE ('$filepath','$storename'); 
+EOQ;
+    
+    $resultset = mysql_query($Q);
+		if (($numofrows=mysql_affected_rows())<1)
+			throw(New Exception(mysql_error($DBconn)."<hr>Query:".$Q."<br><br>"));
+    mysql_close($DBconn);
+    return $numofrows;
+  } // register_triples_file
+
+   
+  
+  
+  /*
+   * Loads the triples into store and returns the statistics
+   */
+  function load_triplefile_into_ARC_store(&$store,$storename,$obj)
+  {
+    $num_triples_before=count_ARC_triples($store);
+    $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
+
+    Logger::logAction(26, array('msg'=>'importing file: '.$obj.' into storename '.$storename." ($num_triples_before_formatted triples)"));
+
+    //We need on the server at HEG to enhance php execution time limit, 
+    //since this server is slowlee and need more time than the local power macs
+    set_time_limit ( 1000000 ); // 250h -> Feature in 5.3.0 deprecated, in 5.4.0 deleted - but useful right now
+    $rs=NULL;
+    $repetitions=0;
+    $added_triples=0;
+    $MAXREPETITIONS=5;
+    while($added_triples == 0 && $repetitions < $MAXREPETITIONS)
+    {
+      $rs= $store->query("LOAD <$obj>");
+      $added_triples = intval($rs['result']['t_count']);
+      $repetitions++;
+      if (($errs = $store->getErrors())) {
+
+        foreach($errs as $err)
+        print "<br>ARC ERROR: $err";
+      }
+    }
+    
+		$duration = $rs['query_time'];
+		//$added_triples = $rs['result']['t_count'];
+		$load_time = $rs['result']['load_time'];
+
+    $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
+
+    $added_triples_formatted=number_format($added_triples, 0, '.', "'");
+
+    
+		print " <hr>Loaded file <b>$obj</b> into <b>$storename</b>
+            <br>duration: $duration sec
+            <br>load_time: $load_time sec
+            <br>added_triples: $added_triples_formatted
+            <br>";
+    
+    if ($added_triples==0) 
+        $statistics=null;
+    else
+    { 
+      $num_triples_after=count_ARC_triples($store);
+      $num_triples_after_formatted=number_format($num_triples_after, 0, '.', "'");
+      
+      $triples_delta=$num_triples_after - $num_triples_before;
+      $EVTL_DELTA=" (delta triples=$triples_delta)";
+        
+      $REPS=($repetitions>1)?" ($repetitions repetitions)":"";
+      $ESITO=($added_triples>0)
+                  ?"$added_triples triples$EVTL_DELTA$REPS"
+                  :"<b><font style='color:red'>No triples ($added_triples_formatted) added after $repetitions repetitions</font></b>";
+      $statistics="Triple file processed: $ESITO, duration: $duration sec, load_time: $load_time sec - total triples after processing: $num_triples_after_formatted";
+      Logger::logAction(26, array('msg'=>$statistics));
+    }
+    //Avoid updating statistics if no triples added...
+    
+    
+    return $statistics;
+  }
+
+  
+  
+  
+  
+  
+function count_ARC_triples(&$store)
+##################################
+# 
+# Computes the query to SKOS $verb
+# $verb= related, broader, narrower
+{
+	
+	$QUERY=<<<EOQ
+	SELECT (COUNT(*) AS ?no) { ?s ?p ?o  }
+EOQ;
+
+	$result=array();
+	if ($rows = $store->query($QUERY, 'rows')) 
+	{
+    //var_dump($rows);
+    $no = $rows[0]['no'];
+    
+ 	}
+  
+  //print " returning $no triples in store ";
+  
+	return $no;
+}
+
+  
+
+
+	/*
+   * Returns a vector of list($storename,$filepath)
+   * In case $want_statistics is set, only the done tasks are returned
+   */
+  function get_namespaces_from_DB()
+  {
+    global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
+    //print "DB: $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST";
+    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
+		@mysql_select_db($ARCDB_DBNAME);
+    
+    $Q=<<<EOQ
+    SELECT * 
+    FROM $ARCDB_DBNAME.`semweb_namespaces`
+    ; 
+EOQ;
+    
+    $resultset = mysql_query($Q);
+    
+    while ($row = mysql_fetch_assoc($resultset)) {
+    	$ns_name=$row['ns_name'];
+    	$ns_url=$row['ns_url'];
+			$NAMESPACES{$ns_name}=$ns_url;
+		}
+    mysql_close($DBconn);
+    
+    return $NAMESPACES;
+  } // get_namespaces_from_DB
+
+
+
+
 
 
 

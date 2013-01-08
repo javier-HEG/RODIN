@@ -59,7 +59,7 @@ div.widgetResultsDiv {
 	overflow-x: hidden;
 	overflow-y: auto;
 	min-height: 30px;
-	width: 100%;
+  width: 100%;
 }
 
 div.widgetImageGridDiv {
@@ -303,6 +303,7 @@ div.oo-result-content div.spotlightbox p.loading {
 	padding: 3px;
 }
 
+
 /* Aggregated view */
 div.aggregatedViewMenu {
 	background-color: lightgray;
@@ -336,3 +337,4 @@ div.aggregatedViewMenu div.widgetIcon {
     margin: 2px;
     padding: 2px 8px;
 }
+

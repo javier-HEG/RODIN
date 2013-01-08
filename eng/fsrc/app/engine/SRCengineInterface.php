@@ -46,16 +46,19 @@ interface SRCEngineInterface {
 	 * @param string $sid ?
 	 * @param string $q the meta-search query if any
 	 * @param string $v the query text to be refined
-	 * @param unknown_type $w ?
+	 * @param int    $w Widget number
 	 * @param string $lang the language of $v
-	 * @param int $maxdur the timeout time in milliseconds
-	 * @param unknown_type $c ?
+	 * @param int    $m the max number of results needed
+	 * @param string $lang the language of $v
+	 * @param string $sortrank the control for sorting/rannking results
+	 * @param int    $c computation key
 	 * @param string $cid ?
 	 * @param string $action refine action to perform
+	 * @param string $reqClassName - the name of the requested/used/called class 
 	 * 
 	 * @return a XML valid string
 	 */
-	public function webRefine($sid, $q, $v, $w, $lang, $maxdur, $c, $cid, $action);
+	public function webRefine($sid, $q, $v, $w, $lang, $m, $sortrank,$maxdur, $c, $cid, $action, $reqClassName);
 }
 
 ?>

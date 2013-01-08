@@ -289,7 +289,8 @@ function format3pos(num)
 		
 		var languageDetectorUrl = '<?php print "../../app/u/LanguageDetector.php"; ?>';
 		languageDetectorUrl += '?text=' + search;
-
+    //alert('calling '+languageDetectorUrl);
+    
 		$p.ajax.call( languageDetectorUrl, {
 			'type':'load',
 			'callback': {
@@ -312,22 +313,27 @@ function format3pos(num)
 		var analyzedText = response.getElementsByTagName("text")[0].textContent;
 		var detectedLanguage = response.getElementsByTagName("language")[0].textContent;
 		
-		if (detectedLanguage == "un") detectedLanguage = "en";
-		
-		var ontofacetLanguage = document.getElementById("ontofacet_center_language");
-		ontofacetLanguage.value = detectedLanguage;
-		parent.LANGUAGE_OF_RESULT_CODED=detectedLanguage;
+    if (detectedLanguage=='') alert('System error: Language detection failed to detect language for "'+search+'"'
+                                    +'\n\nNo Computation stopped.');
+    else
+    { 
+      if (detectedLanguage == "un") detectedLanguage = "en";
 
-		// Launch Onto-Search
-		var search = variables['search'];
-		var maxresults = variables['maxresults'];
-		var db_tab_id = variables['db_tab_id'];
-		var usr = variables['usr']
-		var interactive = variables['interactive']
-		var nbcol = variables['nbcol']
-		var cloud = variables['cloud']
-		var pclass = variables['pclass'];
-		launch_fri_onto_metasearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass);
+      var ontofacetLanguage = document.getElementById("ontofacet_center_language");
+      ontofacetLanguage.value = detectedLanguage;
+      parent.LANGUAGE_OF_RESULT_CODED=detectedLanguage;
+
+      // Launch Onto-Search
+      var search = variables['search'];
+      var maxresults = variables['maxresults'];
+      var db_tab_id = variables['db_tab_id'];
+      var usr = variables['usr']
+      var interactive = variables['interactive']
+      var nbcol = variables['nbcol']
+      var cloud = variables['cloud']
+      var pclass = variables['pclass'];
+      launch_fri_onto_metasearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass);
+    }
 	}
 	
 	function setLanguageForOntofacets(language) {
@@ -451,6 +457,9 @@ function format3pos(num)
 		
 		ONTOSEARCH_LOCKED=false;
 		
+    //Mark Log end of operations
+    //$p.ajax.call('../../app/tests/LoggerResponder.php?action=25&query=SRC_delivered', {'type':'load'});
+
 		//Re-enable Ontofacets search icon
 		/*var waitIcon = document.getElementById('ontofacet_center_wait');
 		waitIcon.style.width='0px';
@@ -701,7 +710,8 @@ function fri_rodin_do_onto_search_wrap(blankurl,variables) {
  */
 function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 {
-	
+	var src_maxresults = '<?php print $SRC_MAXRESULTS;?>';
+
 	if (parent.NOSRC)
 		alert('Problem on finding initialized SRC Modules');
 	else
@@ -804,6 +814,8 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 					+'&q='+Base64.encode(terms) /*needed for cache recognition*/
 					+'&v='+Base64.encode(gui_refinement_request['quickq']) /*the current one*/
 					+'&l='+lang
+          +'&m='+src_maxresults
+          +'&sortrank=standard'
 					+'&w='+gui_refinement_request['this_wid_uniq_id']
 					+'&maxdur='+gui_refinement_request['maxdur']
 					+'&c='+gui_refinement_request['c']
@@ -891,11 +903,12 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 		var searchtxt='(xml error)';
 			
 		//alert('fri_rodin_start_ontosearch_context_skos');
-		var srccallverbosity= ('<?php print $RODINSEGMENT;?>'=='st' && 0);
+		var srccallverbosity= false;
 		parent.fb_init_src_display(service_id,'broader');
 		parent.fb_init_src_display(service_id,'narrower');
 		parent.fb_init_src_display(service_id,'related');
 		
+    
 		if (response!=null)
 		{
 			response_exists= response.getElementsByTagName("*")[0] ;
@@ -962,9 +975,9 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 				+'&maxdur='+parent.gui_refinement_request['maxdur']
 				+'&c='+parent.gui_refinement_request['c']
 				+'&service_id='+service_id
-                +'&user='+pclass.app.user.id
+        +'&user='+pclass.app.user.id
 				;
-
+        alert('callparams: '+callparams);
 				
 				if (preprocessed_terms=='' || timeout!='no' || error_response_malformedxml)
 				{
@@ -1108,8 +1121,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 						var url 	 = url_bridge+params;
 						var url2show = src_service_url+params;
 						
-						if (srccallverbosity) alert("CALL SRC (broader): "+url2show);
-	
+						if (srccallverbosity) alert("CALL SRC (preall): "+url2show);
 						wtslog('fri_rodin_do_onto_search (start broader) service_id='+service_id+'): ','ONTOS_SYNCH',ONTOS_SYNCH,ONTOS_SYNCH+1,1);
 						ONTOS_SYNCH=ONTOS_SYNCH+1;
 						
@@ -1356,6 +1368,8 @@ function handle_received_src_data(response,vars) {
 	
 	var timeout = 'no';
 	var error = false;
+	var age = -1;
+	var cached = false;
 	var cid = '';
 	var sid = '';
 	var action = '';
@@ -1398,6 +1412,7 @@ if (response!=null) {
 				 sid = (response.getElementsByTagName("sid")[0]).textContent;
 				 c = (response.getElementsByTagName("c")[0]).textContent;
 		
+         
 				 maxDur = (response.getElementsByTagName("maxDur")[0]).textContent;
 				 rts = (response.getElementsByTagName("rts")[0]).textContent;
 				 cdur = (response.getElementsByTagName("cdur")[0]).textContent;
@@ -1446,14 +1461,22 @@ if (response!=null) {
 			}
 		} else {	
 			if (action=='broader' || action=='narrower' ||  action=='related') {
-				parent.fb_add_to_facetboard(service_id,action,results,results_raw);
+				parent.fb_add_to_facetboard(service_id,cached,action,results,results_raw,null);
 			} else if (action=='preall' || action=='all') {
 				parent.fb_resetValidatedTermsList(service_id);
 				
 				parent.fb_init_src_display(service_id, 'broader');
 				parent.fb_init_src_display(service_id, 'narrower');
 				parent.fb_init_src_display(service_id, 'related');
-
+        
+        age = (response.getElementsByTagName("age_in_sec")[0]).textContent;
+         if (age > 0) {
+           cached=true;
+           var tt='Age of SRC('+service_id+') response: '+age+' seconds';
+           //alert(tt);
+           eclog(tt);
+         }
+         
 				var validated_results = pclass.string.trim((response.getElementsByTagName("pre")[0]).textContent);
 				var validated_results_raw = validated_results;
 				
@@ -1463,6 +1486,9 @@ if (response!=null) {
 				var broader_results_raw = broader_results;
 				var narrower_results_raw = narrower_results;
 				var related_results_raw = related_results;
+        var broader_results_root = '';
+        var narrower_results_root = '';
+        var related_results_root = '';
 				
 				we_had_some_results = (validated_results || broader_results || narrower_results || related_results);
 					
@@ -1475,27 +1501,43 @@ if (response!=null) {
 					 we_had_some_results=true;
 					 broader_results_raw= parent.Base64.decode( pclass.string.trim( ( response.getElementsByTagName("broader_raw")[0]).textContent ) );
 				 }
+         if (response.getElementsByTagName("broader_root")[0]) {
+					 broader_results_root= pclass.string.trim( ( response.getElementsByTagName("broader_root")[0]).textContent );
+           //alert('broader_results_root: '+broader_results_root);
+       }
 				
 				 if (response.getElementsByTagName("narrower_raw")[0]) {
 					 we_had_some_results=true;
 					 narrower_results_raw= parent.Base64.decode( pclass.string.trim( ( response.getElementsByTagName("narrower_raw")[0]).textContent ) );
 				 }
-
+         if (response.getElementsByTagName("narrower_root")[0]) {
+					 narrower_results_root= pclass.string.trim( ( response.getElementsByTagName("narrower_root")[0]).textContent );
+				 }
+         
 				 if (response.getElementsByTagName("related_raw")[0]) {
 					 we_had_some_results=true;
 					 related_results_raw= parent.Base64.decode( pclass.string.trim( ( response.getElementsByTagName("related_raw")[0]).textContent ) );
 				 }
-				
+		     if (response.getElementsByTagName("related_root")[0]) {
+					 related_results_root= pclass.string.trim( ( response.getElementsByTagName("related_root")[0]).textContent );
+				 }
+    		
 				parent.fb_addToFacetBoardValidatedTerms(service_id, validated_results, validated_results_raw);
 				
-				parent.fb_add_to_facetboard(service_id,'broader',broader_results,broader_results_raw);
-				parent.fb_add_to_facetboard(service_id,'narrower',narrower_results,narrower_results_raw);
-				parent.fb_add_to_facetboard(service_id,'related',related_results,related_results_raw);
+        
+//        alert('broader_results_root=('+broader_results_root+')'
+//              +'\n\n'+'narrower_results_root=('+narrower_results_root+')'
+//              +'\n\n'+'related_results_root=('+related_results_root+')'
+//          );
+        
+				parent.fb_add_to_facetboard(service_id,cached,'broader',broader_results,broader_results_raw,broader_results_root);
+				parent.fb_add_to_facetboard(service_id,cached,'narrower',narrower_results,narrower_results_raw,narrower_results_root);
+				parent.fb_add_to_facetboard(service_id,cached,'related',related_results,related_results_raw,related_results_root);
 			} else if (action=='dummy' || action=='dummytimeout' || error) {
 				if (typeof(results)!='undefined') {
-					parent.fb_add_to_facetboard(service_id,'broader',results,results_raw);
-					parent.fb_add_to_facetboard(service_id,'narrower',results,results_raw);
-					parent.fb_add_to_facetboard(service_id,'related',results,results_raw);
+					parent.fb_add_to_facetboard(service_id,cached,'broader',results,results_raw,broader_results_root);
+					parent.fb_add_to_facetboard(service_id,cached,'narrower',results,results_raw,narrower_results_root);
+					parent.fb_add_to_facetboard(service_id,cached,'related',results,results_raw,related_results_root);
 				}
 			}
 		} 
@@ -1545,7 +1587,7 @@ if (response!=null) {
 					case "exploreInOntologicalFacets":
 						fb_set_node_ontofacet(jQuery(el).text());
 						detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, $p);
-						$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=facets', {'type':'load'});
+						//$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=facets', {'type':'load'});
 					break;
 				}
 			});
@@ -1947,7 +1989,7 @@ if (response!=null) {
 	}
 
 	/**
-	 * Changes the status of the result aggregation ON/OFF
+   * Changes the status of the result aggregation ON/OFF
 	 * NB. If no status has been set yet, it sets it to OFF
 	 */
 	function toggle_aggregation() {
@@ -1990,7 +2032,6 @@ if (response!=null) {
 		if (state) {
 			$p.app.widgets.openAggregatedView();
 			refresh_aggregated_widget_icons();
-
 			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			button.attr("title", lg("titleAggregationButtonOff"));
 			label.html("<?php echo lg('lblDisableAggregation'); ?>:");
@@ -2024,7 +2065,7 @@ if (response!=null) {
 	}
 
 	/**
-	 * This fonctions, relies on the contextMenu jQuery library
+	 * This function relies on the contextMenu jQuery library
 	 * to attach the context menu to the results shown within widgets
 	 * or in the aggregated view
 	 */
@@ -2056,11 +2097,12 @@ if (response!=null) {
 		})(jQuery);
 	}
 
+
 	function reload_frames_render(render) {
 		set_zoom_text_icons(render);
 		
 		var	tab_id = parent.tab[parent.$p.app.tabs.sel].id;
-
+		
 		var index = tabAggregatedStatusTabId.indexOf(tab_id);
 		var currentAggregationStatus = tabAggregatedStatus[index];
 		if (currentAggregationStatus) {
@@ -2068,7 +2110,7 @@ if (response!=null) {
 			allWidgetsResultSets[resultSetIndex].askResulsToRender(render);
 		}
 
-		var pertinentIframes = getPertinentIframesInfos(tab_id);			
+    var pertinentIframes = getPertinentIframesInfos(tab_id);			
 		for(var i=0;i<pertinentIframes.length;i++) {
 			var iframe = pertinentIframes[i][0];
 			
@@ -2287,6 +2329,38 @@ if (response!=null) {
 		 } /* else alert('Could not perform the operation! status:'+http_request.status);*/
       }
    }
+   
+   
+   function alertContents_orig(okaction) {
+      if (http_request.readyState == 4) {
+         if (http_request.status == 200) {
+            //alert(http_request.responseText);
+            result = http_request.responseText; // app meldet nof affected recs=1
+			var expr = /(\d+)/;
+			var res = expr.exec(result);
+			var inserted_elems=RegExp.$1; //1st match
+			if (inserted_elems>=1) 
+			{
+				if (okaction && okaction!='')
+				{
+					//alert('action: '+okaction);
+					eval(okaction); 	
+				}
+				else 
+				{
+					//alert('result: '+result);
+					//alert('makeRequest returns 1');	
+					return 1;
+				}
+			}
+			else alert ('Could not perform the operation: '+result);
+     	 
+		 } /* else alert('Could not perform the operation! status:'+http_request.status);*/
+      }
+   }
+   
+   
+   
    
     function performRequest(url, parameters) {
 	  

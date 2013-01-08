@@ -7,10 +7,18 @@
 
 //siehe http://arc.semsol.org/docs/v2/getting_started
 
-include("sroot.php");
-include_once("$PATH2U/arc/ARC2.php");
+include("../sroot.php");
+include_once("../../../fsrc/gen/u/arc/ARC2.php");
 
 
+
+$limit = $_GET['limit']; if (!$limit) $limit=0;
+$storename = $_GET['storename']; 
+if (!$storename)
+ {
+  print "You have to provide a name for your store ... ;-)";
+  exit; 
+}
 
 
 $store = ARC2::getStore($ARCCONFIG);
@@ -22,23 +30,18 @@ if (!$store->isSetUp()) {
 $thislink	=$_SERVER['PHP_SELF'];
 $term			=$_REQUEST['term'];
 
-if (!$term) $term="Wachstumsbranche";
 
 //$related				=exec_sparql('related' ,$term);
 $related = exec_sparql_xyz();
 
 
 
-print "<h2> Fabio's SKOS-Navigator (EXPERIMENTAL)</h2>";
-print "<h6>SPARQL-Auswertung Als Basis zum Refininement </h6><br>";
-print "Geladen:";
-print "<br><a href='$SKOS_DBPEDIA_FILE' title='File einsehen im anderen Tab' target='_blank'>DBPEDIA</a>";
-print "<br><a href='$SKOS_ZBW_FILE' title='File einsehen im anderen Tab' target='_blank'>SCHWEIZERISCHE NATIONALBANK</a><br><br>";
-
+print "<h2> Store SKOS-Navigator (using store $storename)</h2>";
 
 print <<<EOP
 <form >
-	<b><i>Dein Term: </i></b><input type="text" name='term' value='$term' title='Gib ein oder mehrer Wörter und bestaetige mit ENTER'>
+	<b><i>Dein Term: </i></b><input type="text" name='term' value='$term' title='Gib ein oder mehrer Wï¿½rter und bestaetige mit ENTER'>
+  <input type='hidden' name='storename' value='$storename'>
 </form>
 EOP;
 
@@ -57,7 +60,47 @@ foreach ($related as $word)
 
 
 
-function exec_sparql_xyz()
+
+function exec_show_sparql_all_xyz()
+##################################
+# 
+# Computes the query to SKOS $verb
+# $verb= related, broader, narrower
+{
+	global $store;
+	
+	$QUERY=<<<EOQ
+	
+	prefix skos:  <http://www.w3.org/2004/02/skos/core#>
+	
+	select ?x ?y ?z
+	where
+		 {
+				?x ?y ?z.
+		 } 
+EOQ;
+
+	$result=array();
+	if ($rows = $store->query($QUERY, 'rows')) 
+	{
+		$result[]='<table>';
+		foreach($rows as $row) {
+			$r=<<<EOR
+		 <tr><td>{$row['x']}</td><td>{$row['y']}</td><td>{$row['z']}</td></tr>
+EOR;
+			$result[]=$r;
+		}
+		
+		$result[]='</table>';
+
+	}
+	return $result;
+}
+
+
+
+
+function exec_show_sparql_all_xyz($term)
 ##################################
 # 
 # Computes the query to SKOS $verb

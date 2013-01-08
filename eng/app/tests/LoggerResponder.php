@@ -2,9 +2,8 @@
 /**
  * AJAX responder for the Logger class. Used to log
  * actions from Javascript.
- * FRI - December 2012 - deactivated - seems to block/slow down response!!!
  *  */
-/*
+
 include_once 'Logger.php';
 
 // Load the session used by posh
@@ -34,5 +33,5 @@ switch ($action) {
 		}
 		break;
 }
-*/
+
 ?>
