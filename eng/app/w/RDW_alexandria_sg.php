@@ -416,7 +416,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
 		}
 
 		$xmlByMatter[$matter] = $xml;
-		$resultCountByMatter[$matter] = count($xml->find('publications, projects', 0)->children());
+		
+		$foundtargets = $xml->find('publications, projects', 0);
+		
+		$resultCountByMatter[$matter] = $foundtargets?count($foundtargets->children()):0;
 	}
 
 	// Build the results objects

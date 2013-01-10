@@ -64,18 +64,25 @@ $DESC_DEFAULT_RAMEAU    ="http://data.bnf.fr/ark:/12148/cb11943532d";
 $DESC_DEFAULT_STW       ="http://zbw.eu/stw/descriptor/11684-3";
 $DESC_DEFAULT_SOZ       ="http://lod.gesis.org/thesoz/concept/10036770";
 $DESC_DEFAULT_LOC       ="http://id.loc.gov/authorities/subjects/sh85038232";
+$DESC_DEFAULT_GND    		="???";
 
 
 $RAMEAU_URL_DATA_MODEL  ="http://data.bnf.fr/semanticweb";
 $STW_URL_DATA_MODEL     ="http://zbw.eu/stw/versions/latest/about";
 $THESOZ_URL_DATA_MODEL  ="http://www.semantic-web-journal.net/sites/default/files/swj279_2.pdf";
 $LOC_URL_DATA_MODEL     ="http://id.loc.gov/descriptions/";
+$GND_URL_DATA_MODEL     ="http://www.dnb.de/EN/Service/DigitaleDienste/LinkedData/linkeddata_node.html";
+
+
 
 $ALLTRIPLES_URL="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_show_all_triples.php";
 $STORE_TRIPLES_RAMEAU    ="$ALLTRIPLES_URL?limit=1000&storename=bnf_rameau";
 $STORE_TRIPLES_STW       ="$ALLTRIPLES_URL?limit=1000&storename=zbw_stw";
 $STORE_TRIPLES_SOZ       ="$ALLTRIPLES_URL?limit=1000&storename=gesis_thesoz";
 $STORE_TRIPLES_LOC       ="$ALLTRIPLES_URL?limit=1000&storename=loc_sh";
+$STORE_TRIPLES_GND    ="$ALLTRIPLES_URL?limit=1000&storename=dnb_gnd";
+
+
 
 
 $namespaces=get_namespaces_from_DB();
@@ -83,6 +90,17 @@ $namespaces=get_namespaces_from_DB();
 
   switch ($storename)
   {
+  	
+		
+    case 'dnb_gnd': 
+          if (!$L) $L='de';
+          $KOSTYPE='SKOS'; 
+          //$namespaces=$bnf_rameau_namespaces;
+          if (!$term && !$desc) $desc=$DESC_DEFAULT_GND; 
+          $DEFAULT_MODEL_URL = $GND_URL_DATA_MODEL;
+		  		$DEFAULT_STORE_TRIPLES = $STORE_TRIPLES_GND;
+          break;
+		
     case 'bnf_rameau': 
           if (!$L) $L='fr';
           $KOSTYPE='SKOS'; 

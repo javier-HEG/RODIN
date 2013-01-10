@@ -180,7 +180,10 @@ EOH;
 	$onKeyUpSearchFAction="javascript: bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode }";
 
   if ($RESULTS_STORE_METHOD=='solr')
-  $SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
+  {
+  	if ($RODINSEGMENT<>'p')
+ 			$SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
+  }
 
   list($message,$test_rodin_komponenten_ok,$noofproblems) = rodin_service_diagnostics();
   if ($test_rodin_komponenten_ok)

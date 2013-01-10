@@ -6,6 +6,21 @@
 //siehe http://arc.semsol.org/docs/v2/getting_started
 
 
+// http://195.176.237.62/rodin/x/app/u/SOLRinterface/solr_bridge.php?coll=bnf_rameau&method=select&q=id:*&rows=0&omitHeader=true
+
+
+function get_solr_check_docs_href($solr_collection)
+{
+	$HOST=$_SERVER['HTTP_HOST'];
+	
+	global $RODINSEGMENT;
+	$SOLR_CHECK_URL="http://$HOST/rodin/$RODINSEGMENT/app/u/SOLRinterface/solr_bridge.php?coll=bnf_rameau&method=select&q=id:*&rows=0&omitHeader=true";
+	
+	$SOLR_CHECK_HREF="<a href='$SOLR_CHECK_URL' target='blank' title='Click to open SOLR check number od docs for the named collection $solr_collection'>$solr_collection</a>";
+	
+	return $SOLR_CHECK_HREF;
+}
+
 
 function solr_index_skos_namespaces($namespaces,$solr_collection)
 {

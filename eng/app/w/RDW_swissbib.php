@@ -130,9 +130,6 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 		
 		$controlNumber = getDataFromRecord($recordData, array('035' => 'a'));
 		$singleResult->setUrlPage($swissbib_permalink_baseurl . urlencode('"' . $controlNumber . '"'));
-
-    print "PAGE: ".$singleResult->getUrlPage();
-    exit;
     
 		$date = getDataFromRecord($recordData, array('260' => 'c'));
 		if (preg_match("/\d{4}/", $date, $match))

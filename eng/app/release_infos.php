@@ -1,6 +1,12 @@
 
 <?php include_once("root.php");
+ $NOW=date("d.m.Y_H:i:s");
+
  $MANTIS ="<a href=\"http://195.176.237.62/mantis/\" target=_blank>mantis</a>";
+ $MANTIS_ISSUE_SMOKETEST ="<a href=\"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=SMOKETEST_ON_{$NOW}_SEGMENT???\" target='_blank'>mantis issue</a>"; 
+ 
+ $RODINSMOKETEST_DIR_URL="http://195.176.237.62/rodin/tests/smoketest/";
+ $US_LINK = "<a href='mailto:fabio.ricci@ggaweb.ch?subject=RODIN_SMOKE_TEST_ON_{$NOW}_SEGMENT???'>us</a>";
  ?>
 
 <a href="http://campus.hesge.ch/id_bilingue/projekte/rodin/index_de.htm" target=_blank>RODIN</a>
@@ -18,7 +24,6 @@
 <br />Semantic Filtering introduced
 <br />SOLR integration for results
 <br />New SKOSxl ontology source SOZ "theSoz" integrated per Dec 18th 2012
-<br />
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  
@@ -34,29 +39,38 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br /> - Results higlighting
 <br /> - Semantic filtering
 <br /> - Higher speed through SRC optimization
+<br> - <p> <i>Feel bored? Need a test?</i> <br>Do not hesitate 
+<br>to send <?php print $US_LINK?> or to issue a <?php print $MANTIS_ISSUE_SMOKETEST?>
+<br>on a <a href='<?php print $RODINSMOKETEST_DIR_URL?>' title='Click to download a rodin test document'>SMOKE or DEEP RODIN Test</a>
+</p>
 <?php 
-  if ($_ENV['USER']=='fabio' || $_ENV['USER']='riccif')
+  print "<b><i>USEFUL LINKS:</i></b>";
   {
     $SRC_CONTROL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/select_src.php";
-    $SRC_PEVAL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/SKOS_SOLR_partial_evaluator.php";
+    $SRC_PEVAL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/SOLR_SKOS_partial_evaluator/";
+    $SRC_STORE_SKOS_NAVIGATOR_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_skosxl_navigator.php?storename=bnf_rameau";
+    $SRC_STORE_SPARQL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_show_all_triples.php?limit=5&storename=bnf_rameau";
+    $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/";
     $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u";
     
     print "<br><a href='$SRC_U_LINK' target='blank'>SRC METHODS</a>";
     print "<br><a href='$SRC_CONTROL_LINK' target='blank'>SRC MANAGEMENT FOR CURRENT SEGMENT</a>";
-    print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR ZBW</a><br><br>";
+    print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR SOLR</a>";
+    print "<br><a href='$SRC_STORE_SKOS_NAVIGATOR_LINK' target='blank'>STORE SKOS NAVIGATOR</a>";
+    print "<br><a href='$SRC_STORE_SPARQL_LINK' target='blank'>STORE SPARQL ENGINE</a>";
   }
 ?>
 <!--p>
 <b>Integration with SRC - Details</b>
-<br />==============================
+<br />===============================
 <br />
 <br />URL used for START &nbsp;: <?php echo $SRCreal; ?>/<b>start</b>?user=id
 <br />URL used for REFINE : <?php echo $SRCreal; ?>/<b>refine</b>?params - (see spec)
 <br />
 <br />CALLS ROGINDUI -> RODINSRC (can) be stored in DB and can be viewed using <a href="<?php echo $SRC_INTERFACE_BASE_URL; ?>/calls.php" target="_blank"> this link</a>
 <br /-->
-<b>Integration with SOLR - Details</b>
-<br />
+
+<br><b>Integration with SOLR - Details:</b>
 <br /><a href="http://localhost:8885/solr/#/"> SOLR ADMIN </a>
 <br /><a href="http://localhost:8985"> SOLR LUCID </a>
 </p>

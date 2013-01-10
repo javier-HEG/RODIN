@@ -469,7 +469,16 @@ $SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['timeout']=5;
 $SOLR_RODIN_CONFIG['loc_sh']['rodin']['cache_expiring_time_hour']=24*7; //1 week
 
+# SOLR for collection DNB GND:
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['path']='/solr/dnb_gnd/';
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['dnb_gnd']['rodin']['cache_expiring_time_hour']=0; //24*7; //1 week
 
+# SOLR for collection solariumtests:
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['user']='rodin';
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['host']='localhost';
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['port']=$SOLR_PORT;

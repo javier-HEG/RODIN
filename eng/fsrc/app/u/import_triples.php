@@ -31,6 +31,7 @@ format detector, which in turn triggers the inclusion of an
 appropriate parser, etc. until the triples end up in the store. */
 
 
+
 $ZWB_STW_RDF_SOURCE="$PATH2U/data/SKOS/ZBW/stw.rdf";
 $GESIS_THESOZ_RDF_SOURCE="$PATH2U/data/SKOS/GESIS/thesoz_0_8.xml";
 
@@ -41,6 +42,9 @@ $BNF_RAMEAU_AUTHORS="$PATH2U/data/SKOS/RAMEAU/databnf_authors_xml_2012-11-15/";
 $BNF_RAMEAU_EXTREFS="$PATH2U/data/SKOS/RAMEAU/databnf_externalrefs_xml_2012-11-15/";
 $BNF_RAMEAU_ORG="$PATH2U/data/SKOS/RAMEAU/databnf_org_xml_2012-11-15/";
 $BNF_RAMEAU_WORKS="$PATH2U/data/SKOS/RAMEAU/databnf_works_xml_2012-11-15/";
+
+$DNB_GND_TURTLE="$PATH2U/data/SKOS/GND/TURTLE/";
+
 
 
 $LOC_SH_SKOS="$PATH2U/data/SKOS/LOC/loc_skos/";
@@ -66,6 +70,12 @@ switch ($object)
   case 'loc_sh_skos':
     $OBJECTS=array('loc_sh'=>$LOC_SH_SKOS);
     print "Importing RDF object <b>$LOC_SH_SKOS</b> into ARC2 local store <b>'".(implode(',',array_keys($OBJECTS)))."'</b> ..."
+            ."<br>$HREF_IMPORT_LOG_FILE - $HREF_IMPORT_INFO / $HREF_IMPORT_DONE / $HREF_IMPORT_LOAD TASKS <br>";
+    break;
+	
+	case 'bnd_gnd':
+    $OBJECTS=array('dnb_gnd'=>$DNB_GND_TURTLE);
+    print "Importing TURTLE object <b>$DNB_GND_TURTLE</b> into ARC2 local store <b>'".(implode(',',array_keys($OBJECTS)))."'</b> ..."
             ."<br>$HREF_IMPORT_LOG_FILE - $HREF_IMPORT_INFO / $HREF_IMPORT_DONE / $HREF_IMPORT_LOAD TASKS <br>";
     break;
 

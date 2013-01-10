@@ -44,7 +44,7 @@ print "<h3> Predicate $verb</h3>";
 print <<<EOP
 <table>
 <form name='a' >
-	<tr><td>Your query for storename <b>$storename</b>:</tr>
+	<tr><td>Your SPARQL query for storename <b>$storename</b>:</tr>
 	<tr><td><textarea rows='10' cols='60' name='QUERY'>$QUERY</textarea></tr>
 	<tr><td><input type=submit style='width:100%' value='Submit'></tr>
 	<input type=hidden name=storename value='$storename'>

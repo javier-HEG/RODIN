@@ -39,10 +39,23 @@ $seephperrors = $_REQUEST['seephperrors'];
 if ($seephperrors) error_reporting(E_ALL); // forces error reporting
 
 
-print "<h2> SOLR SKOSXL Partial Evaluator </h2>";
-print "<h3>Indexing triple store '$storename' to SOLR -> collection '$solr_collection'</h3>";
-$SUBMITONENTER=" onKeyPress=\"return submitenter(this,event)\"";
-
+if ($storename && $solr_collection)
+{
+	$SOLR_DOC_CHECK_HREF=get_solr_check_docs_href($solr_collection);
+	
+	print "<h2> SOLR SKOS XL Partial Evaluator </h2>";
+	print "<h3>Indexing triple store '$storename' to SOLR -> collection '$SOLR_DOC_CHECK_HREF'</h3>";
+	
+	if ($doindex)
+	{
+		if ($mode=='bigdata')
+			print "<h3>USING BIG DATA (indexing) = one skos obj at a time</h3>";
+		else {
+		if ($mode=='fast')
+			print "<h3>USING FAST (indexing) = all skos objs in one shot</h3>";
+		}
+	}
+}
 
 solr_skosxl_indexing_evaluator($storename,$solr_collection);
 
