@@ -7,9 +7,7 @@ $sid = $_POST['sid'];
 // The suffix is used to distinguish the header and
 // content divs from results in different tabs
 $suffix = $_POST['suffix'];
-
 $fromResult = isset($_POST['from']) ? $_POST['from'] : 0;
-
 $jsonAllResults = array();
 
 //$allResults = RodinResultManager::getRodinResultsFromSOLRForASearch($sid);
@@ -54,6 +52,7 @@ while ($i < $uptoResult) {
 		break;
 	
 	$jsonAllResults[] = $jsonSingleResult;
+	$i++;
 }
 
 header('Content-type: application/json; charset=utf-8');
