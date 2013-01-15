@@ -30,7 +30,10 @@ EOS;
 format detector, which in turn triggers the inclusion of an
 appropriate parser, etc. until the triples end up in the store. */
 
-
+//We need on the server at HEG to enhance php execution time limit, 
+    //since this server is slowlee and need more time than the local power macs
+    set_time_limit ( 1000000 ); // 250h -> Feature in 5.3.0 deprecated, in 5.4.0 deleted - but useful right now
+    
 
 $ZWB_STW_RDF_SOURCE="$PATH2U/data/SKOS/ZBW/stw.rdf";
 $GESIS_THESOZ_RDF_SOURCE="$PATH2U/data/SKOS/GESIS/thesoz_0_8.xml";
@@ -51,17 +54,23 @@ $LOC_SH_SKOS="$PATH2U/data/SKOS/LOC/loc_skos/";
 
 
 $URL_IMPORT_LOG_FILE="$WEBROOT$RODINROOT/usabilityLogFile.txt";
-$HREF_IMPORT_LOG_FILE="<a href='$URL_IMPORT_LOG_FILE' target='_blank'>SEE IMPORTLOGFILE</a>";
+$HREF_IMPORT_LOG_FILE="<a href='$URL_IMPORT_LOG_FILE' >SEE IMPORTLOGFILE</a>";
 
 $URL_IMPORT_BASE= $_ENV['SCRIPT_NAME']."?&object=$object"; 
 $URL_IMPORT_DONE="$URL_IMPORT_BASE&method=done";
-$HREF_IMPORT_DONE="<a href='$URL_IMPORT_DONE' target='_blank' title='Show imported file statistics'> DONE </a>";
+$HREF_IMPORT_DONE="<a href='$URL_IMPORT_DONE' title='Show imported file statistics'> DONE </a>";
 
 $URL_IMPORT_INFO="$URL_IMPORT_BASE&method=info";
-$HREF_IMPORT_INFO="<a href='$URL_IMPORT_INFO' target='_blank' title='Show open triple file tasks'> OPEN </a>";
+$HREF_IMPORT_INFO="<a href='$URL_IMPORT_INFO' title='Show open triple file tasks'> INFO </a>";
+
+$URL_IMPORT_TODO="$URL_IMPORT_BASE&method=todo";
+$HREF_IMPORT_TODO="<a href='$URL_IMPORT_TODO' title='Load (once) triple file tasks into database'> TODO </a>";
 
 $URL_IMPORT_LOAD="$URL_IMPORT_BASE&method=load&maxfile=-1";
-$HREF_IMPORT_LOAD="<a href='$URL_IMPORT_LOAD' target='_blank' title='LOAD open triple file tasks - ARE YOU SURE ?'> LOAD </a>";
+$HREF_IMPORT_LOAD="<a href='$URL_IMPORT_LOAD' title='LOAD open triple file tasks - ARE YOU SURE ?'> LOAD </a>";
+
+$COMMANDS="$HREF_IMPORT_LOG_FILE - $HREF_IMPORT_INFO / $HREF_IMPORT_DONE / $HREF_IMPORT_TODO / $HREF_IMPORT_LOAD TASKS";
+
 
 $OBJECTS=array();
 
@@ -70,13 +79,13 @@ switch ($object)
   case 'loc_sh_skos':
     $OBJECTS=array('loc_sh'=>$LOC_SH_SKOS);
     print "Importing RDF object <b>$LOC_SH_SKOS</b> into ARC2 local store <b>'".(implode(',',array_keys($OBJECTS)))."'</b> ..."
-            ."<br>$HREF_IMPORT_LOG_FILE - $HREF_IMPORT_INFO / $HREF_IMPORT_DONE / $HREF_IMPORT_LOAD TASKS <br>";
+            ."<br>$COMMANDS<br>";
     break;
 	
-	case 'bnd_gnd':
+	case 'dnb_gnd':
     $OBJECTS=array('dnb_gnd'=>$DNB_GND_TURTLE);
     print "Importing TURTLE object <b>$DNB_GND_TURTLE</b> into ARC2 local store <b>'".(implode(',',array_keys($OBJECTS)))."'</b> ..."
-            ."<br>$HREF_IMPORT_LOG_FILE - $HREF_IMPORT_INFO / $HREF_IMPORT_DONE / $HREF_IMPORT_LOAD TASKS <br>";
+            ."<br>$COMMANDS<br>";
     break;
 
   case 'bnf_rameau_rameau':
@@ -85,7 +94,7 @@ switch ($object)
     		//'bnf_rameau'=>$BNF_RAMEAU_RAMEAU
 				); 
     print "Importing RDF object <br><b>$BNF_RAMEAU_VOCABULARIES<br>+$BNF_RAMEAU_RAMEAU</b> into ARC2 local store <b>'".(implode(',',array_keys($OBJECTS)))."'</b> ..."
-            ."<br>$HREF_IMPORT_LOG_FILE - $HREF_IMPORT_INFO / $HREF_IMPORT_DONE / $HREF_IMPORT_LOAD TASKS <br>";
+            ."<br>$COMMANDS<br>";
     break;
   /*
   case 'bnf_rameau_authors':
@@ -111,13 +120,13 @@ switch ($object)
   case 'zbw_stw':
     $OBJECTS=array('zbw_stw'=>$ZWB_STW_RDF_SOURCE);
     print "Importing RDF object <b>$ZWB_STW_RDF_SOURCE</b> into ARC2 local store <b>'".(implode(',',array_keys($OBJECTS)))."'</b> ..."
-            ."<br>$HREF_IMPORT_LOG_FILE - $HREF_IMPORT_INFO / $HREF_IMPORT_DONE / $HREF_IMPORT_LOAD TASKS <br>";
+            ."<br>$COMMANDS<br>";
     break;
   
   case 'gesis_thezoz':
     $OBJECTS=array('gesis_thesoz'=>$GESIS_THESOZ_RDF_SOURCE);
     print "Importing RDF object <b>$GESIS_THESOZ_RDF_SOURCE</b> into ARC2 local store <b>'".(implode(',',array_keys($OBJECTS)))."'</b> ..."
-            ."<br>$HREF_IMPORT_LOG_FILE - $HREF_IMPORT_INFO / $HREF_IMPORT_DONE / $HREF_IMPORT_LOAD TASKS <br>";
+            ."<br>$COMMANDS<br>";
     break;
   default:
     print "What? do not know any '$object' (nothing imported)<br><br>SYNOPSIS:<br>$SYNOPSIS";
@@ -216,7 +225,7 @@ else if ($method=='done')
 {
   foreach ($OBJECTS as $storename=>$_)
   {
-    print_info($storename,"were executed ARC on storename <b>$storename</b>:",
+    print_info($storename,"were executed by ARC on storename <b>$storename</b>:",
                           "<br>NO triple load task executions RESULTING for storename '<b>$storename</b>'",true);
   }  
 }

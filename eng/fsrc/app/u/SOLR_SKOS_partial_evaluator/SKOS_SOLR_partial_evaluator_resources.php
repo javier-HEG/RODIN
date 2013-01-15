@@ -272,6 +272,46 @@ function get_skos_resource($desc,&$store)
 		 }
 EOQ;
   
+  $QUERY=utf8_encode($QUERY);
+	
+  //print "$QUERY";
+  
+  $p_o_arr=array();
+	if ($rows = $store->query($QUERY, 'rows')) 
+	{
+		foreach($rows as $row) 	
+		{
+			$p_o_arr[]=array($row['p'],$row['o'],$row["o lang"]);
+		}
+	}
+	return $p_o_arr;
+}
+
+
+
+
+/*
+ * Returns a vector of tuples
+ * from the store
+ * reflecting the resource
+ * following the skos standards
+ */
+function get_gnd_resource($desc,&$store)
+{	
+  //print "get_skos_resource($desc)<br>";
+  if (!$store) return null;
+  
+	$QUERY=<<<EOQ
+	
+	select ?p ?o
+	where
+		 {
+			<$desc> 	?p 			?o .
+		 }
+EOQ;
+  
+  $QUERY=utf8_encode($QUERY);
+	
   //print "$QUERY";
   
   $p_o_arr=array();
@@ -295,8 +335,88 @@ EOQ;
  * Returns a list of descriptors found sparql searching for $searchterm
  * using the skos system (maybe null)
  */
+function get_gnd_desc_list($searchterm,&$store)
+{
+	global $limit;
+	//print "get_gnd_desc_list";
+	
+	if (strstr($searchterm,'*'))
+	{
+		$searchterm4query_a=explode('*',$searchterm);
+		$searchterm4query=$searchterm4query_a[0]; // take only first token
+		$QUERY=<<<EOQ
+	
+	prefix gnd2:  <http://d-nb.info/standards/elementset/gnd#>
+	
+	select ?d 
+  {
+    {
+     ?d 	gnd2:preferredNameForTheCorporateBody 	?name .
+     FILTER regex (?name,"$searchterm4query","i") .
+    }
+    
+   }
+   LIMIT $limit
+EOQ;
+/*
+ * UNION
+    {
+     ?d 	gnd2:variantNameForTheCorporateBody 	?name .
+     FILTER regex (?name,"$searchterm4query","i") .
+    }
+ */
+	}
+	else
+	$QUERY=<<<EOQ
+	
+	prefix gnd2:  <http://d-nb.info/standards/elementset/gnd#>
+	
+	select ?d 
+  {
+    {
+     ?d 	gnd2:preferredNameForTheCorporateBody 	'$searchterm' .
+    }
+    UNION
+    {
+     ?d 	gnd2:variantNameForTheCorporateBody 	'$searchterm' .
+    }
+   }
+   LIMIT $limit
+EOQ;
+
+	$QUERY=utf8_encode($QUERY);
+	//print "<br><br>exec_sparql: ".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
+
+	$result=array();
+	if ($rows = $store->query($QUERY, 'rows')) 
+	{
+		foreach($rows as $row) 	
+		{
+			$result[]= ($row['d']);
+		}
+	}
+  
+  //print "<br>Descriptors: ";var_dump($result);
+  //returns list of descriptors!!
+	return $result;
+  
+} // get_gnd_desc_list
+
+
+
+
+
+
+
+/*
+ * Returns a list of descriptors found sparql searching for $searchterm
+ * using the skos system (maybe null)
+ */
 function get_skos_desc_list($searchterm,&$store)
 {
+	
+	print "get_skos_desc_list";
+	
 	$QUERY=<<<EOQ
 	
 	prefix skos:  <http://www.w3.org/2004/02/skos/core#>
@@ -313,7 +433,9 @@ function get_skos_desc_list($searchterm,&$store)
     }
    }
 EOQ;
-	print "<br><br>exec_sparql: ".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
+
+	$QUERY=utf8_encode($QUERY);
+	//print "<br><br>exec_sparql: ".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
 
 	$result=array();
 	if ($rows = $store->query($QUERY, 'rows')) 
@@ -529,7 +651,6 @@ function analyzeURI($URIexpr,&$namespaces)
 
 function prettyprintURI($URIexpr,&$namespaces)
 {
-  global $KOSTYPE;
   $SEP='';
 
   list($left,$right,$literal) = analyzeURI($URIexpr,$namespaces);
@@ -557,10 +678,14 @@ EOR;
 
 function regognize_change_descriptor_link($left,$o)
 {
+	
+	//print "<br>regognize_change_descriptor_link($left,$o)";
+	
   if (!$link && !($link = regognize_bnf_descriptor($left,$o)));
 	if (!$link && !($link = regognize_loc_descriptor($left,$o)));
 	if (!$link && !($link = regognize_stw_descriptor($left,$o)));
 	if (!$link && !($link = regognize_soz_descriptor($left,$o)));
+	if (!$link && !($link = regognize_gnd_descriptor($left,$o)));
 					
   if (!$link)
     $link = $o;
@@ -602,7 +727,8 @@ function regognize_stw_descriptor($left,$o)
 	        target='click to navigate'>$o</a>";
 		
   }
-  return $link;
+	//print "<br>regognize_stw_descriptor($left,$o) returning $link";
+	return $link;
 }
 
 
@@ -611,7 +737,7 @@ function regognize_stw_descriptor($left,$o)
 
 function regognize_soz_descriptor($left,$o)
 {
-  $link = $o;
+  $link = '';
   $pattern="/concept\/(\d+)/";
 	if (strstr($left,'thesoz'))
   {
@@ -625,8 +751,42 @@ function regognize_soz_descriptor($left,$o)
 	      target='click to navigate'>$o</a>";
 	  }
   }
+	//print "<br>regognize_soz_descriptor($left,$o) returning $link";
+	return $link;
+}
+
+
+
+
+
+
+function regognize_gnd_descriptor($left,$o)
+{
+  $link = '';
+	
+	//print "<br>regognize_gnd_descriptor(o=$o)";
+	
+  $pattern="/(\d+)-(.+)/";
+	if (strstr($left,'gnd'))
+  {
+	  if (preg_match($pattern,$o,$match))
+	  {
+	    $desc_number1=$match[1];
+	    $desc_number2=$match[2];
+	    $fulldescriptor = "http://d-nb.info/gnd/$desc_number1-$desc_number2";
+	    $HREF="";
+	    $link = "<a href='#'
+	      onclick=\"document.f.desc.value='$fulldescriptor';f.submit()\"
+	      target='click to navigate'
+	      title='Click to switch to $fulldescriptor'>$o</a>";
+	  }
+  }
+	//print "<br>regognize_gnd_descriptor($left,$o) returning $link";
   return $link;
 }
+
+
+
 
 
 
@@ -651,7 +811,8 @@ function regognize_loc_descriptor($left,$o)
         target='click to navigate'>$o</a>";
     }
   }
-  return $link;
+	//print "<br>regognize_loc_descriptor($left,$o) returning $link";
+	return $link;
 }
 
 
@@ -679,7 +840,8 @@ function regognize_bnf_descriptor($left,$o)
         target='click to navigate'>$o</a>";
     }
   }
-  return $link;
+	//print "<br>regognize_bnf_descriptor($left,$o) returning $link";
+	 return $link;
 }
 
 
@@ -827,22 +989,36 @@ function prepare_skos_entity_solr_document(&$SOLRCLIENT,&$namespaces,$descriptor
   //
   //print "<hr>SAVING DOCUMENTS:<br>"; var_dump($documents);
 
-  $document->addField('body', $fulltext);
-
-  if (trim($fulltext)=='') // sth wrong... 
+  if ($fulltext) // something filled ?
   {
-    $document=null;
-    if($printline) print "<tr><th align='right'></th><th valign='bottom' align='left' colspan='2'> EMPTY BODY!! smt WRONG </th><th/></tr>";
+    $document->addField('body', $fulltext);
+	
+	  if (trim($fulltext)=='') // sth wrong... 
+	  {
+	    $document=null;
+	    if($printline) print "<tr><th align='right'></th><th valign='bottom' align='left' colspan='2'> EMPTY BODY!! smt WRONG </th><th/></tr>";
+	  }
+	  else
+	  {
+	  	//print "<br>mode: $mode";
+	  	if ($mode=='bigdata') // INDEX NOW!
+	  	{
+	  		$documents=array($document);
+	    	solr_synch_update(false,$solr_collection,$SOLRCLIENT, $documents, $indexdebug, $showdetails);
+			}
+	  }
   }
-  else
-  {
-  	//print "<br>mode: $mode";
-  	if ($mode=='bigdata') // INDEX NOW!
-  	{
-  		$documents=array($document);
-    	solr_synch_update(false,$solr_collection,$SOLRCLIENT, $documents, $indexdebug, $showdetails);
-		}
-  }
+	else // nothing to add ...
+	{
+		$document=null;
+		// communicate/warn $descriptor_clean, $p_o_resource
+		
+		print "<br><hr>prepare_skos_entity_solr_document encountered a singular situation: no data to descriptor (triples complete???)";
+		print "<br>descriptor: (<b>$descriptor_clean)</b>";
+		print "<br>data: <br><b>";
+		var_dump($p_o_resource);
+		print "</b><br><br>";
+	}
   
   return $document;
 } // prepare_skos_entity_solr_document

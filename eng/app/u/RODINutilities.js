@@ -1560,7 +1560,9 @@ if (response!=null) {
 
           case "restricttoontoterm":
           {
-              
+              RESULTFILTEREXPR = jQuery(el).text();
+              reload_frames_render(TEXTZOOM);
+              RESULTFILTEREXPR='';
           }
 					break;
           case "restricttoontoterm_f1": /* hide not higlighed terms */

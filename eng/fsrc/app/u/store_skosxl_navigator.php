@@ -41,11 +41,11 @@ include_once("SOLR_SKOS_partial_evaluator/SKOS_SOLR_partial_evaluator_resources.
 
 
 // SKOSXL $desc='http://lod.gesis.org/thesoz/concept/10036765'
-$storenames= array('gesis_thesoz', 'zbw_stw', 'bnf_rameau', 'loc_sh');
+$storenames= array('gesis_thesoz', 'zbw_stw', 'bnf_rameau', 'loc_sh', 'dnb_gnd');
 $storenames_str=implode(', ',$storenames);
 
 
-$limit      = $_GET['limit']; if (!$limit) $limit=0;
+$limit      = $_GET['limit']; if (!$limit) $limit=100;
 $storename  = $_GET['storename']; 
 $thislink   = $_SERVER['PHP_SELF'];
 $term       = $_REQUEST['term'];
@@ -64,7 +64,7 @@ $DESC_DEFAULT_RAMEAU    ="http://data.bnf.fr/ark:/12148/cb11943532d";
 $DESC_DEFAULT_STW       ="http://zbw.eu/stw/descriptor/11684-3";
 $DESC_DEFAULT_SOZ       ="http://lod.gesis.org/thesoz/concept/10036770";
 $DESC_DEFAULT_LOC       ="http://id.loc.gov/authorities/subjects/sh85038232";
-$DESC_DEFAULT_GND    		="???";
+$DESC_DEFAULT_GND    		="http://d-nb.info/gnd/1007993-2";
 
 
 $RAMEAU_URL_DATA_MODEL  ="http://data.bnf.fr/semanticweb";
@@ -94,7 +94,7 @@ $namespaces=get_namespaces_from_DB();
 		
     case 'dnb_gnd': 
           if (!$L) $L='de';
-          $KOSTYPE='SKOS'; 
+          $KOSTYPE='GND'; 
           //$namespaces=$bnf_rameau_namespaces;
           if (!$term && !$desc) $desc=$DESC_DEFAULT_GND; 
           $DEFAULT_MODEL_URL = $GND_URL_DATA_MODEL;
@@ -141,26 +141,45 @@ $LOCALCONFIG{'store_name'}=$storename;
 $store = ARC2::getStore($LOCALCONFIG);
 
 
-if ($desc<>'')
+if ($desc)
 {
-    $p_o_resources[] = $KOSTYPE=='SKOS'
+    $p_o_resources[] = ($KOSTYPE=='SKOS' || $KOSTYPE=='GND')
           ?get_skos_resource(trim($desc),$store)
           :get_skosxl_resource(trim($desc),$store);
   
 }
   
-else if ($term<>'')  
+else if ($term)  
 {
   
-  $desc_list=$KOSTYPE=='SKOS'
-            ?get_skos_desc_list(trim($term),$store)
-            :get_skosxl_desc_list(trim($term),$store);
+	$desc_list='';
+	switch ($KOSTYPE)
+	{
+		
+		case 'SKOS':
+			$desc_list=get_skos_desc_list(trim($term),$store);
+			break;
+		case 'SKOSXL':
+			$desc_list=get_skosxl_desc_list(trim($term),$store);
+			break;
+		case 'GND':
+			$desc_list=get_gnd_desc_list(trim($term),$store);
+			break;
+	}
+	
   
   if ($KOSTYPE=='SKOS')
   {
     foreach($desc_list as $desc)
     {  
        $p_o_resources[] = get_skos_resource(trim($desc),$store);
+    }
+  }
+	else if ($KOSTYPE=='GND')
+  {
+    foreach($desc_list as $desc)
+    {  
+       $p_o_resources[] = get_gnd_resource(trim($desc),$store);
     }
   }
   else 
@@ -185,14 +204,25 @@ $onchange="
   var desc = document.getElementById(\"desc\");
   var source = document.getElementById(\"source\");
   var triples = document.getElementById(\"triples\");
-    if (this.value==\"bnf_rameau\")
+  
+  
+  if (this.value==\"dnb_gnd\")
+  {
+    L.value=\"de\";
+    term.value=\"\";
+    desc.value=\"$DESC_DEFAULT_GND\";
+    source.href=\"$GND_URL_DATA_MODEL\";
+    source.innerHTML=source.href;
+		triples.href=\"$STORE_TRIPLES_GND\";
+  }
+  if (this.value==\"bnf_rameau\")
   {
     L.value=\"fr\";
     term.value=\"\";
     desc.value=\"$DESC_DEFAULT_RAMEAU\";
     source.href=\"$RAMEAU_URL_DATA_MODEL\";
     source.innerHTML=source.href;
-	triples.href=\"$STORE_TRIPLES_RAMEAU\";
+		triples.href=\"$STORE_TRIPLES_RAMEAU\";
   }
   if (this.value==\"zbw_stw\")
   {
@@ -229,7 +259,9 @@ print <<<EOP
 	<b><i>Your Term: </i></b><input type="text" id='term' name='term' value='$term' title='Enter one or more words and press ENTER' $SUBMITONENTER>
 	&nbsp;<b><i>the language(s): </i></b><input type="text" size="4" id= 'L' name='L' value='$L' title='Enter one or more language acronyms - en,de' $SUBMITONENTER> 
     $STORENAMES_OPTIONS
-	<br><b><i>Descriptor: </i></b><input size="56" type="text" id='desc' name='desc' value='$desc' title='Enter a descriptor and press ENTER' $SUBMITONENTER>
+	<br><b><i>Descriptor: </i></b><input size="45" type="text" id='desc' name='desc' value='$desc' title='Enter a descriptor and press ENTER' $SUBMITONENTER>
+	Limit: <input size="3" type="text" id='limit' name='limit' 
+	style="text-align:right" value='$limit' title='Enter a limit for the number of triples to be retrieved (default is 100)' $SUBMITONENTER>
   <br><input type='submit' value='(-: Find :-)' style="width:465px;">
   <br><a id='source' href='$DEFAULT_MODEL_URL' title='Click to open data model descritpion in new tab' target='_blank'>$DEFAULT_MODEL_URL</a> 
   &nbsp; 
@@ -254,7 +286,7 @@ if (count($p_o_resources))
     {
 
       //print "<hr>"; var_dump($arr);
-      if ($KOSTYPE=='SKOS')
+      if ($KOSTYPE=='SKOS' || $KOSTYPE=='GND')
       {    
         list( $p, $o, $o_lang
            )=$arr;

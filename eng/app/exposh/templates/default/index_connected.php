@@ -179,6 +179,7 @@ EOH;
 	
 	$onKeyUpSearchFAction="javascript: bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode }";
 
+	$SOLR_LOGO='';
   if ($RESULTS_STORE_METHOD=='solr')
   {
   	if ($RODINSEGMENT<>'p')
@@ -405,6 +406,7 @@ EOP;
   <form name="famenu" action="">
 	<ul id="facetsContextMenu" class="extendedcontextMenu contextMenu">
     <li><h1 id="facetsContextMenuLabel"></h1></li>
+    <!-- commented out because of demo in Hamburg ...:
     <li class="morphofilter">
       <table border="0" cellpadding="0" cellspacing="0">
         <tr>
@@ -427,7 +429,7 @@ EOP;
         </tr>
       </table>
     </li>
-    
+    -->
     <!-- 20121202 FRI: contextmenu should be simpler!!! functionality now in direct icon buttons.
     <li class="restricttoontoterm">
       

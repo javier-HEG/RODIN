@@ -772,7 +772,7 @@ EOF;
   protected function src_cached_content_quality_control($SRC_XML_CACHE_CONTENT)
   { 
     //Has the answer at least data inside one of (broader/related/narrower)?
-    $need_src_log=true;
+    $need_src_log=false;
 
     $ok = (trim($SRC_XML_CACHE_CONTENT));  
     if ($ok) //Test any of the skos objects nonempty

@@ -1536,6 +1536,7 @@ EOQ;
 		}
     mysql_close($DBconn);
     
+		
     return $NAMESPACES;
   } // get_namespaces_from_DB
 

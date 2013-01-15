@@ -3,7 +3,7 @@
  $NOW=date("d.m.Y_H:i:s");
 
  $MANTIS ="<a href=\"http://195.176.237.62/mantis/\" target=_blank>mantis</a>";
- $MANTIS_ISSUE_SMOKETEST ="<a href=\"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=SMOKETEST_ON_{$NOW}_SEGMENT???\" target='_blank'>mantis issue</a>"; 
+ $MANTIS_ISSUE_SMOKETEST ="<a href=\"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=SMOKETEST_ON_{$NOW}_SEGMENT???\" target='_blank'>mantis task</a>"; 
  
  $RODINSMOKETEST_DIR_URL="http://195.176.237.62/rodin/tests/smoketest/";
  $US_LINK = "<a href='mailto:fabio.ricci@ggaweb.ch?subject=RODIN_SMOKE_TEST_ON_{$NOW}_SEGMENT???'>us</a>";
@@ -24,6 +24,9 @@
 <br />Semantic Filtering introduced
 <br />SOLR integration for results
 <br />New SKOSxl ontology source SOZ "theSoz" integrated per Dec 18th 2012
+<br />New SKOS ontology source RAMEAU integrated per Dec 30th 2012
+<br />New SKOS ontology source LOC integrated per Dec 30th 2012
+<br />New NON-SKOS ontology source GND to integrated soon
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  
@@ -41,11 +44,12 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br /> - Higher speed through SRC optimization
 <br> - <p> <i>Feel bored? Need a test?</i> <br>Do not hesitate 
 <br>to send <?php print $US_LINK?> or to issue a <?php print $MANTIS_ISSUE_SMOKETEST?>
-<br>on a <a href='<?php print $RODINSMOKETEST_DIR_URL?>' title='Click to download a rodin test document'>SMOKE or DEEP RODIN Test</a>
+<br>on a <a href='<?php print $RODINSMOKETEST_DIR_URL?>' target='blank' title='Click to switch to a download area "smoketest" containing rodin test documents to fill and send'>SMOKE or DEEP RODIN Test</a>
 </p>
 <?php 
-  print "<b><i>USEFUL LINKS:</i></b>";
+  if ($RODINSEGMENT<>'p')
   {
+  	print "<b><i>USEFUL LINKS:</i></b>";
     $SRC_CONTROL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/select_src.php";
     $SRC_PEVAL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/SOLR_SKOS_partial_evaluator/";
     $SRC_STORE_SKOS_NAVIGATOR_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_skosxl_navigator.php?storename=bnf_rameau";
