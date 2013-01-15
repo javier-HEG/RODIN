@@ -281,15 +281,13 @@ function compute_highlightcolor(txt)
 
 function highlight_semfilterresults(txt,bgcolor,highlight)
 {
-  //alert ('highlight_semfilterresults ' + txt);
+  //alert ('checkPassivSemanticFilter ' + txt);
   /* Search for existence of txt in every widget*/
-  var morphological_filter = 'morphodirect_match';
+  var morphological_filter = '';
   if (document.forms.famenu.ontomorphofilters)
   {
      morphological_filter = get_morphofilter(parseInt(get_rb_selected_val(document.forms.famenu.ontomorphofilters)),10);
   }
-  
-  
   var match = false;
   var resulttermclassmame="result-word";
   var occurrences_in_results=0;

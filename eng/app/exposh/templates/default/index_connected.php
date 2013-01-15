@@ -102,7 +102,7 @@ EOI;
 	print $EXTRAINCLUDE;
 	print $EXTRAINCLUDE_GOOGLE_LANGUAGE_LOAD;
 	$s='';
-	$m=10;
+	$m=$DEFAULT_M;
 	
 	$FRI_START = $_SESSION['FRI_START'];
 	$_SESSION['FRI_START'] = 0; //only 1 time
@@ -179,12 +179,8 @@ EOH;
 	
 	$onKeyUpSearchFAction="javascript: bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode }";
 
-	$SOLR_LOGO='';
   if ($RESULTS_STORE_METHOD=='solr')
-  {
-  	if ($RODINSEGMENT<>'p')
- 			$SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
-  }
+  $SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
 
   list($message,$test_rodin_komponenten_ok,$noofproblems) = rodin_service_diagnostics();
   if ($test_rodin_komponenten_ok)
@@ -406,7 +402,6 @@ EOP;
   <form name="famenu" action="">
 	<ul id="facetsContextMenu" class="extendedcontextMenu contextMenu">
     <li><h1 id="facetsContextMenuLabel"></h1></li>
-    <!-- commented out because of demo in Hamburg ...:
     <li class="morphofilter">
       <table border="0" cellpadding="0" cellspacing="0">
         <tr>
@@ -429,7 +424,7 @@ EOP;
         </tr>
       </table>
     </li>
-    -->
+    
     <!-- 20121202 FRI: contextmenu should be simpler!!! functionality now in direct icon buttons.
     <li class="restricttoontoterm">
       

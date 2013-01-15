@@ -13552,7 +13552,8 @@ $p.app.widgets={
 
 		var params = {
 			sid : getLastSidForTab(tabId),
-			suffix: tabId
+			suffix: tabId,
+			user: $p.app.user.id
 		};
 
 		jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
@@ -13569,32 +13570,36 @@ $p.app.widgets={
 		// Add the results obtained
 		// TODO Change the result identifier in the header and content div, create a method
 		// that initializes the divs with a new id 
-		for (var i = 0; i < data.results.length; i++) {
-			var resultObj = new RodinResult(data.results[i].resultIdentifier);
-			resultObj.headerDiv = jQuery.parseJSON(data.results[i].headerDiv);
-			resultObj.contentDiv = jQuery.parseJSON(data.results[i].contentDiv);
-			resultObj.minHeader = jQuery.parseJSON(data.results[i].minHeader);
-			resultObj.header = jQuery.parseJSON(data.results[i].header);
-			resultObj.minContent = jQuery.parseJSON(data.results[i].minContent);
-			resultObj.tokenContent = jQuery.parseJSON(data.results[i].tokenContent);
-			resultObj.allContent = jQuery.parseJSON(data.results[i].allContent);
 		
-			allWidgetsResultSets[index].addResultAndRender(resultObj, jQuery("#selectedTextZoom").val());
+		if (data.results) /*FRI: Need this to avoid errors */
+		{
+			for (var i = 0; i < data.results.length; i++) {
+				var resultObj = new RodinResult(data.results[i].resultIdentifier);
+				resultObj.headerDiv = jQuery.parseJSON(data.results[i].headerDiv);
+				resultObj.contentDiv = jQuery.parseJSON(data.results[i].contentDiv);
+				resultObj.minHeader = jQuery.parseJSON(data.results[i].minHeader);
+				resultObj.header = jQuery.parseJSON(data.results[i].header);
+				resultObj.minContent = jQuery.parseJSON(data.results[i].minContent);
+				resultObj.tokenContent = jQuery.parseJSON(data.results[i].tokenContent);
+				resultObj.allContent = jQuery.parseJSON(data.results[i].allContent);
+			
+				allWidgetsResultSets[index].addResultAndRender(resultObj, jQuery("#selectedTextZoom").val());
+			}
+	
+			if (data.upto < data.count) {
+				var params = {
+					sid : data.sid,
+					from: data.upto,
+					suffix: tabId,
+					user: $p.app.user.id
+				};
+	
+				jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
+					$p.app.widgets.addRestustsToAggregatedView(data);
+				});
+	
+			}
 		}
-
-		if (data.upto < data.count) {
-			var params = {
-				sid : data.sid,
-				from: data.upto,
-				suffix: tabId
-			};
-
-			jQuery.post('../../app/w/RodinResult/RodinResultResponder.php', params, function(data) {
-				$p.app.widgets.addRestustsToAggregatedView(data);
-			});
-
-		}
-
 	},
 	/**
 	 * $p.app.widgets.closeAggregatedView

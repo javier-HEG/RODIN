@@ -3,14 +3,16 @@
 require_once 'RodinResultManager.php';
 
 $sid = $_POST['sid'];
+$USER = $_POST['user'];
 
-// The suffix is used to distinguish the header and
+// The suffix is used to distinguish the hearder anc
 // content divs from results in different tabs
 $suffix = $_POST['suffix'];
+
 $fromResult = isset($_POST['from']) ? $_POST['from'] : 0;
+
 $jsonAllResults = array();
 
-//$allResults = RodinResultManager::getRodinResultsFromSOLRForASearch($sid);
 $allResults = RodinResultManager::getRodinResultsForASearch($sid);
 $resultCount = count($allResults);
 
@@ -42,6 +44,7 @@ while ($i < $uptoResult) {
 	$jsonSingleResult['minContent'] = json_encode($result->toInWidgetHtml('min'));
 	$jsonSingleResult['tokenContent'] = json_encode($result->toInWidgetHtml('token'));
 	$jsonSingleResult['allContent'] = json_encode($result->toInWidgetHtml('all'));
+
 	// Check the size of the response if this result was added
 	$tmpAllResults = $jsonAllResults;
 	$tmpAllResults[] = $jsonSingleResult;
@@ -57,6 +60,5 @@ while ($i < $uptoResult) {
 
 header('Content-type: application/json; charset=utf-8');
 echo json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $i, 'results' => $jsonAllResults));
-
 
 ?>

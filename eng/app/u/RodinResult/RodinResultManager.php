@@ -243,10 +243,27 @@ class RodinResultManager {
 	}
 	
 
+  public static function getRodinResultsForASearch($sid) 
+  {
+  	global $RESULTS_STORE_METHOD;
+		global $aggView;
+	  switch($RESULTS_STORE_METHOD)
+    {
+      case 'mysql':
+            return RodinResultManager::getRodinResultsForASearchFromDB($sid);
+            break;
+      case 'solr':
+			      $aggView=true;
+            return RodinResultManager::getRodinResultsFromSOLR($sid,$datasource='',$slrq_base64='') ;
+            break;
+    }
+	}
 
 
-  //FRI: UNUSED ?!!!
-  public static function getRodinResultsForASearch($sid) {
+
+
+  public static function getRodinResultsForASearchFromDB($sid) 
+  {
 		$allResults = array();
 		
 		try {
@@ -261,14 +278,15 @@ class RodinResultManager {
 					$pointer = explode('.', $row['xpointer']);
 					$pointerBase = intval($pointer[0]);
 					$pointerRemainder = count($pointer) > 1 ? intval($pointer[1]) : -1;
+					$datasource = $row['datasource'];
 					
 					if ($pointerBase > -1) {
 						// A new result to be loaded
 						if ($pointerRemainder == 0) {
 							$result = RodinResultManager::buildRodinResultByType(intval($row['value']));
-							$allResults[$pointerBase] = $result;
+							$allResults[$datasource . '-' . $pointerBase] = $result;
 						} else {
-							$result = $allResults[$pointerBase];
+							$result = $allResults[$datasource . '-' . $pointerBase];
 							$attribute = $row['attribute'];
 							switch ($attribute) {
 								case 'title':
@@ -297,7 +315,7 @@ class RodinResultManager {
 			print "RodinResultManager EXCEPTION: $e";
 		}
 		
-		return $allResults;
+		return array_values($allResults);
 	}
 
 
@@ -360,15 +378,29 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
 		return array_values($allResults);
 	}
 
-
+/*
+ * In case datasource is not set, results for all widgets are retrieved 
+ */
 public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
-    require_once("../u/SOLRinterface/solr_interface.php");
+		global $aggView;
+		$max=10;
+		$filenamex='/u/SOLRinterface/solr_interface.php';
+		//print "<br>FRIutilities: try to require $filenamex at cwd=".getcwd()."<br>";
+		for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
+		{ 
+			//print "<br>try to require $updir$filenamex";
+			if (file_exists("$updir$filenamex")) 
+			{
+				//print "<br>REQUIRE $updir$filenamex";
+				require_once("$updir$filenamex"); break;
+			}
+		}
     global $SOLR_RODIN_CONFIG;
     global $SOLR_MLT_MINSCORE;
     global $USER;
     global $RODINSEGMENT;
-    global $m;
+    global $m; if($m==0) $m=1000; //we do not know how may rows are to retrieve
     
     $slrq='';
     if ($slrq_base64)
@@ -383,14 +415,17 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 //    print "<br>solr_host: $solr_host";
 //    print "<br>solr_port: $solr_port";
 //    print "<br>solr_path: $solr_path";
+//    print "<br>RODINSEGMENT: $RODINSEGMENT";
 //    print "<br>datasource: $datasource";
 //    print "<br>sid: $sid";
 //    print "<br>USER: $USER";
     
     #Fetch result from SOLR using even $slrq (handler and some parameters) if set instead of the standard Handler
-    if ($slrq=='' && $sid<>'' && $datasource<>'')
+    $EVTL_datasource=($datasource<>'')?"%20wdatasource:$datasource":'';
+		
+    if ($slrq=='' && $sid<>'')
         $solr_select= "http://$solr_host:$solr_port$solr_path"
-                       ."select?q=sid:$sid%20wdatasource:$datasource%20user:$USER%20seg:$RODINSEGMENT&rows=$m";
+                       ."select?q=sid:$sid{$EVTL_datasource}%20user:$USER%20seg:$RODINSEGMENT&rows=$m";
     else
         $solr_select= "http://$solr_host:$solr_port$solr_path".$slrq;
       
@@ -411,15 +446,17 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
  
       $filecontent=file_get_contents($solr_result_query_url);
       $solr_sxml= simplexml_load_string($filecontent);
-      if (($RODINSEGMENT='eng' || $RODINSEGMENT='x' || $RODINSEGMENT='st') 
-              || ( $RODINSEGMENT<>'p' && $USER==4 ) ) //fabio=developer on x, st (not on p=4)
+			
+      if ((!$aggView) &&
+      		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x' || $RODINSEGMENT=='st') 
+              || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on x, st (not on p=4)
       {  
         $solr_real_url=get_solrbridge($solr_result_query_url);
         $EVTL_MLT=($MLT)?" (mlt)":""; 
         print "<hr><a href='$solr_real_url' target='_blank' title='Get SOLR raw data in a new TAB'>raw data</a>$EVTL_MLT<br>";
       }
-//      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
-//      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
+      //print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
+      //print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
       
       //if (!$owner) $PRECISATION="[@name='response']";
       $DOCS = $solr_sxml->xpath("/response/result$PRECISATION/doc"); //find the doc list results
@@ -463,9 +500,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
           else if ($name=='wdatasource')
           {
             $owner= ($datasource==$value);
-            
             $reference= ($CNT==1 && $owner);
-            
             
           } //  $name=='wdatasource'
           else if ($name=='body') // compute hash deduplication discarding new result 
@@ -511,7 +546,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
         $pointerBase = intval($pointer[0]);
         $pointerRemainder = count($pointer) > 1 ? intval($pointer[1]) : -1;
         
-        if ($owner)
+        if ($owner || $aggView)
         {  
           $result = RodinResultManager::buildRodinResultByType(intval($row['type']));
 

@@ -42,7 +42,7 @@ EOH;
 		// Number of results m (default)
 		##############################################
 		$title=lg("titleWidgetMaxResults");
-		$m=$_REQUEST['m']; if(!$m) $m=20;
+		$m=$_REQUEST['m']; if(!$m) $m=$DEFAULT_M;
 		$htmldef=<<<EOH
 			<input class="localMaxResults" name="m" type="text" value="$m" title='$title'/>
 EOH;
