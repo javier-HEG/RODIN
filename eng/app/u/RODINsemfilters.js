@@ -281,17 +281,21 @@ function compute_highlightcolor(txt)
 
 function highlight_semfilterresults(txt,bgcolor,highlight)
 {
-  //alert ('checkPassivSemanticFilter ' + txt);
+  //alert ('highlight_semfilterresults ' + txt);
   /* Search for existence of txt in every widget*/
-  var morphological_filter = '';
+  var morphological_filter = 'morphodirect_match';
   if (document.forms.famenu.ontomorphofilters)
   {
      morphological_filter = get_morphofilter(parseInt(get_rb_selected_val(document.forms.famenu.ontomorphofilters)),10);
   }
+  
   var match = false;
   var resulttermclassmame="result-word";
   var occurrences_in_results=0;
   var widgets=0;
+  var obj=null;
+  var pertinentIframes=null;
+  var arrALL_RESULT_TERMS = null;
   var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
   txt=txt.toLowerCase();
 
@@ -299,53 +303,66 @@ function highlight_semfilterresults(txt,bgcolor,highlight)
       parent.tab[parent.$p.app.tabs.sel].id :
         window.opener.tab[window.opener.$p.app.tabs.sel].id;
 
-  var pertinentIframes = parent.getPertinentIframesInfos(tab_id);
-  for(var f=0;f<pertinentIframes.length;f++)
+	var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
+	//Take results from aggregated view?
+	//Store all into arrALL_RESULT_TERMS:
+	if(tabAggregatedStatus[index])
+	{
+		var aggrview_container_id='aggregated_view_results_'+tab_id;
+		obj=document.getElementById(aggrview_container_id);
+		arrALL_RESULT_TERMS = get_all_elems_by_hlclass(obj,resulttermclassmame);
+	}
+	else
+	{
+	  pertinentIframes = parent.getPertinentIframesInfos(tab_id);
+	  for(var f=0;f<pertinentIframes.length;f++)
+	  {
+	      var in_widget=false;
+	      var iframe=pertinentIframes[f][0];
+	      //alert('check in iframe with selector '+selector);
+	      /* Here the conversion from nodelist to array is used for concat */
+	      obj=(iframe.localName=='div')?iframe:iframe.contentDocument;
+	      var arr = get_all_elems_by_hlclass(obj,resulttermclassmame);
+	      arrALL_RESULT_TERMS = arr.length?(arrALL_RESULT_TERMS?arrALL_RESULT_TERMS.concat(arr):arr):arrALL_RESULT_TERMS;
+	  } //for
+	}
+		
+	//Use into arrALL_RESULT_TERMS:
+	for(var i=0;i<arrALL_RESULT_TERMS.length;i++)
   {
-      var in_widget=false;
-      var iframe=pertinentIframes[f][0];
-      //alert('check in iframe with selector '+selector);
-      /* Here the conversion from nodelist to array is used for concat */
-      var obj=(iframe.localName=='div')?iframe:iframe.contentDocument;
-      var arrALL_RESULT_TERMS = get_all_elems_by_hlclass(obj,resulttermclassmame);
+    var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
+    var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
 
-      for(var i=0;i<arrALL_RESULT_TERMS.length;i++)
+    //eval morphofilter
+    eval('match = '+morphological_filter+'("'+RESULT_TERM_TXT.toLowerCase()+'","'+txt+'")');
+    if (match)
+    {
+      occurrences_in_results++;
+
+      if (!in_widget)
       {
-        var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
-        var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
-
-        //eval morphofilter
-        eval('match = '+morphological_filter+'("'+RESULT_TERM_TXT.toLowerCase()+'","'+txt+'")');
-        if (match)
+        in_widget=true;
+        widgets++; /*Count widgets in wich results occurs*/
+      }
+      /*EVTL HIGHLIGHT WORD IN RESULTS*/
+      if (highlight)
+      {
+        if (RESULT_TERM.getAttribute('class')==resulttermclassmame)
         {
-          occurrences_in_results++;
-
-          if (!in_widget)
-          {
-            in_widget=true;
-            widgets++; /*Count widgets in wich results occurs*/
-          }
-          /*EVTL HIGHLIGHT WORD IN RESULTS*/
-          if (highlight)
-          {
-            if (RESULT_TERM.getAttribute('class')==resulttermclassmame)
-            {
-              RESULT_TERM.setAttribute('class',resulttermclassmame+'-hl');
-              RESULT_TERM.style.backgroundColor=bgcolor;
-            }
-          }
-          else
-          {
-            if (RESULT_TERM.getAttribute('class')==resulttermclassmame+'-hl')
-            {
-              RESULT_TERM.setAttribute('class',resulttermclassmame);
-              RESULT_TERM.style.backgroundColor='';
-            }
-          }
+          RESULT_TERM.setAttribute('class',resulttermclassmame+'-hl');
+          RESULT_TERM.style.backgroundColor=bgcolor;
         }
-     } //for
-  } //for
-
+      }
+      else
+      {
+        if (RESULT_TERM.getAttribute('class')==resulttermclassmame+'-hl')
+        {
+          RESULT_TERM.setAttribute('class',resulttermclassmame);
+          RESULT_TERM.style.backgroundColor='';
+        }
+      }
+    }
+ } //for
   this.occurrences= occurrences_in_results;
   this.widgets= widgets;
 }
@@ -406,42 +423,73 @@ function count_matching_results(txt,classname)
 
 
 
-function hide_un_highlighted_results()
+function hide_un_highlighted_results(hide_hl)
 {
   //alert ('checkPassivSemanticFilter ' + txt);
   /* Search for existence of txt in every widget*/
-  var resulttermclassmame="result-word-hl";
+ 
+  var resulttermclassmame="result-word";
+  var resulttermclassmame_hl=resulttermclassmame+"-hl";
   var resultclassmame="oo-result-container";
   var occurrences_in_results=0;
   var widgets=0;
+  var obj=null;
+  var arrALL_RESULT=null;
   var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
 
   var tab_id = parentIsIndexConnected ?
       parent.tab[parent.$p.app.tabs.sel].id :
         window.opener.tab[window.opener.$p.app.tabs.sel].id;
 
-  var pertinentIframes = parent.getPertinentIframesInfos(tab_id);
-  for(var f=0;f<pertinentIframes.length;f++)
-  {
+	var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
+	//Take results from aggregated view?
+	//Store all into arrALL_RESULT_TERMS:
+	if(tabAggregatedStatus[index])
+	{
+		var aggrview_container_id='aggregated_view_results_'+tab_id;
+		obj=document.getElementById(aggrview_container_id);
+		arrALL_RESULT = get_all_elems_by_hlclass(obj,resultclassmame);
+	}
+	else
+	{
+		pertinentIframes = parent.getPertinentIframesInfos(tab_id);  for(var f=0;f<pertinentIframes.length;f++)
+	  {
       var iframe=pertinentIframes[f][0];
       //alert('check in iframe with selector '+selector);
       /* Here the conversion from nodelist to array is used for concat */
-      var obj=(iframe.localName=='div')?iframe:iframe.contentDocument;
-      var arrALL_RESULT = get_all_elems_by_class(obj,resultclassmame);
+      obj=(iframe.localName=='div')?iframe:iframe.contentDocument;
+      var arr = get_all_elems_by_class(obj,resultclassmame);
+      arrALL_RESULT = arr.length?(arrALL_RESULT?arrALL_RESULT.concat(arr):arr):arrALL_RESULT;
+	  } //for
+	}
 
-      for(var i=0;i<arrALL_RESULT.length;i++)
-      {
-        var RESULT= (arrALL_RESULT[i]);
-        var arrALL_HIGHLIGHTED_RESULTTERMS = get_all_elems_by_hlclass(RESULT,resulttermclassmame);
-        if (arrALL_HIGHLIGHTED_RESULTTERMS.length==0) //Nothing highlighted?
-        {
-          jQuery(RESULT.children[0]).hide();
-          jQuery(RESULT.children[1]).hide();
-        }
-        
-     } //for
-  } //for
-
+	//Process arrALL_RESULT:
+	if (hide_hl)
+	{
+		for(var i=0;i<arrALL_RESULT.length;i++)
+	  {
+	    var RESULT= (arrALL_RESULT[i]);
+	    var arrALL_HIGHLIGHTED_RESULTTERMS_hl = get_all_elems_by_hlclass(RESULT,resulttermclassmame_hl);
+	    if (arrALL_HIGHLIGHTED_RESULTTERMS_hl.length==0) //Nothing highlighted?
+	    {
+	      jQuery(RESULT.children[0]).hide();
+	      jQuery(RESULT.children[1]).hide();
+	    }
+	 	} //for
+	}
+	else // show all hidden again!
+	{
+		for(var i=0;i<arrALL_RESULT.length;i++)
+	  {
+	    var RESULT= (arrALL_RESULT[i]);
+	    var arrALL_HIGHLIGHTED_RESULTTERMS_hl = get_all_elems_by_hlclass(RESULT,resulttermclassmame_hl);
+	    if (arrALL_HIGHLIGHTED_RESULTTERMS_hl.length==0) //Nothing highlighted?
+	    {
+	      jQuery(RESULT.children[0]).show();
+	      jQuery(RESULT.children[1]).show();
+	    }
+	 	} //for
+	}
   this.occurrences= occurrences_in_results;
   this.widgets= widgets;
 }
@@ -521,7 +569,8 @@ function mark_ontoterms_on_resultmatch()
           FACET_TERM.setAttribute('onmouseover',"simple_highlight_semfilterresults(this.innerHTML,true)");
           FACET_TERM.setAttribute('onmouseout',"simple_highlight_semfilterresults(this.innerHTML,false)");
           //click-->filter
-          FACET_TERM.setAttribute('onclick','hide_un_highlighted_results()');
+          FACET_TERM.setAttribute('onclick',
+          												'this.clicked=!this.clicked; hide_un_highlighted_results(this.clicked);');
         }
       }
       else

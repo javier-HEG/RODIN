@@ -9,8 +9,9 @@ lang["titleTextZoomOneSelected"]="Zur Zeit wird das Resultat jeweils in einer Li
 lang["titleTextZoomTwoSelected"]="Zur Zeit wird nur jeweils ein Teil eines Resultates angezeigt";
 lang["titleTextZoomThreeSelected"]="Zur Zeit wird jeweils das gesamte Resultat angezeigt";
 lang["titleTextZoomFourSelected"]="Zur Zeit wird jeweils das gefilterte Resultat angezeigt";
-lang["titleAggregationButtonOn"]="Enable result aggregation";
-lang["titleAggregationButtonOff"]="Disable result aggregation";
+lang["titleAggregationButtonOn"]="Zeige Ergebnissaggregation";
+lang["titleAggregationButtonOff"]="Verstecke Ergebnissaggregation";
+lang["lblAggregatedResultsFrom"]="Ergebnissaggregation aus";
 
 //Metasearch
 lang["lblResultGoogleLanguage"]="Die Sprache der Begriffe ist: ";

@@ -8,6 +8,7 @@ $GLOBALS['lgMap']["titleTextZoomThree"]="Cliquez pour afficher l'ensemble du ré
 $GLOBALS['lgMap']["titleTextZoomFour"]="Cliquez pour afficher l'ensemble du résultats filtré";
 $GLOBALS['lgMap']["lblEnableAggregation"]="Regrouper les résultats";
 $GLOBALS['lgMap']["lblDisableAggregation"]="Désactiver le regroupement";
+
 $GLOBALS['lgMap']["lblYouHaveBeenDisconnected"]="Vous avez été déconnecté après #1 minutes d'inactivité.";
 $GLOBALS['lgMap']["lblBreadcrumbsTitle"]="Mots de recherche ajoutés";
 $GLOBALS['lgMap']["titleBreadcrumbsTitle"]="Cliquez pour effacer chaque mot de l'extension de requête";

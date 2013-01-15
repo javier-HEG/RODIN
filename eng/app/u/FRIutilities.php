@@ -1448,6 +1448,25 @@ EOS;
 
 
 
+function make_ontoterm_javascript_code($txt)
+#############################################
+{
+	/*
+   * Perform some closing actions
+   * informing about the state of meta search
+   * and start filtering highlighting
+   */
+	$CODE =<<<EOS
+	 <script type='text/javascript'>
+    parent.ONTOTERMS_REDO_HIGHLIGHTING=true;
+    parent.mark_ontoterms_on_resultmatch();
+	 </script>
+EOS;
+
+	return $CODE;
+}
+
+
 
 function make_uncache_javascript_code($txt)
 #############################################
@@ -1465,9 +1484,6 @@ function make_uncache_javascript_code($txt)
 	 	adapt_widgetsareas_on_openclose_widgetmenu();
 	 	FRIdarkProtectionUncache('$txt');
 	 	parent.refreshCloudBoard('$uid');
-    parent.ONTOTERMS_REDO_HIGHLIGHTING=true;
-    parent.eclog('make_uncache_javascript_code FINISHED LAST WIDGET METASEARCH -> starting mark_ontoterms_on_resultmatch()');
-    parent.mark_ontoterms_on_resultmatch();
 	 </script>
 EOS;
 

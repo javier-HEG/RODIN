@@ -1560,7 +1560,9 @@ if (response!=null) {
 
           case "restricttoontoterm":
           {
-              
+              RESULTFILTEREXPR = jQuery(el).text();
+              reload_frames_render(TEXTZOOM);
+              RESULTFILTEREXPR='';
           }
 					break;
           case "restricttoontoterm_f1": /* hide not higlighed terms */
@@ -1968,7 +1970,8 @@ if (response!=null) {
 		menuDiv.empty();
 
 		var labelDiv = jQuery('<div class="aggregationLabel"></div>');
-		labelDiv.text('Aggregated results from:');
+		
+		labelDiv.text(lg('lblAggregatedResultsFrom')+':');
 		menuDiv.append(labelDiv);
 		
 		for (var i = 0; i < pertitentIframes.length; i++) {
@@ -1989,7 +1992,7 @@ if (response!=null) {
 	}
 
 	/**
-	* Changes the status of the result aggregation ON/OFF
+   * Changes the status of the result aggregation ON/OFF
 	 * NB. If no status has been set yet, it sets it to OFF
 	 */
 	function toggle_aggregation() {
@@ -1998,52 +2001,8 @@ if (response!=null) {
 		if (index < -1)
 			init_aggregation();
 		
-		index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id)
+		index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
 		set_aggregation(!tabAggregatedStatus[index]);			
-	}
-
-	/**
-	 * Refreshes the aggregation toggle, status should have
-	 * already been set, it wont work otherwise
-	 */
-	function refresh_aggregation_toggle() {
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = tabAggregatedStatusTabId.indexOf(tabId);
-
-		var state = tabAggregatedStatus[index];
-
-		var button = jQuery("#aggregateButton");
-		var label = jQuery("#aggregateButtonLabel");
-
-		if (state) {
-			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
-			button.attr("title", lg("titleAggregationButtonOff"));
-			label.html("<?php echo lg('lblDisableAggregation'); ?>:");
-
-			button.unbind('click');
-			button.click(function() {
-				$p.app.widgets.closeAggregatedView();
-			});
-			button.hover(function() {
-				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off-hover.png");
-			}, function() {
-				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
-			});
-		} else {
-			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
-			button.attr("title", lg("titleAggregationButtonOn"));
-			label.html("<?php echo lg('lblEnableAggregation'); ?>:");
-			
-			button.unbind('click');
-			button.click(function() {
-				$p.app.widgets.openAggregatedView();
-			});
-			button.hover(function() {
-				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on-hover.png");
-			}, function() {
-				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
-			});
-		}
 	}
 
 	/**
@@ -2061,6 +2020,9 @@ if (response!=null) {
 			tabAggregatedStatus[index] = state;
 		}
 
+		var button = jQuery("#aggregateButton");
+		var label = jQuery("#aggregateButtonLabel");
+
 		// Show/hide the div containing the widgets
 		var tabHomeModule = jQuery("#home" + tabId);
 		if (state) {
@@ -2072,13 +2034,42 @@ if (response!=null) {
 		// Show/hide the aggregated view
 		if (state) {
 			$p.app.widgets.openAggregatedView();
+			
 			refresh_aggregated_widget_icons();
+			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
+			button.attr("title", lg("titleAggregationButtonOff"));
+			label.html("<?php echo lg('lblDisableAggregation'); ?>:");
+
+			button.unbind('click');
+			button.click(function() {
+				$p.app.widgets.closeAggregatedView();
+			});
+			button.hover(function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off-hover.png");
+			}, function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
+			});
+	
+			//Apply the menu on each word
+			//setContextMenu();
+
 		} else {
 			$p.app.widgets.closeAggregatedView();
-		}
 
-		// Refreshes the aggregation toggle
-		refresh_aggregation_toggle();
+			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
+			button.attr("title", lg("titleAggregationButtonOn"));
+			label.html("<?php echo lg('lblEnableAggregation'); ?>:");
+			
+			button.unbind('click');
+			button.click(function() {
+				$p.app.widgets.openAggregatedView();
+			});
+			button.hover(function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on-hover.png");
+			}, function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
+			});
+		}
 	}
 
 	/**
@@ -2095,7 +2086,8 @@ if (response!=null) {
 			
 				jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
 					menu: 'widgetContextMenu'
-				}, function(action, el, pos) {
+					},
+				  function(action, el, pos) {
 					var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
 					
 					switch(action) {
@@ -2127,9 +2119,10 @@ if (response!=null) {
 			allWidgetsResultSets[resultSetIndex].askResulsToRender(render);
 		}
 
-		var pertinentIframes = getPertinentIframesInfos(tab_id);			
-		for (var i=0; i<pertinentIframes.length; i++) {
+    var pertinentIframes = getPertinentIframesInfos(tab_id);			
+		for(var i=0;i<pertinentIframes.length;i++) {
 			var iframe = pertinentIframes[i][0];
+			
 			document.getElementById(iframe.id).contentWindow['widgetResultSet'].askResulsToRender(render);
 		}
 	}
@@ -3007,6 +3000,21 @@ function DOMr_adapt_newmodule(obj, lvl,old_tab_db_id,new_tab_db_id)
 			}
 		}
 	}
+}
+
+
+
+
+/**
+ * Get document height (cross-browser)
+ */
+function getDocHeight() {
+    var D = document;
+    return Math.max(
+        Math.max(D.body.scrollHeight, D.documentElement.scrollHeight),
+        Math.max(D.body.offsetHeight, D.documentElement.offsetHeight),
+        Math.max(D.body.clientHeight, D.documentElement.clientHeight)
+    );
 }
 
 

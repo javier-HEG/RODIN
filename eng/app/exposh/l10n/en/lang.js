@@ -11,6 +11,7 @@ lang["titleTextZoomThreeSelected"]="Currently showing a detailed view";
 lang["titleTextZoomFourSelected"]="Currently showing a filtered view";
 lang["titleAggregationButtonOn"]="Enable result aggregation";
 lang["titleAggregationButtonOff"]="Disable result aggregation";
+lang["lblAggregatedResultsFrom"]="Aggregated results from";
 
 //Metasearch
 lang["lblResultGoogleLanguage"]="The terms collected in the breadcrumbs appear to be in ";

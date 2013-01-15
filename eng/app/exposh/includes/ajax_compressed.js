@@ -13518,7 +13518,8 @@ $p.app.widgets={
 			var moduleDiv = document.createElement('div');
 			moduleDiv.setAttribute("class", "module");
 			moduleDiv.setAttribute("id", "aggregated_view_module_" + tabId);
-			moduleDiv.setAttribute("style", "display: block; position: relative; margin: 5px;");
+			aggvheight= getDocHeight() - 180; //subtract RODIN header search section
+			moduleDiv.setAttribute("style", "display: block; position: relative; margin: 5px; overflow-y: scroll; height:"+aggvheight+"px");
       
 			var menuDiv = document.createElement('div');
 			menuDiv.setAttribute("id", "aggregated_view_menu_" + tabId);
@@ -13538,7 +13539,7 @@ $p.app.widgets={
 		refresh_aggregated_widget_icons();
 
 		// Refresh the view content
-		$p.app.widgets.refreshAggregatedView();
+		$p.app.widgets.refreshAggregatedView();		
 	},
 	/**
 	 * $p.app.widgets.refreshAggregatedView

@@ -1030,8 +1030,11 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 	global $_w, $_h;
 
 	global $RDW_REQUEST;
-	foreach ($RDW_REQUEST as $querystringparam => $defaultvalue) eval( "global \${$querystringparam};" );
-
+	foreach ($RDW_REQUEST as $querystringparam => $defaultvalue) 
+	{
+		eval( "global \${$querystringparam};" );
+		//print "<br>global $querystringparam = "."${$querystringparam};";
+	}
 	if ($STATEMACHINE_DEBUG) print "<br>DEFINITION_RDW_SHOWRESULT_WIDGET";
 
 
@@ -1045,13 +1048,18 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 
 	print "</div>";
 
+
+	print make_ontoterm_javascript_code('');
+
 	########################
 	#
 	# Used to unblock rodin's dark search protection
 	#
 	if ($uncache)
+	{
+		print "UNCACHE HERE";
 		print make_uncache_javascript_code('FRI: Uncache from $datasource');
-
+	}
 
 	adapt_widgetsareas_on_openclose_widgetmenu();
 
