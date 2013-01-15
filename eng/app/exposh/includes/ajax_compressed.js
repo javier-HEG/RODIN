@@ -7724,6 +7724,8 @@ $p.app.tabs={
 		var index = tabAggregatedStatusTabId.indexOf(tabId);
 		if (index == -1)
 			init_aggregation();
+		else
+			refresh_aggregation_toggle();
 
 		
 		$p.ajax.call('../../app/tests/LoggerResponder.php?action=4&name=' + tab[$p.app.tabs.sel].label, {'type':'load'});
@@ -13518,7 +13520,7 @@ $p.app.widgets={
 			moduleDiv.setAttribute("id", "aggregated_view_module_" + tabId);
 			moduleDiv.setAttribute("style", "display: block; position: relative; margin: 5px;");
       
-      var menuDiv = document.createElement('div');
+			var menuDiv = document.createElement('div');
 			menuDiv.setAttribute("id", "aggregated_view_menu_" + tabId);
 			menuDiv.setAttribute("class", "aggregatedViewMenu");
 

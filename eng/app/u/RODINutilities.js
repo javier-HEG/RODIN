@@ -1991,7 +1991,7 @@ if (response!=null) {
 	}
 
 	/**
-   * Changes the status of the result aggregation ON/OFF
+	* Changes the status of the result aggregation ON/OFF
 	 * NB. If no status has been set yet, it sets it to OFF
 	 */
 	function toggle_aggregation() {
@@ -2002,6 +2002,50 @@ if (response!=null) {
 		
 		index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id)
 		set_aggregation(!tabAggregatedStatus[index]);			
+	}
+
+	/**
+	 * Refreshes the aggregation toggle, status should have
+	 * already been set, it wont work otherwise
+	 */
+	function refresh_aggregation_toggle() {
+		var tabId = tab[$p.app.tabs.sel].id;
+		var index = tabAggregatedStatusTabId.indexOf(tabId);
+
+		var state = tabAggregatedStatus[index];
+
+		var button = jQuery("#aggregateButton");
+		var label = jQuery("#aggregateButtonLabel");
+
+		if (state) {
+			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
+			button.attr("title", lg("titleAggregationButtonOff"));
+			label.html("<?php echo lg('lblDisableAggregation'); ?>:");
+
+			button.unbind('click');
+			button.click(function() {
+				$p.app.widgets.closeAggregatedView();
+			});
+			button.hover(function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off-hover.png");
+			}, function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
+			});
+		} else {
+			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
+			button.attr("title", lg("titleAggregationButtonOn"));
+			label.html("<?php echo lg('lblEnableAggregation'); ?>:");
+			
+			button.unbind('click');
+			button.click(function() {
+				$p.app.widgets.openAggregatedView();
+			});
+			button.hover(function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on-hover.png");
+			}, function() {
+				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
+			});
+		}
 	}
 
 	/**
@@ -2019,9 +2063,6 @@ if (response!=null) {
 			tabAggregatedStatus[index] = state;
 		}
 
-		var button = jQuery("#aggregateButton");
-		var label = jQuery("#aggregateButtonLabel");
-
 		// Show/hide the div containing the widgets
 		var tabHomeModule = jQuery("#home" + tabId);
 		if (state) {
@@ -2034,36 +2075,12 @@ if (response!=null) {
 		if (state) {
 			$p.app.widgets.openAggregatedView();
 			refresh_aggregated_widget_icons();
-			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
-			button.attr("title", lg("titleAggregationButtonOff"));
-			label.html("<?php echo lg('lblDisableAggregation'); ?>:");
-
-			button.unbind('click');
-			button.click(function() {
-				$p.app.widgets.closeAggregatedView();
-			});
-			button.hover(function() {
-				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off-hover.png");
-			}, function() {
-				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
-			});
 		} else {
 			$p.app.widgets.closeAggregatedView();
-
-			button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
-			button.attr("title", lg("titleAggregationButtonOn"));
-			label.html("<?php echo lg('lblEnableAggregation'); ?>:");
-			
-			button.unbind('click');
-			button.click(function() {
-				$p.app.widgets.openAggregatedView();
-			});
-			button.hover(function() {
-				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on-hover.png");
-			}, function() {
-				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-on.png");
-			});
 		}
+
+		// Refreshes the aggregation toggle
+		refresh_aggregation_toggle();
 	}
 
 	/**
@@ -2112,10 +2129,9 @@ if (response!=null) {
 			allWidgetsResultSets[resultSetIndex].askResulsToRender(render);
 		}
 
-    var pertinentIframes = getPertinentIframesInfos(tab_id);			
-		for(var i=0;i<pertinentIframes.length;i++) {
+		var pertinentIframes = getPertinentIframesInfos(tab_id);			
+		for (var i=0; i<pertinentIframes.length; i++) {
 			var iframe = pertinentIframes[i][0];
-			
 			document.getElementById(iframe.id).contentWindow['widgetResultSet'].askResulsToRender(render);
 		}
 	}
