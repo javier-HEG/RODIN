@@ -160,7 +160,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	// Instantiate BibSonomy accessor
 	$bib = new BibSonomy($BIBSONOMY_USER, $BIBSONOMY_APPLICATION_ID );
   
-  $sxml = getAllPublicPosts_cached($bib, $r, $tags, $q, $u);
+  list($timestamp,$sxml) = getAllPublicPosts_cached($bib, $r, $tags, $q, $u);
   //$sxml = $bib->getAllPublicPosts($r, $tags, $u);
 	
 	// Parse results creating results
@@ -261,7 +261,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource, $timestamp);
 	
 	return count($allResults);
 }
@@ -301,7 +301,7 @@ function getAllPublicPosts_cached(&$bibsonomy_interface,$r, &$tags, $q, $u)
 {
   //	$sxml = $bibsonomy_interface->getAllPublicPosts($r, $tags, $u);
   $cacheid = "$r-$q-$u";
-  $bibsonomy_xml_response = get_cache_response($cacheid);
+  list($timestamp,$bibsonomy_xml_response) = get_cached_response($cacheid);
   if ($bibsonomy_xml_response && count($bibsonomy_xml_response->posts->post) > 0)
   {   
     $bibsonomy_sxml_response = simplexml_load_string($bibsonomy_xml_response);
@@ -313,7 +313,7 @@ function getAllPublicPosts_cached(&$bibsonomy_interface,$r, &$tags, $q, $u)
     cache_response($cacheid,$xml_content);
   }
   
-  return $bibsonomy_sxml_response;
+  return array($timestamp,$bibsonomy_sxml_response);
 }
 
 

@@ -7,6 +7,7 @@
  * @author Javier Belmonte
  */
 class BasicRodinResult {
+	private $wdsctimestamp; // timestamp of the result information (cached)
 	private $urlPage;
 	private $title;
 	private $score; //SOLR score on morelikethis queries
@@ -228,8 +229,12 @@ class BasicRodinResult {
 	 * @param $sid
 	 * @param $datasource
 	 * @param $resultNumber
+ 	 * @param $seg
+ 	 * @param $user
+ 	 * @param $dscachetimestamp
+ *  * 
 	 */
-	public function toInsertSOLRdocument(&$client, $sid, $datasource, $resultNumber, $seg, $user) {
+	public function toInsertSOLRdocument(&$client, $sid, $datasource, $resultNumber, $seg, $user, $dscachetimestamp) {
     
     //print "<br>toInsertSOLRdocument ($datasource)<br>";
 
@@ -246,7 +251,8 @@ class BasicRodinResult {
     $result_doc->date       = $this->date;
     $result_doc->urlPage    = encode4solr($this->urlPage);
     $result_doc->wdatasource = $datasource; //rodin datasource id (the widget url)
-
+    $result_doc->wdscachetimestamp = $dscachetimestamp; //rodin datasource generation time of the current record
+    
     //Add specific attr/value fields:
 
     $fulltext=$result_doc->title;
@@ -399,6 +405,14 @@ class BasicRodinResult {
 		} else {
 			return '';
 		}
+	}
+	
+	public function setCacheTimeStamp($timestamp) {
+		$this->wdsctimestamp = $timestamp;
+	}
+	
+	public function getCacheTimeStamp() {
+		return $this->wdsctimestamp;
 	}
 	
 	public function setUrlPage($urlPage) {

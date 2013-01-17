@@ -147,7 +147,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 					
 	$url = $searchsource_baseurl . $parameters;
 	//$xmlString = get_file_content($url);
-        $xmlString = get_cached_widget_response($url);
+        list($timestamp,$xmlString) = get_cached_widget_response($url);
   
 	$xml = str_get_html($xmlString);
 	
@@ -198,7 +198,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource, $timestamp);
 	
 	return count($allResults);
 }

@@ -26,6 +26,8 @@ print_htmlheader("GOOGLEBOOKS RODIN WIDGET", $ajaxFile);
 // - Query (Rodin default is 'q')
 $title = lg("titleWidgetTypeSearch");
 $qx = $_REQUEST['q'];
+$cachetimestamp = $_REQUEST['cachetimestamp'];
+
 $htmldef = <<<EOH
 	<input class="localSearch" name="q" type="text" value="$qx" title="$title" onchange="$SEARCHSUBMITACTION">
 EOH;
@@ -155,7 +157,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
       eval( "global \${$querystringparam};" );
     }
 
-    $cacheid.="$q-$m";
+    $cacheid.="$q"; //We do not bother of $m (since in googlebooks always same)
     $cacheid64=  base64_encode($cacheid);
 
 //        //****************************
@@ -168,8 +170,9 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 //        
         
         
-        $codedJSONstring = urlencode(get_cache_response($cacheid));
-//        //****************************
+        list($timestamp,$cachedResponse) = get_cached_response($cacheid);
+        $codedJSONstring = urlencode($cachedResponse);
+        //        //****************************
 //        if (Logger::LOGGER_ACTIVATED) {
 //			$info['name'] = 'googlebooks collectresults';
 //			$info['msg'] = "got from cache: (($codedJSONstring))";
@@ -197,7 +200,7 @@ EOPIP;
 <script type="text/javascript">
     //alert('cache got: $codedJSONstring');
         $INIT_PARAMS
-	var poststr = 'ajax=1&sid='+sid+'&q='+q+'&m='+m+'&sr='+codedJSONstring+'&uncache='+uncache+'&show='+show+'&cacheid64=$cacheid64';
+	var poststr = 'ajax=1&sid='+sid+'&q='+q+'&m='+m+'&sr='+codedJSONstring+'&uncache='+uncache+'&show='+show+'&cacheid64=$cacheid64&cachetimestamp=$timestamp';
   //alert('cache call poststr: '+poststr);
   //alert('cache:redirecting complete: '+url+'?'+poststr+'\\n\\nchaining_url: $chaining_url');
 	var request = makeRequest(url, poststr, "window.open('$chaining_url','_self')");
@@ -321,10 +324,12 @@ EOAPIR;
 */
 function DEFINITION_RDW_STORERESULTS() {
   
+	global $cachetimestamp; if (!$cachetimestamp) $cachetimestamp=0;
+	
 	$DecodedSearchresults = json_decode($_REQUEST['sr']);
   // we must use this current sid for storing the results:
   $DecodedSearchresults->search->sid= $_REQUEST['sid'];
-	$cnt = saveGoogleBooksResults($DecodedSearchresults);
+	$cnt = saveGoogleBooksResults($DecodedSearchresults,$cachetimestamp);
 
 	// This output is not visible since it's made by an AJAX query
 	//print "$cnt results for $sid stored in DB";
@@ -344,7 +349,6 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w, $h) {
 	global $datasource;
   global $slrq;
 	global $render;
-	
 	RodinResultManager::renderAllResultsInWidget($sid, $datasource, $slrq, $render);
 
 	return true;
@@ -378,7 +382,7 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w, $h) {
 * 
 * @param mixed $decodedResults the JSON decoded results
 */
-function saveGoogleBooksResults($decodedResults) {
+function saveGoogleBooksResults($decodedResults,$cachetimestamp) {
 	global $datasource;
 
 	$allResults = array();
@@ -423,7 +427,7 @@ function saveGoogleBooksResults($decodedResults) {
 	echo 'saveRodinSearch(' . $sid . ', ' . $query . ')<br />';
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource, $cachetimestamp);
 	
 	return count($allResults);
 }

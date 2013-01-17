@@ -708,13 +708,13 @@ function get_cached_widget_response_curl($url, $parameters, $options)
   global $sid; // KEY for this request
   //print "get_cached_content sid: $sid";
   $cacheurl="$url?$parameters";
-  $cached_datasource_response = (get_cache_response($cacheurl));
+  list($timestamp,$cached_datasource_response) = (get_cached_response($cacheurl));
   
    if (! $cached_datasource_response)
    {
      //get the resonse from the data source
      //print "CACHE CONTENT EXPIRED ... CALL AGAIIN";
-     
+     $timestamp=0;
      $datasource_response= (parametrizable_curl($url, $parameters, $options));
      
      //print "Got resp: (((".htmlentities($datasource_response).")))";
@@ -728,7 +728,7 @@ function get_cached_widget_response_curl($url, $parameters, $options)
    } // $cached_datasource_response
   else
     $datasource_response = $cached_datasource_response;
-  return $datasource_response; 
+  return array($timestamp,$datasource_response); 
 }
 
 
@@ -741,20 +741,17 @@ function get_cached_widget_response_curl($url, $parameters, $options)
  * Author: Fabio Ricci for HEG
  */
 function get_cached_widget_response($url)
-######################################
-#
-# 
 {
   global $sid; // KEY for this request
   //print "get_cached_content sid: $sid";
- 
-   $cached_datasource_response = get_cache_response($url);
+ 	
+   list($timestamp,$cached_datasource_response) = get_cached_response($url);
   
    if (! $cached_datasource_response)
    {
      //get the resonse from the data source
      //print "CACHE CONTENT EXPIRED ... CALL AGAIIN";
-     
+     $timestamp=0;
      $datasource_response=get_file_content($url);
      
      //print "Got resp: (((".htmlentities($datasource_response).")))";
@@ -767,8 +764,11 @@ function get_cached_widget_response($url)
      
    } // $cached_datasource_response
   else
+	{
+		
     $datasource_response = $cached_datasource_response;
-  return $datasource_response; 
+	}
+  return array($timestamp,$datasource_response); 
 }
 
 
@@ -798,30 +798,30 @@ function cache_response_DB($url,&$datasource_response)
 
 
 
-function get_cache_response($url)
+function get_cached_response($url)
 {
    global $RESULTS_STORE_METHOD;
     switch($RESULTS_STORE_METHOD)
     {
       case 'mysql': 
-            $cached_datasource_response = get_cache_response_DB($url);
+            $cached_datasource_response = get_cached_response_DB($url);
             break;
       case 'solr':
-            $cached_datasource_response = get_cache_response_SOLR($url);
+            $cached_datasource_response = get_cached_response_SOLR($url);
     }
     return $cached_datasource_response;
-} // get_cache_response
+} // get_cached_response
 
 
 
-function get_cache_response_DB($url)
+function get_cached_response_DB($url)
 {
   return '';
 }
 
 
 
-function get_cache_response_SOLR($url)
+function get_cached_response_SOLR($url)
 {
 //include_once("../tests/Logger.php");
 
@@ -858,13 +858,13 @@ function get_cache_response_SOLR($url)
 //    //****************************
 //    if (Logger::LOGGER_ACTIVATED) {
 //                    $info=array();
-//                    $info['name'] = 'get_cache_response_SOLR url= '+$url;
+//                    $info['name'] = 'get_cached_response_SOLR url= '+$url;
 //                    $info['msg'] = "got cachecontent: (($cachecontent))";
 //                    Logger::logAction($action=25, $info);
 //    }
 //    if (Logger::LOGGER_ACTIVATED) {
 //                    $info=array();
-//                    $info['name'] = 'get_cache_response_SOLR solr_select= '+$solr_select;
+//                    $info['name'] = 'get_cached_response_SOLR solr_select= '+$solr_select;
 //                    $info['msg'] = "got cachecontent: (($cachecontent))";
 //                    Logger::logAction($action=25, $info);
 //    }
@@ -873,7 +873,7 @@ function get_cache_response_SOLR($url)
     
    
    $solr_sxml= simplexml_load_string($cachecontent);
-//    print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
+    //print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
 //      print "<hr>FILE_CONTENT: <br>(((".htmlentities($cachecontent).")))";
 //      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($solr_sxml)."))) "; var_dump($solr_sxml);
 //      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
@@ -889,7 +889,8 @@ function get_cache_response_SOLR($url)
     if ($NO_OF_RESULTS > 0)
     {
       $TIME_A = $solr_sxml->xpath("/response/result/doc/date[@name='timestamp']"); //find the doc list
-      $TIME = $CACHED_A[0];
+      $TIME = $TIME_A[0];
+      //print "<br>TIME_A: "; var_dump($TIME_A); 
       //print "<br>TIME: ".htmlentities($TIME); 
 
       $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
@@ -897,11 +898,12 @@ function get_cache_response_SOLR($url)
       //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
     }
     else {
+    	$TIME=0;
     } 
    
-    return $CACHED_CONTENT; // null erstemal
+    return array($TIME,$CACHED_CONTENT); // null erstemal
   
-} // get_cache_response_SOLR
+} // get_cached_response_SOLR
 
 
 

@@ -136,7 +136,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 						
 	$options = array(CURLOPT_HTTPHEADER => array('Accept:application/json'));
 
-	$jsonString = get_cached_widget_response_curl($searchsource_baseurl . 'search', $parameters, $options);
+	list($timestamp,$jsonString) = get_cached_widget_response_curl($searchsource_baseurl . 'search', $parameters, $options);
 	
         //$jsonString = parametrizable_curl($searchsource_baseurl . 'search', $parameters, $options);
 	
@@ -249,7 +249,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	RodinResultManager::saveRodinSearch($sid, $q);
 	
 	// Save all articles found to DB
-	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
+	RodinResultManager::saveRodinResults($allResults, $sid, $datasource, $timestamp);
 	
 	return count($allResults);
 }

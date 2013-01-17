@@ -130,7 +130,7 @@ class RodinResultManager {
 		
 	}
 	
-	public static function saveRodinResults($results, $sid, $datasource) {
+	public static function saveRodinResults($results, $sid, $datasource, $timestamp='') {
 		$modified = 0;
     global $RESULTS_STORE_METHOD;
 		
@@ -139,10 +139,10 @@ class RodinResultManager {
 				switch($RESULTS_STORE_METHOD)
         {
           case 'mysql': 
-        				RodinResultManager::saveRodinResultsInResultsTableMySQL($results, $sid, $datasource, $conn);
+        				RodinResultManager::saveRodinResultsInResultsTableMySQL($results, $sid, $datasource, $timestamp, $conn);
                 break;
           case 'solr':
-        				RodinResultManager::saveRodinResultsInResultsSOLR($results, $sid, $datasource);
+        				RodinResultManager::saveRodinResultsInResultsSOLR($results, $sid, $datasource, $timestamp);
                 break;
         }
 			} catch (Exception $e) {
@@ -154,7 +154,7 @@ class RodinResultManager {
 	}
 
 
-  public static function saveRodinResultsInResultsSOLR($results, $sid, $datasource)
+  public static function saveRodinResultsInResultsSOLR($results, $sid, $datasource, $timestamp)
   {
     //print "<br>saveRodinResultsInResultsSOLR(<b> $sid, $datasource</b>)";
     require_once("../u/SOLRinterface/solr_interface.php");
@@ -191,7 +191,8 @@ class RodinResultManager {
                                                         $datasource, 
                                                         str_pad($resultNumber, $numberOfResultsOrderOfMagnitude + 1, '0', STR_PAD_LEFT), 
                                                         $RODINSEGMENT, 
-                                                        $USER );
+                                                        $USER,
+                                                        $timestamp );
           
           $resultNumber++;
         } // foreach record
@@ -208,7 +209,7 @@ class RodinResultManager {
 	}
   
 
-	public static function saveRodinResultsInResultsTableMySQL(&$results, $sid, $datasource, $conn = null) {
+	public static function saveRodinResultsInResultsTableMySQL(&$results, $sid, $datasource, $timestamp, $conn = null) {
 		if ($conn == null) {
 			$db = new RODIN_DB();
 			$safeConn = $db->DBconn;
@@ -501,7 +502,6 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
           {
             $owner= ($datasource==$value);
             $reference= ($CNT==1 && $owner);
-            
           } //  $name=='wdatasource'
           else if ($name=='body') // compute hash deduplication discarding new result 
           {
@@ -531,7 +531,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
             &&$name<>'timestamp'
               )
             { //We have to utf8_decode, since we coded on storing
-              $row[$name.'']=utf8_decode($value).''; // force string conv.
+              $row[$name.'']=utf8_decode($value).''; 
             }
           #####################################################
         } // foreach DOC->Children()
@@ -582,6 +582,10 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
               case 'urlPage':
                 $result->setUrlPage($value);
               break;
+							case 'wdscachetimestamp':
+                $result->setCacheTimeStamp($value);
+              break;
+							
               default:
               if (trim($attribute))
               {
@@ -681,7 +685,11 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
         //print "<br>RESULT :<br>"; var_dump($result);
 
-        print '<div class="oo-result-container">';
+        // Is result coming from a cache?
+        $timestamp = $result->getCacheTimeStamp();
+        //Is timestamp set? => mark container as cached
+				$CACHED=($timestamp)?" wdscached":'';
+        print "<div class='oo-result-container{$CACHED}' >";
 				
 				$resultIdentifier = str_replace('.rodin', '', substr($datasource, strrpos($datasource, '/') + 1)) . '-' . $resultCounter;
 

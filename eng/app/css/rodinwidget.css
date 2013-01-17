@@ -172,6 +172,11 @@ div.oo-result-container {
 	width: 100%;
 }
 
+div.wdscached {
+	background-color: <?php print $COLOR_BACKGROUND_WIDGET_CACHED; ?>;
+}
+
+
 div.oo-result-header {
 	display: table-cell;
 	width: 24px;
