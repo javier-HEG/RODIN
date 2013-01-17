@@ -12,7 +12,7 @@ function RodinResultSet() {
 		jQuery('.spotlightbox').css('visibility', 'hidden');
 
 		// After rendering, context-menu needs to be re-attached
-		setContextMenu();
+		setContextMenu('widgetContextMenu');
 	}
 
 	/**
@@ -32,7 +32,7 @@ function RodinResultSet() {
 		result.render(textZoom);
 
 		// After rendering, context-menu needs to be re-attached
-		setContextMenu();
+		setContextMenu('widgetContextMenu');
 	}
 }
 
@@ -51,60 +51,171 @@ function RodinResult(resultId) {
 	this.tokenContent = null;
 	this.allContent = null;
 	
+	/*
+	 * Checks whether parent.RESULTFILTEREXPR is contained
+	 * in the intended text portion
+	 */
+	this.shouldBeDisplayed = function(textZoom,txt)
+	{
+		var visible = (txt=='');
+		if (!visible)
+		{
+			var content='';
+			switch (textZoom) {
+		      case 'min':
+		      	content=this.minContent;
+		      	break;
+		      case 'token':
+		      	content=this.tokenContent;
+		      	break;
+		      case 'all':
+		      	content=this.allContent;
+		      	break;
+			}
+			visible=parent.use_morpho_filter(content.replace(/"/g,''), txt);
+		}
+		return visible;
+	};
+	
+	
 	/**
-	* This function 
+	 * Discriminate token and
+	 * Transforms the onclick portion of the right occurences of 
+	 * in order to force undo-display of this txt 
+	 **/
+	this.transformContentToBeReDisplayed = function(textZoom,txt)
+	{
+		var content='';
+		
+		switch (textZoom) {
+	      case 'min':
+	      	this.minContent = this.transform2click4display( this.minContent, txt );
+	      	break;
+	      case 'token':
+	      	this.tokenContent = this.transform2click4display( this.tokenContent, txt );
+	      	break;
+	      case 'all':
+	      	this.allContent = this.transform2click4display( this.allContent, txt );
+	      	break;
+		}
+	};
+	
+	
+	
+	/*
+	 * Transforms the onclick portion of the right occurences of 
+	 * in order to force undo-display of this txt 
+	 */
+	this.transform2click4display = function(content,txt)
+	{
+		// replace every other (non txt) undo_ by ''
+		content=content.replace(/undo_/gi,'');
+			
+		if (txt)
+		{
+			var pattern=""; 
+			var replace="";
+			
+			// replace restrict_render('txt') by undo_restrict_render()
+			pattern="/restrict_render\\\('"+txt+"'\\\)/gi"; 
+			replace="undo_restrict_render('"+txt+"')"; 
+			
+			var expression='content=content.replace('+pattern+',"'+replace+'")';
+			eval(expression); // sideeffect in content			
+			
+			
+			//Replace title by undo title, where undo_ was introduced
+			var title			=parent.lg('lblActionsOnWord');
+			var title_undo=parent.lg('lblUndoActionsOnWord');
+
+		}
+		return content;
+	};
+	
+	/**
+	* Renders results whose words contains parent.RESULTFILTEREXPR (JB+FRI)
 	*/
 	this.render = function (textZoom) {
-		// Header
-		switch (textZoom) {
-		case 'min':
-			if (this.minHeader == null) {
-				jQuery('#' + this.headerDivId).html();
-				jQuery('#' + this.headerDivId).hide();
-			} else {
-				jQuery('#' + this.headerDivId).show();
-				jQuery('#' + this.headerDivId).html(this.minHeader);
-			}
-			break;
-		case 'token':
-		case 'all':
-		default:
-			jQuery('#' + this.headerDivId).show();
-			jQuery('#' + this.headerDivId).html(this.header);
-			break;
-		}
-		
-		// Content
-		var spotlightDivHtml = '<div class="spotlightbox" style="visibility:hidden;" id="spotlight-box-' + this.resultId + '" title=""></div>';
-		switch (textZoom) {
-		case 'min':
-			if (this.minHeader == null) {
-				jQuery('#' + this.contentDivId).html(this.minContent);
-				jQuery('#' + this.contentDivId).parent().css('float', 'left');
-				jQuery('#' + this.contentDivId).parent().css('width', 'auto');
-				jQuery('#' + this.contentDivId).parent().css('border-bottom', 'none');
-
-				jQuery('#' + this.contentDivId).hover(function() {
-					var filterButtonDiv = jQuery('#' + jQuery(this).attr('id') + ' .widgetImageGridDiv .widgetImageGridFilter');
-					filterButtonDiv.show();
-				}, function() {
-					var filterButtonDiv = jQuery('#' + jQuery(this).attr('id') + ' .widgetImageGridDiv .widgetImageGridFilter');
-					filterButtonDiv.hide();
-				});
-			} else
-				jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.minContent);
-			break;
-		case 'token':
-			jQuery('#' + this.contentDivId).parent().css('float', '');
-			jQuery('#' + this.contentDivId).parent().css('width', '100%');
-			jQuery('#' + this.contentDivId).parent().css('border-bottom', '1px solid gray');
-			jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.tokenContent);
-			break;
-		case 'all':
-			jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.allContent);
-			break;
-		default:
-			break;
-		}
+		if(this)
+		{
+			//Filter allows showing result?
+			var visible=this.shouldBeDisplayed(textZoom, parent.RESULTFILTEREXPR);
+	    if(visible)
+	    {
+	    	this.transformContentToBeReDisplayed(textZoom, parent.RESULTFILTEREXPR);
+	      // Header
+	      switch (textZoom) {
+	      case 'min':
+	        if (this.minHeader == null) {
+	          jQuery('#' + this.headerDivId).html();
+	          jQuery('#' + this.headerDivId).hide();
+	        } else {
+	          jQuery('#' + this.headerDivId).show();
+	          jQuery('#' + this.headerDivId).html(this.minHeader);
+	        }
+	        break;
+	      case 'token':
+	      case 'all':
+	      default:
+	        if (visible)
+	        {
+	          jQuery('#' + this.headerDivId).show();
+	          jQuery('#' + this.headerDivId).html(this.header);
+	        }
+	        break;
+	      }
+	      // Update highlighted ontoterms (facets)
+	      var remark_ontoterms=false;
+	      // Content
+	      var spotlightDivHtml = '<div class="spotlightbox" style="visibility:hidden;" id="spotlight-box-' + this.resultId + '" title=""></div>';
+	      switch (textZoom) {
+	      case 'min':
+	        if (this.minHeader == null) {
+	          jQuery('#' + this.contentDivId).html(this.minContent);
+	          jQuery('#' + this.contentDivId).parent().css('float', 'left');
+	          jQuery('#' + this.contentDivId).parent().css('width', 'auto');
+	          jQuery('#' + this.contentDivId).parent().css('border-bottom', 'none');
+	
+	          jQuery('#' + this.contentDivId).hover(function() {
+	            var filterButtonDiv = jQuery('#' + jQuery(this).attr('id') + ' .widgetImageGridDiv .widgetImageGridFilter');
+	            filterButtonDiv.show();
+	          }, function() {
+	            var filterButtonDiv = jQuery('#' + jQuery(this).attr('id') + ' .widgetImageGridDiv .widgetImageGridFilter');
+	            filterButtonDiv.hide();
+	          });
+	        } else
+	          jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.minContent);
+	        jQuery('#' + this.contentDivId).show();
+	        remark_ontoterms=true;
+	        break;
+	      case 'token':
+	        jQuery('#' + this.contentDivId).parent().css('float', '');
+	        jQuery('#' + this.contentDivId).parent().css('width', '100%');
+	        jQuery('#' + this.contentDivId).parent().css('border-bottom', '1px solid gray');
+	        jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.tokenContent);
+	        jQuery('#' + this.contentDivId).show();
+	        remark_ontoterms=true;
+	        break;
+	      case 'all':
+	        jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.allContent);
+	        remark_ontoterms=true;
+	        break;
+	      default:
+	        break;
+	      }
+	     }
+	     else //Not visible: Hide node
+	     {
+	         jQuery('#' + this.headerDivId).hide();
+	         jQuery('#' + this.contentDivId).hide();
+	     }
+	
+	     if (remark_ontoterms)
+	     {
+	       parent.ONTOTERMS_REDO_HIGHLIGHTING=true;
+	       parent.mark_ontoterms_on_resultmatch()
+	     }
+	
+	    }
     };
 }

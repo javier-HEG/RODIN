@@ -23,6 +23,10 @@
 <br />===================
 <br />Semantic Filtering introduced
 <br />SOLR integration for results
+<br />Aggregated view for results
+<br />Results higlighting
+<br />Semantic filtering
+<br />Higher speed through SRC optimization
 <br />New SKOSxl ontology source SOZ "theSoz" integrated per Dec 18th 2012
 <br />New SKOS ontology source RAMEAU integrated per Dec 30th 2012
 <br />New SKOS ontology source LOC integrated per Dec 30th 2012
@@ -34,14 +38,8 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br /> - name of the widget
 <br /> - value used for the query
 <br /> - warning/error.
-<br /> - 
-<br /> - Completed features per 12.12.12:
-<br /> - --------------------------------
-<br /> - Aggregated view (still sth to do...)
-<br /> - STW on SOLR
-<br /> - Results higlighting
-<br /> - Semantic filtering
-<br /> - Higher speed through SRC optimization
+<br />  
+
 <br> - <p> <i>Feel bored? Need a test?</i> <br>Do not hesitate 
 <br>to send <?php print $US_LINK?> or to issue a <?php print $MANTIS_ISSUE_SMOKETEST?>
 <br>on a <a href='<?php print $RODINSMOKETEST_DIR_URL?>' target='blank' title='Click to switch to a download area "smoketest" containing rodin test documents to fill and send'>SMOKE or DEEP RODIN Test</a>

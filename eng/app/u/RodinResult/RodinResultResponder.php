@@ -38,7 +38,7 @@ while ($i < $uptoResult) {
 	$jsonSingleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
 	$jsonSingleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
 
-	$jsonSingleResult['header'] = json_encode($result->htmlHeader($jsonSingleResult['resultIdentifier'], $resultCounter, $sid));
+	$jsonSingleResult['header'] = json_encode($result->htmlHeader($jsonSingleResult['resultIdentifier'], $resultCounter, $sid, true));
 	$jsonSingleResult['minHeader'] = json_encode($resultCounter . '<br />');
 
 	$jsonSingleResult['minContent'] = json_encode($result->toInWidgetHtml('min'));

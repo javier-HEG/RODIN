@@ -169,7 +169,23 @@ EOH;
 		. 'onClick="javascript: toggle_aggregation();" title="" />' . "\n"
 		. '</div>' . "\n";
 
-	
+//-------- prepare and set here context menu for aggregated view:
+$restrictToOntoTermLabel = lg('lblContextMenuRestrictToOntoTermX1');
+$addToBreadcrumbLabel = lg('lblContextMenuAddToBreadcrumb');
+$exploreOntologicalFacetsLabel = lg('lblContextMenuExploreOntoFacets');
+$HOVERIN_RESTRICT="onmouseover=\"var t=parent.document.getElementById('widgetContextMenuLabelaggv').innerHTML; simple_highlight_semfilterresults(t,true)\"";
+$HOVEROUT_RESTRICT="onmouseout=\"var t=parent.document.getElementById('widgetContextMenuLabelaggv').innerHTML; simple_highlight_semfilterresults(t,false)\"";
+$aggregatedViewContextMenu=<<<EOAM
+<form name="famenux" action="">
+	<ul id="aggViewContextMenu" class="contextMenu contextMenuAggView">
+		<li><h1 id="widgetContextMenuLabelaggv"></h1></li>
+		<li class="addToBreadcrumb"><a href="#addToBreadcrumb">$addToBreadcrumbLabel</a></li>
+		<!--li class="restricttoontoterm" $HOVERIN_RESTRICT $HOVEROUT_RESTRICT><a href="#restricttoontoterm">$restrictToOntoTermLabel</a></li-->
+		<li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets">$exploreOntologicalFacetsLabel</a></li>
+	</ul>
+ </form>
+EOAM;
+
 #------------------ RODINCONTROL ----------------
 	$launchMetaSearchCode = "eclog(Date() + ' Metasearch Start'); "
 		 . "var s = document.getElementById('rodinsearch_s'); "
@@ -402,6 +418,10 @@ EOP;
     $HOVER1IN_RESTRICT="onmouseover=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,true)\"";
     $HOVER1OUT_RESTRICT="onmouseout=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,false)\"";
   ?>
+  
+	<!-- The following is the aggregatedVIew menu:  -->
+  <?php print $aggregatedViewContextMenu ?>
+  
 	<!-- The following is the ontofacets menu:  -->
   <form name="famenu" action="">
 	<ul id="facetsContextMenu" class="extendedcontextMenu contextMenu">

@@ -77,14 +77,34 @@ if(jQuery)( function($) {
 								d.innerHeight = document.body.clientHeight;
 								d.innerWidth = document.body.clientWidth;
 							}
+							// [Rodin] Update label in context menu
+							var wort = $(el).text();
+							var capitalizedLabel=wort.substr(0,1).toUpperCase()+wort.substr(1).toLowerCase();
 							
 							switch (o.menu) {
+								case "aggViewContextMenu":
+									// Context menu for widgets should be kept within iFrame border
+									//alert('aggViewContextMenu');
+									var aggv_offset=110;
+									(e.pageX) ? x = Math.min(d.innerWidth - menu.width() - 10, e.pageX - 10) : x = e.clientX + d.scrollLeft;
+									(e.pageY) ? y = Math.min(d.innerHeight - menu.height() - 10 - aggv_offset, e.pageY - 10 -aggv_offset) : y = e.clientY + d.scrollTop - aggv_offset;
+									//Set label (not set in other cases)
+									var menutoken=document.getElementById('widgetContextMenuLabelaggv');
+									if (menutoken)
+									{
+										menutoken.innerHTML=capitalizedLabel;
+									} else alert('notfound: widgetContextMenuLabelaggv');
+								
+								break;
 								case "widgetContextMenu":
+									//alert('widgetContextMenu');
 									// Context menu for widgets should be kept within iFrame border
 									(e.pageX) ? x = Math.min(d.innerWidth - menu.width() - 10, e.pageX - 10) : x = e.clientX + d.scrollLeft;
 									(e.pageY) ? y = Math.min(d.innerHeight - menu.height() - 10, e.pageY - 10) : y = e.clientY + d.scrollTop;
 									break;
 								case "facetsContextMenu":
+									//alert('facetsContextMenu');
+
 								default:
 									var areaDiv = $("#area");
 									var position = areaDiv.position();
@@ -96,10 +116,7 @@ if(jQuery)( function($) {
 //								(e.pageY) ? y = Math.min($(window).height() - menu.height() - position.top - 10, e.pageY - position.top - 10) : y = e.clientY + d.scrollTop;
 							}
 							
-							// [Rodin] Update label in context menu
-							var capitalizedLabel = $(el).text().toLowerCase().replace(/\b[a-z]/g, function(letter) {
-							    return letter.toUpperCase();
-							});
+							
 
               //FRI: In case a premenuitem_callback function were defined by the user,
               //Call that function before constructing the menu item conditioned_menuitem_id.

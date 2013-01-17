@@ -127,21 +127,34 @@ class BasicRodinResult {
 		return $html;
 	}
 
-	/**
-	 * Will put each single word in a span to which an action can be added
-	 * later on using jQuery.
-	 */
-	protected function separateWordsInSpans($text) {
 
-		$title = lg("lblActionsOnWord");
+	/*
+	 * Separate each word by introducing a span and a hovering/clicking behaviour
+	 * JB + FRI 
+	 */
+	protected function separateWordsInSpans($text) 
+	{
+		//Filter bad chars as nl or tabs
+		$pattern = '/[\n\t]/';
+		$text = trim(preg_replace($pattern, '', $text));
 		
-		$pattern = '/\w+/u';
-		$replace = '<span class="result-word" title="' . $title . '">$0</span>';
+		
+		$title = lg("lblActionsOnWord");
+		$language_specialchars='ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
+		$pattern = '/[A-Za-z0-9'.$language_specialchars.'\-_]+/u';
+		
+		$replace = '<span class="result-word" title="' . $title . '"'
+		." onmouseover=\"parent.simple_highlight_semfilterresults('$0',true)\" "
+		." onmouseout=\"parent.simple_highlight_semfilterresults('$0',false)\" "
+		." onclick=\"parent.restrict_render('$0')\" "
+		.'>$0</span>';
 
 		return preg_replace($pattern, $replace, $text);
 		
 		return implode(' ', $enhancedWords);
 	}
+
+
 	
 	/**
 	 * Produces MySQL code that has to be added to the one inserting the number
@@ -298,7 +311,7 @@ class BasicRodinResult {
 		return '<img src="' . $MLT_ICON . '" title="' . lg('titleLaunchWidgetMLT') . '" onclick="' . $jsMLT . '" />';
 	}
 	
-	public function htmlHeader($resultIdentifier, $resultCounter, $sid) {
+	public function htmlHeader($resultIdentifier, $resultCounter, $sid, $aggView=false) {
 		global $widgetresultdivid;
 		global $datasource;
 
@@ -309,7 +322,9 @@ class BasicRodinResult {
 		}
 		
 		$html .= $this->htmlHeaderZenFilter($sid, $resultIdentifier) . '<br />';
-		$html .= $this->htmlHeaderMLT($this->id, $this->sid, $datasource, $resultIdentifier) . '<br />';
+		
+		if (!$aggView)
+			$html .= $this->htmlHeaderMLT($this->id, $this->sid, $datasource, $resultIdentifier) . '<br />';
 		
 		return $html;
 	}

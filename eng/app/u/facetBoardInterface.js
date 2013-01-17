@@ -343,7 +343,7 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, lang, rodinsegmen
   
   
   // Show the Survista button only if the raw form is a ZBW URI or a DBPedia category
-	if (ranked_term_raw.indexOf("http://zbw") >= 0 || ranked_term_raw.indexOf("http://dbpedia.org/resource/Category:") >= 0) {
+	if (ranked_term_raw && (ranked_term_raw.indexOf("http://zbw") >= 0 || ranked_term_raw.indexOf("http://dbpedia.org/resource/Category:") >= 0)) {
 	  var survistaButton = document.createElement('img');
     
 		survistaButton.setAttribute("src", "../../../gen/u/images/survista-icon.png");

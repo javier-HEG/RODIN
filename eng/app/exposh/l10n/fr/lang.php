@@ -32,7 +32,7 @@ $GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Cliquez pour explorer le m
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Util. F1";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="Util. F2";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm3"]="Util. F3";
-$GLOBALS['lgMap']["lblActionsOnWord"]="Cliquez à droite pour voir les actions possibles";
+$GLOBALS['lgMap']["lblActionsOnWord"]="Cliquez à gauche pour (des)activer le filtrage des resultats sur ce mot, cliquez à droite pour voir les actions possibles";
 $GLOBALS['lgMap']["titleOpenResult"]="Cliquez pour ouvrir le résultat dans un nouvel onglet";
 
 // Widgetprefs
@@ -43,6 +43,7 @@ $GLOBALS['lgMap']["lblPrefsCloseTitle"]="Cliquez pour fermer la fenêtre de pré
 $GLOBALS['lgMap']["lblPrefsSave"]="Enregistrer";
 $GLOBALS['lgMap']["lblPrefsSaveTitle"]="Cliquez pour enregistrer ces préférences pour les prochaines requêtes avenc ce widget";
 $GLOBALS['lgMap']["lblPrefsSavedOk"]="Enregistré!";
+
 
 //Bibsonomy
 $GLOBALS['lgMap']["titleBibsonomyResourceType"]="Choisissez le type de resource qui vous intéresse";

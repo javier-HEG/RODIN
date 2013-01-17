@@ -2049,9 +2049,6 @@ if (response!=null) {
 			}, function() {
 				button.attr("src", "<?php echo $RODINUTILITIES_GEN_URL;?>/images/button-aggregate-off.png");
 			});
-	
-			//Apply the menu on each word
-			//setContextMenu();
 
 		} else {
 			$p.app.widgets.closeAggregatedView();
@@ -2077,7 +2074,25 @@ if (response!=null) {
 	 * to attach the context menu to the results shown within widgets
 	 * or in the aggregated view
 	 */
-	function setContextMenu() {
+	function setContextMenu(menuname) {
+		if (menuname!='facetsContextMenu')
+		{
+			if (parent.tabAggregatedStatusTabId)
+			{
+				var index = parent.tabAggregatedStatusTabId.indexOf(parent.tab[parent.$p.app.tabs.sel].id);
+				if(parent.tabAggregatedStatus[index])
+				{
+					// Use menu for agg view:
+					menuname='aggViewContextMenu';
+				}
+				else
+						// Use standard widget menu:
+				menuname='widgetContextMenu';
+			}
+			else // no tabAggregatedStatus at all:
+				menuname='widgetContextMenu';
+		}
+		
 		(function(jQuery){
 			jQuery(document).ready(function() {
 				jQuery("span.result-word").add(".spotlightbox p.terms a").hover(
@@ -2085,16 +2100,19 @@ if (response!=null) {
 					function () { jQuery(this).removeClass("hovered-word");	});
 			
 				jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
-					menu: 'widgetContextMenu'
+					menu: menuname
 					},
 				  function(action, el, pos) {
 					var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
-					
 					switch(action) {
 						case "addToBreadcrumb":
 							correctParent.bc_add_breadcrumb_unique(jQuery(el).text(),'result');
 						break;
-						
+						case "restricttoontoterm":
+                correctParent.RESULTFILTEREXPR = jQuery(el).text();
+                correctParent.reload_frames_render(correctParent.TEXTZOOM);
+                correctParent.RESULTFILTEREXPR='';
+             	break;
 						case "exploreInOntologicalFacets":
 							correctParent.fb_set_node_ontofacet(jQuery(el).text().toLowerCase());
 							correctParent.detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, correctParent.$p);
@@ -3393,7 +3411,7 @@ function contains_cr(str)
 
 function eclog(txt)
 {
-	if (WANTCONSOLELOG) console.log(Date() + ' '+ txt);
+	if (parent.WANTCONSOLELOG) console.log(Date() + ' '+ txt);
 }		
 		
 

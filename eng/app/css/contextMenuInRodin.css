@@ -4,9 +4,13 @@
 	width: 180px;
 }
 
+.contextMenuAggView
+{
+	/*background-color:#0000FF;*/
+}
+
 .extendedcontextMenu {
-	width: 220px;
-  
+	/*width: 220px;*/
 }
 
 .contextMenu h1 {

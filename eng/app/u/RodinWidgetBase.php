@@ -454,7 +454,7 @@ EOP;
 			$widgetDatasource = datasource_enhance(str_replace(".php", ".rodin", $_SERVER['SCRIPT_NAME']), $_REQUEST['app_id']);
       $HOVERIN_RESTRICT="onmouseover=\"var t=document.getElementById('widgetContextMenuLabel').innerHTML; simple_highlight_semfilterresults(t,true)\"";
       $HOVEROUT_RESTRICT="onmouseout=\"var t=document.getElementById('widgetContextMenuLabel').innerHTML; simple_highlight_semfilterresults(t,false)\"";
-
+			//FRI 20130116: Deleted HERE function setContextMenu() - since it is taken from RODINutilities.js
 			print<<<EOP
 	$ADDITIONALINCLUDES
 	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
@@ -484,46 +484,10 @@ EOP;
 		}
 	</script>
 	<script type="text/javascript">
-		function setContextMenu() {
-			(function(jQuery){
-				jQuery(document).ready(function() {
-					jQuery("span.result-word").add(".spotlightbox p.terms a").hover(
-						function () { jQuery(this).addClass("hovered-word"); },
-						function () { jQuery(this).removeClass("hovered-word");	});
-					jQuery("span.result-word").add(".spotlightbox p.terms a").contextMenu({
-						menu: 'widgetContextMenu',
-            premenuitem_callback: 'check_semfilterresults',
-            min_occurrences: 2, /*Build menuitem starting from 2 occurrences*/
-            conditioned_menuitem_id: 2 /*give menuitem obj to callback function for change*/
-					},
-
-            function(action, el, pos) {
-						var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
-						
-						switch(action) {
-							case "addToBreadcrumb":
-								correctParent.bc_add_breadcrumb_unique(jQuery(el).text(),'result');
-							break;
-							case "restricttoontoterm":
-                correctParent.RESULTFILTEREXPR = jQuery(el).text();
-                correctParent.reload_frames_render(correctParent.TEXTZOOM);
-                correctParent.RESULTFILTEREXPR='';
-             	break;
-							case "exploreInOntologicalFacets":
-								correctParent.fb_set_node_ontofacet(jQuery(el).text().toLowerCase());
-								correctParent.detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, correctParent.\$p);
-								correctParent.\$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=widget&name=' + get_datasource_name('$widgetDatasource'), {'type':'load'});
-							break;
-              default: 
-						}
-					});
-  				});
-			})(jQuery);
-		}
-
-
-		// set the context menu items
-		setContextMenu();
+		function setContextMenuDDD() {};
+		// set the context menu items using 
+		setContextMenu('widgetContextMenu');
+		// in RODINutilities.js
 	</script>
 	<!-- JB: Links to all results displayed in widget -->
 	<script type="text/javascript" src="/rodin/$RODINSEGMENT/app/u/RodinResult/RodinResultSet.js" > </script>
@@ -547,11 +511,11 @@ EOP;
 	<link href="../css/contextMenuInRodin.css.php" rel="stylesheet" type="text/css" />
 </head>
 <body bgcolor='$COLOR_WIDGET_BG'>
-  <form name="famenu" action="">
+  <form name="famenuw" action="">
 	<ul id="widgetContextMenu" class="contextMenu">
 		<li><h1 id="widgetContextMenuLabel"></h1></li>
 		<li class="addToBreadcrumb"><a href="#addToBreadcrumb">$addToBreadcrumbLabel</a></li>
-		<li class="restricttoontoterm" $HOVERIN_RESTRICT $HOVEROUT_RESTRICT><a href="#restricttoontoterm">$restrictToOntoTermLabel</a></li>
+		<!--li class="restricttoontoterm" $HOVERIN_RESTRICT $HOVEROUT_RESTRICT><a href="#restricttoontoterm">$restrictToOntoTermLabel</a></li-->
 		<li class="exploreOntoFacets"><a href="#exploreInOntologicalFacets">$exploreOntologicalFacetsLabel</a></li>
 	</ul>
  </form>

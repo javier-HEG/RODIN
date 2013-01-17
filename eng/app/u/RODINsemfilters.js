@@ -37,10 +37,37 @@ function get_morphofilter(morphofilter_id)
 
 
 
+/*
+ * Returns what the current morhological filter wants to returns
+ */
+function use_morpho_filter(arg1, arg2)
+{
+	arg1=arg1?arg1.toLowerCase():'';
+	arg2=arg2?arg2.toLowerCase():'';
+	
+	var morphological_filter = get_morpho_filter();
+	var expression ='match = '+morphological_filter+'("'+arg1+'","'+arg2+'")';
+	//eclog('use_morpho_filter '+expression);
+	eval(expression);
+	return match;
+}
+
+
+function get_morpho_filter()
+{
+	var morphological_filter = 'morphodirect_match';
+  //if (document.forms.famenu && document.forms.famenu.ontomorphofilters)
+  //   morphological_filter = get_morphofilter(parseInt(get_rb_selected_val(document.forms.famenu.ontomorphofilters)),10);
+  //else 
+  //if (document.forms.famenux && document.forms.famenux.ontomorphofilters)
+  //   morphological_filter = get_morphofilter(parseInt(get_rb_selected_val(document.forms.famenu.ontomorphofilters)),10);
+  return morphological_filter;
+}
 
 function morphodirect_match(arg1,arg2)
 {
-  return (arg1.indexOf(arg2)>-1 || (arg2.length < arg1.length && arg2.indexOf(arg1)>-1))
+	var res = (arg1.indexOf(arg2)>-1 || (arg2.length < arg1.length && arg2.indexOf(arg1)>-1));
+  return res;
 }
 
 
@@ -246,10 +273,35 @@ function toggle_highlight_semfilterresults(elem,txt,highlight)
 
 function simple_highlight_semfilterresults(txt,highlight)
 {
-  var hl_color=compute_highlightcolor(txt);
-  highlight_semfilterresults(txt,hl_color,highlight);
+	if (txt) // we accept only text (no null)
+	{
+		var hl_color=compute_highlightcolor(txt);
+	  highlight_semfilterresults(txt,hl_color,highlight);
+ 	}
+ 	else alert('System error: simple_highlight_semfilterresults called with no txt to highlight !! ');
 }
 
+
+
+function restrict_render(txt)
+{
+	 var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
+			correctParent.RESULTFILTEREXPR = txt;
+	    correctParent.reload_frames_render(correctParent.TEXTZOOM);
+	    correctParent.RESULTFILTEREXPR='';
+}
+
+
+/*
+ * Shows all results again
+ * txt is not used now 
+ */
+function undo_restrict_render(txt)
+{
+	var correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
+	correctParent.RESULTFILTEREXPR = '';
+	correctParent.reload_frames_render(correctParent.TEXTZOOM);
+}
 
 
 
@@ -277,18 +329,19 @@ function compute_highlightcolor(txt)
 
 }
 
-
+function cleanup4semfiltering(txt)
+{
+	//Eliminate .,:;/\&%
+  txt=txt.toLowerCase().replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+  
+	return txt;	
+}
 
 function highlight_semfilterresults(txt,bgcolor,highlight)
 {
-  //alert ('highlight_semfilterresults ' + txt);
-  /* Search for existence of txt in every widget*/
-  var morphological_filter = 'morphodirect_match';
-  if (document.forms.famenu.ontomorphofilters)
-  {
-     morphological_filter = get_morphofilter(parseInt(get_rb_selected_val(document.forms.famenu.ontomorphofilters)),10);
-  }
-  
+   txt=cleanup4semfiltering(txt)
+   //alert('highlight_semfilterresults: txt=('+txt+')');
+
   var match = false;
   var resulttermclassmame="result-word";
   var occurrences_in_results=0;
@@ -297,16 +350,15 @@ function highlight_semfilterresults(txt,bgcolor,highlight)
   var pertinentIframes=null;
   var arrALL_RESULT_TERMS = null;
   var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
-  txt=txt.toLowerCase();
 
   var tab_id = parentIsIndexConnected ?
       parent.tab[parent.$p.app.tabs.sel].id :
         window.opener.tab[window.opener.$p.app.tabs.sel].id;
 
-	var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
+	var index = parent.tabAggregatedStatusTabId.indexOf(parent.tab[parent.$p.app.tabs.sel].id);
 	//Take results from aggregated view?
 	//Store all into arrALL_RESULT_TERMS:
-	if(tabAggregatedStatus[index])
+	if(parent.tabAggregatedStatus[index])
 	{
 		var aggrview_container_id='aggregated_view_results_'+tab_id;
 		obj=document.getElementById(aggrview_container_id);
@@ -333,9 +385,10 @@ function highlight_semfilterresults(txt,bgcolor,highlight)
     var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
     var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
 
-    //eval morphofilter
-    eval('match = '+morphological_filter+'("'+RESULT_TERM_TXT.toLowerCase()+'","'+txt+'")');
-    if (match)
+    //eval morphofilter on cleaned up tokens
+    RESULT_TERM_TXT=cleanup4semfiltering(RESULT_TERM_TXT);
+    
+    if (use_morpho_filter(RESULT_TERM_TXT,txt))
     {
       occurrences_in_results++;
 
@@ -354,8 +407,8 @@ function highlight_semfilterresults(txt,bgcolor,highlight)
         }
       }
       else
-      {
-        if (RESULT_TERM.getAttribute('class')==resulttermclassmame+'-hl')
+      { //We need that EVERY result be unhiglighted:
+        //if (RESULT_TERM.getAttribute('class')==resulttermclassmame+'-hl')
         {
           RESULT_TERM.setAttribute('class',resulttermclassmame);
           RESULT_TERM.style.backgroundColor='';
@@ -371,14 +424,12 @@ function highlight_semfilterresults(txt,bgcolor,highlight)
 
 function count_matching_results(txt,classname)
 {
-  //alert ('checkPassivSemanticFilter ' + txt);
-  /* Search for existence of txt in every widget*/
-  var morphological_filter = get_morphofilter(parseInt(get_rb_selected_val(document.forms.famenu.ontomorphofilters)),10);
+  txt=cleanup4semfiltering(txt)
+
   var match = false;
   var occurrences_in_results=0;
   var widgets=0;
   var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
-  txt=txt.toLowerCase();
 
   var tab_id = parentIsIndexConnected ?
       parent.tab[parent.$p.app.tabs.sel].id :
@@ -399,9 +450,8 @@ function count_matching_results(txt,classname)
         var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
         var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
 
-        //eval morphofilter
-        eval('match = '+morphological_filter+'("'+RESULT_TERM_TXT.toLowerCase()+'","'+txt+'")');
-        if (match)
+        //eval morphofilter on cleaned up tokens
+    		if (use_morpho_filter(RESULT_TERM_TXT,txt))
         {
           occurrences_in_results++;
 
@@ -417,8 +467,6 @@ function count_matching_results(txt,classname)
   this.occurrences= occurrences_in_results;
   this.widgets= widgets;
 }
-
-
 
 
 
@@ -555,9 +603,10 @@ function mark_ontoterms_on_resultmatch()
       var FACET_TERM= (arrALL_FACET_TERMS[i]);
       var FACET_TERM_TXT= FACET_TERM.innerHTML;
 
-      eclog('Considering facet term '+FACET_TERM_TXT+' ...');
+      //eclog('Considering facet term '+FACET_TERM_TXT+' ...');
       //Match with some result?
       var HL = new count_matching_results(FACET_TERM_TXT,resulttermclassmame);
+      //eclog('Got '+HL.occurrences+' mathing results for term '+FACET_TERM_TXT+' using '+resulttermclassmame);
       if (HL.occurrences > 0)
       {
         eclog('Marking facet term '+FACET_TERM_TXT+' as matching');
@@ -1069,7 +1118,7 @@ function handle_post_solr_doc_update(response,vars) {
 			zenFilterBox.appendChild(allTerms);
 			
 			// update context menu binding
-			setContextMenu();
+			setContextMenu('widgetContextMenu');
 		} else {
 			var noTerms = document.createElement("p");
 			noTerms.setAttribute("class", "terms");
