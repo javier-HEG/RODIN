@@ -13547,31 +13547,34 @@ $p.app.widgets={
 	 * $p.app.widgets.refreshAggregatedView
 	 */
 	refreshAggregatedView:function() {
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = allWidgetsResultsSetsTabId.indexOf(tabId);
-
-		var resultsContainer = jQuery('#' + allWidgetsResultSets[index].containerDivId);
-		resultsContainer.empty();
-
-		var params = {
-			sid : getLastSidForTab(tabId),
-			suffix: tabId,
-			user: $p.app.user.id
-		};
-
-		jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
-			$p.app.widgets.addRestustsToAggregatedView(data);
+		if (typeof(allWidgetsResultSets)!='undefined')
+		{
+			var tabId = tab[$p.app.tabs.sel].id;
+			var index = allWidgetsResultsSetsTabId.indexOf(tabId);
+	
+			var resultsContainer = jQuery('#' + allWidgetsResultSets[index].containerDivId);
+			resultsContainer.empty();
+	
+			var params = {
+				sid : getLastSidForTab(tabId),
+				suffix: tabId,
+				user: $p.app.user.id
+			};
+	
+			jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
+				$p.app.widgets.addRestustsToAggregatedView(data);
 		});
+		}
 	},
 	/**
 	 * $p.app.widgets.reblankAggregatedView
 	 */
 	reblankAggregatedView:function() {
-		var tabId = tab[$p.app.tabs.sel].id;
-		var index = allWidgetsResultsSetsTabId.indexOf(tabId);
-
 		if (typeof(allWidgetsResultSets[index])!='undefined')
-		{
+		{	
+			var tabId = tab[$p.app.tabs.sel].id;
+			var index = allWidgetsResultsSetsTabId.indexOf(tabId);
+
 			var resultsContainer = jQuery('#' + allWidgetsResultSets[index].containerDivId);
 			resultsContainer.empty();
 		}

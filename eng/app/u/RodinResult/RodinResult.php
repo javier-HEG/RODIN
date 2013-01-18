@@ -53,10 +53,10 @@ class BasicRodinResult {
 	 */
 	public function toBasicHtml() {
 		$html = '<p>' . ucfirst(RodinResultManager::getRodinResultTypeName($this->resultType)) . '</p>';
-		$html .= "<h1>{$this->title}</h1>";
-		$html .= "<p><b>Author(s) : </b> {$this->authors}<br />";
-		$html .= "<b>Date : </b> {$this->date}<br />";
-		$html .= "<b>URL : </b> <a href=\"{$this->urlPage}\">{$this->urlPage}</a></p>";
+		$html .= "<h1>".$this->getTitle()."</h1>";
+		$html .= "<p><b>Author(s) : </b> ".$this->getAuthors()."<br />";
+		$html .= "<b>Date : </b> ".$this->getDate()."<br />";
+		$html .= "<b>URL : </b> <a href=\"".$this->getUrlPage()."\">{$this->urlPage}</a></p>";
 
 		return $html;
 	}
@@ -69,15 +69,16 @@ class BasicRodinResult {
 	 * Produces the in-Widget represetation of the result
 	 */
 	public function toInWidgetHtml($textZoom = 'token') {
+		
 		$html = '<div class="oo-result">';
 		
 		switch ($textZoom) {
 			case 'min':
-				$html .= '<p>"' . $this->separateWordsInSpans($this->title) . '" by ' . $this->separateWordsInSpans($this->authors) . '</p>';
+				$html .= '<p>"' . $this->separateWordsInSpans($this->getTitle()) . '" by ' . $this->separateWordsInSpans($this->authors) . '</p>';
 			break;
 			
 			default:
-				$html .= '<h1>' . $this->separateWordsInSpans($this->title) . '</h1>';
+				$html .= '<h1>' . $this->separateWordsInSpans($this->getTitle()) . '</h1>';
   			$html .= $this->valueAsHtmlParagraphNumber('Score:', $this->getScore());
   			$html .= $this->valueAsHtmlParagraph('By', $this->getAuthors(), true);
 				$html .= $this->valueAsHtmlParagraph('Publication date:', $this->getDate(), false);
@@ -136,13 +137,14 @@ class BasicRodinResult {
 	 */
 	protected function separateWordsInSpans($text) 
 	{
+		//print "<br><b>enter.separateWordsInSpans</b>($text) ";
 		//Filter bad chars as nl or tabs
 		$pattern = '/[\n\t]/';
-		$text = trim(preg_replace($pattern, '', $text));
-		
+		$text = (trim(preg_replace($pattern, '', $text)));
 		
 		$title = lg("lblActionsOnWord");
-		$language_specialchars='ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
+		$language_specialchars='ßÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
+		
 		$pattern = '/[A-Za-z0-9'.$language_specialchars.'\-_]+/u';
 		
 		$replace = '<span class="result-word" title="' . $title . '"'
@@ -151,10 +153,12 @@ class BasicRodinResult {
 		." onclick=\"prr('$0')\" "
 		.'>$0</span>';
 
-		return preg_replace($pattern, $replace, $text);
-		
-		return implode(' ', $enhancedWords);
+		$result= preg_replace($pattern, $replace, $text);
+		//print "<br><b>exit.separateWordsInSpans</b>($text):<br>(((".htmlentities($result).')))';
+		return $result;
 	}
+
+
 
 
 	
@@ -168,11 +172,11 @@ class BasicRodinResult {
 	 * @param $conn
 	 */
 	public function toInsertSqlCommand($sid, $datasource, $resultNumber, $conn) {
-		$sql .= ", ('$sid','$datasource','$resultNumber.0','','','type','int','" . mysql_real_escape_string($this->resultType, $conn) . "', '','')";
-		$sql .= ", ('$sid','$datasource','$resultNumber.1','','','title','string','" . mysql_real_escape_string($this->title, $conn) . "', '','')";
-		$sql .= ", ('$sid','$datasource','$resultNumber.2','','','authors','string','" .mysql_real_escape_string($this->authors, $conn) . "', '','')";
-		$sql .= ", ('$sid','$datasource','$resultNumber.3','','','date','string','" . mysql_real_escape_string($this->date, $conn) . "', '','')";
-		$sql .= ", ('$sid','$datasource','$resultNumber.4','','','urlPage','string','" . mysql_real_escape_string($this->urlPage, $conn) . "', '','')";
+		$sql .= ", ('$sid','$datasource','$resultNumber.0','','','type','int','" . mysql_real_escape_string($this->getResultType(), $conn) . "', '','')";
+		$sql .= ", ('$sid','$datasource','$resultNumber.1','','','title','string','" . mysql_real_escape_string($this->getTitle(), $conn) . "', '','')";
+		$sql .= ", ('$sid','$datasource','$resultNumber.2','','','authors','string','" .mysql_real_escape_string($this->getAuthors(), $conn) . "', '','')";
+		$sql .= ", ('$sid','$datasource','$resultNumber.3','','','date','string','" . mysql_real_escape_string($this->getDate(), $conn) . "', '','')";
+		$sql .= ", ('$sid','$datasource','$resultNumber.4','','','urlPage','string','" . mysql_real_escape_string($this->getUrlPage(), $conn) . "', '','')";
 		
 		$pointer = 5;
 		foreach ($this->resultProperties as $propertyName=>$propertyValue) {
@@ -246,11 +250,11 @@ class BasicRodinResult {
     $result_doc->seg        = $seg;
     $result_doc->user       = $user;
     $result_doc->id         = $result_doc->sid.'-'.$resultNumber.'-'.uniqid(); //SOLR ID unique!!!
-    $result_doc->type       = $this->resultType;
-    $result_doc->title      = encode4solr($this->title);
-    $result_doc->authors    = encode4solr($this->authors);
-    $result_doc->date       = $this->date;
-    $result_doc->urlPage    = encode4solr($this->urlPage);
+    $result_doc->type       = $this->getResultType();
+    $result_doc->title      = encode4solr($this->getTitle());
+    $result_doc->authors    = encode4solr($this->getAuthors());
+    $result_doc->date       = $this->getDate();
+    $result_doc->urlPage    = encode4solr($this->getUrlPage());
     $result_doc->wdatasource = $datasource; //rodin datasource id (the widget url)
     $result_doc->wdscachetimestamp = $dscachetimestamp; //rodin datasource generation time of the current record
     
@@ -362,21 +366,21 @@ class BasicRodinResult {
 	 * ZenFilter for concept/entity recognition.
 	 */
 	public function toPureContentText() {
-		$string = '"' . $this->title . '"';
-		$string .= ' by ' . $this->authors .'.';
-		$string .= ' (' . $this->date . ').';
+		$string = '"' . $this->getTitle() . '"';
+		$string .= ' by ' . $this->getAuthors() .'.';
+		$string .= ' (' . $this->getDate() . ').';
 		
 		return $string;
 	}
 	
 	public function __toString() {
 		$string = '[' . strtoupper(RodinResultManager::getRodinResultTypeName($this->resultType)) . ' ';
-		$string .= '[Title: "' . $this->title . '" ] ';
-		$string .= '[Score: "' . $this->score . '" ] ';
-		$string .= '[Authors: "' . $this->authors . '" ] ';
-		$string .= '[Date: "' . $this->date . '" ] ';
-		$string .= '[URL: "' . $this->urlPage . '" ] ';
-		$string .= '[Properties: ' . var_export($this->resultProperties, true) . ']]';
+		$string .= '[Title: "' . $this->getTitle() . '" ] ';
+		$string .= '[Score: "' . $this->getScore() . '" ] ';
+		$string .= '[Authors: "' . $this->getAuthors() . '" ] ';
+		$string .= '[Date: "' . $this->getDate() . '" ] ';
+		$string .= '[URL: "' . $this->getUrlPage() . '" ] ';
+		$string .= '[Properties: ' . var_export($this->getResultProperties(), true) . ']]';
 		
 		return $string;
 	}
@@ -475,4 +479,14 @@ class BasicRodinResult {
 	public function getId() {
 		return $this->id;
 	}
+	
+	public function getResultType() {
+		return $this->resultType;
+	}
+	
+	public function setResultType($value) {
+		$this->resultType = $value;
+	}
+	
+	
 }

@@ -131,16 +131,17 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	$qTokens = explode(',', trim($q, ' ,'));
 	
 	$parameters = array();
-	$parameters['q'] = implode('+OR+', $qTokens) . ' (type:article OR type:book)';
+	$parameters['q'] = $query = implode('+OR+', $qTokens) . ' (type:article OR type:book)';
 	$parameters['size'] = $m;
 						
-	$options = array(CURLOPT_HTTPHEADER => array('Accept:application/json'));
+	$options = array(	CURLOPT_HTTPHEADER => array('Accept:application/json','Accept-Charset: ISO-8859-1'));
+//Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
 
 	list($timestamp,$jsonString) = get_cached_widget_response_curl($searchsource_baseurl . 'search', $parameters, $options);
 	
-        //$jsonString = parametrizable_curl($searchsource_baseurl . 'search', $parameters, $options);
-	
-	$jsonInfo = json_decode($jsonString, true);
+  //$jsonString = parametrizable_curl($searchsource_baseurl . 'search', $parameters, $options);
+        
+	$jsonInfo = (json_decode($jsonString, true));
 
 	// Parse JSON result and build results
 	$allResults = array();

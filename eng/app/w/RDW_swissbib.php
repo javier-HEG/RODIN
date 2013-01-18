@@ -110,6 +110,9 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 
 	//$xml = get_file_content($url);
 	list($timestamp,$xml) = get_cached_widget_response($url);
+	
+	$xml=utf8_encode(html_entity_decode($xml));
+	
   $simpleXmlElement = str_get_html($xml);
 	// Parse XML looking for results
 	$allResults = array();

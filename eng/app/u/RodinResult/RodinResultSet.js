@@ -72,7 +72,8 @@ function RodinResult(resultId) {
 		      	content=this.allContent;
 		      	break;
 			}
-			visible=parent.use_morpho_filter(content.replace(/"/g,''), txt);
+			if (content)
+				visible=parent.use_morpho_filter(content.replace(/"/g,''), txt);
 		}
 		return visible;
 	};
@@ -109,7 +110,7 @@ function RodinResult(resultId) {
 	this.transform2click4display = function(content,txt)
 	{
 		// replace every other (non txt) undo_ by ''
-		content=content.replace(/undo_/gi,'');
+		content=content?content.replace(/purr\(/gi,'prr('):content;
 			
 		if (txt)
 		{

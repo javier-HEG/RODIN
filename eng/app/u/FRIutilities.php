@@ -722,7 +722,7 @@ function get_cached_widget_response_curl($url, $parameters, $options)
      if (good_response($datasource_response))
      {
        //Store response
-       cache_response($cacheurl,$datasource_response);  
+       cache_response($cacheurl,($datasource_response));  
      } // got good response
      
    } // $cached_datasource_response
@@ -873,14 +873,15 @@ function get_cached_response_SOLR($url)
     
    
    $solr_sxml= simplexml_load_string($cachecontent);
-    //print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
+//    print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
 //      print "<hr>FILE_CONTENT: <br>(((".htmlentities($cachecontent).")))";
-//      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($solr_sxml)."))) "; var_dump($solr_sxml);
+//      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($solr_sxml)."))) "; var_dump($solr_sxml); exit;
 //      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
 			//$xpath = "/response/lst/lst/lst[@name='cached']"; // /itas (old)
    
    //Is there a response? how many found elements?
     $FOUND_RES = $solr_sxml->xpath("/response/result"); //find the doc list
+//    print "<br>FOUND_RES: "; var_dump($FOUND_RES); exit;
     $FOUND_RES = $FOUND_RES[0];
     $ATTR = $FOUND_RES->attributes();
     $NO_OF_RESULTS= $ATTR['numFound'];
@@ -895,7 +896,7 @@ function get_cached_response_SOLR($url)
 
       $CACHED_A = $solr_sxml->xpath("/response/result/doc/arr[@name='cached']/str"); //find the doc list
       $CACHED_CONTENT = $CACHED_A[0];
-      //print "<br>CACHED_CONTENT: ".htmlentities($CACHED_CONTENT); 
+      //print "<br>CACHED_CONTENT: ".($CACHED_CONTENT); exit;
     }
     else {
     	$TIME=0;
@@ -2142,6 +2143,53 @@ function explodeX($delimiters,$string)
         $d_count++;
     }
     return $return_array; // Return the exploded elements
+}
+
+
+
+
+function seems_utf8($str) {
+ # get length, for utf8 this means bytes and not characters
+ $length = strlen($str);  
+
+ # we need to check each byte in the string
+ for ($i=0; $i < $length; $i++) {
+
+  # get the byte code 0-255 of the i-th byte
+  $c = ord($str[$i]);
+
+  # utf8 characters can take 1-6 bytes, how much
+  # exactly is decoded in the first character if 
+  # it has a character code >= 128 (highest bit set).
+  # For all <= 127 the ASCII is the same as UTF8.
+  # The number of bytes per character is stored in 
+  # the highest bits of the first byte of the UTF8 
+  # character. The bit pattern that must be matched
+  # for the different length are shown as comment.
+  #
+  # So $n will hold the number of additonal characters
+
+  if ($c < 0x80) $n = 0; # 0bbbbbbb
+  elseif (($c & 0xE0) == 0xC0) $n=1; # 110bbbbb
+  elseif (($c & 0xF0) == 0xE0) $n=2; # 1110bbbb
+  elseif (($c & 0xF8) == 0xF0) $n=3; # 11110bbb
+  elseif (($c & 0xFC) == 0xF8) $n=4; # 111110bb
+  elseif (($c & 0xFE) == 0xFC) $n=5; # 1111110b
+  else return false; # Does not match any model
+
+  # the code now checks the following additional bytes
+  # First in the if checks that the byte is really inside the
+  # string and running over the string end.
+  # The second just check that the highest two bits of all 
+  # additonal bytes are always 1 and 0 (hexadecimal 0x80)
+  # which is a requirement for all additional UTF-8 bytes
+
+  for ($j=0; $j<$n; $j++) { # n bytes matching 10bbbbbb follow ?
+   if ((++$i == $length) || ((ord($str[$i]) & 0xC0) != 0x80))
+    return false;
+  }
+ }
+ return true;
 }
 
 

@@ -28,6 +28,7 @@ class RodinResultManager {
 	const RESULT_TYPE_URL = 5;
 	
 	public static function buildRodinResultByType($resultType = RodinResultManager::RESULT_TYPE_BASIC) {
+		
 		switch ($resultType) {
 			case RodinResultManager::RESULT_TYPE_ARTICLE:
 				return new RodinArticleResult();
@@ -380,7 +381,9 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
 	}
 
 /*
- * In case datasource is not set, results for all widgets are retrieved 
+ * Retrieves all results for a given $datasource
+ * In case $datasource is not set, results for all widgets are retrieved 
+ * The latter is used for the aggregated view
  */
 public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
@@ -555,6 +558,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
           foreach($row as $attribute=>$value)
           {
+          	//print "<br>$attribute=>$value";
             //$result = $allResults[$pointerBase];
             switch ($attribute) {
               case 'score': //print "<br>Score: $value reference=$reference MLT:$MLT";
@@ -599,7 +603,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
            //print "<br>Setting new result to pointerBase=$pointerBase";
           if (!$FORGET_RESULT)
           {
-            $allResults[] = $result;
+          	//print "<hr>RESULT: <br>"; var_dump($result);
+						$allResults[] = $result;
             $NO_OF_DISPLAYED_RESULTS++;
           }
         } // owner
@@ -683,7 +688,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 			$resultCounter = 1;
 			foreach ($allResults as $result) {
 
-        //print "<br>RESULT :<br>"; var_dump($result);
+        //print "<hr>RESULT :<br>"; var_dump($result);
 
         // Is result coming from a cache?
         $timestamp = $result->getCacheTimeStamp();

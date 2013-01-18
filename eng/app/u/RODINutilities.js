@@ -1961,7 +1961,7 @@ if (response!=null) {
 			if (index > -1)	
 			//We have an aggregated view av
 			{
-				alert('initialize_aggregated_view_before_user_search index=='+index+ ' tabAggregatedStatusTabId='+tabAggregatedStatusTabId);
+				//alert('initialize_aggregated_view_before_user_search index=='+index+ ' tabAggregatedStatusTabId='+tabAggregatedStatusTabId);
 				//Blank the oo-results inside the av
 				$p.app.widgets.reblankAggregatedView();
 			}
