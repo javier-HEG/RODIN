@@ -269,6 +269,23 @@ function toggle_highlight_semfilterresults(elem,txt,highlight)
 }
 
 
+//Shortcuts to speedup load
+
+//highlight filter results:
+function hf(txt)
+{simple_highlight_semfilterresults(txt,true);}
+
+//undo_highlight:
+function uh(txt)
+{simple_highlight_semfilterresults(txt,false);}
+
+//And now using parent:
+function phf(txt)
+{parent.hf(txt);}
+
+//undo_highlight:
+function puh(txt)
+{parent.uh(txt);}
 
 
 function simple_highlight_semfilterresults(txt,highlight)
@@ -280,6 +297,21 @@ function simple_highlight_semfilterresults(txt,highlight)
  	}
  	else alert('System error: simple_highlight_semfilterresults called with no txt to highlight !! ');
 }
+
+
+//shortcuts to load faster
+function rr(txt)
+{restrict_render(txt);}
+
+function urr(txt)
+{undo_restrict_render(txt);}
+
+//And now using parent:
+function prr(txt)
+{parent.rr(txt);}
+
+function purr(txt)
+{parent.urr(txt);}
 
 
 
@@ -615,8 +647,8 @@ function mark_ontoterms_on_resultmatch()
           FACET_TERM.setAttribute('class',facetclassmame+'-hl');
           FACET_TERM.setAttribute("title", lg('lblOntoFacetsTermActions2'));
           //hover-->higlight
-          FACET_TERM.setAttribute('onmouseover',"simple_highlight_semfilterresults(this.innerHTML,true)");
-          FACET_TERM.setAttribute('onmouseout',"simple_highlight_semfilterresults(this.innerHTML,false)");
+          FACET_TERM.setAttribute('onmouseover',"hf(this.innerHTML)");
+          FACET_TERM.setAttribute('onmouseout',"uh(this.innerHTML)");
           //click-->filter
           FACET_TERM.setAttribute('onclick',
           												'this.clicked=!this.clicked; hide_un_highlighted_results(this.clicked);');

@@ -115,19 +115,13 @@ function RodinResult(resultId) {
 		{
 			var pattern=""; 
 			var replace="";
-			
-			// replace restrict_render('txt') by undo_restrict_render()
-			pattern="/restrict_render\\\('"+txt+"'\\\)/gi"; 
-			replace="undo_restrict_render('"+txt+"')"; 
+
+			// replace restrict_render('txt')=rr() by undo_restrict_render() = urr()
+			pattern="/rr\\\('"+txt+"'\\\)/gi"; 
+			replace="urr('"+txt+"')"; 
 			
 			var expression='content=content.replace('+pattern+',"'+replace+'")';
-			eval(expression); // sideeffect in content			
-			
-			
-			//Replace title by undo title, where undo_ was introduced
-			var title			=parent.lg('lblActionsOnWord');
-			var title_undo=parent.lg('lblUndoActionsOnWord');
-
+			eval(expression); // sideeffect on content			
 		}
 		return content;
 	};

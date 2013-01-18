@@ -452,8 +452,8 @@ EOP;
 			$iFrameIdFromAppId = "modfram{$appIdElements[1]}_{$appIdElements[2]}";
 
 			$widgetDatasource = datasource_enhance(str_replace(".php", ".rodin", $_SERVER['SCRIPT_NAME']), $_REQUEST['app_id']);
-      $HOVERIN_RESTRICT="onmouseover=\"var t=document.getElementById('widgetContextMenuLabel').innerHTML; simple_highlight_semfilterresults(t,true)\"";
-      $HOVEROUT_RESTRICT="onmouseout=\"var t=document.getElementById('widgetContextMenuLabel').innerHTML; simple_highlight_semfilterresults(t,false)\"";
+      $HOVERIN_RESTRICT="onmouseover=\"var t=document.getElementById('widgetContextMenuLabel').innerHTML; hf(t)\"";
+      $HOVEROUT_RESTRICT="onmouseout=\"var t=document.getElementById('widgetContextMenuLabel').innerHTML; uh(t)\"";
 			//FRI 20130116: Deleted HERE function setContextMenu() - since it is taken from RODINutilities.js
 			print<<<EOP
 	$ADDITIONALINCLUDES

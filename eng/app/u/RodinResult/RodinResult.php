@@ -145,9 +145,9 @@ class BasicRodinResult {
 		$pattern = '/[A-Za-z0-9'.$language_specialchars.'\-_]+/u';
 		
 		$replace = '<span class="result-word" title="' . $title . '"'
-		." onmouseover=\"parent.simple_highlight_semfilterresults('$0',true)\" "
-		." onmouseout=\"parent.simple_highlight_semfilterresults('$0',false)\" "
-		." onclick=\"parent.restrict_render('$0')\" "
+		." onmouseover=\"phf('$0')\" "
+		." onmouseout=\"puh('$0')\" "
+		." onclick=\"prr('$0')\" "
 		.'>$0</span>';
 
 		return preg_replace($pattern, $replace, $text);

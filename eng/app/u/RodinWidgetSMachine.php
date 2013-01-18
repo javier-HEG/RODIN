@@ -1057,7 +1057,7 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 	#
 	if ($uncache)
 	{
-		print "UNCACHE HERE";
+		//print "UNCACHE HERE";
 		print make_uncache_javascript_code('FRI: Uncache from $datasource');
 	}
 

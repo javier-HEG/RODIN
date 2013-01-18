@@ -173,8 +173,8 @@ EOH;
 $restrictToOntoTermLabel = lg('lblContextMenuRestrictToOntoTermX1');
 $addToBreadcrumbLabel = lg('lblContextMenuAddToBreadcrumb');
 $exploreOntologicalFacetsLabel = lg('lblContextMenuExploreOntoFacets');
-$HOVERIN_RESTRICT="onmouseover=\"var t=parent.document.getElementById('widgetContextMenuLabelaggv').innerHTML; simple_highlight_semfilterresults(t,true)\"";
-$HOVEROUT_RESTRICT="onmouseout=\"var t=parent.document.getElementById('widgetContextMenuLabelaggv').innerHTML; simple_highlight_semfilterresults(t,false)\"";
+$HOVERIN_RESTRICT="onmouseover=\"var t=parent.document.getElementById('widgetContextMenuLabelaggv').innerHTML; hf(t)\"";
+$HOVEROUT_RESTRICT="onmouseout=\"var t=parent.document.getElementById('widgetContextMenuLabelaggv').innerHTML; uh(t)\"";
 $aggregatedViewContextMenu=<<<EOAM
 <form name="famenux" action="">
 	<ul id="aggViewContextMenu" class="contextMenu contextMenuAggView">
@@ -415,8 +415,8 @@ EOP;
 
 
 	<?php launch_hook('userinterface_end',$pagename);
-    $HOVER1IN_RESTRICT="onmouseover=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,true)\"";
-    $HOVER1OUT_RESTRICT="onmouseout=\"simple_highlight_semfilterresults(\$('facetsContextMenuLabel').innerHTML,false)\"";
+    $HOVER1IN_RESTRICT="onmouseover=\"hf(\$('facetsContextMenuLabel').innerHTML)\"";
+    $HOVER1OUT_RESTRICT="onmouseout=\"uh(\$('facetsContextMenuLabel').innerHTML)\"";
   ?>
   
 	<!-- The following is the aggregatedVIew menu:  -->
