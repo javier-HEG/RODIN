@@ -1483,8 +1483,9 @@ function make_uncache_javascript_code($txt)
    */
 	$UNCACHE =<<<EOS
 	 <script type='text/javascript'>
-	 	adapt_widgetsareas_on_openclose_widgetmenu();
-	 	FRIdarkProtectionUncache('$txt');
+	  parent.show_widgets_content_in_aggregated_view();
+	 	parent.adapt_widgetsareas_on_openclose_widgetmenu();
+	 	parent.FRIdarkProtectionUncache('$txt');
 	 	parent.refreshCloudBoard('$uid');
 	 </script>
 EOS;

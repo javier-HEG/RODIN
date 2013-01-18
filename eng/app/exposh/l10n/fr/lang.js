@@ -11,7 +11,7 @@ lang["titleTextZoomThreeSelected"]="Affichant l'ensemble du résultat";
 lang["titleTextZoomFourSelected"]="Affichant l'ensemble du résultat filtrés";
 lang["titleAggregationButtonOn"]="Activer le regroupement des résultats";
 lang["titleAggregationButtonOff"]="Désactiver le regroupement des résultats";
-lang["lblAggregatedResultsFrom"]="Regroupement des résultats de";
+lang["lblAggregatedResultsFrom"]="Vue aggregé de";
 
 //Metasearch
 lang["lblResultGoogleLanguage"]="La langue des mots semble être ";

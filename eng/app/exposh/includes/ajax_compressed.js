@@ -7724,8 +7724,10 @@ $p.app.tabs={
 		var index = tabAggregatedStatusTabId.indexOf(tabId);
 		if (index == -1)
 			init_aggregation();
-		else
-			refresh_aggregation_toggle();
+		//FRI 20130118: deactivated
+		//else
+		// $p.app.widgets.refreshAggregatedView();
+		// refresh_aggregation_toggle(); // FRI: this method Does not exist???
 
 		
 		$p.ajax.call('../../app/tests/LoggerResponder.php?action=4&name=' + tab[$p.app.tabs.sel].label, {'type':'load'});
@@ -13560,6 +13562,19 @@ $p.app.widgets={
 		jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
 			$p.app.widgets.addRestustsToAggregatedView(data);
 		});
+	},
+	/**
+	 * $p.app.widgets.reblankAggregatedView
+	 */
+	reblankAggregatedView:function() {
+		var tabId = tab[$p.app.tabs.sel].id;
+		var index = allWidgetsResultsSetsTabId.indexOf(tabId);
+
+		if (typeof(allWidgetsResultSets[index])!='undefined')
+		{
+			var resultsContainer = jQuery('#' + allWidgetsResultSets[index].containerDivId);
+			resultsContainer.empty();
+		}
 	},
 	/**
 	 * $p.app.widgets.addRestustsToAggregatedView

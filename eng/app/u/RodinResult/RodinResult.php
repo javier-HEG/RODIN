@@ -5,7 +5,8 @@
  * properties expected.
  *
  * @author Javier Belmonte
- */
+ * @author Fabio Ricci (modifications) fabio.ricci@ggaweb.ch
+ *  */
 class BasicRodinResult {
 	private $wdsctimestamp; // timestamp of the result information (cached)
 	private $urlPage;

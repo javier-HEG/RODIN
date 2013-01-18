@@ -224,6 +224,9 @@ function format3pos(num)
 									usr, interactive, cloud, pclass)	{	
 		eclog('fri_parallel_metasearch Start (search=['+search+'])');
 		
+		initialize_aggregated_view_before_user_search(); //If active
+		
+		
 		// Detect language with ontofacets and then launch onto-facets-search
 		fb_set_node_ontofacet(search);
 		detectLanguageInOntoFacets_launchOntoSearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass);
@@ -1944,6 +1947,44 @@ if (response!=null) {
 		document.getElementById("selectedTextZoom").value = render;
 	}
 	
+	
+	
+	/*
+	 * To be used before a metasearch
+	 * initializes the content of aggregated view (if any)
+	 */
+	function initialize_aggregated_view_before_user_search()
+	{
+		if (typeof(tabAggregatedStatusTabId)!='undefined')
+		{
+			var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
+			if (index > -1)	
+			//We have an aggregated view av
+			{
+				alert('initialize_aggregated_view_before_user_search index=='+index+ ' tabAggregatedStatusTabId='+tabAggregatedStatusTabId);
+				//Blank the oo-results inside the av
+				$p.app.widgets.reblankAggregatedView();
+			}
+		}
+	}
+	
+	
+	function show_widgets_content_in_aggregated_view()
+	{
+		if (typeof(tabAggregatedStatusTabId)!='undefined')
+		{
+			var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
+			if (index > -1)	
+			//We have an aggregated view av
+			{
+				//alert('refreshAggregatedView');
+				//show current widget content in av:
+				$p.app.widgets.refreshAggregatedView();
+			}
+		}
+	}
+	
+	
 	/**
 	 * Sets aggregation buttons to correspond to the aggregation status of the
 	 * selected tab, will initi aggregation to OFF if no aggregation status was
@@ -1963,7 +2004,7 @@ if (response!=null) {
 	 * Updates the icons of the aggregated widgets
 	 */
 	function refresh_aggregated_widget_icons() {
-		var pertitentIframes = getPertinentIframesInfos(tab[$p.app.tabs.sel].id);
+		var pertinentIframes = getPertinentIframesInfos(tab[$p.app.tabs.sel].id);
 
 		// get iframes' icons
 		var menuDiv = jQuery('#aggregated_view_menu_' + tab[$p.app.tabs.sel].id);
@@ -1974,8 +2015,8 @@ if (response!=null) {
 		labelDiv.text(lg('lblAggregatedResultsFrom')+':');
 		menuDiv.append(labelDiv);
 		
-		for (var i = 0; i < pertitentIframes.length; i++) {
-			var iconTable = jQuery(pertitentIframes[i][1]);
+		for (var i = 0; i < pertinentIframes.length; i++) {
+			var iconTable = jQuery(pertinentIframes[i][1]);
 
 			var iconLabel = jQuery('td', iconTable).text();
 			
@@ -2073,6 +2114,8 @@ if (response!=null) {
 	 * This function relies on the contextMenu jQuery library
 	 * to attach the context menu to the results shown within widgets
 	 * or in the aggregated view
+	 * FRI (2013): Adaptation in order to show a menu in every of the 3 layers
+	 * facets, widgets, aggView
 	 */
 	function setContextMenu(menuname) {
 		if (menuname!='facetsContextMenu')

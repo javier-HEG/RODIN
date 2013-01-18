@@ -30,7 +30,7 @@
 <br />New SKOSxl ontology source SOZ "theSoz" integrated per Dec 18th 2012
 <br />New SKOS ontology source RAMEAU integrated per Dec 30th 2012
 <br />New SKOS ontology source LOC integrated per Dec 30th 2012
-<br />New NON-SKOS ontology source GND to integrated soon
+<br />New NON-SKOS ontology source GND to be integrated soon
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  
