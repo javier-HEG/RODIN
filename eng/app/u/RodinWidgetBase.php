@@ -157,7 +157,7 @@ session_start();
  	function make_widget_div($widgetdivid, $iframe_height, $headerAreaHeight) {
    	$widgetInnerHeight = $iframe_height - $headerAreaHeight;
  		$widgetSpotlightBox = '<div class="spotlightbox" style="visibility:hidden;" id="spotlight-box-' . $widgetdivid . '" title=""></div>';
-		return '<div class="widgetResultsDiv" id="$widgetdivid" style="height: ' . $widgetInnerHeight . 'px;\">' . $widgetSpotlightBox;
+		return '<div class="widgetResultsDiv" id="$widgetdivid" style="height: ' . $widgetInnerHeight . 'px;">' . $widgetSpotlightBox;
 	}
 
 	/**

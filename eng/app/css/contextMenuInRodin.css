@@ -24,7 +24,7 @@
 	color: black;
 	font-size: 12px;
 	display: block;
-	line-height: normal;
+/*	line-height: normal; //FRI FF gives a browser warning */
 	height: auto;
 	padding: 1px 2px 1px 28px;
 }
@@ -32,7 +32,7 @@
 .contextMenu li {
 	padding: 0px;
 	margin: 0px;
-	line-height: auto;
+/*	line-height: auto; //FRI FF gives a browser warning */
 	height: auto;
 }
 

@@ -99,8 +99,28 @@ if(jQuery)( function($) {
 								case "widgetContextMenu":
 									//alert('widgetContextMenu');
 									// Context menu for widgets should be kept within iFrame border
-									(e.pageX) ? x = Math.min(d.innerWidth - menu.width() - 10, e.pageX - 10) : x = e.clientX + d.scrollLeft;
+									// FRI: Problem using OPERA: Conversion from position to obkect)
+									//(e.pageX) ? x = Math.min(d.innerWidth - menu.width() - 10, e.pageX - 10) : x = e.clientX + d.scrollLeft;
+									if (e.pageX!=null)
+									{
+										x = Math.min(d.innerWidth - menu.width() - 10, e.pageX - 10);
+									}
+									else
+									{
+										x = e.clientX + d.scrollLeft;
+									}
+									
+									if (e.pageY!=null)
+									{
+										y = Math.min(d.innerHeight - menu.height() - 10, e.pageY - 10);
+									}
+									else
+									{
+										y = e.clientY + d.scrollTop;
+									}
+									
 									(e.pageY) ? y = Math.min(d.innerHeight - menu.height() - 10, e.pageY - 10) : y = e.clientY + d.scrollTop;
+									
 									break;
 								case "facetsContextMenu":
 									//alert('facetsContextMenu');

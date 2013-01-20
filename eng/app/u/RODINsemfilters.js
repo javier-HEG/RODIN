@@ -246,6 +246,7 @@ function check_semfilterresults(txt,min_occurrences,concerning_menuitem_idx)
 function toggle_highlight_semfilterresults(elem,txt,highlight)
 /* Elem ist the base from which a highlicht action should start */
 {
+	return;
   var eleclass=elem.classList[0];
 
   //Which morphological filter should be used?
@@ -355,9 +356,14 @@ function compute_highlightcolor(txt)
   var r2 = r>maxc?maxc:(r<minc?minc:r);
   var g2 = g>maxc?maxc:(g<minc?minc:g);
   var b2 = b>maxc?maxc:(b<minc?minc:b);
-  //alert('compute_highlightcolor: '+txt+' rgb='+rx+':'+r+'->'+r2+' - '+gx+':'+g+'->'+g2+' - '+bx+':'+b+'->'+b2);
+  
+  var r16=r2.toString(16);
+  var g16=g2.toString(16);
+  var b16=b2.toString(16);
+  
+  //alert('compute_highlightcolor: '+txt+' rgb='+rx+':'+r+'->'+r2+'('+r16+') - '+gx+':'+g+'->'+g2+'('+g16+') - '+bx+':'+b+'->'+b2+'('+b16+')');
 
-  return '#'+r.toString(16)+g.toString(16)+b.toString(16);
+  return '#'+r16+g16+b16;
 
 }
 
@@ -372,7 +378,7 @@ function cleanup4semfiltering(txt)
 function highlight_semfilterresults(txt,bgcolor,highlight)
 {
    txt=cleanup4semfiltering(txt)
-   //alert('highlight_semfilterresults: txt=('+txt+')');
+   // alert('highlight_semfilterresults: txt=('+txt+' bgcolor='+bgcolor+')');
 
   var match = false;
   var resulttermclassmame="result-word";

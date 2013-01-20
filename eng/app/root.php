@@ -434,7 +434,7 @@ $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['port']=$SOLR_
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['path']='/solr/cached_rodin_src_response/';
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout']=5;
-$SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour']=2; //24*7; //1 week
+$SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour']=24*7; //1 week
 
 # SOLR for collection ZBW STW:
 $SOLR_RODIN_CONFIG['zbw_stw']['adapteroptions']['user']='rodin';

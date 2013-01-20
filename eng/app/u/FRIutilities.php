@@ -703,11 +703,11 @@ function get_file_content($url, $verbose=false) {
  * url: data source url to be retrieved
  * Author: Fabio Ricci for HEG
  */
-function get_cached_widget_response_curl($url, $parameters, $options)
+function get_cached_widget_response_curl($url, &$parameters, $options)
 {
   global $sid; // KEY for this request
   //print "get_cached_content sid: $sid";
-  $cacheurl="$url?$parameters";
+  $cacheurl="$url?".implode('&',$parameters);
   list($timestamp,$cached_datasource_response) = (get_cached_response($cacheurl));
   
    if (! $cached_datasource_response)
@@ -722,6 +722,7 @@ function get_cached_widget_response_curl($url, $parameters, $options)
      if (good_response($datasource_response))
      {
        //Store response
+       //print "CACHING RESPONSE WITH CACHEURL=($cacheurl)"; exit;
        cache_response($cacheurl,($datasource_response));  
      } // got good response
      
@@ -780,6 +781,7 @@ function cache_response($url,$datasource_response)
 // Cache response using either database or solr
 {
   global $RESULTS_STORE_METHOD;
+		
     switch($RESULTS_STORE_METHOD)
     {
       case 'mysql': 
@@ -800,7 +802,16 @@ function cache_response_DB($url,&$datasource_response)
 
 function get_cached_response($url)
 {
-   global $RESULTS_STORE_METHOD;
+	   global $RESULTS_STORE_METHOD;
+//	$milliseconds = number_format( round(microtime(true) * 1000), 0, '.', "'");
+			
+//		if (Logger::LOGGER_ACTIVATED) {
+//                    $info=array();
+//                    $info['name'] = "ENTRY: $milliseconds get_cached_response using $RESULTS_STORE_METHOD ";
+//                    $info['msg'] = 'url= '.$url;
+//                    Logger::logAction($action=25, $info);
+//		}
+	
     switch($RESULTS_STORE_METHOD)
     {
       case 'mysql': 
@@ -809,6 +820,15 @@ function get_cached_response($url)
       case 'solr':
             $cached_datasource_response = get_cached_response_SOLR($url);
     }
+		
+//		$milliseconds = number_format( round(microtime(true) * 1000), 0, '.', "'");
+//		if (Logger::LOGGER_ACTIVATED) {
+//                    $info=array();
+//                   $info['name'] = "EXIT:  $milliseconds get_cached_response using $RESULTS_STORE_METHOD ";
+//                    $info['msg'] = 'Cachetime: '.$cached_datasource_response[0];
+//                    Logger::logAction($action=25, $info); 
+//		}
+		
     return $cached_datasource_response;
 } // get_cached_response
 
@@ -1982,7 +2002,7 @@ function generate_src_refining_fields($id)
 	
 	$TXT=<<<EOT
 		
-	<tr height=10/>
+	<tr height="10" />
 	<tr>
 		<td/>
 		<td bgcolor='$COLOR_BROADER' 
@@ -2010,7 +2030,7 @@ function generate_src_refining_fields($id)
 		</td>
 	</tr>
 
-	<tr height=0/>
+	<tr height="0" />
 	<tr>
 		<td/>
 		<td bgcolor='$COLOR_NARROWER' 
@@ -2038,7 +2058,7 @@ function generate_src_refining_fields($id)
 		</td>
 	</tr>
 	
-	<tr height=0/>
+	<tr height="0" />
 	<tr>
 		<td/>
 		<td bgcolor='$COLOR_RELATED'; 
