@@ -571,6 +571,67 @@ function is_singleton($chunk)
 
 
 
+/*
+ * return true iif $ele is contained in one element in vector or ele is containing one element in vector
+ */ 
+function subsumed_in($vector,$ele)
+{
+	$subsumed=false;
+	$ele=strtolower(trim($ele));
+	
+	if (!is_array($vector)) ;
+	else if (count($vector))
+	{
+		foreach($vector as $v)	
+		{
+			$v = strtolower(trim($v));
+			$subsumed = strstr($v,$ele) || strstr($ele,$v);
+			if ($subsumed) break;
+		}
+	}
+	
+	return $subsumed;
+}
+
+
+/*
+ * returns an array_merge of
+ * @param $vector1
+ * @param $vector2
+ * by checking to have unique values
+ */ 
+function merge_uniquely($vector1,$vector2)
+{
+	$vector=array();
+	if (!is_array($vector1) and !is_array($vector2)) ;
+	else if (is_array($vector1))
+	{
+		if (!is_array($vector2))
+			$vector=$vector1;
+		else {
+			$both_vectors=true; 
+		} // is_array($vector2)
+	} // is_array($vector1)
+	else if (is_array($vector2))
+	{
+		if (!is_array($vector1))
+			$vector=$vector2;
+		else {
+			$both_vectors=true; 
+		} // is_array($vector1)
+	} // is_array($vector2)
+	
+	if ($both_vectors)
+	//Check insertion
+	{
+		$vector=array_merge($vector1,$vector2);
+		$vector=array_unique($vector);
+	}
+	
+	return $vector;
+}
+
+
 
 
 function gen_sequences($terms)
@@ -1536,6 +1597,13 @@ EOQ;
 		}
     mysql_close($DBconn);
     
+		
+		if(0)
+		{
+			print "<br>Namespaces:<br>";
+			foreach($NAMESPACES as $ns_name=>$ns_url)
+				print "<br><b>$ns_name</b>: ".htmlentities($ns_url);
+		}
 		
     return $NAMESPACES;
   } // get_namespaces_from_DB

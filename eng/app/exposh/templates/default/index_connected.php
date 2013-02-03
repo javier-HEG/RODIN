@@ -236,7 +236,7 @@ EOP;
 	<input id="metasearchrodinbutton" type="button"
 		name="rodingensearchbutton" title="" value=""
 		onclick="javascript: <?php print $launchMetaSearchCode; ?>" />
-	<img id="rodinSearchHelpButton" src="<?php print "$RODINUTILITIES_GEN_URL/images/help.png"; ?>" title="Help coming soon" />	
+	<!--img id="rodinSearchHelpButton" src="<?php print "$RODINUTILITIES_GEN_URL/images/help.png"; ?>" title="Help coming soon" /-->	
 </div>
 
 <div id="breadcrumbs" class="breadCrumbsHidden">

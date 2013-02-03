@@ -103,7 +103,7 @@ abstract class GNDengine extends SRCengine
 	
 	/**
 	 * Checks if the $term matches : 
-	 * - http://data.bnf.fr/ark:/12148/70244
+	 * - http://d-nb.info/gnd/xxxxxx
 	 * 
 	 * Extracts the node ID (eg. 70244)
 	 * from the $term and returns them in a list.
@@ -139,6 +139,11 @@ abstract class GNDengine extends SRCengine
 	
 	
 	
+	
+	
+	
+	
+	
 	protected function validateTermInOntology($term, $lang = 'en') {
 		if ($this->getSrcDebug()) {
 			print "<br>GND_validateTermInOntology($term,$lang='en') ...";
@@ -150,15 +155,48 @@ abstract class GNDengine extends SRCengine
 	}
 	
   
+	
+	
+	
+	
+	
+	
   /**
   	* Formats $term as in GND, We do not want first letter capital
 	 	* and we need to preserve the term AS IS (at least inside sparql)
+	 * ATTENTION: INSIDE GNE A LABEL MIGHT CONTAIN strange expression like <expr> 
 	*/
 	protected function formatAsInThesaurus($term) {
-		return $term;
+	
+	  return $term;
 	}
 
-  
+  /**
+	 * ATTENTION: INSIDE GNE A LABEL MIGHT CONTAIN \<expression\> .. 
+	 * IN THIS CASE REPLACE <> by other puctuation
+	*/
+	static function cleanupLabel($term) {
+		
+		$term=trim($term);
+		
+		//cancel every non word... 
+		$pattern = '/[,\n\t]+/u';
+		$term= preg_replace($pattern, $replace, $term);
+		$replace='';
+		
+		//Check for expression <sth> inside $term
+		$sensible_pattern="/\<(.*)\>/";
+		if (preg_match($sensible_pattern,$term,$match))
+		{
+			$expression=$match[1];
+			$old_expression='<'.$expression.'>';
+			$new_expression='('.$expression.')';
+			$term=str_replace($old_expression,$new_expression,$term);
+		}
+		
+	  return $term;
+	}
+	
   
   
 	/**

@@ -264,7 +264,7 @@ $LOCAL_DBPEDIA_DB_NAME = 'rodinarc_local';
 $LOCAL_DBPEDIA_ARC_NAME = 'test';
 ########################################################################
 
-
+$LANGUAGE_DETECTOR="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/LanguageDetector.php";
 
 #######################################
 # SRC Params
@@ -471,6 +471,15 @@ $SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['path']='/solr/loc_sh/';
 $SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['loc_sh']['adapteroptions']['timeout']=5;
 $SOLR_RODIN_CONFIG['loc_sh']['rodin']['cache_expiring_time_hour']=24*7; //1 week
+
+# SOLR for collection GND:
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['path']='/solr/dnb_gnd/';
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['timeout']=5;
+$SOLR_RODIN_CONFIG['dnb_gnd']['rodin']['cache_expiring_time_hour']=24*7; //1 week
 
 
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['user']='rodin';

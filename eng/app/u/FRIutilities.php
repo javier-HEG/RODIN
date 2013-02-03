@@ -285,6 +285,22 @@ function inform_bad_db($e)
 }
 
 
+/*
+ * Returns the language abbreviation for 
+ * @param $text
+ */
+function detect_language($text)
+{
+	global $DOCROOT;
+	$script = dirname($DOCROOT) . '/cgi-bin/cld.exe "' . $text . '"';
+	exec($script, $resp);
+	
+	$lang = $resp[0];
+	
+	return $lang;
+}
+
+
 
 function clean_html($str)
 {

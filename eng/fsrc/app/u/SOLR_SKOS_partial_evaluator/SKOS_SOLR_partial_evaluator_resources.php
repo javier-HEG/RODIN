@@ -165,6 +165,51 @@ EOQ;
 }
 
 
+/*
+ * Returns triples for each concepts in scheme in store
+ * in gnd these are descriptor expressions
+ * in the shape: (descriprot a gnd:corporateBody)
+ */
+function get_descriptors_gnd($storename)
+{
+	global $ARCCONFIG;
+  global $MAXLOOPSTEPS;
+	$LOCALARCCONFIG = $ARCCONFIG;
+	$LOCALARCCONFIG{'store_name'} = $storename;
+	$store = ARC2::getStore($LOCALARCCONFIG);
+
+//      FILTER regex(?s, "/descriptor/") .
+	/*
+	 * <http://d-nb.info/gnd/5959-6>
+      a       gnd:CorporateBody
+	 */
+
+	$EVTL_LIMIT= $MAXLOOPSTEPS>0?" LIMIT $MAXLOOPSTEPS ":'';
+	 
+	$QUERY=<<<EOQ
+	prefix    : <http://d-nb.info/gnd/>
+ 	prefix gnd: <http://d-nb.info/standards/elementset/gnd#>	
+	select ?s  
+	where
+	{
+		?s 	a  gnd:CorporateBody .
+  } $EVTL_LIMIT
+EOQ;
+
+	//print "<br>QUERY<br><b>".str_replace("\n","<br>",htmlentities($QUERY)).'</b>';
+	
+  if ($rows = $store->query($QUERY, 'rows')) 
+	{
+		$i=0;
+		foreach($rows as $row) 	
+		{	$i++;
+      if ($MAXLOOPSTEPS>0 && $i>$MAXLOOPSTEPS) break;
+      $descriptors[]=$row['s'];
+    }
+
+	}
+  return $descriptors;
+}
 
 
 
@@ -293,8 +338,9 @@ EOQ;
 /*
  * Returns a vector of tuples
  * from the store
- * reflecting the resource
+ * reflecting the gnd resource
  * following the skos standards
+ * DETECTS LANGUAGE USING local own language detector!
  */
 function get_gnd_resource($desc,&$store)
 {	
@@ -319,7 +365,10 @@ EOQ;
 	{
 		foreach($rows as $row) 	
 		{
-			$p_o_arr[]=array($row['p'],$row['o'],$row["o lang"]);
+			//Use local language detector for detecting language
+			$o_lang=trim($row["o lang"]); // is $o_lang defined? use detector
+			$o_lang=$o_lang?$o_lang:detect_language($row['o']);
+			$p_o_arr[]=array($row['p'],$row['o'],$o_lang);
 		}
 	}
 	return $p_o_arr;
@@ -919,7 +968,7 @@ function separate_namespace(&$namespaces,$term,$sep=':',$href=false)
 }
 
 
-/*
+/**
  * Prepare SOLR document to be indexed
  * in case mode=='bigdata' index very suddenly 
  * returns document (indexed or to be indexed)
@@ -1022,6 +1071,315 @@ function prepare_skos_entity_solr_document(&$SOLRCLIENT,&$namespaces,$descriptor
   
   return $document;
 } // prepare_skos_entity_solr_document
+
+
+
+
+
+/**
+ * Prepare SOLR document to be indexed
+ * in case mode=='bigdata' index very suddenly 
+ * returns document (indexed or to be indexed)
+ * 
+ * TRANSFORMS GND Elements into SKOS Elements (leaves original elements)
+ * 
+ * X preferredNameForTheCorporateBody Y ==> X prefLabel Y
+ * X variantNameForTheCorporateBody Y ==> X altLabel Y
+ *  
+ * broader/narrower/related
+ * X hierarchicalSuperiorOfTheCorporateBody Y ==> X broader Y
+ * Y hierarchicalSuperiorOfTheCorporateBody X ==> X narrower Y  (inverse of)
+ * Y hierarchicalSuperiorOfTheCorporateBody X ==> X narrower Y
+ * X gnd2:succeedingCorporateBody and/or precedingCorporateBody Y ==> X related Y
+ * 
+ * @param &$SOLRCLIENT Initialized SOLR client
+ * @param &$aGNDengineSPARQL Instanciated GNDengineSPARQL obj
+ * @param &$namespaces Assoc Vector of namespaces
+ * @param &$descriptor Entity descriptor
+ * @param &$descriptor_clean beautied descriptor
+ * @param &$p_o_resource Vector of triples corresponding to one GNDentity
+ * @param $storename The current storename
+ * @param $solr_collection The current solr_colleaction name
+ * @param $mode (bigdata or other) determines wether the solr doc is submitted
+ * @param $indexdebug Debug option writing SOLR update values on a log file
+ * @param $showdetails Print option - listed elements as they are processed
+ */
+function prepare_gnd_entity_solr_document
+( 
+		&$SOLRCLIENT,
+		&$aGNDengineSPARQL,
+		&$namespaces,
+		$descriptor,
+		$descriptor_clean,
+		&$p_o_resource,
+		$storename,
+		$solr_collection,
+		$mode,
+		$indexdebug,
+		$showdetails
+)
+{
+  global $SOLR_RODIN_CONFIG;
+  global $SOLARIUMDIR;
+  global $USER;
+  global $printline;
+  
+  $resultNumber=0;
+
+  $document = new Solarium_Document_ReadWrite();
+  $document->id = $descriptor_clean;
+  $fulltext='';
+	$related_collected=false;
+	
+  foreach($p_o_resource as $triple)
+  {
+    list($p,$o,$lang)=$triple;
+
+    $pred= separate_namespace($namespaces,$p,'_');
+    $obj= separate_namespace($namespaces,$o,'_');
+		
+    if (true
+//         !strstr($pred,'skos:inScheme')  //forget
+//        && !strstr($pred,'rdf:type')   //forget ??
+        )
+    { // foresee for indexing
+
+      ###############################################
+      if (strstr($pred,'NameForTheCorporateBody')) // Correct label, altLabel, prefLabel
+      {
+ 				$obj = GNDengine::cleanupLabel($obj); // cleanup GND peculiarities like <Rom> (cannot be processed as they are !!!)
+ 				createadd_SKOS_translation_for_GND_label($pred,$obj,$document,$lang);
+ 				
+      } // ***NameForTheCorporateBody
+      ###############################################
+			else if (strstr($pred,'hierarchicalSuperiorOfTheCorporateBody'))
+      ###############################################
+	    {
+      	 createadd_SKOS_translation_for_GND_broader($pred,$obj,$document,$lang);
+      } // hierarchicalSuperiorOfTheCorporateBody
+      
+      else if (!$related_collected && 
+      					(	strstr($pred,'succeedingCorporateBody')
+							 || strstr($pred,'precedingCorporateBody'))
+						)
+      ###############################################
+	    {
+				createadd_SKOS_entries_for_GND_related(	$descriptor,$pred,$obj,
+																								$document,$aGNDengineSPARQL,$namespaces,$lang );
+				$related_collected=true; // do this op only once!
+      } // related
+      
+      ################################################################################
+      # Always search for narrowers (inverse of hierarchicalSuperiorOfTheCorporateBody)
+      ################################################################################
+      if (!$narrower_created)
+			{
+	      createadd_SKOS_entries_for_GND_narrower(	$descriptor,$pred,$obj,
+																									$document,$aGNDengineSPARQL,$namespaces,$lang );
+				$narrower_created=true; // do this op only once!
+			}
+      #############################################
+      # Add everything to body (to be searchable)
+      #############################################
+            
+      $fulltext.=$fulltext?' ':'';
+      
+      //add to fulltext body only if label but only once! (if not already contained
+      if (strstr($pred,'NameForTheCorporateBody'))
+			{
+				if (!strstr($fulltext,$obj))
+        $fulltext.=$obj;
+			}
+      $document->addField($pred, $obj);
+    } // foresee for indexing
+  } // foreach
+  //
+  //print "<hr>SAVING DOCUMENTS:<br>"; var_dump($documents);
+
+  if ($fulltext) // something filled ?
+  {
+    $document->addField('body', $fulltext);
+	
+	  if (trim($fulltext)=='') // sth wrong... 
+	  {
+	    $document=null;
+	    if($printline) print "<tr><th align='right'></th><th valign='bottom' align='left' colspan='2'> EMPTY BODY!! smt WRONG </th><th/></tr>";
+	  }
+	  else
+	  {
+	  	//print "<br>mode: $mode";
+	  	if ($mode=='bigdata') // INDEX NOW!
+	  	{
+	  		$documents=array($document);
+	    	solr_synch_update(false,$solr_collection,$SOLRCLIENT, $documents, $indexdebug, $showdetails);
+			}
+	  }
+  }
+	else // nothing to add ...
+	{
+		$document=null;
+		// communicate/warn $descriptor_clean, $p_o_resource
+		
+		print "<br><hr>prepare_skos_entity_solr_document encountered a singular situation: no data to descriptor (triples complete???)";
+		print "<br>descriptor: (<b>$descriptor_clean)</b>";
+		print "<br>data: <br><b>";
+		var_dump($p_o_resource);
+		print "</b><br><br>";
+	}
+  
+  return $document;
+} // prepare_gnd_entity_solr_document
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Creates and add as document field skos labels from GND labels
+ * Create tranformation pred preferredNameForTheCorporateBody ==> prefLabel
+ * Create tranformation pred variantNameForTheCorporateBody ==> altLabel
+ * 
+ * @param $pred 
+ * @param $obj
+ * @param $document
+ * @param $lang
+ */
+function createadd_SKOS_translation_for_GND_label($pred,$obj,$document,$lang)
+{
+
+	if (strstr($pred,'preferredNameForTheCorporateBody'))
+	{
+		$pred='skos_prefLabel';
+	}
+	else if (strstr($pred,'variantNameForTheCorporateBody'))
+	{
+		$pred='skos_altLabel';
+	}
+
+
+  if($lang<>'')
+  {
+    $pred=$pred.'_'.$lang; // add fieldname with language extension 
+  }  
+
+  $document->addField($pred, $obj);
+} // createadd_SKOS_translation_for_GND_label
+
+
+
+
+
+
+/**
+ * Creates and adds as document field skos broader using:
+ * X hierarchicalSuperiorOfTheCorporateBody Y ==> X broader Y
+ * 
+ * @param $pred 
+ * @param $obj
+ * @param $document
+ * @param $lang
+ */
+function createadd_SKOS_translation_for_GND_broader($pred,$obj,$document,$lang)
+{
+	if (strstr($pred,'hierarchicalSuperiorOfTheCorporateBody'))
+	{
+		$pred='skos_broader';
+	}
+	
+	//print "<br>Adding $pred $obj";
+	
+  $document->addField($pred, $obj);
+} // createadd_SKOS_translation_for_GND_broader
+
+
+
+
+
+
+/**
+* Searches, creates and adds as document fields skos narrower using rule
+ * Y hierarchicalSuperiorOfTheCorporateBody X ==> X narrower Y  (inverse of hierarchicalSuperiorOfTheCorporateBody)
+ * 
+ * @param $descriptor The descriptor of the current GND entity
+ * @param $pred The triple predicate
+ * @param $obj The triple object
+ * @param $document The SOLR document to be updated
+ * @param &$aGNDengineSPARQL An instance of GNDengineSPARQL
+ * @param &$namespaces The namespaces for treatment of collected related descrs.
+ * @param $lang Output language
+ */
+function createadd_SKOS_entries_for_GND_narrower($descriptor,$pred,$obj,&$document,&$aGNDengineSPARQL,&$namespaces,$lang)
+{
+	if ($aGNDengineSPARQL)
+	{
+		$desc2=htmlentities($descriptor);
+		//print "<br>CALLED createadd_SKOS_entries_for_GND_narrower($desc2)";
+		
+		$store = $aGNDengineSPARQL->get_store();
+		$narrower_descriptors = $aGNDengineSPARQL->get_gnd_narrower_descriptors($store,$descriptor);
+		
+		//print "<hr>Narrower descs: <br>"; var_dump($narrower_descriptors); print "<br>"; 
+		$pred = 'skos_narrower';
+		foreach($narrower_descriptors as $desc)
+		{
+			$obj= separate_namespace($namespaces,$desc,'_');
+			
+			//print "<br>Adding $pred $obj";
+			
+			$document->addField($pred, $obj);
+		} // foreach
+	} // $aGNDengineSPARQL
+	else
+		print "<br>createadd_SKOS_entries_for_GND_narrower PROBLEM using $aGNDengineSPARQL";
+	
+
+} // createadd_SKOS_entries_for_GND_narrower
+
+
+
+/**
+ * Searches, creates and adds as document fields skos related
+ * using inverse-of hierarchicalSuperiorOfTheCorporateBody and the rule:
+ * 
+ * @param $descriptor The descriptor of the current GND entity
+ * @param $pred The triple predicate
+ * @param $obj The triple object
+ * @param $document The SOLR document to be updated
+ * @param &$aGNDengineSPARQL An instance of GNDengineSPARQL
+ * @param &$namespaces The namespaces for treatment of collected related descrs.
+ * @param $lang Output language
+ */
+function createadd_SKOS_entries_for_GND_related($descriptor,$pred,$obj,&$document,&$aGNDengineSPARQL,&$namespaces,$lang)
+{
+	if ($aGNDengineSPARQL)
+	{
+		$descriptors = array( $descriptor );
+		$store = $aGNDengineSPARQL->get_store();
+		$related_descriptors = $aGNDengineSPARQL->collect_gnd_related2($store,$descriptors);
+		
+		//print "<hr>Related descs: <br>"; var_dump($related_descriptors); print "<br>"; 
+		$pred = 'skos_related';
+		
+		foreach($related_descriptors as $desc)
+		{
+			$obj= separate_namespace($namespaces,$desc,'_');
+			
+			//print "<br>Adding $pred $obj";
+		
+			$document->addField($pred, $obj);
+		} // foreach
+	} // $aGNDengineSPARQL
+	else
+		print "<br>createadd_SKOS_entries_for_GND_related PROBLEM using $aGNDengineSPARQL";
+	
+} // createadd_SKOS_entries_for_GND_related
 
 
 

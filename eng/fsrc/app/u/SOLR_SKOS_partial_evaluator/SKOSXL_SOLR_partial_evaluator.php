@@ -1,7 +1,7 @@
 <html>
 <head>
       <link rel="stylesheet" type="text/css" href="../../../../app/css/rodin.css" />
-<title> RDF SKOSXL Partial Evaluator SOLR INDEXER (for gesis_thesoz)
+<title> RDF SKOSXL Partial Evaluator SOLR INDEXER
 </title> 
 </head>
 <body>

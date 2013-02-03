@@ -62,7 +62,7 @@ abstract class SRCengine implements SRCEngineInterface {
 
 	
 	
-	protected function get_store()
+	public function get_store()
 	{
 		return $this->store;
 	}
@@ -156,13 +156,20 @@ abstract class SRCengine implements SRCEngineInterface {
   
   protected function refine_skos_solr_available()
 	{
-		return false; // at this level -> to be overloaded
+    return false; // at this level. (overloading base class method)
 	}
 	
   protected function refine_skosxl_solr_available()
   {
-    return false; // overloading base class method
+    return false; // at this level. (overloading base class method)
   }
+
+  protected function refine_gnd_solr_available()
+  {
+    return false; // at this level. (overloading base class method)
+  }
+
+
 
   
 	private function cleanup_viki_tokens($tokens) {
@@ -185,8 +192,8 @@ abstract class SRCengine implements SRCEngineInterface {
   
   /**
 	 *
-	 * Tunes the ontolgy on term in $v and construct a response to 
-   * a refinement. Use a cache technique for equal requests.
+	 * Tunes the ontology on term in $v and construct a response to 
+   * a refinement. Uses a cache technique for equal requests.
    * This function responds to an SRC web requests 
    * and caches the response (see root.php for cache expiry times)
    * It returns the response with a tag 'age_in_seconds' to inform
@@ -253,8 +260,15 @@ abstract class SRCengine implements SRCEngineInterface {
                                                  $lang,
                                                  $sortrank );
           } 
-          
-          
+          else if ($this->refine_gnd_solr_available()) {
+              
+              list($RESULTS_B,$RESULTS_N,$RESULTS_R) 
+                      = $this->refine_gnd_solr( $RESULTS_P->results, 
+                                                 ($q), 
+                                                 $this->maxresults, 
+                                                 $lang,
+                                                 $sortrank );
+          } 
           else
           {
             $RESULTS_B = $this->refine('broader', $RESULTS_P->results, ($q), $this->maxresults, $lang, $sortrank);
@@ -262,6 +276,14 @@ abstract class SRCengine implements SRCEngineInterface {
             $RESULTS_R = $this->refine('related', $RESULTS_P->results, ($q), $this->maxresults, $lang, $sortrank);
           }
           
+					if ($this->verbose) {
+						print "<hr>BROADERS: <br>"; var_dump($RESULTS_B);
+						print "<hr>";
+						print "<hr>NARROWERS: <br>"; var_dump($RESULTS_N);
+						print "<hr>";
+						print "<hr>RELATED: <br>"; var_dump($RESULTS_R);
+						print "<hr>";
+					}
           // Needs to be cleaned because they're obtained directly from
           // $this->get_english_candidate_compounds
           $srv_p = base64_encode($this->cleanup_viki_tokens($RESULTS_P->results));
@@ -730,7 +752,9 @@ EOF;
 						}
 						//-----------------------------------------------
 						else if ( $this->getWordbinding() == 'RAMEAU'
-				 					 || $this->getWordbinding() == 'LOC')
+				 					 || $this->getWordbinding() == 'LOC'
+									 || $this->getWordbinding() == 'GND'
+									 )
 						{ // no stopword cleaning for RAMEAU nor for LOC !!!!
 							$nextterm = $term;
 							//Construct a sequence of terms separated by $TERM_SEPARATOR

@@ -1,8 +1,8 @@
 <?php
 
-	# GND Engine SOLR 
+	# STW Engine 3 (improvement of STW engine 2 using SOLR)
 	#
-	# Jan 2013
+	# Dex 2012
 	# Author: fabio.ricci@ggaweb.ch  
 	# HEG 
 
@@ -20,33 +20,54 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 include_once("$DOCROOT$UPATH1/SOLRinterface/solr_interface.php");
 
 	
-class GNDengineSOLR extends GNDengine
+class STWengineSOLR extends STWengine
 {
 	protected $maxROWSinSOLR_eachEntity;
-  protected $GND_SKOS_FIELDS;
+  protected $STW_SKOS_FIELDS;
+  protected $zbw_stw_namespaces;
   protected $solr_collection;
-	protected $namespaces;
   
 	function __construct() 
 	#########################
 	{
 		parent::__construct();
     
-		$this->currentclassname='GNDengineSOLR';
+		$this->currentclassname='STWengineSOLR';
 
-    $this->solr_collection = 'dnb_gnd';
-		$this->setWordbinding('GND');
+    $this->solr_collection = 'zbw_stw';
+		$this->setWordbinding('STW');
 
-    $this->maxROWSinSOLR_eachEntity = 10; // 10 rows each entity in GND SOLR
-    $this->namespaces= get_namespaces_from_DB();
+    $this->maxROWSinSOLR_eachEntity = 10; // 10 rows each entity in STW SOLR
+    /*
+     * The following are standard fields we want to see when 
+     * recalling results in solr
+     */
+    $this->STW_SKOS_FIELDS=array(
+                                    'id',
+                                    'score',
 
-	} //GNDengineSOLR constructor 
+                                    'skos_prefLabel_de',
+                                    'skos_prefLabel_en',
+                                    'skos_altLabel_de',
+                                    'skos_altLabel_en',
+
+                                    'skos_broader',
+                                    'skos_narrower',
+                                    'skos_related'
+                                );
+    
+    
+    $this->zbw_stw_namespaces= get_namespaces_from_DB();
+
+		//print "<br> STWengine2<hr>"; var_dump($this->get_zbwdbpedia_store());print "<hr>";
+
+	} //STWengine1 
 	
 	
 
-	protected function refine_gnd_solr_available()
+	protected function refine_skos_solr_available()
   {
-    return true; // at this level.
+    return true; // overloading base class method
   }
 	
   
@@ -61,42 +82,39 @@ class GNDengineSOLR extends GNDengine
   
   
   
-	/**
-	 * Refines all relevant token in text using $this->refineFunctionName
-	 * ENTRY POINT for computation A la SKOS of GND nodes around "$text"
-   * To be set on init by the class involved
-	 * returns each token the related term
-   * for each of action=broader,narrower,related
-	 *
-	 * returns an OBJ containing ranked broader/narrower/related results and the labels of the node(s) found
-	 * Uses refine_gnd_solr_method() to compute SKOS relations
-	 * 
-	 * $param $text The term or search text
-	 * $param $q The original user search text (used??)
-	 * $param $m The maximal number of results each SKOS relation
-	 * $param $lang The output language
-	 * $param $sortrank (still fixed to 'standard') defines how results should be ranked
-	 */
-	protected function refine_gnd_solr($text, $q, $m, $lang, $sortrank='standard')
-	{	
-	 	global $TERM_SEPARATOR;
-		
-		if ($this->srcdebug) print "<br>GNDengineSOLR->refine_gnd_solr($text, $q, $m, $lang) ...";
+  /*
+   * ENTRY POINT for computation of SKOS nodes around "$text"
+   */
+	protected function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard')
+	##################################
+	# 
+	# Refines all relevant token in text using $this->refineFunctionName
+	# To be set on init by the class involved
+	# returns each token the related term
+  # for each of action=broader,narrower,related
+	#
+	{	/*
+		returns a list of ranked terms AND the same list as a base64encoded comma separated terms
+		*/
+		global $TERM_SEPARATOR;
+		global $VERBOSE;
+		global $SRCDEBUG;
+		if ($this->srcdebug) print "<br>STWengineSOLR->refine_skos_solr($text, $q, $m, $lang) ...";
 		$ok=true;
 		$TERMS_RAW=array();
 		$words=explode($TERM_SEPARATOR,$text);
 		if ($ok)
 		{
-      // call SLOR GND engine for each term in $text using the default solr dismax query handler
+      // call SLOR STW engine for each term in $text using the default solr dismax query handler
       if (trim($text))
       {
-        $GND_SKOSResult = $this->refine_gnd_solr_method( trim($text),$m,$lang );
-        list($broader_terms,  $broader_descriptors,   $B_ROOTPATHS)= $GND_SKOSResult->broader;
-        list($narrower_terms, $narrower_descriptors,  $N_ROOTPATHS)= $GND_SKOSResult->narrower;
-        list($related_terms,  $related_descriptors,   $R_ROOTPATHS)= $GND_SKOSResult->related;
+        $STW_SKOSResult = $this->refine_skos_solr_method( trim($text),$m,$lang );
+        list($broader_terms,  $broader_descriptors,   $B_ROOTPATHS)= $STW_SKOSResult->broader;
+        list($narrower_terms, $narrower_descriptors,  $N_ROOTPATHS)= $STW_SKOSResult->narrower;
+        list($related_terms,  $related_descriptors,   $R_ROOTPATHS)= $STW_SKOSResult->related;
       
         if ($this->srcdebug) {
-          print "<hr>refine_gnd_solr(): refine_gnd_solr_method() returns: "
+          print "<hr>refine_skos_solr(): refine_skos_solr_method() returns: "
                 .count($broader_terms)." broader terms"
                 .count($narrower_terms)." narrower terms"
                 .count($related_terms)." related terms"
@@ -141,28 +159,21 @@ class GNDengineSOLR extends GNDengine
 		return array( new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
                   new SRCEngineResult(trim($narrower_refined_terms),trim($narrower_refined_terms_raw), $N_ROOTPATHS),
                   new SRCEngineResult(trim($related_refined_terms), trim($related_refined_terms_raw),  $R_ROOTPATHS) );
-	} // refine_gnd_solr
+	} // refine_skos_solr
 	
   
   
   
-  /**
-	 * This is the real method computing SKOS neighbours to a term or a search text
-	 * Returns a complex object SRCEngineSKOSResult (a triple of list pairs)
-	 * 
-	 * @param $term the GND term or a search text
-	 * @param $m the limitation to the max numbers of results
-	 * @param $lang the output language
-	 */ 
-  protected function refine_gnd_solr_method($term,$m,$lang)
+  
+  protected function refine_skos_solr_method($term,$m,$lang)
 	############################################################
   # Find Terme related to $action 
 	{ 
     global $RODINSEGMENT;
 		$METHODNAME=$this->myFNameDebug(__FUNCTION__,__FILE__,__LINE__);
-		/* Terms in GND are left as they are */
+		/* Terms in STW are First letter capital */
 		/* Try to make them like this to SQL-Match them */
-		if ($this->getSrcDebug()) print "<br>GNDengineSOLR->$METHODNAME($term)...";
+		if ($this->getSrcDebug()) print "<br>STWengineSOLR->$METHODNAME($term)...";
 		
 		############################################
 		list($descriptor,$label) = $this->extractDescriptor($term);
@@ -170,28 +181,28 @@ class GNDengineSOLR extends GNDengine
 		
 		if ($descriptor) # Request was made on a node (descriptor) exactely
 		{
-       $GND_SKOSResult  =  $this->get_loc_skos_nodes_SOLR(null,$descriptor,$m,$lang);
+     $STW_SKOSResult  =  $this->get_stw_skos_nodes_SOLR(null,$descriptor,$m,$lang);
 		} # node
 		###########################################
 		else # Request is on text
 		{ 
       $term= $this->formatAsInThesaurus($term);
-			// ----- Search for Labels in GND SOLR  ------
+			// ----- Search for Labels in STW SOLR  ------
 
-      $GND_SKOSResult  = $this->get_gnd_nodes_SOLR($term,null,$m,$lang);
-      /* in $GND_SKOSResult ar all results for each node */
+      $STW_SKOSResult  = $this->get_stw_skos_nodes_SOLR($term,null,$m,$lang);
+      /* in $STW_SKOSResult ar all results for each node */
       
 		}  //text	
     // 
     // 
 		if ($this->getVerbose())
 		{
-      list($BROADER_LABELS,$BROADER_DESC)=$GND_SKOSResult->broader;
-      list($NARROWER_LABELS,$NARROWER_DESC)=$GND_SKOSResult->narrower;
-      list($RELATED_LABELS,$RELATED_DESC)=$GND_SKOSResult->related;
+      list($BROADER_LABELS,$BROADER_DESC)=$STW_SKOSResult->broader;
+      list($NARROWER_LABELS,$NARROWER_DESC)=$STW_SKOSResult->narrower;
+      list($RELATED_LABELS,$RELATED_DESC)=$STW_SKOSResult->related;
       
       print "<br>refine_skos_solr_method RESULT SKOS ($term):";
-      var_dump($GND_SKOSResult); print "<br>";
+      var_dump($STW_SKOSResult); print "<br>";
 
 			if (count($BROADER_DESC))
 			{
@@ -218,9 +229,9 @@ class GNDengineSOLR extends GNDengine
 		} // text
     
     
-		return $GND_SKOSResult; // Information block for every skos relation
+		return $STW_SKOSResult; // Information block for every skos relation
 	
-	} // refine_gnd_solr_method
+	} // 
   
   
   
@@ -246,11 +257,16 @@ class GNDengineSOLR extends GNDengine
           $TERMS_RAW{$term}=$descriptors{$term}; 
 
         if ($this->srcdebug) print "<br>process_results() PROCESSING ($term)";
-        if ($refined_terms) $refined_terms.="$TERM_SEPARATOR\n"; 
-          $refined_terms.=trim($term);
-        $CANDIDATES{$term}=$RANK;
-        if ($this->srcdebug) print "<br> Adding <b>$term</b> to candidates";
-      
+        $patternterm=str_replace('/','\/',$term);
+        if (!preg_match("/$patternterm/",$text) 
+         && !preg_match("/$patternterm/",$q))
+        {
+          if ($refined_terms) $refined_terms.="$TERM_SEPARATOR\n"; 
+            $refined_terms.=trim($term);
+          $CANDIDATES{$term}=$RANK;
+          if ($this->srcdebug) print "<br> Adding <b>$term</b> to candidates";
+        }
+        else if ($this->srcdebug) print "<br> DISCARDING <b>$term</b> from candidates";
 
       } //foreach
     } // terms ex.
@@ -322,7 +338,7 @@ class GNDengineSOLR extends GNDengine
 //       $nextterm=trim(cleanup_stopwords_str($term));
 //       if ($nextterm) // term is non stopword
        {
-         if ($this->getWordbinding() == 'GND')
+         if ($this->getWordbinding() == 'STW')
          {
            //Construct a sequence of terms separated by $TERM_SEPARATOR
            if ($refined_terms) $refined_terms.="$TERM_SEPARATOR"; 
@@ -346,7 +362,7 @@ class GNDengineSOLR extends GNDengine
   
   
    /**
-	 * GND implementation of the function, since the data is held
+	 * STW implementation of the function, since the data is held
 	 * in our server, this function will "succeed" in case there is mode data
 	 */
 	protected function testDataSourceResponsiveness($user) {
@@ -366,9 +382,9 @@ class GNDengineSOLR extends GNDengine
   */
  protected function validateTermInOntology($term, $lang = 'en') {
 		if ($this->getSrcDebug()) {
-			print "<br>loc_validate_term($term,$lang='en') USING SOLR ...";
+			print "<br>stw_validate_term($term,$lang='en') USING SOLR ...";
 		}
-		list($suggested_term,$descriptor) = $this->checkterm_in_loc($term,$lang);
+		list($suggested_term,$descriptor) = $this->checkterm_in_stw($term,$lang);
 		
 		if ($suggested_term)
       return array($term, $descriptor);
@@ -378,16 +394,17 @@ class GNDengineSOLR extends GNDengine
 	}
 	
 
+
   
 	/**
-	 * Checks if $term is contained as a label in the SKOS GND Thesaurus,
+	 * Checks if $term is contained as a label in the SKOS STW Thesaurus,
 	 * returns a pair (suggested term, descriptor) if yes
    * @author: Fabio Ricci
 	 */
-	protected function checkterm_in_loc($term,$lang) 
+	protected function checkterm_in_stw($term,$lang) 
   {
   	if ($this->getSrcDebug()) {
-			print "<br><br>checkterm_in_loc($exactSearch): $QUERY <br>";
+			print "<br><br>checkterm_in_stw($exactSearch): $QUERY <br>";
 		}
 		
 		$found = false;
@@ -405,7 +422,12 @@ class GNDengineSOLR extends GNDengine
       $query->setStart(0)->setRows(1); // wee need one row ...
 
       // set fields to fetch (this overrides the default setting 'all fields')
-      $query->setFields(array('id','skos_prefLabel_'.$lang,'skos_altLabel_'.$lang));
+      
+      if ($lang=='en')
+        $query->setFields(array('id','skos_prefLabel_en','skos_altLabel_en'));
+      else
+      if ($lang=='de')
+        $query->setFields(array('id','skos_prefLabel_de','skos_altLabel_de'));
 
       // sort the results by price ascending
       //$query->addSort('price', Solarium_Query_Select::SORT_ASC);
@@ -451,23 +473,18 @@ class GNDengineSOLR extends GNDengine
   
   
 
-/**
- * Search / Collection method
- * Returns an GND SKOS NODES corresponding to a SOLR search for '$term' or a $descriptor
- * @param $term The search text (if given)
- * @param $descriptor The precise descriptor (if given) - one of ($term,$descriptor) must be provided
- * @param $m 
- * @param $lang  
+/*
+ * Returns an STW SKOS NODE corresponding to a SOLR search for '$term'
  */
-private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
-{
+private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang)
+{  
   if (!$term && !$descriptor)
-    print "System error: get_gnd_nodes_SOLR called with neither a term nor a descriptor!";
+    print "System error: get_stw_skos_nodes_SOLR called with neither a term nor a descriptor!";
   else
   {
     if ($this->getVerbose())
 		{
-      print "<br>GNDengineSOLR->get_gnd_nodes_SOLR($term,$descriptor,$m,$lang) ...";
+      print "<br>STWengineSOLR->get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang) ...";
     }
     
     if (($SOLRCLIENT = init_SOLRCLIENT($this->solr_collection,'solr_index_skos_namespaces system error init SOLRCLIENT')))
@@ -483,10 +500,10 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
          $query->setQuery(($term));
 
       // set start and rows param (comparable to SQL limit) using fluent interface
-      $query->setStart(0)->setRows(3 * $m * ($this->maxROWSinSOLR_eachEntity)); // we need enaugh data ...
+      $query->setStart(0)->setRows(3 * $m * ($this->maxROWSinSOLR_eachEntity)); // wee need enaugh data ...
 
       // set fields to fetch (this overrides the default setting 'all fields')
-      //$query->setFields($this->GND_SKOS_FIELDS);
+      $query->setFields($this->STW_SKOS_FIELDS);
 
       // sort the results by price ascending
       //$query->addSort('price', Solarium_Query_Select::SORT_ASC);
@@ -507,7 +524,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
       
       $noofresults=$resultset->getNumFound();
       if (solr_collection_empty($this->solr_collection))
-      { print "<br><br>SEVERE ERROR - EMPTY collection ? SOLR running and reachable? '<b>".$this->solr_collection."</b>' please inform your ontology administrator !!!";
+      { print "<br><br>SEVERE ERROR - EMPTY collection? '<b>".$this->solr_collection."</b>' please inform your ontology administrator !!!";
         exit;
       }
       foreach ($resultset as $document) 
@@ -516,7 +533,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
           {
             print "<br>Reading $d. document for query ... '$term' (or '$descriptor')";
           }
-          $PREFLABELS_DE=$PREFLABELS_EN=$PREFLABELS_EN=$PREFLABELS_FR=$PREFLABELS_IT=$PREFLABELS_ES=array();
+          $PREFLABELS_DE=$PREFLABELS_EN=$ALTLABELS_DE=$ALTLABELS_EN=array();
         // the documents are also iterable, to get all fields
           foreach($document AS $fieldname => $value)
           {
@@ -532,23 +549,10 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
                 case 'skos_related': $RELATED_DESC = array_merge($RELATED_DESC,is_array($value)?$value:array($value));break;
 
                 case 'id': $ID =$value; break;
-                //case 'skos_inScheme': /*noop*/ break;
+                case 'skos_inScheme': /*noop*/ break;
+                case 'gbv_gvkppn': /* NOT USED NOW BUT MIGHT BE USEFUL */
 
                 /* Labels of the current ID */
-                /* in GND several languages come up */
-                /* HERE - PLEASE - GENERALIZE PROCESSING of LANGUAGES */
-                case 'skos_prefLabel_fr': if (is_array($value)) 
-                                               $PREFLABELS_FR = $value;
-                                          else $PREFLABELS_FR = array(utf8_decode($value));
-                      break;
-                case 'skos_prefLabel_it': if (is_array($value)) 
-                                               $PREFLABELS_IT = $value;
-                                          else $PREFLABELS_IT = array(utf8_decode($value));
-                      break;
-                case 'skos_prefLabel_es': if (is_array($value)) 
-                                               $PREFLABELS_ES = $value;
-                                          else $PREFLABELS_ES = array(utf8_decode($value));
-                      break;
                 case 'skos_prefLabel_de': if (is_array($value)) 
                                                $PREFLABELS_DE = $value;
                                           else $PREFLABELS_DE = array(utf8_decode($value));
@@ -556,6 +560,14 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
                 case 'skos_prefLabel_en': if (is_array($value)) 
                                                $PREFLABELS_EN = $value;
                                           else $PREFLABELS_EN = array($value);
+                      break;
+                case 'skos_altLabel_de':  if (is_array($value)) 
+                                               $ALTLABELS_DE = $value;
+                                          else $ALTLABELS_DE = array($value);
+                      break;
+                case 'skos_altLabel_en':  if (is_array($value)) 
+                                               $ALTLABELS_EN = $value;
+                                          else $ALTLABELS_EN = array($value);
                       break;
 
                 case 'rdf_type': /*useless here*/break;
@@ -570,8 +582,9 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
           //The following are n documents found on the text search...
           //They shoudl be ranked...
           //Currently not used - but hties broader/narrower/related nodes
-          $returndocument[]=array($ID,$PREFLABELS_FR,$PREFLABELS_EN,$PREFLABELS_DE,$PREFLABELS_IT,$PREFLABELS_ES);
+          $returndocument[]=array($ID,$PREFLABELS_DE,$PREFLABELS_EN,$ALTLABELS_DE,$ALTLABELS_EN);
       }
+
     }
     else
       print "SYSTEM ERROR: NO ACCESS TO SOLR COLLECTION: ".$this->solr_collection;
@@ -580,11 +593,11 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     list ($BROADER_LABELS,
           $NARROWER_LABELS,
           $RELATED_LABELS) 
-              = $this->resolve_skos_loc_descriptors(	$BROADER_DESC,
-		                                                    $NARROWER_DESC,
-		                                                    $RELATED_DESC,
-		                                                    $m,
-		                                                    $lang );
+              = $this->resolve_skos_stw_descriptors($BROADER_DESC,
+                                                    $NARROWER_DESC,
+                                                    $RELATED_DESC,
+                                                    $m,
+                                                    $lang);
     // do something with return_document...:
 
   }
@@ -599,12 +612,12 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     {
       $NoOfFoundDocs=count($returndocument);
       
-      //print "<br><br>$NoOfFoundDocs node labels documents: "; var_dump($returndocument);print "<br>";
+      print "<br><br>$NoOfFoundDocs node return documents: "; var_dump($returndocument);print "<br>";
     
-      print "<hr><br>in get_loc_skos_nodes_SOLR():";
-      print "<br>resolved BROADER_LABELS:<br>"; var_dump($BROADER_LABELS);
-      print "<br>resolved NARROWER_LABELS:<br>"; var_dump($NARROWER_LABELS);
-      print "<br>resolved RELATED_LABELS:<br>"; var_dump($RELATED_LABELS);
+      print "<br>in get_stw_skos_nodes_SOLR():";
+      print "<br>prepared BROADER_LABELS:<br>"; var_dump($BROADER_LABELS);
+      print "<br>prepared NARROWER_LABELS:<br>"; var_dump($NARROWER_LABELS);
+      print "<br>prepared RELATED_LABELS:<br>"; var_dump($RELATED_LABELS);
       
       print "<br>ROOT ID: $ID0=$LABEL0, $ID1=$LABEL1";
 
@@ -612,30 +625,21 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
   
     
     //Compute each ID the path
-    $LOCALrootPATH = $this->walk_loc_root_path($ID0,$lang,$recursion=0);
+    $LOCALrootPATH = $this->walk_stw_root_path($ID0,$lang,$recursion=0);
     if ($this->getSrcDebug())
     {
       print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
     }
-    Logger::logAction(25, array('from'=>'GNDengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
+    Logger::logAction(25, array('from'=>'STWengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
 
     //Compute all other paths by using $LOCALrootPATH adding the current label.
     
-   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'bnf') ,$this->rootpaths($LOCALrootPATH,$BROADER_LABELS)); 
-   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'bnf'),$this->rootpaths($LOCALrootPATH,$NARROWER_LABELS)); 
-   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'bnf') ,$this->rootpaths($LOCALrootPATH,$RELATED_LABELS)); 
-  
-    if ($this->getSrcDebug())
-    {
-      print "<hr><br>Returning DENORMALIZED BROADER OBJ: ";var_dump($B);
-			print "<br>Returning DENORMALIZED NARROWER OBJ: ";var_dump($N);
-			print "<br>Returning DENORMALIZED RELATED OBJ: ";var_dump($R);
-    }
-  
-  
+   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'stw') ,$this->rootpaths($LOCALrootPATH,$BROADER_LABELS)); 
+   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'stw'),$this->rootpaths($LOCALrootPATH,$NARROWER_LABELS)); 
+   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'stw') ,$this->rootpaths($LOCALrootPATH,$RELATED_LABELS)); 
   
 	return new SRCEngineSKOSResult ( $B, $N, $R );
-} // get_loc_skos_nodes_SOLR
+} // get_stw_node_SOLR
 
 
 
@@ -670,7 +674,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
    /*
  * Returns a triples of array of ranked labels
  */
-  private function resolve_skos_loc_descriptors(&$BROADER_DESC,&$NARROWER_DESC,&$RELATED_DESC,$m,$lang='fr')
+  private function resolve_skos_stw_descriptors(&$BROADER_DESC,&$NARROWER_DESC,&$RELATED_DESC,$m,$lang='en')
   {
      //Merge each descriptor in one array:
     $descriptors=  array_merge($BROADER_DESC,$NARROWER_DESC,$RELATED_DESC);
@@ -690,7 +694,11 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     
     
     //Pick up only the needed ones:
-    $NEEDED_FIELD='skos_prefLabel_'.$lang;
+    if ($lang=='de')
+      $NEEDED_FIELD='skos_prefLabel_de';
+    else if ($lang=='en')
+      $NEEDED_FIELD='skos_prefLabel_en';
+    
     
     $FIELDS=array('id',$NEEDED_FIELD);
     
@@ -712,14 +720,12 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
           $disjunction.="id:$descriptor";
         }
       }
-			$disjunction = str_replace("ark:","ark\\:",$disjunction);
-
       //Query all entities with id in $descriptors
       $query->createFilterQuery('id')->setQuery($disjunction);
 
       if ($this->getVerbose())
       {
-        print "<br>resolve_skos_loc_descriptors query=($disjunction) ...";
+        print "<br>resolve_skos_stw_descriptors query=($disjunction) ...";
       }
       
       // set start and rows param (comparable to SQL limit) using fluent interface
@@ -735,6 +741,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
       $resultset = $SOLRCLIENT->select($query);
       $noofresults=$resultset->getNumFound();
       $descriptor_label=array();
+      
       
       if ($this->getVerbose())
       {
@@ -765,6 +772,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     } // $SOLRCLIENT
     
     /* ATTENTION: IS THE SEQUENCE OF RESULTS THE SAME OF THE DISJUNCTION????? */
+    
     /* TO PROOF: $labels and $descriptors are ALWAYS corresponding */
     
     if ($this->getSrcDebug())
@@ -804,14 +812,14 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     
     if ($this->getSrcDebug())
     {
-      print "<br>in resolve_skos_loc_descriptors():";
+      print "<br>in resolve_skos_stw_descriptors():";
       print "<br>prepared BROADER_LABELS:<br>"; var_dump($BROADER_LABELS);
       print "<br>prepared NARROWER_LABELS:<br>"; var_dump($NARROWER_LABELS);
       print "<br>prepared RELATED_LABELS:<br>"; var_dump($RELATED_LABELS);
     } 
       
     return array($BROADER_LABELS,$NARROWER_LABELS,$RELATED_LABELS);
-  } // resolve_skos_loc_descriptors
+  } // resolve_skos_stw_descriptors
   
   
   
@@ -824,18 +832,12 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
  * 
  * See also rootpaths() to pack information
  */
-  private function walk_loc_root_path($descriptor,$lang='fr',$recursion=0)
+  private function walk_stw_root_path($descriptor,$lang='en',$recursion=0)
   {
-  	if (trim($descriptor)=='')
-		{
-			return '';
-		}
-		
-  	$descriptor=str_replace("ark:","ark\\:",$descriptor); // for SOLR : is a meta char and has to be escaped
     $ROOTPATHSEP=',';
     if ($this->getSrcDebug())
     {
-      print "<br>walk_loc_root_path called with lang=$lang and descriptor: ";var_dump($descriptor);print "<br>";
+      print "<br>walk_stw_root_path called with lang=$lang and descriptor: ";var_dump($descriptor);print "<br>";
     }
 
     static $MAXRECURSION=100; // allow maximum 100 recursions
@@ -843,14 +845,17 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     
     if ($recursion > $MAXRECURSION)
     {
-      print "<br>walk_loc_root_path($descriptor) superated MAXRECURSION=$MAXRECURSION";
+      print "<br>walk_stw_root_path($descriptor) superated MAXRECURSION=$MAXRECURSION";
       print "<br>PLEASE ANALYSE the case and enhance the MAXRECURSION value! ";
       print "<br>Recursion PRUNED";
       return '';
     }  
     
     //Pick up only the needed ones:
-	  $NEEDED_FIELD='skos_prefLabel_'.$lang;
+    if ($lang=='de')
+      $NEEDED_FIELD='skos_prefLabel_de';
+    else if ($lang=='en')
+      $NEEDED_FIELD='skos_prefLabel_en';
     
     $FIELDS=array($NEEDED_FIELD,'skos_broader');
     
@@ -901,7 +906,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     
     if ($this->getSrcDebug())
     {
-      print "<br>in walk_loc_root_path($descriptor): $preflabel";
+      print "<br>in walk_stw_root_path($descriptor): $preflabel";
       print "<br>prepared BROADER_DESCR:<br>"; var_dump( $broader ) ;
     } 
     
@@ -921,7 +926,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
         { 
           //print "<br>PROCESS SKOSCONTEXT TO ($singlebroader_descriptor)";
           
-          $pathremote = $this->walk_loc_root_path($singlebroader_descriptor,$lang,$recursion);
+          $pathremote = $this->walk_stw_root_path($singlebroader_descriptor,$lang,$recursion);
           // Add:
           if ($pathremote)
           $path_to_root.=$ROOTPATHSEP.$pathremote;
@@ -931,31 +936,32 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     
     //return
     return $path_to_root;
-  } // walk_loc_root_path
+  } // walk_stw_root_path
   
   
   
   
   
   
-  private function denormalize_descriptor($GND_SOLR_DESCRIPTORS,$namespace)
+  private function denormalize_descriptor($STW_SOLR_DESCRIPTORS,$namespace)
   {
-    if (!is_array($GND_SOLR_DESCRIPTORS)) 
+    if (!is_array($STW_SOLR_DESCRIPTORS)) 
     {
-      return str_replace($namespace.'_',$this->namespaces[$namespace],$GND_SOLR_DESCRIPTORS);
+      return str_replace($namespace.'_',$this->zbw_stw_namespaces[$namespace],$STW_SOLR_DESCRIPTORS);
     }
     else
     { 
-      foreach($GND_SOLR_DESCRIPTORS as $GND_SOLR_DESCRIPTOR)
+      foreach($STW_SOLR_DESCRIPTORS as $STW_SOLR_DESCRIPTOR)
       {
-        $NORMALIZED_DESCRIPTORS[] = str_replace($namespace.'_',$this->namespaces[$namespace],$GND_SOLR_DESCRIPTOR);
+        $NORMALIZED_DESCRIPTORS[] = str_replace($namespace.'_',$this->zbw_stw_namespaces[$namespace],$STW_SOLR_DESCRIPTOR);
       }
       return $NORMALIZED_DESCRIPTORS;
     }
   }   
   
 	
-} // class GNDengineSOLR
+	
+} // class STWengine1
 
 
 

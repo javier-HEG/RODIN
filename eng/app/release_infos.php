@@ -28,9 +28,9 @@
 <br />Semantic filtering
 <br />Higher speed through SRC optimization
 <br />New SKOSxl ontology source SOZ "theSoz" integrated per Dec 18th 2012
-<br />New SKOS ontology source RAMEAU integrated per Dec 30th 2012
-<br />New SKOS ontology source LOC integrated per Dec 30th 2012
-<br />New NON-SKOS ontology source GND to be integrated soon
+<br />New SKOS ontology source RAMEAU integrated per Dec 30th 2013
+<br />New SKOS ontology source LOC integrated per Dec 30th 2013
+<br />New NON-SKOS ontology source GND integrated per Jan 25th 2013
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  
@@ -40,12 +40,12 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br /> - warning/error.
 <br />  
 
-<br> - <p> <i>Feel bored? Need a test?</i> <br>Do not hesitate 
+<p> <i>Feel bored? Need a test?</i> <br>Do not hesitate 
 <br>to send <?php print $US_LINK?> or to issue a <?php print $MANTIS_ISSUE_SMOKETEST?>
 <br>on a <a href='<?php print $RODINSMOKETEST_DIR_URL?>' target='blank' title='Click to switch to a download area "smoketest" containing rodin test documents to fill and send'>SMOKE or DEEP RODIN Test</a>
 </p>
 <?php 
-  if ($RODINSEGMENT<>'p')
+  //if ($RODINSEGMENT<>'p')
   {
   	print "<b><i>USEFUL LINKS:</i></b>";
     $SRC_CONTROL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/select_src.php";
@@ -55,9 +55,9 @@ Please report any bug issue to <?php echo $MANTIS ?>
     $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/";
     $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u";
     
-    print "<br><a href='$SRC_U_LINK' target='blank'>SRC METHODS</a>";
+    if ($RODINSEGMENT=='x') print "<br><a href='$SRC_U_LINK' target='blank'>SRC METHODS</a>";
     print "<br><a href='$SRC_CONTROL_LINK' target='blank'>SRC MANAGEMENT FOR CURRENT SEGMENT</a>";
-    print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR SOLR</a>";
+    if ($RODINSEGMENT=='x') print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR SOLR</a>";
     print "<br><a href='$SRC_STORE_SKOS_NAVIGATOR_LINK' target='blank'>STORE SKOS NAVIGATOR</a>";
     print "<br><a href='$SRC_STORE_SPARQL_LINK' target='blank'>STORE SPARQL ENGINE</a>";
   }

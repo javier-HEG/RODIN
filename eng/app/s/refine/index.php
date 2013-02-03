@@ -8,7 +8,7 @@ require_once "../../tests/Logger.php";
 
 $user = $_REQUEST['user'];
 $service_id	= $_REQUEST['service_id'];
-$VERBOSE = (param_named('VERBOSE',$_REQUEST));
+$VERBOSEhere = $VERBOSE = (param_named('VERBOSE',$_REQUEST)) || (param_named('verbose',$_REQUEST));
 
 
 //LOG SRC TIME HERE:
@@ -97,7 +97,8 @@ if ($action<>'dummy' && $action<>'dummytimeout') {
 			
 	if ($VERBOSE) {
 		print "<h2>Calling the real SRC</h2>";
-		print "<ul><li>Calling <a href='$SRCurl' target=\"_blank\">$SRCurl</a></li></ul>"; 
+		$SRCurl_x = "$SRCurl&VERBOSE=1&SRCDEBUG=1";
+		print "<ul><li>Calling <a href='$SRCurl_x' target=\"_blank\">$SRCurl_x</a></li></ul>"; 
 	}
 
 	$options = array(
@@ -160,7 +161,7 @@ Logger::logAction(25, array('from'=>'s/refine/index.php','msg'=>'Delivered Servi
 ###################################
 # Print out output
 ###################################
-if ($VERBOSE) {
+if ($VERBOSEhere) {
 	print "<h2>Output:</h2>";
 	//print '<div style="border: 1px solid gray;">' . html_printable_xml($output) . '</div>';
   print $output;

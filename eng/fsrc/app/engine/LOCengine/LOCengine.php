@@ -196,9 +196,15 @@ EOQ;
 		
 	
 				$QUERY = <<<EOQ
-					prefix skosxl:  <http://www.w3.org/2008/05/skos-xl#>
-					select ?d2 where { 
-							?d2 skosxl:literalForm '$term' .
+				  prefix skos:  <http://www.w3.org/2004/02/skos/core#>
+					select ?d2 where {
+						{ 
+							?d2 skos:prefLabel '$term' .
+						}
+						UNION
+						{ 
+							?d2 skos:altLabel '$term' .
+						}
 					}
 EOQ;
 				
