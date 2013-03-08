@@ -176,6 +176,7 @@ $exploreOntologicalFacetsLabel = lg('lblContextMenuExploreOntoFacets');
 $HOVERIN_RESTRICT="onmouseover=\"var t=parent.document.getElementById('widgetContextMenuLabelaggv').innerHTML; hf(t)\"";
 $HOVEROUT_RESTRICT="onmouseout=\"var t=parent.document.getElementById('widgetContextMenuLabelaggv').innerHTML; uh(t)\"";
 $aggregatedViewContextMenu=<<<EOAM
+
 <form name="famenux" action="">
 	<ul id="aggViewContextMenu" class="contextMenu contextMenuAggView">
 		<li><h1 id="widgetContextMenuLabelaggv"></h1></li>

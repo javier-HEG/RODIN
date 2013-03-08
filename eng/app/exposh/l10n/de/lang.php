@@ -32,7 +32,7 @@ $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Vrw. F1";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="Vrw. F2";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm3"]="Vrw. F3";
 $GLOBALS['lgMap']["titleOpenResult"]="Click to open result information in new tab";
-$GLOBALS['lgMap']["lblActionsOnWord"]="Klicken Sie links, um die Ergebnissfilterung um dieses Wort umzuschalten, Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
+$GLOBALS['lgMap']["lblActionsOnWord"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 
 // Widgetprefs
 $GLOBALS['lgMap']["lblPrefsOpen"]="Klicken Sie, um die Einstellungen dieses Widgets anzupassen";

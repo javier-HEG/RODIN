@@ -31,7 +31,7 @@ $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="direct";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="skos D";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm3"]="F3?";
 $GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Click to explore the word in ontological facets";
-$GLOBALS['lgMap']["lblActionsOnWord"]="Left-click to toggle result filtering on this word, right-click to see available actions";
+$GLOBALS['lgMap']["lblActionsOnWord"]="Right-click to see available actions";
 $GLOBALS['lgMap']["titleOpenResult"]="Click to open result information in new tab";
 
 // Widgetprefs

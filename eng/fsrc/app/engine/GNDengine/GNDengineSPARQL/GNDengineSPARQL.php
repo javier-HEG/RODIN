@@ -375,7 +375,7 @@ EOQ;
 			//Search for all descriptors matching $term:
 			$descriptors=$this->get_gnd_descriptors($store,$SearchType,$term,'');
 
-			return collect_gnd_related2($store,$descriptors);
+			return $this->collect_gnd_related2($store,$descriptors);
 		} // collect_gnd_related
 	
 	

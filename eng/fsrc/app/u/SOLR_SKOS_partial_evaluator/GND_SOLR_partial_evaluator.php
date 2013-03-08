@@ -162,42 +162,42 @@ function solr_gnd_indexing_evaluator(&$storename,$solr_collection,$mode,&$descri
     $p_o_resource=get_gnd_resource($descriptor,$store);
     
     //print "<hr>"; var_dump($p_o_resource);
-  if ($showdetails)
-  {
-    foreach($p_o_resource as $triple)
-    {
-      list($p,$o,$lang)=$triple;
-      
-      $pred= separate_namespace($namespaces,$p);
-      $obj= separate_namespace($namespaces,$o);
-      
-      print "<tr><td/><td>$pred</td><td> <b>$obj</b></td></tr>";
-    }
-  }
-  
-  if ($doindex) 
-  {
-    $doc = prepare_gnd_entity_solr_document($SOLRCLIENT,$aGNDengineSPARQL,$namespaces,$descriptor,$descriptor_clean,$p_o_resource,$storename,$solr_collection,$mode,$indexdebug, $showdetails);
-    
-    if ($mode=='fast')
-    {
-	    if ($doc)
-	      $documents[] = $doc;
-		} 
-      //print "<hr>doc: ";var_dump($doc);
-   }
-  } // foreach descriptor
-  print "</table>";  
-    
-  if ($mode=='fast') // Index all in one
-	{
-	  if ($SOLRCLIENT)
+	  if ($showdetails)
 	  {
-	    //index $documents all in one
-	    solr_synch_update(false, $solr_collection, $SOLRCLIENT, $documents, $indexdebug, $showdetails);
-	  } // SOLRCLIENT
-	}
-} // solr_gnd_indexing_evaluator
+	    foreach($p_o_resource as $triple)
+	    {
+	      list($p,$o,$lang)=$triple;
+	      
+	      $pred= separate_namespace($namespaces,$p);
+	      $obj= separate_namespace($namespaces,$o);
+	      
+	      print "<tr><td/><td>$pred</td><td> <b>$obj</b></td></tr>";
+	    }
+	  }
+	  
+	  if ($doindex) 
+	  {
+	    $doc = prepare_gnd_entity_solr_document($SOLRCLIENT,$aGNDengineSPARQL,$namespaces,$descriptor,$descriptor_clean,$p_o_resource,$storename,$solr_collection,$mode,$indexdebug, $showdetails);
+	    
+	    if ($mode=='fast')
+	    {
+		    if ($doc)
+		      $documents[] = $doc;
+			} 
+	      //print "<hr>doc: ";var_dump($doc);
+	   }
+	  } // foreach descriptor
+	  print "</table>";  
+	    
+	  if ($mode=='fast') // Index all in one
+		{
+		  if ($SOLRCLIENT)
+		  {
+		    //index $documents all in one
+		    solr_synch_update(false, $solr_collection, $SOLRCLIENT, $documents, $indexdebug, $showdetails);
+		  } // SOLRCLIENT
+		}
+	} // solr_gnd_indexing_evaluator
 
 
 

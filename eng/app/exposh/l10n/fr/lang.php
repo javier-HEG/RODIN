@@ -32,7 +32,7 @@ $GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Cliquez pour explorer le m
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Util. F1";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="Util. F2";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm3"]="Util. F3";
-$GLOBALS['lgMap']["lblActionsOnWord"]="Cliquez à gauche pour (des)activer le filtrage des resultats sur ce mot, cliquez à droite pour voir les actions possibles";
+$GLOBALS['lgMap']["lblActionsOnWord"]="Cliquez à droite pour voir les actions possibles";
 $GLOBALS['lgMap']["titleOpenResult"]="Cliquez pour ouvrir le résultat dans un nouvel onglet";
 
 // Widgetprefs

@@ -625,7 +625,8 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang)
   
     
     //Compute each ID the path
-    $LOCALrootPATH = $this->walk_stw_root_path($ID0,$lang,$recursion=0);
+    if (trim($ID0)<>null)
+ 		   $LOCALrootPATH = $this->walk_stw_root_path($ID0,$lang,$recursion=0);
     if ($this->getSrcDebug())
     {
       print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
@@ -919,7 +920,7 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang)
       //Apply recursively to the root
       foreach($broader as $singlebroader_descriptor)
       {
-        if (!trim($singlebroader_descriptor))
+        if (trim($singlebroader_descriptor)=='')
           print "<br>PROCESS SKOSCONTEXT EMPTY DESCRIPTOR ($singlebroader_descriptor)"
           ;
         else

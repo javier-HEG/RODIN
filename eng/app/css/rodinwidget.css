@@ -9,7 +9,8 @@ body {
 }
 
 form {
-	border-bottom: 1px solid lightgray;
+	/*The gray line below is directly visible inside the RODIN area ... unwanted*/
+	/*border-bottom: 1px solid lightgray;*/
 }
 
 .word {

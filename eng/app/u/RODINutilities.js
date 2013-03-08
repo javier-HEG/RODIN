@@ -240,6 +240,18 @@ function format3pos(num)
     LANGUAGE_OF_RESULT = '';
 		LANGUAGE_OF_RESULT_OK = true;
 
+		/*Hide Autocomplete brute force*/
+
+		(function(jQuery){
+			var options = {
+				serviceUrl : '',
+				delimiter: ', ',
+				deferRequestBy: 500
+			};
+			jQuery('#rodinsearch_s').autocomplete(options).hide();
+		})(jQuery);
+
+
 		var languageDetectorUrl = '<?php print "../../app/u/LanguageDetector.php"; ?>';
 		languageDetectorUrl += '?text=' + search;
 

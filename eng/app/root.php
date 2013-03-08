@@ -425,7 +425,7 @@ $SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['port']=$SO
 $SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['path']='/solr/cached_rodin_widget_response/';
 $SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['timeout']=5;
-$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour']=24; //1 day
+$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['rodin']['cache_expiring_time_hour']=24*3; //1 day
 
 # SOLR RODIN CONFIG for collection cached_rodin_src_response:
 $SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['user']='rodin';

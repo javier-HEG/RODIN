@@ -1155,7 +1155,7 @@ function prepare_gnd_entity_solr_document
 			else if (strstr($pred,'hierarchicalSuperiorOfTheCorporateBody'))
       ###############################################
 	    {
-      	 createadd_SKOS_translation_for_GND_broader($pred,$obj,$document,$lang);
+      	 $broader_descriptors[] = createadd_SKOS_translation_for_GND_broader($pred,$obj,$document,$lang);
       } // hierarchicalSuperiorOfTheCorporateBody
       
       else if (!$related_collected && 
@@ -1164,8 +1164,8 @@ function prepare_gnd_entity_solr_document
 						)
       ###############################################
 	    {
-				createadd_SKOS_entries_for_GND_related(	$descriptor,$pred,$obj,
-																								$document,$aGNDengineSPARQL,$namespaces,$lang );
+				$related_descriptors = createadd_SKOS_entries_for_GND_related(	$descriptor,$pred,$obj,
+																																				$document,$aGNDengineSPARQL,$namespaces,$lang );
 				$related_collected=true; // do this op only once!
       } // related
       
@@ -1174,8 +1174,8 @@ function prepare_gnd_entity_solr_document
       ################################################################################
       if (!$narrower_created)
 			{
-	      createadd_SKOS_entries_for_GND_narrower(	$descriptor,$pred,$obj,
-																									$document,$aGNDengineSPARQL,$namespaces,$lang );
+	      $narrower_descriptors = createadd_SKOS_entries_for_GND_narrower(	$descriptor,$pred,$obj,
+																																					$document,$aGNDengineSPARQL,$namespaces,$lang );
 				$narrower_created=true; // do this op only once!
 			}
       #############################################
@@ -1339,7 +1339,7 @@ function createadd_SKOS_entries_for_GND_narrower($descriptor,$pred,$obj,&$docume
 	else
 		print "<br>createadd_SKOS_entries_for_GND_narrower PROBLEM using $aGNDengineSPARQL";
 	
-
+	return $narrower_descriptors;
 } // createadd_SKOS_entries_for_GND_narrower
 
 
@@ -1378,7 +1378,7 @@ function createadd_SKOS_entries_for_GND_related($descriptor,$pred,$obj,&$documen
 	} // $aGNDengineSPARQL
 	else
 		print "<br>createadd_SKOS_entries_for_GND_related PROBLEM using $aGNDengineSPARQL";
-	
+	return $related_descriptors;
 } // createadd_SKOS_entries_for_GND_related
 
 

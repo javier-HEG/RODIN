@@ -132,6 +132,10 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 		$singleResult->setTitle(getDataFromRecord($recordData, array('245' => array('a', 'b'))));
 		
 		$controlNumber = getDataFromRecord($recordData, array('035' => 'a'));
+		$controlNumber= preg_replace("/\)vtls/",'',$controlNumber); // O. Schinin 6.3.2013: No vtls (virtual systems)
+		$controlNumber= preg_replace("/[\(\)]/",'',$controlNumber); // G.Hipler 6.3.2013: No round brakets anymore since SOLR Q3/2012
+			
+			//print "<br>controllNumber ($oldc): xxx$controlNumber".'xxx'; exit;
 		$singleResult->setUrlPage($swissbib_permalink_baseurl . urlencode('"' . $controlNumber . '"'));
     
 		$date = getDataFromRecord($recordData, array('260' => 'c'));
@@ -244,8 +248,7 @@ function getDataFromRecord($record, $fields) {
 			}
 		}
 	}
-
-	return implode(', ', $textArray);
+	return implode(', ', $textArray); 
 }
 
 /**
