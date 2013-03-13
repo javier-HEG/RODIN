@@ -1,5 +1,16 @@
 <?php
-include_once("FRIdbUtilities.php");
+
+//Include FSRC functions inclusive sroot.php
+$filename="/fsrc/app/u/FRIutilities.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+$filename="/fsrc/app/u/FRIdbUtilities.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
 
 $getStopwords = $_GET['getStopwords'];
 $add_stopword = $_GET['add_stopword'];
@@ -19,20 +30,34 @@ if ($getStopwords) {
 	header("content-type: text/xml");
 	print $output;	
 }
+
+
+
+
 	
 /**
  * Cleans the stopwords from the array passed as parameter,
  * it returns the clean array.
  */
 function cleanup_stopwords($words) {
-	$stopWords = get_stopwords();
+	$DEBUG=0;
+		$stopWords = get_stopwords();
+		foreach($words as $word) {
+			if ($DEBUG) print "<br>csw($word)? ";
+	    if (!in_array($word, $stopWords))
+			{
+				if ($DEBUG) print " take ";
+				$cleaned_words[]=$word;
+			}
+			else
+			{
+				if ($DEBUG) print " discard ";
+			}
+		}
 	
-	foreach($words as $word) {
-    if (!in_array($word, $stopWords))
-			$cleaned_words[]=$word;
-	}
-
-	return $cleaned_words;
+		if ($DEBUG) print "<br>cleanup_stopwords() returning (".implode(' ',$cleaned_words).")"; 
+	
+		return $cleaned_words;
 }
 
 
@@ -155,9 +180,5 @@ function srv_training_remaining_stopwords($text,$lang)
 	
 	return $training_word;
 }
-
-
-
-
 
 ?>

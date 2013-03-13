@@ -16,9 +16,11 @@ $filename="$BASECLASSNAME.php"; $max=10;
 for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 
-
-include_once("$DOCROOT$UPATH1/SOLRinterface/solr_interface.php");
-
+#Automatically load upper class
+$filename="app/u/SOLRinterface/solr_interface.php"; $max=10;
+#######################################
+for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 	
 class SOZengineSOLR extends SOZengine
 {
@@ -45,7 +47,7 @@ class SOZengineSOLR extends SOZengine
 	
 	
 
-	protected function refine_skosxl_solr_available()
+	public function refine_skosxl_solr_available()
   {
     return true; // overloading base class method
   }
@@ -65,7 +67,7 @@ class SOZengineSOLR extends SOZengine
   /*
    * ENTRY POINT for computation of SKOSXL nodes around "$text"
    */
-	protected function refine_skosxl_solr($text, $q, $m, $lang, $sortrank='standard')
+	public function refine_skosxl_solr($text, $q, $m, $lang, $sortrank='standard')
 	##################################
 	# 
 	# Refines all relevant token in text using $this->refineFunctionName

@@ -31,6 +31,15 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 //else print "<br>NO ROOT?<br>";
 #######################################
 
+//Include FSRC functions inclusive sroot.php
+$filename="fsrc/app/u/stopwords.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+{
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+}
+
+
 	$FONTRED = "<font style=\"color:red;\">";
 	$STYLEFONTSEGMENT=" style=\"color:$COLOR_RODINSEGMENT;font-size:normal;font-weight:bold\" ";
 	$STYLEFONTRESULT=" style=\"color:black;font-size:normal;font-weight:bold\" ";
@@ -197,8 +206,30 @@ function str_limit($string,$maxSize,$middle=false)
 }
 
 
-
-
+/**
+ * Calls preg_match on pattern and text using once u(unicode), and once nothing
+ * returns match vector
+ */
+function uni_preg_match($PATTERN,$text,$MODE='')
+{
+	$DEBUG=0;
+	$uni_match=null;
+	$MODES = array($MODE,$MODE.'u');
+	foreach($MODES as $MODE)
+	{
+		$PATTERNX = $PATTERN.$MODE;
+		$matched=false;
+		if ($DEBUG) print "<br>Trying pattern $PATTERNX on (($text))";
+		if (preg_match($PATTERNX,$text,$match))
+		{
+			$matched=true;
+			$uni_match=$match;
+			if ($DEBUG) print "YES";
+		} else {if ($DEBUG) print "NO";}
+		if ($matched) break;
+	}
+	return $uni_match;
+}
 
 
 
@@ -321,13 +352,24 @@ function clean_html($str)
 
 
 
+/**
+ * eliminates all special puntuation chars
+ */
+function clean_spechalchars($txt)
+{
+	$pattern = '/[\(\)\/]/'; // replace every nonword with ''
+	$text = trim(preg_replace($pattern, '', $txt));
+	
+	//print "<br>clean_spechalchars($txt) returning (($text))";
+	
+	return $text;
+}
 
 
 function fontprint($txt,$txtcolor="black",$fontsize="12pt",$fontart="arial")
 ######################
 {
-print "<font style='color:$txtcolor; font:$fontart;font-size:$fontsize;'>$txt</font>";
-
+	print "<font style='color:$txtcolor; font:$fontart;'> $txt </font>";
 }
 
 

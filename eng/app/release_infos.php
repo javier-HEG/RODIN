@@ -55,6 +55,7 @@ Please report any bug issue to <?php echo $MANTIS ?>
     $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/";
     $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u";
     
+		print "<br><a href='$W3SLABHOMEPAGEURL' target='blank'>RODIN W3S RDF expansion LAB</a>";
     if ($RODINSEGMENT=='x') print "<br><a href='$SRC_U_LINK' target='blank'>SRC METHODS</a>";
     print "<br><a href='$SRC_CONTROL_LINK' target='blank'>SRC MANAGEMENT FOR CURRENT SEGMENT</a>";
     if ($RODINSEGMENT=='x') print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR SOLR</a>";

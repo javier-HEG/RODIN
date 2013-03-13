@@ -60,6 +60,7 @@ class DBPengineSPARQLext extends DBPengine
 			print "<br>find_dbpedia <b>$action</b> to <i><b>'$term'</b></i>: $href_dbpedia_category/$href_dbpedia_normal:<br>";
 		}
 		
+		$term = ucfirst($term); // Always in wikipedia
 		$skos_terms=$this->get_dbpedia_skos_terms($term,$lang,$action);
 		
 		#Add category link to term to form an absolute URI to each skos term

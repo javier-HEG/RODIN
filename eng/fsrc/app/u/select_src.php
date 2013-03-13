@@ -152,6 +152,7 @@ EOP;
 			$POS=$_REQUEST['POS'];
 			$Name=$_REQUEST['Name'];
 			$Activated=$_REQUEST['Activated'];
+			$UsedForSubjects=$_REQUEST['UsedForSubjects'];
 			$forRODINuser=$_REQUEST['forRODINuser'];
 			$AuthUser=$_REQUEST['AuthUser'];
 			$AuthPasswd=$_REQUEST['AuthPasswd'];
@@ -171,6 +172,10 @@ EOP;
 			if (!is_a_value($Activated)) $Activated=0;
 			else if ($Activated=='on') $Activated=1;
 			
+			if (!is_a_value($UsedForSubjects)) $UsedForSubjects=0;
+			else if ($UsedForSubjects=='on') $UsedForSubjects=1;
+
+
 			
 			if($a=='modify')
 			{
@@ -178,6 +183,7 @@ EOP;
 				"UPDATE src_interface
 				 SET 	Name='$Name',
 						Activated=$Activated,
+						UsedForSubjects=$UsedForSubjects,
 						forRODINuser='$forRODINuser',
 						AuthUser='$AuthUser',
 						AuthPasswd='$AuthPasswd',
@@ -387,7 +393,7 @@ EOP;
 						if ($attr == 'Created' || $attr == 'Modified')
 							$DISABLED=' disabled ';
 						
-						if ($attr == 'Activated')
+						if ($attr == 'Activated' || $attr == 'UsedForSubjects')
 							$TYPE='checkbox';
 						else
 						if ($attr == 'AuthPasswd')

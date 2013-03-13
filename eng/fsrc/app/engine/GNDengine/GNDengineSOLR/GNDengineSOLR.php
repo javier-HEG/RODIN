@@ -17,7 +17,11 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 
 
-include_once("$DOCROOT$UPATH1/SOLRinterface/solr_interface.php");
+#Automatically load upper class
+$filename="app/u/SOLRinterface/solr_interface.php"; $max=10;
+#######################################
+for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 
 	
 class GNDengineSOLR extends GNDengine
@@ -44,7 +48,7 @@ class GNDengineSOLR extends GNDengine
 	
 	
 
-	protected function refine_gnd_solr_available()
+	public function refine_gnd_solr_available()
   {
     return true; // at this level.
   }

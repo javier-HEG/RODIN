@@ -2008,7 +2008,7 @@ EOQ;
  * 
  * @param string $USER the id of the user making the request
  */
-function collect_queries_tag($seg,$user) {
+function collect_queries_tag($seg,$user,$sid='') {
 
    global $RESULTS_STORE_METHOD;
     switch($RESULTS_STORE_METHOD)
@@ -2017,7 +2017,7 @@ function collect_queries_tag($seg,$user) {
             return collect_queries_tag_DB($user);
             break;
       case 'solr':
-        		return collect_queries_tag_SOLR($seg,$user);
+        		return collect_queries_tag_SOLR($seg,$user,$sid);
     }
 }
 
@@ -2025,9 +2025,12 @@ function collect_queries_tag($seg,$user) {
 /**
  * Returns a vector of the queries launched by a user.
  *
- * @param string $USER the id of the user making the request
+ * @param string $seg the rodinsegment
+ * @param string $user the user id of the user making the request
+ * @param string $sid the sid of a given query (in this case the method returns a single string (not a vector))
+ * 
  */
-function collect_queries_tag_SOLR($seg,$user) {
+function collect_queries_tag_SOLR($seg,$user,$sid='') {
 
   global $SOLR_RODIN_CONFIG;
   $queries = array();
@@ -2042,9 +2045,12 @@ function collect_queries_tag_SOLR($seg,$user) {
 
   try {
 
+		//$evtl_sid=$sid?"sid:$sid%20":'';
+		$evtl_sid=$sid?"$sid%20":'';
     $solr_result_query_url=$solr_select
         ."wt=xml"
         ."&q=user:$user%20seg:$seg%20"
+        .$evtl_sid
         ."&fl=query"
         ."&omitHeader=true"
         ."&rows=100000"
@@ -2060,6 +2066,10 @@ function collect_queries_tag_SOLR($seg,$user) {
     {
       $queries[]= $DOC->str.'';
     }
+
+		if ($sid) // we need just ONE
+			$queries=$queries[0];
+
 
     return $queries;
   }
@@ -2280,14 +2290,18 @@ function register_SRC_REFINE_INTERFACES($USER_ID)
 
 
 
-
-function initialize_SRC_MODULES( $USER_ID )
+/**
+ * in case $CONDITION is set, it must be something like
+ * " AND column=value "
+ */
+function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 ######################################################
 #
 # Returns a javascript text:
 # to be executed
 # at the main level (index_connected)
 {
+		if (!$USER_ID) fontprint("initialize_SRC_MODULES called with empty USER",'red');
 		$AJAX='';
 		//FETCH PREFS FROM DB
 			$QUERY_GET="
@@ -2295,6 +2309,7 @@ function initialize_SRC_MODULES( $USER_ID )
 				FROM src_interface
 				WHERE	forRODINuser=$USER_ID
 					AND Activated=1
+					$CONDITION
 				ORDER BY POS ASC
 			";
 			$DB = new RODIN_DB('rodin');
@@ -2320,6 +2335,7 @@ function initialize_SRC_MODULES( $USER_ID )
 				$Servlet_Refine	=$REC['Servlet_Refine'];
 				$Servlet_Test		=$REC['Servlet_Test'];
 
+				$RECS[]=$REC;
 				//print "<br>Servletname:$Servletname";
 
 				/*
@@ -2337,6 +2353,7 @@ function initialize_SRC_MODULES( $USER_ID )
 			$RES_OBJ = array(
 					'ajax_init_src_code' => $AJAX,
 					'src_interface_specs' => $SRC_REFINE_INTERFACE_SPECS,
+					'records' 					=>   $RECS
 			);
 
 			return ($RES_OBJ);

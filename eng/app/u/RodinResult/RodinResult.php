@@ -14,6 +14,8 @@ class BasicRodinResult {
 	private $score; //SOLR score on morelikethis queries
 	private $authors;
 	private $date;
+	private $is_rdfized; //triples from this result were generated and inserted into store
+	public  $RDFenhancement; 
 	protected $id; // SOLR ID or DB RECORD ID
 	protected $sid;
 	
@@ -25,8 +27,9 @@ class BasicRodinResult {
 	public function __construct($resultType = RodinResultManager::RESULT_TYPE_BASIC) {
 		$this->resultProperties = array();
 		$this->validProperties = array();
-		
 		$this->resultType = $resultType;
+		$this->is_rdfized=false;
+		$this->RDFenhancement = null;
 	}
 	
 	/**
@@ -385,6 +388,33 @@ class BasicRodinResult {
 		return $string;
 	}
 
+	
+	
+	/**
+	 * Generate triples into local store 'rodin'
+	 * which will be taken as a basis for further 
+	 * semantic expansions (meshups)
+	 */
+	public function rdfize($sid,$datasource,$searchterm,$USER_ID)
+	{
+		
+		include_once("RodinRDFResult.php");
+		
+		//Sets as class var the RDF helper
+		if (! $this->RDFenhancement)
+			$this->RDFenhancement = new RodinRDFResult($this,$datasource,$searchterm,$USER_ID);
+		$RDF = $this->RDFenhancement;
+		$this->is_rdfized = true;
+			
+		$ok = $RDF->rdfize($sid);
+		
+		return $ok;
+	} // rdfize 
+	
+	
+	
+	
+	
 	/**
 	 * This method sets a property of the result. However, since
 	 * different kinds of results accept only some properties, if

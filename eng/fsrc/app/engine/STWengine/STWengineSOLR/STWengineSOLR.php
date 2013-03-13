@@ -17,7 +17,11 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 
 
-include_once("$DOCROOT$UPATH1/SOLRinterface/solr_interface.php");
+#Automatically load upper class
+$filename="app/u/SOLRinterface/solr_interface.php"; $max=10;
+#######################################
+for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 
 	
 class STWengineSOLR extends STWengine
@@ -65,14 +69,14 @@ class STWengineSOLR extends STWengine
 	
 	
 
-	protected function refine_skos_solr_available()
+	public function refine_skos_solr_available()
   {
     return true; // overloading base class method
   }
 	
   
   
-  protected function refine_method($term,$action,$lang)
+  public function refine_method($term,$action,$lang)
   {
     // obsolete ... is here for the sake of class completeness
   }   
@@ -85,7 +89,7 @@ class STWengineSOLR extends STWengine
   /*
    * ENTRY POINT for computation of SKOS nodes around "$text"
    */
-	protected function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard')
+	public function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard')
 	##################################
 	# 
 	# Refines all relevant token in text using $this->refineFunctionName
@@ -165,7 +169,7 @@ class STWengineSOLR extends STWengine
   
   
   
-  protected function refine_skos_solr_method($term,$m,$lang)
+  public function refine_skos_solr_method($term,$m,$lang)
 	############################################################
   # Find Terme related to $action 
 	{ 

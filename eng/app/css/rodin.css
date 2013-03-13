@@ -46,12 +46,10 @@ div#crashwarning {
   color:#999;
 } 
 
-.admicontact
+a.admicontact
 {
   color: #3399FF;
-  text-decoration:#3399FF;
-  text-decoration-line: underline;
-} 
+}  
 
 div#rodinmetasearch {
 	/* Same as div#breadcrumbs in rodinBoard.css */
@@ -110,10 +108,10 @@ div#div_tagcloud_conn {
 div#helpbuttonid
 {
 	position:relative;
-	//top: -97px;//See code (browser dependent)
+	/*top: -97px;//See code (browser dependent)*/
 	z-index:17;
 	border:none;
-	padding:none;
+	/*padding:none;*/
 }
 
 div#explbuttonid
@@ -122,7 +120,7 @@ div#explbuttonid
 	z-index:19;
 	background:white;
 	border:none;
-	padding:0;
+	/*padding:0;*/
 }
 
 span.reftextarea {
@@ -201,4 +199,107 @@ srcmultiplecontainer.span.reftextarea
 {
   color: #3399FF;
   font-weight: bold;
+}
+
+
+
+
+/* RDF Section */
+.tripletable
+{
+	background-color:#FFeeee;
+}
+
+div.headertripelpage
+{
+	background-color:<?php print $TRIPLEPAGE_COLOR_BG_DARKER;?> ;
+	padding:2px;
+}
+
+
+body.triplepage
+{
+	margin:3px;
+	background-color:<?php print $TRIPLEPAGE_COLOR_BG_DARKER;?> ;
+}
+
+hr.triplepage
+{
+	color:lightgray;
+}
+
+table.triplepagetable
+{
+	background-color: <?php print $TRIPLEPAGE_COLOR_BG_LIGHTER;?> ;
+	padding:2px;
+}
+
+
+table.triplepagetable .even td {
+    background: <?php print $TRIPLEPAGE_COLOR_BG_WHITE; ?>;
+}
+
+
+table#triplepageframe tbody tr td span.triplepage
+{
+	color:gray;
+	font-size:small;	
+}
+
+table#triplepageframe tbody tr td span.triplepagei
+{
+	color:gray;
+	font-style:italic;
+	font-size:small;	
+}
+
+
+div.triplepagediv
+{
+	border: 1px solid black;
+	background-color:<?php print $TRIPLEPAGE_COLOR_BG_LIGHTER;?>
+}
+
+
+div#header div
+{
+	color:black;
+	font-size:small;
+	font-style:italic;
+	margin-top:5px;
+	margin-bottom:20px;
+}
+
+div#header h2#title
+{
+	margin:0;
+	margin-top:5px;
+	margin-bottom:2px;
+	color:black;
+}
+
+.triplepagetable a 
+{
+	text-decoration:none;
+}
+
+a.about small,
+.triplepagetable a small 
+{
+	color: <? print $TRIPLEPAGE_COLOR_NSLINK; ?>;
+}
+
+ul.rodinpedia
+{
+ margin:0;
+}
+
+div#headerlogo
+{
+}
+
+a.mantisissueurl
+{
+	text-decoration:none;
+	color:#AAAAAA;
 }

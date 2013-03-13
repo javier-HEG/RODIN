@@ -12,13 +12,22 @@ include_once("tests/Logger.php");
 
 $_SESSION['RODINVERSION'] = '2.5';
 
-
+$PROGRAMNAME='RODIN';
+$VERSION='3';
 
 
 $RODIN_APPNAME = "RODIN";
 
 #############################################
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
+
+#############################################
+# 20130312FRI - The following is used during 
+# development of the rdf lab
+$WANT_RFLAB=true;
+#
+#############################################
+
 
 if (preg_match("/Mobile/",$userAgent))
 	$BROWSER='Mobile';
@@ -144,6 +153,9 @@ $RODINU = "$RODINROOT/$RODINSEGMENT/app/u";
 $STOPWORD_SERVER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/stopwords.php";
 $TAGCLOUDRESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/TagCloudResponder.php";
 $AUTOCOMPLETERESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/AutoCompleteResponder.php";
+$RDFSEMEXPLABURL = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/tests/semexp.php";
+
+
 
 $CURL_COOCKIEDIR = "$DOCROOT$RODINROOT/gen/u/tmp";
 
@@ -153,6 +165,7 @@ $BASESERVERROOT = str_replace("/htdocs","",$DOCROOT);
 
 $POSHDOCROOT = "$RODIN/posh";
 $POSHWEBROOT = "$WEBROOT$RODINROOT/$RODINSEGMENT/posh";
+$POSHIMGWEBROOT = "$WEBROOT$RODINROOT/$RODINSEGMENT/posh/images";
 
 $RODINCACHE = "$RODINROOT/$RODINSEGMENT/posh/cache";
 
@@ -183,8 +196,24 @@ $MLT_ICON = $RODINIMAGESURL . '/rank-icon.png';
 //Tag-cloud icon
 $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';
 
-
+//LOGO
+$RODINLOGO=$POSHIMGWEBROOT . '/logo_portal.gif';
 #############################################
+
+$W3SLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/tests/semexp.php";
+
+$MANTIS_REPORTISSUE=str_replace(" ","+",
+										"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=Please describe the subject of your issue here"
+										."&description=Following issue on $PROGRAMNAME $VERSION: \n\n");
+$URL_MANTIS=<<<EOM
+<a class="mantisissueurl" 
+		target="blank" 
+		href="$MANTIS_REPORTISSUE" 
+		title="Click to open a mantis issue on $PROGRAMNAME version $VERSION"
+		 - For any idea, suggestion or error reporting please
+		 - click to open a mantis issue">open a mantis issue</a>
+EOM;
+
 
 ########################################################################
 # First batch of administrator parameters on DB
@@ -253,7 +282,8 @@ $DBPEDIATIMEOUT_MSEC = $FSRC_CURL_TIMEOUT_SEC * 1000 - 200;
 $INTERNET_CHECK_TIMEOUT = 2;
 
 $CALLING_TIMEOUT_SEC = 15;
-$WIDGET_SEARCH_MAX = 15000; //msek = 10sec
+$WIDGET_SEARCH_MAX = 15000; //msek = 15sec
+$SRC_SEARCH_MAX = 15000; //msek = 15sec
 ###########################################
 
 ########################################################################
@@ -265,6 +295,7 @@ $LOCAL_DBPEDIA_ARC_NAME = 'test';
 ########################################################################
 
 $LANGUAGE_DETECTOR="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/LanguageDetector.php";
+$LANGUAGE_DETECTION="$DOCROOT$RODINROOT/$RODINSEGMENT/app/u/LanguageDetection.php";
 
 #######################################
 # SRC Params
@@ -289,6 +320,11 @@ $SRC_MAXRESULTS = 15;
 		/* stop after 100 errors */
 		'max_errors' => 100,
 	);
+	
+	
+	
+	
+	
 	
 	#SRC DB
 	$SRCDB_DBNAME				=getA('SRCDB_DBNAME');

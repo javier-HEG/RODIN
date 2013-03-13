@@ -154,17 +154,17 @@ abstract class SRCengine implements SRCEngineInterface {
 		return $this->term_separator;
 	}
   
-  protected function refine_skos_solr_available()
+  public function refine_skos_solr_available()
 	{
     return false; // at this level. (overloading base class method)
 	}
 	
-  protected function refine_skosxl_solr_available()
+  public function refine_skosxl_solr_available()
   {
     return false; // at this level. (overloading base class method)
   }
 
-  protected function refine_gnd_solr_available()
+  public function refine_gnd_solr_available()
   {
     return false; // at this level. (overloading base class method)
   }
@@ -191,7 +191,6 @@ abstract class SRCengine implements SRCEngineInterface {
   
   
   /**
-	 *
 	 * Tunes the ontology on term in $v and construct a response to 
    * a refinement. Uses a cache technique for equal requests.
    * This function responds to an SRC web requests 
@@ -239,13 +238,21 @@ abstract class SRCengine implements SRCEngineInterface {
           break;
 
         case 'preall':
-          
-          $RESULTS_P = $this->preprocess_refine(($v), $this->getWordbinding(), $lang);
-          
+          if(trim($v)) // something to preprocess?
+					{
+	          $RESULTS_P = $this->preprocess_refine(($v), $this->getWordbinding(), $lang);
+						$preprocessed=$RESULTS_P->results;
+					}
+					else // no $v given - use directly q
+					{
+						if ($this->srcdebug || $this->verbose) print "<br>SKIP PREPROCESSING, USE ($q)";
+						$preprocessed=$q;
+					}
+					
           if ($this->refine_skos_solr_available()) {
               
               list($RESULTS_B,$RESULTS_N,$RESULTS_R) 
-                      = $this->refine_skos_solr( $RESULTS_P->results, 
+                      = $this->refine_skos_solr( $preprocessed, 
                                                  ($q), 
                                                  $this->maxresults, 
                                                  $lang,
@@ -254,7 +261,7 @@ abstract class SRCengine implements SRCEngineInterface {
           else if ($this->refine_skosxl_solr_available()) {
               
               list($RESULTS_B,$RESULTS_N,$RESULTS_R) 
-                      = $this->refine_skosxl_solr( $RESULTS_P->results, 
+                      = $this->refine_skosxl_solr( $preprocessed, 
                                                  ($q), 
                                                  $this->maxresults, 
                                                  $lang,
@@ -263,7 +270,7 @@ abstract class SRCengine implements SRCEngineInterface {
           else if ($this->refine_gnd_solr_available()) {
               
               list($RESULTS_B,$RESULTS_N,$RESULTS_R) 
-                      = $this->refine_gnd_solr( $RESULTS_P->results, 
+                      = $this->refine_gnd_solr( $preprocessed, 
                                                  ($q), 
                                                  $this->maxresults, 
                                                  $lang,
@@ -271,9 +278,9 @@ abstract class SRCengine implements SRCEngineInterface {
           } 
           else
           {
-            $RESULTS_B = $this->refine('broader', $RESULTS_P->results, ($q), $this->maxresults, $lang, $sortrank);
-            $RESULTS_N = $this->refine('narrower', $RESULTS_P->results, ($q), $this->maxresults, $lang, $sortrank);
-            $RESULTS_R = $this->refine('related', $RESULTS_P->results, ($q), $this->maxresults, $lang, $sortrank);
+            $RESULTS_B = $this->refine('broader', $preprocessed, ($q), $this->maxresults, $lang, $sortrank);
+            $RESULTS_N = $this->refine('narrower', $preprocessed, ($q), $this->maxresults, $lang, $sortrank);
+            $RESULTS_R = $this->refine('related', $preprocessed, ($q), $this->maxresults, $lang, $sortrank);
           }
           
 					if ($this->verbose) {
@@ -284,8 +291,7 @@ abstract class SRCengine implements SRCEngineInterface {
 						print "<hr>RELATED: <br>"; var_dump($RESULTS_R);
 						print "<hr>";
 					}
-          // Needs to be cleaned because they're obtained directly from
-          // $this->get_english_candidate_compounds
+         
           $srv_p = base64_encode($this->cleanup_viki_tokens($RESULTS_P->results));
           $srv_p_raw = base64_encode($RESULTS_P->results_raw);
 
@@ -498,8 +504,6 @@ EOF;
 			$restterms = trim_array(explode(' ',array_pop ($chunks)));
 		}
 		
-		
-		
 		//enumerate the words
 		for($i=0;$i<count($chunks);$i++)
 			$numberof[$chunks[$i]]=$i;
@@ -677,6 +681,13 @@ EOF;
 		}
 		else // split by comma:	
 			$words=explode($TERM_SEPARATOR,$text);
+
+		if ($this->srcdebug) {
+			print "<br>SRCengine: Refining using text($text) and q($q) and m($m)"; 
+			var_dump($words);
+	 	}
+		
+
 
 		if ($ok)
 		{

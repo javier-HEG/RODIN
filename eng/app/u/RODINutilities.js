@@ -3511,4 +3511,12 @@ function get_rb_selected_val(radiobuttons)
 	return val;
 }
 
+
+function open_ns(ns)
+{
+	ns = ns.replace('\\','');
+	//alert('open_ns: '+ns);
+	window.open(ns,'_blank');
+}
+
 //alert('RODINutilities.js loaded');

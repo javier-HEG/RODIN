@@ -127,7 +127,6 @@ abstract class DBPengine extends SRCengine
 		}
 		####################################################################
 		else {
-			
 			$candidate_query_terms_str = group_contigous_words($terms,$lang);
 			if($this->getSrcDebug()) 
 			{
@@ -302,6 +301,8 @@ abstract class DBPengine extends SRCengine
 		}
 			
 		$res_disambiguated_terms = implode($TERM_SEPARATOR, $disambiguated_terms);
+		if (trim($res_disambiguated_terms) == '')
+		$res_disambiguated_terms=$term;
     
     if($this->getSrcDebug()) {
 			print "\n<br>DPengine->suggest_dbpedia_term res_disambiguated_terms: ($res_disambiguated_terms)";

@@ -1,0 +1,1296 @@
+<?php
+
+/**
+ * An RDF enhancement to the basic rodin result
+ * A helper class
+ * @author Fabio Ricci fabio.ricci@ggaweb.ch
+ *  */
+ 
+//Include ARC2 LOCAL STORE INFOS
+$filename="u/arcUtilities.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+
+
+
+//Include ARC2 LOCAL STORE INFOS
+$filename="fsrc/gen/u/arc/ARC2.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+			
+
+class RodinRDFResult {
+	
+	private $my_result; //triples from this result were generated and inserted into store
+	public  static $USER_ID						= null; 
+	public  static $importGraph				= null;
+	public  static $searchterm				= null; 
+	public  static $datasource				= null; 
+	public  static $storename 				='rodin_rdf'; // Name of store where to insert triples
+	public  static $store 						= null; // ARC localstore Config obj
+	public  static $ownnamespacename 	='rodin';
+	public 	static $NAMESPACES 				= null; // namespaces
+	public	static $NAMESPACES_PREFIX = null;
+	public  static $TOBECODED64 			= null; // to be used inside a SPARQL query
+	private static $PUBBLICATION_URL 	= null; // to see/navigate/access triples
+	public  static $one_work = null; // root node for triples page
+	private static $TERM_SEPARATOR    =',';
+	private static $DBPEDIA_BASE="http://dbpedia.org";
+	private static $WIKIPEDIABASE="http://en.wikipedia.org";
+	private static $DBPEDIA_SPARQL_ENDPOINT = "http://dbpedia.org/sparql";
+	private static $WIKIPEDIABASEURL="http://en.wikipedia.org/wiki";
+	private static $WIKIPEDIASEARCH= "http://en.wikipedia.org/w/api.php?action=opensearch&format=xml";
+	private static $WIKIPEDIASEARCH2="http://en.wikipedia.org/w/index.php?";
+
+	public function RodinRDFResult(&$my_result,$datasource,$searchterm,$USER_ID) {
+		$this->my_result = $my_result;
+		//init namespaces & co once for all 
+		global $HOST, $RODINSEGMENT;
+		
+		if (!RodinRDFResult::$USER_ID) 					RodinRDFResult::$USER_ID					=$USER_ID;
+		if (!RodinRDFResult::$datasource) 			RodinRDFResult::$datasource				=$datasource;
+		if (!RodinRDFResult::$searchterm) 			RodinRDFResult::$searchterm				=$searchterm;
+		if (!RodinRDFResult::$importGraph) 			RodinRDFResult::$importGraph			="http://$HOST/rodin/w3s/";
+		if (!RodinRDFResult::$PUBBLICATION_URL) RodinRDFResult::$PUBBLICATION_URL	="http://$HOST/rodin/$RODINSEGMENT/app/w3s";
+		
+		//print "<br>INITIALIZING RodinRDFResult ... HOST=$HOST RODINSEGMENT=$RODINSEGMENT, PUBBLICATION_URL=".$this->PUBBLICATION_URL;
+		
+		if (!is_array(RodinRDFResult::$NAMESPACES))
+				RodinRDFResult::$NAMESPACES= array(
+					'foaf'	=> 'http://xmlns.com/foaf/0.1/',
+					'rdf'		=> 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+			    'rdfs'	=> 'http://www.w3.org/2000/01/rdf-schema#',
+			    'geo'		=> 'http://www.w3.org/2003/01/geo/wgs84_pos#',
+					'dbo'		=> 'http://dbpedia.org/ontology/',
+			    'dc'		=> 'http://purl.org/dc/elements/1.1/',
+			    'bio'		=> 'http://vocab.org/bio/0.1/',
+			    'bibo'	=> 'http://bibliontology.com/bibo/bibo.php#',
+			    'rodin'	=> RodinRDFResult::$PUBBLICATION_URL.'/resource/',
+		     );
+
+	 if (!is_array(RodinRDFResult::$TOBECODED64)) 
+	 		RodinRDFResult::$TOBECODED64 = array('dc:description','masic:title_orig','masic:subtitle_orig','masic:genealogic_tree','masic:abbreviation');
+
+		// Build NAMESPACES_PREFIX
+		if (! RodinRDFResult::$NAMESPACES_PREFIX)
+		{
+			if (is_array(RodinRDFResult::$NAMESPACES) && count (RodinRDFResult::$NAMESPACES))
+				foreach(RodinRDFResult::$NAMESPACES as $ns=>$nsurl)
+					RodinRDFResult::$NAMESPACES_PREFIX.="PREFIX $ns: <$nsurl>\n";	
+		}
+		
+		if (!RodinRDFResult::$store)
+		{
+			//print "<br>INITIALIZING STORE ".RodinRDFResult::$storename;
+			global $ARCCONFIG;
+			$LOCALCONFIG=$ARCCONFIG;
+	    $LOCALCONFIG{'store_name'}=RodinRDFResult::$storename;
+	    RodinRDFResult::$store = ARC2::getStore($LOCALCONFIG);
+	    if (!RodinRDFResult::$store->isSetUp()) {
+	       RodinRDFResult::$store->setUp();
+	    } else
+				{
+					//Only iff the constructor is called with a result: 
+					//ant only the first time when not yet initialized: 
+					//reset triples in store!
+					if ($my_result) 
+						RodinRDFResult::$store->reset(); // clear store from Triples!
+				}
+	  }
+	}
+	
+	
+	
+	/**
+	 * Generate triples into local store 'rodin'
+	 * which will be taken as a basis for further 
+	 * semantic expansions (meshups)
+	 * 1. generates triples
+	 * 2. inport triples into store
+	 * @param string $searchterm the searchterm for this result
+	 */
+	public function rdfize( $sid )
+	{
+		$DEBUG=0;
+		$triple= array();
+		//Do we have one or more authors?
+		$authors= $this->my_result->getAuthors() 
+							?explode(',',$this->my_result->getAuthors())
+							:null;
+		$isbn= $this->extract_isbn($this->my_result->getProperty('isbn')); 
+		$title= $this->my_result->getTitle(); 
+		$date = $this->my_result->getDate();
+		$urlPage = $this->my_result->getUrlPage();
+		$publisher = $this->my_result->getProperty('publisher');
+		$datasource_subjects = explode(',',strtolower(trim($this->my_result->getProperty('subjects'))));
+		
+		//print "<br>Datasource >Subjects (".$this->my_result->getProperty('subjects').")";
+		
+		//Prepare title category etc ... if possibile
+		list($title,$category,$presentation_at,$date_event) = $this->scan_datasource_title($title,RodinRDFResult::$datasource);
+		$additional_subjects=$this->compute_subjects(RodinRDFResult::$searchterm,$title,RodinRDFResult::$datasource);
+
+
+		//print "<br>ADDITIONAL Subjects (".implode('+',$additional_subjects).")";
+
+		$uniquesubjects=array();
+		foreach( $additional_subjects as $sss)
+		{
+			$sss_arr=explode(' ',$sss);
+			foreach($sss_arr as $s)
+			{
+				if (!in_array($s,$uniquesubjects))
+				{
+					$uniquesubjects[]=$s;
+				}}}
+		
+		$subjects=array_unique(array_merge($datasource_subjects,$additional_subjects,$uniquesubjects));
+		//print "<br>FINAL Subjects (".implode('+',$subjects).")";
+		
+		$skos_subjects = $this->get_subject_related_to_from_thesauri(	$subjects,
+																																	$sid,
+																																	RodinRDFResult::$USER_ID,
+																																	RodinRDFResult::$searchterm  );
+		
+		//If a work document is given: rdfize it
+		//first of all create workuid
+		if ($isbn)
+			$work_uid=RodinRDFResult::$ownnamespacename.':'.'isbn_'.$isbn;
+		else // in case no isbn be provided:
+		if ($title) // a title HAS ALWAYS to be there
+			$work_uid = $this->getWork_uid($title, $date);
+
+		//Are there one or more authors?
+		if (is_array($authors) && count($authors))
+		foreach($authors as $author)
+		{
+			$authors_uid{RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($author)} = $author;
+		} // authors
+		
+		//is there a publisher?
+		if ($publisher)
+		{
+			 $publishers_uid{RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($publisher)} = $publisher;
+		}
+		
+		
+		//Publish the work:
+		if ($work_uid)
+		{
+				$triple[]=array($work_uid,		'rdf:type', 		'dc:BibliographicResource'); 
+				$triple[]=array($work_uid,		'dc:title', 		l($title)); 
+				if ($isbn)
+					$triple[]=array($work_uid,	'bibo:isbn', 		l($isbn)); 
+				if($date)
+					$triple[]=array($work_uid,	'dc:date', 			 l($date)); 
+				if($urlPage) {
+					$triple[]=array($work_uid,	'dc:source', 		 l($urlPage)); 
+				}
+				
+				//Add subjects
+				if (is_array($subjects) && count($subjects))
+				{
+					foreach($subjects as $subject)
+					{
+						if($subject)
+						{
+							$subject_uids[]=$subject_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($subject);
+							//print "<br>Adding subject: ($subject)";
+							$triple[]=array($work_uid,	'dc:subject', 	$subject_uid); 
+							$triple[]=array($subject_uid,	'rdf:type', 	'dc:subject'); 
+							$triple[]=array($subject_uid,	'rodin:label', l($subject)); 
+							
+							$subject=strtolower($subject);
+							//add related subjects from thesauri to s
+							if (count(($SKOS=$skos_subjects{$subject})))
+							{
+								list($broaders,$narrowers,$related) = $SKOS;
+
+								if (count($broaders))
+								foreach($broaders as $bs)
+								{
+									if (strtolower($bs)<>$subject)
+									{
+										if ($DEBUG) print "<br>asserting ($s broader $bs)";
+										$bs_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($bs);
+										$triple[]=array($subject_uid,	'rodin:broader', 					$bs_uid); 
+										$triple[]=array($subject_uid,	'rodin:subject_related', 	$bs_uid); 
+										$triple[]=array($bs_uid,			'rodin:label', 	 					l($bs)); 
+										$triple[]=array($bs_uid,			'rdf:type', 	 						'dc:subject'); 
+									}
+								}
+
+								if (count($narrowers))
+								foreach($narrowers as $ns)
+								{
+									if (strtolower($ns)<>$subject) 
+									{
+										if ($DEBUG) print "<br>asserting ($s narrower $ns)";
+										$ns_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($ns);
+										$triple[]=array($subject_uid,	'rodin:narrower', 				 $ns_uid); 
+										$triple[]=array($subject_uid,	'rodin:subject_related', 	 $ns_uid); 
+										$triple[]=array($ns_uid,			'rodin:label', 	 					l($ns));
+										$triple[]=array($ns_uid,			'rdf:type', 	 						'dc:subject'); 
+									}
+								}
+
+								if (count($related))
+								foreach($related as $rs)
+								{
+									if (strtolower($rs)<>$subject) 
+									{
+										if ($DEBUG) print "<br>asserting ($s related $rs)";
+										
+										$rs_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($rs);
+										$triple[]=array($subject_uid,	'rodin:related', 					$rs_uid); 
+										$triple[]=array($subject_uid,	'rodin:subject_related', 	$rs_uid); 
+										$triple[]=array($rs_uid,			'rodin:label', 	 					l($rs)); 
+										$triple[]=array($rs_uid,			'rdf:type', 	 						'dc:subject'); 
+									}
+								}
+							} // add related subjects from thesauri to s
+						} // nonzero sobject
+					} // for subjects
+				} // subjects
+		} // $work_uid
+		
+		// add/link author information:
+		if (is_array($authors_uid) && count($authors_uid))
+		foreach($authors_uid as $author_uid=>$authortxt)
+		{
+			$triple[]=array($author_uid, 	'rdf:type', 		'foaf:Person'); 
+			$triple[]=array($author_uid, 	'foaf:name', 		l($authortxt)); 
+			$triple[]=array($author_uid, 	'rodin:name', 	l($authortxt)); 
+			$triple[]=array($author_uid, 	'dc:creator', 	 $work_uid); 
+			$triple[]=array($author_uid,	'rodin:author',  $work_uid);
+			if ($isbn) 
+				$triple[]=array($author_uid, 	'bibo:isbn', 		l($isbn)); 
+			if ($urlPage)
+				$triple[]=array($author_uid,	'foaf:Document', l($urlPage)); 
+			
+			
+			//Link author writes about subjects
+			if (is_array($subject_uids) && count($subject_uids))
+			{
+				foreach($subject_uids as $subject_uid)
+					$triple[]=array($author_uid, 'rodin:writes_about', $subject_uid); 
+			} // some subjects
+		} //authors_uid
+		
+		//add/link publisher information:
+		if (is_array($publishers_uid) && count($publishers_uid))
+		foreach($publishers_uid as $publisher_uid=>$publisher_txt)
+		{
+			$triple[]=array($publisher_uid, 'rdf:type', 		'foaf:Person'); 
+			$triple[]=array($publisher_uid,	'foaf:name', 		l($publisher_txt)); 
+			$triple[]=array($publisher_uid,	'rodin:name', 	l($publisher_txt)); 
+			$triple[]=array($publisher_uid,	'dc:publisher', 		$work_uid); 
+			$triple[]=array($publisher_uid,	'rodin:publisher', 	$work_uid); 
+			
+			//Link author writes about subjects
+			if (is_array($subject_uids) && count($subject_uids))
+			{
+				foreach($subject_uids as $subject_uid)
+					$triple[]=array($publisher_uid, 'rodin:writes_about', $subject_uid); 
+			} // some subjects
+				
+		} // publishers
+		
+	
+		
+		// IMPORT TRIPLE INTO LOCAL STORE:
+		if (is_array($triple) && count($triple))
+			$statistics = $this->import_triples($triple);
+
+		//if ($statistics) print "<hr>$statistics";
+		
+				
+		return $statistics; //false or sth
+	} // rdfize 
+	
+	
+	
+	
+	
+	
+	/**
+	 * Imports triples into store
+	 * @param $storename The store to be used
+	 * @param $triples A vector of triples (arrays(s,p,o))
+	 * returns: Statistic object reflecting import process
+	 * 
+	 * Important: the object of a triple must have <> or "" to denote literal
+	 */
+	function import_triples(&$triples)
+	{
+		$GRAPH=RodinRDFResult::$importGraph;
+		$NAMESPACES_PREFIX = RodinRDFResult::$NAMESPACES_PREFIX;
+		$TRIPLETEXT="
+		$NAMESPACES_PREFIX
+    INSERT INTO <$GRAPH> 
+    {";
+ 	
+		
+		
+		foreach($triples as $triple)
+		{
+			$s=$triple[0];
+			$p=$triple[1];
+			$o=cleanup4literal($triple[2]); // literals might contain ' '' ... addslashes?
+			
+	  	$TRIPLETEXT.="\n $s $p $o .";
+		}
+		
+		$TRIPLETEXT.='}';
+		
+		$debug=0;
+		if($debug) print "<br>ARC CONSTRUCTING: <hr>".str_replace("\n","<br>",htmlentities($TRIPLETEXT));	
+		
+		$num_triples_before=count_ARC_triples(RodinRDFResult::$store);
+    $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
+
+    //We need on the server at HEG to enhance php execution time limit, 
+    //since this server is slowlee and need more time than the local power macs
+    set_time_limit ( 1000000 ); // 250h -> Feature in 5.3.0 deprecated, in 5.4.0 deleted - but useful right now
+    $rs=NULL;
+    $repetitions=0;
+    $added_triples=0;
+		
+    $rs= RodinRDFResult::$store->query($TRIPLETEXT);
+    $added_triples = intval($rs['result']['t_count']);
+    $repetitions++;
+    if (($errs = RodinRDFResult::$store->getErrors())) {
+
+      foreach($errs as $err)
+      fontprint("<br>ARC ERROR: $err",'red');
+			print "<hr>ARC CONSTRUCTING USING: <br>".str_replace("\n","<br>",htmlentities($TRIPLETEXT));	
+			
+    }
+    
+		$duration = $rs['query_time'];
+		//$added_triples = $rs['result']['t_count'];
+		$load_time = $rs['result']['load_time'];
+
+    $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
+
+    $added_triples_formatted=number_format($added_triples, 0, '.', "'");
+
+	  $delta_triples=abs($num_triples_before - $added_triples);
+	  $delta_triples_formatted=number_format($delta_triples, 0, '.', "'");
+	 
+	  $verb= ($delta_triples==0)?'Updated':'Loaded';  
+    
+		if ($delta_triples > 0)
+		$EVTL_ADDED="Added $delta_triples_formatted triples";
+		
+    if ($added_triples==0) 
+        $statistics=null;
+    else
+    { 
+      $num_triples_after=count_ARC_triples(RodinRDFResult::$store);
+      $num_triples_after_formatted=number_format($num_triples_after, 0, '.', "'");
+      
+      $triples_delta=$num_triples_after - $num_triples_before;
+      $EVTL_DELTA=" (delta triples=$triples_delta)";
+        
+      $REPS=($repetitions>1)?" ($repetitions repetitions)":"";
+      $ESITO=($added_triples>0)
+                  ?"$added_triples triples$EVTL_DELTA$REPS"
+                  :"<b><font style='color:red'>No triples ($added_triples_formatted) added after $repetitions repetitions</font></b>";
+      $statistics="Triple file processed: $ESITO, duration: $duration sec, load_time: $load_time sec - total triples after processing: $num_triples_after_formatted";
+    }
+    //Avoid updating statistics if no triples added...
+    
+    
+    return $statistics;
+		
+	} // import_triples
+	
+	
+	
+	/**
+		 * Construct an id for SPQRQL USE
+		 * using name, born and place of birth
+		 * returns uid (string)
+		 */
+		public function getWork_uid($title,$date,$namespace_short='rodin')
+		{
+				$wuid_short=
+						$namespace_short.':'
+							.RodinRDFResult::adapt_name_for_uid($title).'_'
+							.RodinRDFResult::adapt_name_for_uid($date);
+			return $wuid_short;
+		} // getWork_uid
+	
+	
+	/**
+		 * Construct an id for SPQRQL USE
+		 * using name, born and place of birth
+		 * returns uid (string)
+		 */
+		public function getAuthor_uid($namespace_short='rodin_result')
+		{
+			//retrieve/generate uid long:
+			if ($this->author_uid_long)
+				$uid_long = $this->author_uid_long;
+			else {
+				$uid_long= 
+							$namespace_short.':'
+							.RodinRDFResult::adapt_name_for_uid($this->masic_author_name).'_'
+							.RodinRDFResult::adapt_name_for_uid($this->masic_author_no).'_'
+							.RodinRDFResult::adapt_name_for_uid($this->masic_author_fromplace).'_'
+							.RodinRDFResult::adapt_name_for_uid($this->masic_author_life_range);
+				$this->author_uid_long=$uid_long;
+			} 
+					
+			//retrieve/generate uid short (to be used with a redirect):
+			if ($this->author_uid_short)
+				$uid_short = $this->author_uid_short;
+			else {
+				$uid_short= 
+							$namespace_short.':'
+							.RodinRDFResult::adapt_name_for_uid($this->masic_author_no).'__'
+							.RodinRDFResult::adapt_name_for_uid($this->masic_author_life_range);
+				$this->author_uid_short=$uid_short;
+			}
+			
+			//print "<br>getAuthor_uid($namespace_short)=list($uid_long,$uid_short)";
+			
+			return array($uid_long, $uid_short);
+		} // getAuthor_uid
+
+	
+	
+	  public static function adapt_name_for_uid($str,$allowed_chars="-")
+		{
+			$maxlen=32; // limit each output to maxlen
+			$SUBST=(strstr($allowed_chars,' '))?'_':'';
+			$str = str_replace(' ',$SUBST,$str);
+	
+			$SUBST=(strstr($allowed_chars,'-'))?'_':'';
+			$str = str_replace('-',$SUBST,$str);
+			
+			$str = str_replace('(','_',$str);
+			$str = str_replace(')','_',$str);
+			$str = str_replace('/','_',$str);
+			$str = str_replace('.','_',$str);
+			
+			// allow only normal chars...
+			$language_specialcharsdd='ßÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
+			$pattern = '/[^A-Za-z0-9'.$language_specialchars.'\-_]+/u';
+			$replace = '';
+			$str= preg_replace($pattern, $replace, $str);
+			
+			return strtolower(substr($str,0,$maxlen));
+		}
+	
+	
+	
+		
+	/**
+	 * returns a vector of strings (subjects)
+	 * gained from search and title text
+	 */
+	public function compute_subjects($search,$title,$datasource)
+	{
+		$DEBUG=0;
+		if ($DEBUG) print "<br><br>compute_subjects";
+		//stopwordclean both
+	
+		if (!trim($title)) print "<br>Error compute_subjects called with empty title !!!";
+		$title_cleaned_arr=array_unique(cleanup_stopwords(explode(' ',strtolower(clean_spechalchars($title)))));
+		$title_cleaned=implode(' ',$title_cleaned_arr);
+		
+		if($DEBUG)
+		{
+			print "<br><b>compute_subjects</b>((($search)),(($title))):";
+			print "<br>title_cleaned: (($title_cleaned))";
+		}
+		$subjects=array();	
+		//Add as subject the whole title - without colons...
+		$subjects[]=  trim(preg_replace("/[:;]/",'',$title_cleaned));
+		//Try to build complex compund and validate them in vikipedia
+		//each validated vikipedia term is a subject.
+		//use also RODIN's thesauri 
+		//Use also EUROPEANA's thesaurus
+		//Try to build biggest sub-compounds
+		//A sub-compound is validated in at least one given LODstore
+		//and must be matched without need of disambiguation!
+		
+		//$allTermLabels = $this->get_validated_english_candidate_compounds($title_cleaned,$remoteLODstores=array($nix));
+			
+		//Returns as speedup 1. the subject as is, 2. every single segment separated by nonblank of the $title_cleaned
+		
+		$segments=preg_split("/[,:;]+/",$title_cleaned);
+		
+		if (count($segments))
+		{
+			foreach($segments as $segment)
+			{
+				$s = trim($segment);
+				if ($s<>'' && !in_array($s,$subjects))
+				$subjects[]=$s;
+			}
+		}
+		
+		return $subjects;
+	} // compute_subjects
+	
+
+	/**
+	 * Extracts an isbn expression out of text which must begin with the isbn number
+	 * returns a triple (isbn,rest)
+	 * @param text $text
+	 * 
+	 * 978-0-273-76831-9 something
+	 */
+	public function extract_isbn($text)
+	{
+		$isbn=$text; //default
+		$PATTERN_ISBN="/([\w-]+)/";
+		//print "<br>extract_isbn ($text) ";
+		if (preg_match($PATTERN_ISBN,$text,$match))
+		{
+			$isbn=$match[1];
+		}
+		//else print " NO using $PATTERN_ISBN in (($text))";
+		return $isbn;
+	}
+	
+	
+		
+	
+	/**
+	 * Returns a scanning of given retrieved title content
+	 * in case of swissbib: array(($title),($congress),($place),($date))
+	 * @param $text
+	 * @param $datasource
+	 */
+	public function scan_datasource_title($text,$datasource)
+	{
+		$DEBUG=0;
+		//tokenize and date_parse
+		//print "<br>cleanup_dates($text,$datasource) ...";
+		if (strstr($datasource,'swissbib'))
+		{
+			//print " SWISSBIB ";
+			/**
+			 * Scan one of the following text pattern:
+			 * "Spatial disorientation in flight current problems : papers presented at the Aerospace medical Panel specialists' meeting;Bodø, 20-23 May 1980" 
+			 * "Toxic hazards in aviation papers pres.at the Aerospace medical Panel specialists' meeting; Toronto, 15-19 September 1980"
+			 */
+			
+			$PATTERN_TITLE="/(.*)papers\W(pres\.|presented\W)at/";
+			
+			if (($match = uni_preg_match($PATTERN_TITLE,$text)))
+			{
+				$title=trim($match[1]);
+				//print "<br>cleanup_dates matched place($place) and editdate($editdate)";
+				$resttext=trim(str_replace($match[0],'',$text));
+				if ($DEBUG)
+				{
+					print "<br><b>title</b>: (($title))";
+					print "<br>resttext: (($resttext))";
+				}			
+				$PATTERN_CONGRESS="/^(.*);(\W*)/";
+				$matched=false;
+				if (($match = uni_preg_match($PATTERN_CONGRESS,$resttext)))
+				{
+					$congress=trim($match[1]);
+					$resttext=trim(str_replace($match[0],'',$resttext));
+					
+					if ($DEBUG)
+					{
+						print "<br><b>congress</b>: (($congress))";
+						print "<br>resttext: (($resttext))";
+					}
+					$PATTERN_PLACE="/^([\p{L}]+),/";
+					if (($match = uni_preg_match($PATTERN_PLACE,$resttext)))
+					{
+						$place=trim($match[1]);
+						$resttext=trim(str_replace($match[0],'',$resttext));
+						if ($DEBUG)
+						{
+							print "<br><b>place</b>: (($place))";
+							print "<br>resttext: (($resttext))";
+						}
+						$PATTERN_EVENTDATE1="/^\W(.*)\W(\w{3})\W(\d4)/";
+						$PATTERN_EVENTDATE="/^(.*)-(.*)/";
+						if (($match = uni_preg_match($PATTERN_EVENTDATE,$resttext)))
+						{
+							$date1=trim($match[1]);
+							$date2=trim($match[2]);
+							$eventdaterange = "$date1-$date2";
+							
+							$resttext=trim(str_replace($match[0],'',$resttext));
+							if ($DEBUG)
+							{
+								print "<br><b>eventdaterange</b>: (($eventdaterange))";
+								print "<br>resttext: (($resttext))";
+							}
+						} // matched $PATTERN_EVENTDATE
+						else fontprint( "<br>NOMATCH IV PATTERN_EVENTDATE $PATTERN_EVENTDATE in (($resttext))", 'red');
+						
+					} // matched $PATTERN_PLACE
+					else fontprint(  "<br>NOMATCH III PATTERN_PLACE $PATTERN_PLACE in (($resttext))", 'red');
+					
+				} // matched $PATTERN_CONGRESS
+				else fontprint(  "<br>NOMATCH II PATTERN_CONGRESS $PATTERN_CONGRESS in (($resttext))", 'red');
+				
+			} else 
+			{
+				//take the title as is...
+				$title=$text;
+				$congress=$place=$eventdaterange='';
+			}
+			$scanned_obj=array($title,$congress,$place,$eventdaterange);
+		
+		} // swissbib
+							
+		return $scanned_obj;
+	} // cleanup_dates
+	
+		
+		
+  
+	/**
+	 * Taken from DBPedia engine:
+	 * Returns a vector holding:
+	 * 1. A vector of compound words if multiple possibilities can be found.
+	 * 2. A vector of the Base64 encoded URI of the compound words.
+	 * 
+	 * Compounds are verified to be present in the SRC ontology.
+	 * 
+	 * NB. It starts with "a, b, c" in $terms and returns an array of candidate
+	 * compounds "abc, ab, ac, bc".
+	 * NB1. If $wordbinding is 'STW' then compound terms are separated by comma
+	 * (Knowledge management, Engine), if it is 'DBP' instead, compounds terms
+	 * are separated by underscore (Knowledge_management Engine)
+	 * @param text $terms - a text containing terms
+	 * @param array $remoteLODstores - vector of remote SPARQL stores to validate subject
+	 */
+	protected function get_validated_english_candidate_compounds($terms,$remoteLODstores) 
+	{
+		$SRCDEBUG=1;
+		$VERBOSE=1;
+    if ($SRCDEBUG) print "<br><br>get_validated_english_candidate_compounds";
+		$tokenizationResults = $this->tokenizeCandidateCompounds(preg_replace('/\s+/', ' ', trim($terms)));
+		$usercompounds = $this->flattenCompoundTerms($tokenizationResults['usercompounds']);
+		$candidatecompounds = $this->flattenCompoundTerms($tokenizationResults['candidatecompounds']);
+		$singletons = $this->flattenCompoundTerms($tokenizationResults['singletons']);
+
+    if ($SRCDEBUG) 
+    {
+      print "\n<br>tokenizationResults: "; 	var_dump($tokenizationResults);
+      print "\n<br>usercompounds: "; 				var_dump($usercompounds);
+      print "\n<br>candidatecompounds: "; 	var_dump($candidatecompounds);
+      print "\n<br>singletons: "; 					var_dump($singletons);
+    }
+    
+    // Now check each compound against the ontology of the SRC engine.
+		$validatedCompounds = array();
+		
+		foreach(array_merge($usercompounds, $candidatecompounds) as $compound) {
+			foreach($remoteLODstores as $$remoteLODstore)
+			{
+				$termValidation = $this->validateTermInRemoteLODstore($compound,$remoteLODstore);
+				if ($termValidation ) {
+					$validatedCompounds[$termValidation[1]] = $termValidation[0];
+				}
+			}
+		}
+		
+		// From the list of singletons, keep only those not present in any
+		// validated compound word.
+		$validatedSingletons = $this->singletonsNotInCompounds($singletons, array_values($validatedCompounds));
+		
+    
+    if ($SRCDEBUG) 
+    {
+      print "\n<br>validatedSingletons: "; var_dump($validatedSingletons);
+    }
+    
+    // Now check validated singletons against the ontology of the SRC engine.
+		foreach($validatedSingletons as $validSingleton) {
+			foreach($remoteLODstores as $$remoteLODstore)
+			{
+				if ($termValidation = $this->validateTermInRemoteLODstore($validSingleton,$remoteLODstore)) {
+					$validatedCompounds[$termValidation[1]] = $termValidation[0];
+				}
+			}
+		}
+		
+    if ($SRCDEBUG) 
+    {
+      print "\n<br>validatedCompounds: "; var_dump($validatedCompounds);
+    }
+    
+		// Implode array into two strings, one with the keys (URI) and another one with
+		// the terms (items are comma separated).
+		$allTermLabels = '';
+		$allTermUris = '';
+		foreach ($validatedCompounds as $uri => $label) {
+			//$allTermUris .= $uri . RodinRDFResult::$TERM_SEPARATOR;
+			$allTermLabels[] = cleanup_commas($this->code_binding(clean_puntuation($label))) ;
+		}
+		
+		//$allTermLabels = cleanup_commas($allTermLabels);
+		//$allTermUris = cleanup_commas($allTermUris);
+		
+		//return array($allTermLabels, $allTermUris);
+		return $allTermLabels;
+	} // get_validated_english_candidate_compounds
+	
+	
+	
+	/**
+	 * Extracts the terms that are already compounds in the list and puts them on the
+	 * compound object. Returns an assosiative array with keys 'candidatecompounds',
+	 * 'usercompounds', 'singletons', which values are arrays of arrays of words. Arrays
+	 * of words should correspond to the words composing a compound term, and in the case
+	 * of 'singletons' they should have only one string.
+	 */
+	private function tokenizeCandidateCompounds($terms) {
+		$result = array();
+		$SRCDEBUG=1;
+		
+		if ($SRCDEBUG)
+			print "<br>tokenizeCandidateCompounds($terms) ...";
+		// if compounds were already delimited
+		$chunks = explode(',', $terms);
+		
+		//If no comma => one element => then explode by space	
+		
+		if (count($chunks)==1 && count(explode(' ',trim($chunk)))>1)
+			$chunks = explode(' ',$terms); // find each compound input (a b c d)
+		
+		
+		//Extract the last chunk to the $restterms if they contain a blank (=2 or more words)
+		if (preg_match('/ /',trim($chunks[count($chunks) - 1]))) {
+			if ($SRCDEBUG) print "<br>pop last chunks because contains blank = (".$chunks[count($chunks) - 1].") words";
+			$restterms = trim_array(explode(' ',array_pop ($chunks)));
+		}
+		
+		//enumerate the words
+		for($i=0;$i<count($chunks);$i++)
+			$numberof[$chunks[$i]]=$i;
+		
+		foreach($chunks as $chunk)
+		{
+			//If there is a blank (severalwords) or just one word:
+			if (preg_match('/ /',trim($chunk)) || count(explode(' ',trim($chunk)))==1)
+				$usercompounds[]=explode(' ',$chunk);
+			else 
+				$restterms[]=$chunk;
+		}
+		
+		//choose only those terms which are subsequent 
+		//(have a subsequent number)
+		//put other terms alone
+		if (count($restterms)==1)
+			$candidatecompounds[]=$restterms[0];
+		
+		else
+		{
+			$candidatecompounds=gen_sequences($restterms);
+		}
+		
+		$usercompounds = trim_array($usercompounds);
+		
+		
+		// Separate singletons from compounds
+		if (count($usercompounds))
+		foreach($usercompounds as $uc)
+			if (is_singleton($uc))
+				$singletons[]=$uc;
+			else
+				$real_usercompounds[]=$uc;
+		
+		if (count($candidatecompounds))
+				foreach($candidatecompounds as $cc)
+			if (is_singleton($cc))
+				$singletons[]=$cc;
+			else
+				$real_candidatecompounds[]=$cc;
+				
+		$result['candidatecompounds']=trim_array($real_candidatecompounds);
+		$result['usercompounds']=($real_usercompounds);
+		$result['singletons']=($singletons);
+		
+		return $result;
+	}
+	
+	/**
+	 * Takes an array of arrays of strings and returns an
+	 * array of strings. The strings of the second array are
+	 * simply an implosion of the arrays of strings of the
+	 * given array.
+	 */
+	private function flattenCompoundTerms($arrayOfArraysOfString) {
+		$arrayOfStrings = array();
+		
+		if (is_array($arrayOfArraysOfString)) {
+			foreach ($arrayOfArraysOfString as $arrayOfWords) {
+				$compoundTerm = implode(' ', $arrayOfWords);
+				$arrayOfStrings[] = $this->formatAsInThesaurus($compoundTerm);
+			}
+		}
+		
+		return $arrayOfStrings;
+	}
+
+	
+	/**
+	 * Checks the $singletons array for words that are not found in the compound
+	 * terms in the two other arrays.
+	 */
+	private function singletonsNotInCompounds($singletons, $validatedCompounds) {
+		$validatedSingletons = array();
+		
+		if (count($singletons)) {
+			foreach($singletons as $singleton) {
+				$found = false;
+					
+				foreach($validatedCompounds as $compound) {
+					if (preg_match("/$singleton/i", $compound)) {
+						$found = true;
+						break;
+					}
+				}
+					
+				if (!$found) {
+					$validatedSingletons[] = $singleton;
+				}
+			}
+		}
+		
+		return $validatedSingletons;
+	}
+	
+	
+		/**
+		 * Validates the term as is using a search inside each given LOD store
+		 * @param string $term - text to be tested inside each LOD store
+		 * @param vector $LODstoreInf - a vector of LOD store information (at the moment unused - only DBPEdia)
+		 */
+		protected function validateTermInRemoteLODstore($term, $LODstoreInf, $lang = 'en') 
+		{
+			$DEBUG=1;
+			if($DEBUG) {
+				print "<br>validateTermInRemoteLODstore($term,(only DBPedia),$lang='en') ...";
+		}
+		
+		$foundTerm = $this->checkterm_in_dbpedia($term,'X',$lang);
+		
+    if($DEBUG) {
+			print "\n<br>checkterm_in_dbpedia($term): ";var_dump($foundTerm);
+		}
+		
+		if ($foundTerm != '') {
+			return array(str_replace('_', ' ', $foundTerm), base64_encode('http://dbpedia.org/resource/Category:' . $foundTerm));
+		} else {
+			return false;
+		}
+		
+	}
+	
+	
+	private function checkterm_in_dbpedia($term, $SearchType='X', $lang) {
+		$term = $this->suggest_dbpedia_term($term, $lang, 1);
+		return $term; 
+	}
+	
+	private function suggest_dbpedia_term($term, $lang, $maxterms = 1) 
+	{
+		$DEBUG=1;	
+		$suggested_term = $this->scrap_wikipedia_suggestion($term);
+		
+    if($DEBUG) {
+			print "<br>suggest_dbpedia_term($term) ...= ($suggested_term)";
+			print "<br>suggest_dbpedia_term redirected_term=$redirected_term";
+		}
+    
+		// Enough already? Disambiguate useless
+		// $redirected_term = get_dbpedia_redirect($suggested_term,$lang);
+		
+		if (!$redirected_term) {
+			$redirected_term = $suggested_term;
+		}
+		
+    if($DEBUG) {
+			print "\n<br>suggest_dbpedia_term redirected_term=$redirected_term";
+		}
+    
+		// Disambiguate and keep the first $maxterms results only
+		$disambiguated_terms = wikipedia_disambiguate($redirected_term, $lang);
+    
+    if($DEBUG) {
+			print "\n<br>suggest_dbpedia_term disambiguated_terms: "; var_dump($disambiguated_terms);
+		}
+    
+		$disambiguated_terms = array_slice($disambiguated_terms, 0, $maxterms);
+
+    if($DEBUG) {
+			print "\n<br>suggest_dbpedia_term disambiguated_terms: "; var_dump($disambiguated_terms);
+		}
+			
+		$res_disambiguated_terms = implode(RodinRDFResult::$TERM_SEPARATOR, $disambiguated_terms);
+    
+    if($DEBUG) {
+			print "\n<br>suggest_dbpedia_term res_disambiguated_terms: ($res_disambiguated_terms)";
+		}
+
+		$res_disambiguated_terms = cleanup_commas($res_disambiguated_terms);
+    
+    if($DEBUG) {
+			print "\n<br>suggest_dbpedia_term cleaned up commas: res_disambiguated_terms: ($res_disambiguated_terms)";
+		}
+    
+		
+		if ($DEBUG) {
+			print "<br><b>find_dbpedia_terms($term)</b>";
+			print "<hr>$term -> suggested:<em>$suggested_term</em> -> redirected:<em>$redirected_term</em> ->disambiguated:<em>$res_disambiguated_terms</em><hr>"; 
+			//print "<hr>Aus $term -> suggested:$suggested_term -> first disambiguated:$disambiguated_term<hr>"; 
+			print "<br><b>All disambiguated terms:";
+			if (count($disambiguated_terms))
+				foreach($disambiguated_terms as $disambiguated_term)
+					print "<br><a href='http://dbpedia.org/resource/$disambiguated_term' target=_blank>http://dbpedia.org/resource/$disambiguated_term</a>";
+			print "<br><b>$maxterms choosen and returned terms:";
+			if (count($partial_disambiguated_terms))
+				foreach($partial_disambiguated_terms as $disambiguated_term)
+					print "<br><a href='http://dbpedia.org/resource/$disambiguated_term' target=_blank>http://dbpedia.org/resource/$disambiguated_term</a>";
+		}	
+		
+		return $res_disambiguated_terms;	
+	}
+	
+	/**
+	 * Checks in Wikipedia if the given $query corresponds to the name
+	 * of an article. If not, then Wikipedia usually proposes a 'Did you mean?'
+	 * when a search is made with the $query, the proposition is returned
+	 * instead of the $query.
+	 */
+	private function scrap_wikipedia_suggestion($query) 
+	{
+	 	$SRCDEBUG=1;
+		$WIKIPEDIASEARCH2=RodinRDFResult::$WIKIPEDIASEARCH2;
+		$WIKIPEDIABASEURL=RodinRDFResult::$WIKIPEDIABASEURL;
+		
+		$treated_query=	$this->code_binding($query);
+
+		if ($SRCDEBUG) {
+			print "<br>scrap_wikipedia_suggestion in $WIKIPEDIABASEURL/$treated_query ...";
+		}
+		if (url_exists("$WIKIPEDIABASEURL/".$treated_query)) {
+			
+			if ($SRCDEBUG) print "<br>EXISTS: $WIKIPEDIABASEURL/$query";
+			
+			$suggestion = $query;
+		} else {
+			
+			if ($SRCDEBUG) print "<br>CALLING: ". $WIKIPEDIASEARCH2 . "&search=$query";
+			$WIKIPEDIARESPONSE = get_file_content($WIKIPEDIASEARCH2 . "&search=$query");
+			$w = str_get_html($WIKIPEDIARESPONSE);
+
+			//Was liegt an: Page found oder didyoumean?
+			$a = $w->find('a[title="Special:Search"]');
+
+			if (count($a) == 0)
+			$suggestion = $query;
+			else
+			$suggestion = $a[0]->plaintext;
+		}
+			
+		$suggestion = ucfirst($suggestion);
+			
+		if ($SRCDEBUG) {
+			print "returning: $suggestion";
+		}
+
+		return $suggestion;
+	}
+	
+	
+	 /**
+  * Formats $term as in DBpedia, first letter capital.
+	*/
+	protected function formatAsInThesaurus($term) {
+		return ucfirst(strtolower($term));
+	}
+
+	
+	
+	private function code_binding($terms) 
+	{
+		$res = str_replace(' ', '_', $terms);
+		
+		return trim($res);
+	}
+	
+	
+	
+	
+	
+	/**
+	 * For each active thesaurus: gather skos information on the subjects
+	 * Returns $skos_subject_related = 
+	 */
+	public function get_subject_related_to_from_thesauri($subjects,$sid,$USER_ID,$searchterm)
+	{
+		if ($DEBUG) {
+			print "<br>get_subject_related_to_from_thesauri on the following subjects:";
+			foreach($subjects as $s) if ($s) print "<br>&nbsp;$s";
+		}
+		global $VERBOSE;
+		global $SRCDEBUG;
+		$MAXSUBJECTSRELATED_RESULTS=5;
+		//$VERBOSE=0; $SRCDEBUG=0;
+		$MAXRESULTS=5;
+		global $DOCROOT,$WEBROOT,$RODINSEGMENT,$RODINROOT;
+		global $SRC_SEARCH_MAX;
+		global $TERM_SEPARATOR; 
+		if (!$TERM_SEPARATOR) $TERM_SEPARATOR=',';
+		$INIT_SRC_OBJ = initialize_SRC_MODULES( $USER_ID , ' AND UsedForSubjects=1 ');
+		
+		global $LANGUAGE_DETECTION;
+		include_once($LANGUAGE_DETECTION);
+		$lang=detectLanguage($searchterm);
+		
+		$SRCs = $INIT_SRC_OBJ['records'];
+		$NoOfUsableSRC=count($SRCs);
+		$INITIALISED_SRCs = $this->initialize_SRC($USER_ID,$lang);
+
+		if ($DEBUG) print "<br>".count($INITIALISED_SRCs)." USED SRCs for related subjects !";
+
+		if (count($INITIALISED_SRCs))
+		foreach($INITIALISED_SRCs as $INITIALISED_SRC)
+		{
+			
+			//list($src_name,$CLASS,$pathSuperClass,$pathClass,$path_sroot,$path_SRCengineInterface,$path_SRCengine) = $INITIALISED_SRC;
+			
+			list(	$src_name,
+						$CLASS,
+						$pathSuperClass,
+						$pathClass,
+						$path_sroot,
+						$path_SRCengineInterface,
+						$path_SRCengine,
+						$AuthUser,
+						$AuthPasswd,
+						$ID,
+						$Protocol,
+						$Server,
+						$Port,
+						$Path_Start,
+						$Path_Refine,
+						$Path_Test,
+						$Servlet_Start,
+						$Servlet_Refine,
+						$Servlet_Test ) = $INITIALISED_SRC;
+			
+			//unset($SRCINSTANCE->refine_skosxl_solr);
+			//unset($SRCINSTANCE->refine_skos_solr);
+			$WEBSERVICE_q=$WEBROOT."$RODINROOT/$RODINSEGMENT/app/s/refine/index.php"
+									.'?'.'sid='.$sid
+									.'&'.'cid=0'
+									.'&'.'cid=0'
+									.'&'.'action=preall'
+									.'&'.'v=' // must be empty = use q without preprocessing
+									.'&'.'sortrank=standard'
+									.'&'.'w=0'
+									.'&'.'m='.$MAXRESULTS
+									.'&'.'l='.$lang
+									.'&'.'c=c'
+									.'&'.'service_id='.$ID
+									.'&'.'user='.$USER_ID
+									.'&'.'q='
+									;
+											
+			
+			//Call the refine method inside $CLASS
+			if ($DEBUG) print "<hr>";
+			
+			$broder_arr=$narrower_arr=$related_arr=array();
+			foreach ($subjects as $s)
+			{
+				if (trim($s))
+				{
+					//In case the refine method gets some results, 
+					//do not ask the same service again for a subject 
+					//which is contained in the previously sserved call if successful!
+						$s64 = base64_encode($s);
+						$WEBSERVICE = $WEBSERVICE_q.$s64;
+						if ($DEBUG) print "<br>Calling internal webservice for subject ($s) and class <b>$CLASS</b>:<br>".htmlentities($WEBSERVICE);
+						
+						$CONTENT=get_file_content($WEBSERVICE);
+						//print "<br>CONTENT: ".htmlentities($CONTENT);
+						$skos_subject_related{$s} = $this->scan_src_results($CONTENT,$TERM_SEPARATOR);
+						
+				}
+			}
+		} // foreach($INITIALISED_SRCs as $INITIALISED_SRC)
+		
+		return $skos_subject_related;
+		
+	} // get_subject_related_to_from_thesauri
+	
+	
+	
+	/**
+	 * list($broder_arr,$narrower_arr,$related_arr) = scan_src_results($CONTENT,$TERM_SEPARATOR)
+	 */
+	public function scan_src_results($CONTENT,$TERM_SEPARATOR)
+	{
+		$DEBUG=0;
+		
+		$broder_arr=$related_arr=$narrower_arr=array();
+		$sxmldom = simplexml_load_string($CONTENT,'SimpleXMLElement', LIBXML_NOCDATA);
+		//Extract $RESULTS_B, $RESULTS_N, $RESULTS_R
+		$broader64_ = $sxmldom->xpath("/refine/srv/broader"); //find the doc list results
+		$broader64 = trim($broader64_[0]);
+		$narrower64_ = $sxmldom->xpath("/refine/srv/narrower"); //find the doc list results
+		$narrower64 = trim($narrower64_[0]);
+		$related64_ = $sxmldom->xpath("/refine/srv/related"); //find the doc list results
+		$related64 = trim($related64_[0]);
+		
+		if($broader64)
+		{
+			$broader= (base64_decode(($broader64)));
+			$broder_arr=explode($TERM_SEPARATOR,$broader);
+			if ($DEBUG) 
+			{
+				print "<br><b>Broader:</b>";
+				foreach($broder_arr as $b) print "<br>$b";
+			}
+		}
+
+		if($narrower64)
+		{
+			$narrower= (base64_decode(($narrower64)));
+			$narrower_arr=explode($TERM_SEPARATOR,$narrower);
+			if ($DEBUG) 
+			{
+				print "<br><b>Narrower:</b>";
+				foreach($narrower_arr as $b) print "<br>$b";
+			}
+		}
+
+		if($related64)
+		{
+			$related= (base64_decode(($related64)));
+			$related_arr=explode($TERM_SEPARATOR,$related);
+			if ($DEBUG) 
+			{
+				print "<br><b>Related:</b>";
+				foreach($related_arr as $b) print "<br>$b";
+			}
+		}
+			
+		return array($broder_arr,$narrower_arr,$related_arr);
+	} // scan_src_results
+	
+	
+	
+	
+	/**
+	 * $INITIALISED_SRCs = initialize_SRC($USER_ID)
+	 * @param $USER_ID - the user id for which some SRC's are activated
+	 */
+	public function initialize_SRC($USER_ID,$lang)
+	{
+		$DEBUG=0;
+		global $DOCROOT;
+		$initialised_src=0;
+		$INIT_SRC_OBJ = initialize_SRC_MODULES( $USER_ID , ' AND UsedForSubjects=1 ');
+		
+		$SRCs = $INIT_SRC_OBJ['records'];
+		$NoOfUsableSRC=count($SRCs);
+		
+		$i=-1;
+		if(count($SRCs))
+		foreach($SRCs as $SRC)
+		{
+			$i++;
+			$src_name=$SRC['Name'];
+			$src_path=$SRC['Path_Refine']; // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+			
+			$CLASS=basename($src_path);
+			$SUPERCLASS=basename(dirname($src_path));
+			$DISKenginePATH=$DOCROOT.str_replace("$SUPERCLASS/$CLASS",'',$src_path);
+			$DISKfsrcPATH=dirname($DISKenginePATH);
+			
+			// Include class paths for SRC ENGINES
+			if ($i==0)
+			{
+				$path_sroot=$DISKfsrcPATH."/sroot.php";
+				$path_SRCengine=$DISKenginePATH.'SRCengine.php';
+				$path_SRCengineInterface=$DISKenginePATH.'SRCengineInterface.php';
+				//if (!chdir($DISKenginePATH)) fontprint("Problem chdir $path_SRCengine" , 'red');
+				//require_once($path_sroot);
+				//require_once($path_SRCengineInterface);
+				//require_once($path_SRCengine);
+			}
+			
+			
+			$pathSuperClass=$DISKenginePATH.$SUPERCLASS."/$SUPERCLASS.php";
+			//include_once($pathSuperClass);
+			
+			$pathClass=$DISKenginePATH.$SUPERCLASS."/$CLASS/$CLASS.php";
+			//include_once($pathClass);
+			
+			$AuthUser				=$SRC['AuthUser'];
+			$AuthPasswd			=$SRC['AuthPasswd'];
+			$ID							=$SRC['ID'];
+			$Protocol				=$SRC['Protocol'];
+			$Server					=$SRC['Server'];
+			$Port						=$SRC['Port'];
+			$Path_Start			=$SRC['Path_Start'];
+			$Path_Refine		=$SRC['Path_Refine'];
+			$Path_Test			=$SRC['Path_Test'];
+			$Servlet_Start	=$SRC['Servlet_Start'];
+			$Servlet_Refine	=$SRC['Servlet_Refine'];
+			$Servlet_Test		=$SRC['Servlet_Test'];
+			
+			
+			$initialised_src++;
+			if ($DEBUG)
+			{
+				print "<hr> Name:".$src_name;
+				print "<br> CLASS: ".$CLASS;
+				print "<br> SUPERCLASS: ".$SUPERCLASS;
+				print "<br> PATH: ".$src_path;
+				print "<br> DISKfsrcPATH: ".$DISKfsrcPATH;
+				print "<br> DISKenginePATH: ".$DISKenginePATH;
+			}
+			
+			$INITIALISED_SRCs[]= array(	$src_name,
+																	$CLASS,
+																	$pathSuperClass,
+																	$pathClass,
+																	$path_sroot,
+																	$path_SRCengineInterface,
+																	$path_SRCengine,
+																	$AuthUser,
+																	$AuthPasswd,
+																	$ID,
+																	$Protocol,
+																	$Server,
+																	$Port,
+																	$Path_Start,
+																	$Path_Refine,
+																	$Path_Test,
+																	$Servlet_Start,
+																	$Servlet_Refine,
+																	$Servlet_Test
+																	);
+			
+		} // foreach $SRC
+		return $INITIALISED_SRCs;
+	} // init_SRC
+	
+	
+	
+} // RodinRDFResult

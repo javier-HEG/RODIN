@@ -245,7 +245,7 @@ class RodinResultManager {
 	}
 	
 
-  public static function getRodinResultsForASearch($sid) 
+  public static function getRodinResultsForASearch($sid,$datasource='') 
   {
   	global $RESULTS_STORE_METHOD;
 		global $aggView;
@@ -256,7 +256,7 @@ class RodinResultManager {
             break;
       case 'solr':
 			      $aggView=true;
-            return RodinResultManager::getRodinResultsFromSOLR($sid,$datasource='',$slrq_base64='') ;
+            return RodinResultManager::getRodinResultsFromSOLR($sid,$datasource,$slrq_base64='') ;
             break;
     }
 	}
@@ -386,21 +386,16 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
  * The latter is used for the aggregated view
  */
 public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
-
-		global $aggView;
 		$max=10;
 		$filenamex='/u/SOLRinterface/solr_interface.php';
-		//print "<br>FRIutilities: try to require $filenamex at cwd=".getcwd()."<br>";
-		for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
-		{ 
-			//print "<br>try to require $updir$filenamex";
+		
+		for ($x=1,$updir='';$x<=$max;$x++,$updir.="../"){ 
 			if (file_exists("$updir$filenamex")) 
-			{
-				//print "<br>REQUIRE $updir$filenamex";
-				require_once("$updir$filenamex"); break;
-			}
-		}
-    global $SOLR_RODIN_CONFIG;
+			{require_once("$updir$filenamex"); break;}}
+		
+    global $aggView;
+		global $WANT_RFLAB, $RDFSEMEXPLABURL; // DEBUG
+		global $SOLR_RODIN_CONFIG;
     global $SOLR_MLT_MINSCORE;
     global $USER;
     global $RODINSEGMENT;
@@ -445,20 +440,35 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
                               ."&fl=score,*"
                             //  ."&omitHeader=true"
                               ; 
-//      print "<hr>SOLR SELECT: <br>(((".htmlentities($solr_select).")))";
-//      print "<hr>SOLR QUERY: <br>(((".htmlentities($solr_result_query_url).")))";
+      //print "<hr>SOLR SELECT: <br>(((".htmlentities($solr_select).")))";
+      //print "<hr>SOLR QUERY: <br>(((".htmlentities($solr_result_query_url).")))";
  
       $filecontent=file_get_contents($solr_result_query_url);
       $solr_sxml= simplexml_load_string($filecontent);
 			
       if ((!$aggView) &&
       		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x' || $RODINSEGMENT=='st') 
-              || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on x, st (not on p=4)
+              || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on p, x, st 
       {  
         $solr_real_url=get_solrbridge($solr_result_query_url);
         $EVTL_MLT=($MLT)?" (mlt)":""; 
-        print "<hr><a href='$solr_real_url' target='_blank' title='Get SOLR raw data in a new TAB'>raw data</a>$EVTL_MLT<br>";
+        print "<a href='$solr_real_url' target='_blank' title='Get SOLR raw data in a new TAB'>raw data</a>$EVTL_MLT";
+        $needbr=true;
       }
+      
+      /**
+			 * During development write on each widget a pointer to rdflab
+			 * in order to use automatically stored results under sid.
+			 */
+      if ((!$aggView) && $WANT_RFLAB &&
+      		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x' || $RODINSEGMENT=='st') 
+              || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on p, st 
+      {
+      	$RDFSEMEXPLABURL.="?sid=$sid&datasource=$datasource&listwr=on";  
+        print "&nbsp;<a href='$RDFSEMEXPLABURL' target='_blank' title='Click to open RDFLAB on these results in a new TAB'>rdflab</a>";
+      	$needbr=true;
+			}
+			if ($needbr) print "<br>";
       //print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
       //print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
       
