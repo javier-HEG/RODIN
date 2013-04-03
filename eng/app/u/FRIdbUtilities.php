@@ -2212,8 +2212,8 @@ function register_SRC_REFINE_INTERFACES($USER_ID)
 			$QUERY_GET="
 				SELECT *
 				FROM src_interface
-				WHERE   forRODINuser=$USER_ID
-					AND Activated=1
+				WHERE forRODINuser=$USER_ID
+					AND UsedAsThesaurus=1
 			";
 			$DB = new RODIN_DB('rodin');
 			$DBconn=$DB->DBconn;
@@ -2289,6 +2289,18 @@ function register_SRC_REFINE_INTERFACES($USER_ID)
 }
 
 
+function get_active_THESAURI_expansion_sources($USER_ID)
+{
+	return initialize_SRC_MODULES( $USER_ID , ' AND UsedForSubjects=1 ');
+}
+		
+function get_active_LOD_expansion_sources($USER_ID)
+{
+	//print "<br>Calling LOD sources for $USER_ID:";
+	
+	return initialize_SRC_MODULES( $USER_ID , ' AND UsedForLODRdfExpansion=1 ');
+}
+		
 
 /**
  * in case $CONDITION is set, it must be something like
@@ -2301,6 +2313,9 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 # to be executed
 # at the main level (index_connected)
 {
+	
+		$LOCALCONDITION=" AND UsedAsThesaurus=1 ";
+		$LOCALCONDITION=$CONDITION?$CONDITION:$LOCALCONDITION;
 		if (!$USER_ID) fontprint("initialize_SRC_MODULES called with empty USER",'red');
 		$AJAX='';
 		//FETCH PREFS FROM DB
@@ -2308,8 +2323,7 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 				SELECT *
 				FROM src_interface
 				WHERE	forRODINuser=$USER_ID
-					AND Activated=1
-					$CONDITION
+					$LOCALCONDITION
 				ORDER BY POS ASC
 			";
 			$DB = new RODIN_DB('rodin');
@@ -2318,23 +2332,27 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 			$resultset = mysql_query($QUERY_GET,$DBconn);
 			$DB->close();
 			$noOfSRC=0;
+			if ($resultset)
+			{
 			while ($REC = mysql_fetch_assoc($resultset))
 			{
 				$noOfSRC++;
 				$Name				=$REC['Name'];
+				$ID					=$REC['ID'];
+								/*
 				$AuthUser		=$REC['AuthUser'];
 				$AuthPasswd	=$REC['AuthPasswd'];
-				$ID					=$REC['ID'];
 				$Protocol		=$REC['Protocol'];
 				$Server			=$REC['Server'];
 				$Port				=$REC['Port'];
 				$Path_Start	=$REC['Path_Start'];
 				$Path_Refine=$REC['Path_Refine'];
-				$Path_Test	=$REC['Path_Test'];
+				$sparql_endpoint=$REC['sparql_endpoint'];
+				$comment=$REC['comment'];
 				$Servlet_Start	=$REC['Servlet_Start'];
 				$Servlet_Refine	=$REC['Servlet_Refine'];
 				$Servlet_Test		=$REC['Servlet_Test'];
-
+				*/
 				$RECS[]=$REC;
 				//print "<br>Servletname:$Servletname";
 
@@ -2349,7 +2367,7 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 			}
 			$AJAX.="fri_initialize_src();
 ";
-
+			}
 			$RES_OBJ = array(
 					'ajax_init_src_code' => $AJAX,
 					'src_interface_specs' => $SRC_REFINE_INTERFACE_SPECS,
@@ -2378,7 +2396,7 @@ function get_service_url($Type,$USER_ID,$SERVICE_ID) {
 	// Get information from the DB
 	$PRINT_IT = 0;
 	$QUERY_GET = "SELECT * FROM src_interface WHERE forRODINuser=$USER_ID"
-		. " AND ID=$SERVICE_ID AND Activated=1";
+		. " AND ID=$SERVICE_ID AND UsedAsThesaurus=1";
 
 	if ($PRINT_IT) print "<br>get_service_url($Type,$USER_ID,$SERVICE_NAME)<br>";
 

@@ -406,11 +406,26 @@ class BasicRodinResult {
 		$RDF = $this->RDFenhancement;
 		$this->is_rdfized = true;
 			
-		$ok = $RDF->rdfize($sid);
+		$store = $RDF->rdfize($sid);
 		
-		return $ok;
+		return $store;
 	} // rdfize 
 	
+	
+	/**
+	 * Using the attached LOD sources
+	 * Using the related-to subject won by rdfize
+	 * Calculate the documents related to these subjects 
+	 * LOD-Link these documents inside the local result rdf store
+	 * Store these documents in the local store for 
+	 * Suggestions
+	 * 
+	 * CACHE CALLS
+	 */
+	public function rdfLODexpand($sid,$datasource,$searchterm,$USER_ID)
+	{
+		$this->RDFenhancement->rdfLODexpand($sid,$datasource,$searchterm,$USER_ID);
+	} // rdfLODexpand
 	
 	
 	

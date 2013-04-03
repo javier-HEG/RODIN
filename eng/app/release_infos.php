@@ -13,7 +13,7 @@
 <br />
 <br /><b>DEVELOPMENT / RELEASE INFOS </b>
 <br />
-<br />18.12.2012 
+<br />4.4.2013 
 <br />By Fabio Ricci (FRI) - Tel. 076-5281961
 <br />and Javier Belmonte (BEL)
 <br />Please report any issue using <?php echo $MANTIS ?> 
@@ -21,7 +21,6 @@
 <br />
 <br /><b>RODIN Release 2.5</b>
 <br />===================
-<br />Semantic Filtering introduced
 <br />SOLR integration for results
 <br />Aggregated view for results
 <br />Results higlighting
@@ -31,6 +30,7 @@
 <br />New SKOS ontology source RAMEAU integrated per Dec 30th 2013
 <br />New SKOS ontology source LOC integrated per Dec 30th 2013
 <br />New NON-SKOS ontology source GND integrated per Jan 25th 2013
+<br />RDF LAB with LOD input from Europeana on single results
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  

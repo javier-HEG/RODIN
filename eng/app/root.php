@@ -154,6 +154,7 @@ $STOPWORD_SERVER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/stopwords.php";
 $TAGCLOUDRESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/TagCloudResponder.php";
 $AUTOCOMPLETERESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/AutoCompleteResponder.php";
 $RDFSEMEXPLABURL = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/tests/semexp.php";
+$RDFSEMEXP_STOREEXPLORER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_show_all_triples.php?limit=5&storename=rodin_rdf";
 
 
 

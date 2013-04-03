@@ -1,5 +1,8 @@
 <html>
 <head>
+	<title>
+		LOCAL STORE SPARQL Explorer
+	</title>
 </head>
 <body>
 

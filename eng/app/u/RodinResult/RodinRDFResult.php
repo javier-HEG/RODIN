@@ -21,7 +21,6 @@ $filename="fsrc/gen/u/arc/ARC2.php"; $maxretries=10;
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 			
-
 class RodinRDFResult {
 	
 	private $my_result; //triples from this result were generated and inserted into store
@@ -65,14 +64,24 @@ class RodinRDFResult {
 			    'rdfs'	=> 'http://www.w3.org/2000/01/rdf-schema#',
 			    'geo'		=> 'http://www.w3.org/2003/01/geo/wgs84_pos#',
 					'dbo'		=> 'http://dbpedia.org/ontology/',
-			    'dc'		=> 'http://purl.org/dc/elements/1.1/',
+			    'dce'		=> 'http://purl.org/dc/elements/1.1/',
+			    'dct'		=> 'http://purl.org/dc/terms/',
+			    'dc'		=> 'http://purl.org/dc/',
 			    'bio'		=> 'http://vocab.org/bio/0.1/',
 			    'bibo'	=> 'http://bibliontology.com/bibo/bibo.php#',
-			    'rodin'	=> RodinRDFResult::$PUBBLICATION_URL.'/resource/',
-		     );
+			    'rodin_e'	=> RodinRDFResult::$PUBBLICATION_URL.'/resource/e/',//pubblication external imported e=europeana
+			    'rodin'	=> RodinRDFResult::$PUBBLICATION_URL.'/resource/',	//pubblication internal resources
+			    			
+					// Europeana:
+					// see also http://pro.europeana.eu/documents/866205/13001/EDM_v5.2.2.pdf
+					'ore' 	=>'http://www.openarchives.org/ore/',
+					'epp' =>'http://data.europeana.eu/proxy/provider/',
+		     	'eedm' =>'http://www.europeana.eu/schemas/edm/',
+					'e'	=> 'http://data.europeana.eu/',
+					);
 
 	 if (!is_array(RodinRDFResult::$TOBECODED64)) 
-	 		RodinRDFResult::$TOBECODED64 = array('dc:description','masic:title_orig','masic:subtitle_orig','masic:genealogic_tree','masic:abbreviation');
+	 		RodinRDFResult::$TOBECODED64 = array('dce:description','masic:title_orig','masic:subtitle_orig','masic:genealogic_tree','masic:abbreviation');
 
 		// Build NAMESPACES_PREFIX
 		if (! RodinRDFResult::$NAMESPACES_PREFIX)
@@ -150,10 +159,10 @@ class RodinRDFResult {
 		$subjects=array_unique(array_merge($datasource_subjects,$additional_subjects,$uniquesubjects));
 		//print "<br>FINAL Subjects (".implode('+',$subjects).")";
 		
-		$skos_subjects = $this->get_subject_related_to_from_thesauri(	$subjects,
-																																	$sid,
-																																	RodinRDFResult::$USER_ID,
-																																	RodinRDFResult::$searchterm  );
+		$skos_subjects = $this->get_relatedsubjects_from_thesauri(	$subjects,
+																																$sid,
+																																RodinRDFResult::$USER_ID,
+																																RodinRDFResult::$searchterm  );
 		
 		//If a work document is given: rdfize it
 		//first of all create workuid
@@ -180,14 +189,14 @@ class RodinRDFResult {
 		//Publish the work:
 		if ($work_uid)
 		{
-				$triple[]=array($work_uid,		'rdf:type', 		'dc:BibliographicResource'); 
-				$triple[]=array($work_uid,		'dc:title', 		l($title)); 
+				$triple[]=array($work_uid,		'rdf:type', 		'dce:BibliographicResource'); 
+				$triple[]=array($work_uid,		'dce:title', 		l($title)); 
 				if ($isbn)
 					$triple[]=array($work_uid,	'bibo:isbn', 		l($isbn)); 
 				if($date)
-					$triple[]=array($work_uid,	'dc:date', 			 l($date)); 
+					$triple[]=array($work_uid,	'dce:date', 			 l($date)); 
 				if($urlPage) {
-					$triple[]=array($work_uid,	'dc:source', 		 l($urlPage)); 
+					$triple[]=array($work_uid,	'dce:source', 		 l($urlPage)); 
 				}
 				
 				//Add subjects
@@ -199,8 +208,9 @@ class RodinRDFResult {
 						{
 							$subject_uids[]=$subject_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($subject);
 							//print "<br>Adding subject: ($subject)";
-							$triple[]=array($work_uid,	'dc:subject', 	$subject_uid); 
-							$triple[]=array($subject_uid,	'rdf:type', 	'dc:subject'); 
+							//print "<br>subject=($subject) subject_uid=($subject_uid) asserting ($work_uid,	'dce:subject', 	$subject_uid)";
+							$triple[]=array($work_uid,	'dce:subject', 	$subject_uid); 
+							$triple[]=array($subject_uid,	'rdf:type', 	'dce:subject'); 
 							$triple[]=array($subject_uid,	'rodin:label', l($subject)); 
 							
 							$subject=strtolower($subject);
@@ -219,7 +229,7 @@ class RodinRDFResult {
 										$triple[]=array($subject_uid,	'rodin:broader', 					$bs_uid); 
 										$triple[]=array($subject_uid,	'rodin:subject_related', 	$bs_uid); 
 										$triple[]=array($bs_uid,			'rodin:label', 	 					l($bs)); 
-										$triple[]=array($bs_uid,			'rdf:type', 	 						'dc:subject'); 
+										$triple[]=array($bs_uid,			'rdf:type', 	 						'dce:subject'); 
 									}
 								}
 
@@ -233,7 +243,7 @@ class RodinRDFResult {
 										$triple[]=array($subject_uid,	'rodin:narrower', 				 $ns_uid); 
 										$triple[]=array($subject_uid,	'rodin:subject_related', 	 $ns_uid); 
 										$triple[]=array($ns_uid,			'rodin:label', 	 					l($ns));
-										$triple[]=array($ns_uid,			'rdf:type', 	 						'dc:subject'); 
+										$triple[]=array($ns_uid,			'rdf:type', 	 						'dce:subject'); 
 									}
 								}
 
@@ -248,7 +258,7 @@ class RodinRDFResult {
 										$triple[]=array($subject_uid,	'rodin:related', 					$rs_uid); 
 										$triple[]=array($subject_uid,	'rodin:subject_related', 	$rs_uid); 
 										$triple[]=array($rs_uid,			'rodin:label', 	 					l($rs)); 
-										$triple[]=array($rs_uid,			'rdf:type', 	 						'dc:subject'); 
+										$triple[]=array($rs_uid,			'rdf:type', 	 						'dce:subject'); 
 									}
 								}
 							} // add related subjects from thesauri to s
@@ -264,7 +274,7 @@ class RodinRDFResult {
 			$triple[]=array($author_uid, 	'rdf:type', 		'foaf:Person'); 
 			$triple[]=array($author_uid, 	'foaf:name', 		l($authortxt)); 
 			$triple[]=array($author_uid, 	'rodin:name', 	l($authortxt)); 
-			$triple[]=array($author_uid, 	'dc:creator', 	 $work_uid); 
+			$triple[]=array($author_uid, 	'dce:creator', 	 $work_uid); 
 			$triple[]=array($author_uid,	'rodin:author',  $work_uid);
 			if ($isbn) 
 				$triple[]=array($author_uid, 	'bibo:isbn', 		l($isbn)); 
@@ -287,7 +297,7 @@ class RodinRDFResult {
 			$triple[]=array($publisher_uid, 'rdf:type', 		'foaf:Person'); 
 			$triple[]=array($publisher_uid,	'foaf:name', 		l($publisher_txt)); 
 			$triple[]=array($publisher_uid,	'rodin:name', 	l($publisher_txt)); 
-			$triple[]=array($publisher_uid,	'dc:publisher', 		$work_uid); 
+			$triple[]=array($publisher_uid,	'dce:publisher', 		$work_uid); 
 			$triple[]=array($publisher_uid,	'rodin:publisher', 	$work_uid); 
 			
 			//Link author writes about subjects
@@ -306,9 +316,9 @@ class RodinRDFResult {
 			$statistics = $this->import_triples($triple);
 
 		//if ($statistics) print "<hr>$statistics";
-		
+		$return_value=$statistics?RodinRDFResult::$store:null;
 				
-		return $statistics; //false or sth
+		return $return_value; 
 	} // rdfize 
 	
 	
@@ -333,15 +343,17 @@ class RodinRDFResult {
     INSERT INTO <$GRAPH> 
     {";
  	
-		
-		
+		$i=0;
 		foreach($triples as $triple)
 		{
+			$i++;
 			$s=$triple[0];
 			$p=$triple[1];
 			$o=cleanup4literal($triple[2]); // literals might contain ' '' ... addslashes?
 			
 	  	$TRIPLETEXT.="\n $s $p $o .";
+			
+			//if($i>13) break;
 		}
 		
 		$TRIPLETEXT.='}';
@@ -467,6 +479,7 @@ class RodinRDFResult {
 	  public static function adapt_name_for_uid($str,$allowed_chars="-")
 		{
 			$maxlen=32; // limit each output to maxlen
+			$str_orig=$str;
 			$SUBST=(strstr($allowed_chars,' '))?'_':'';
 			$str = str_replace(' ',$SUBST,$str);
 	
@@ -480,9 +493,13 @@ class RodinRDFResult {
 			
 			// allow only normal chars...
 			$language_specialcharsdd='ßÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
-			$pattern = '/[^A-Za-z0-9'.$language_specialchars.'\-_]+/u';
+			$pattern = '/[^A-Za-z0-9'.$language_specialchars.'\-_]+/i';
 			$replace = '';
-			$str= preg_replace($pattern, $replace, $str);
+			$str= trim(preg_replace($pattern, $replace, $str));
+			if ($str=='')
+			{
+				$str=substr($str,0,$maxlen); // Do not supply an empty string
+			}
 			
 			return strtolower(substr($str,0,$maxlen));
 		}
@@ -1038,10 +1055,10 @@ class RodinRDFResult {
 	 * For each active thesaurus: gather skos information on the subjects
 	 * Returns $skos_subject_related = 
 	 */
-	public function get_subject_related_to_from_thesauri($subjects,$sid,$USER_ID,$searchterm)
+	public function get_relatedsubjects_from_thesauri($subjects,$sid,$USER_ID,$searchterm)
 	{
 		if ($DEBUG) {
-			print "<br>get_subject_related_to_from_thesauri on the following subjects:";
+			print "<br>get_relatedsubjects_from_thesauri on the following subjects:";
 			foreach($subjects as $s) if ($s) print "<br>&nbsp;$s";
 		}
 		global $VERBOSE;
@@ -1053,7 +1070,7 @@ class RodinRDFResult {
 		global $SRC_SEARCH_MAX;
 		global $TERM_SEPARATOR; 
 		if (!$TERM_SEPARATOR) $TERM_SEPARATOR=',';
-		$INIT_SRC_OBJ = initialize_SRC_MODULES( $USER_ID , ' AND UsedForSubjects=1 ');
+		$INIT_SRC_OBJ = get_active_THESAURI_expansion_sources( $USER_ID );
 		
 		global $LANGUAGE_DETECTION;
 		include_once($LANGUAGE_DETECTION);
@@ -1061,7 +1078,7 @@ class RodinRDFResult {
 		
 		$SRCs = $INIT_SRC_OBJ['records'];
 		$NoOfUsableSRC=count($SRCs);
-		$INITIALISED_SRCs = $this->initialize_SRC($USER_ID,$lang);
+		$INITIALISED_SRCs = $this->get_THESAURI_RECORDS($USER_ID,$lang);
 
 		if ($DEBUG) print "<br>".count($INITIALISED_SRCs)." USED SRCs for related subjects !";
 
@@ -1072,6 +1089,9 @@ class RodinRDFResult {
 			//list($src_name,$CLASS,$pathSuperClass,$pathClass,$path_sroot,$path_SRCengineInterface,$path_SRCengine) = $INITIALISED_SRC;
 			
 			list(	$src_name,
+						$IS_SPARQL_ENDPOINT,
+						$sds_sparql_endpoint,
+						$sds_sparql_endpoint_params,
 						$CLASS,
 						$pathSuperClass,
 						$pathClass,
@@ -1093,44 +1113,64 @@ class RodinRDFResult {
 			
 			//unset($SRCINSTANCE->refine_skosxl_solr);
 			//unset($SRCINSTANCE->refine_skos_solr);
-			$WEBSERVICE_q=$WEBROOT."$RODINROOT/$RODINSEGMENT/app/s/refine/index.php"
-									.'?'.'sid='.$sid
-									.'&'.'cid=0'
-									.'&'.'cid=0'
-									.'&'.'action=preall'
-									.'&'.'v=' // must be empty = use q without preprocessing
-									.'&'.'sortrank=standard'
-									.'&'.'w=0'
-									.'&'.'m='.$MAXRESULTS
-									.'&'.'l='.$lang
-									.'&'.'c=c'
-									.'&'.'service_id='.$ID
-									.'&'.'user='.$USER_ID
-									.'&'.'q='
-									;
-											
 			
-			//Call the refine method inside $CLASS
-			if ($DEBUG) print "<hr>";
-			
-			$broder_arr=$narrower_arr=$related_arr=array();
-			foreach ($subjects as $s)
+			if ($IS_SPARQL_ENDPOINT)
 			{
-				if (trim($s))
+				global $SRC_MAXRESULTS;
+				
+				foreach ($subjects as $s)
 				{
-					//In case the refine method gets some results, 
-					//do not ask the same service again for a subject 
-					//which is contained in the previously sserved call if successful!
-						$s64 = base64_encode($s);
-						$WEBSERVICE = $WEBSERVICE_q.$s64;
-						if ($DEBUG) print "<br>Calling internal webservice for subject ($s) and class <b>$CLASS</b>:<br>".htmlentities($WEBSERVICE);
-						
-						$CONTENT=get_file_content($WEBSERVICE);
-						//print "<br>CONTENT: ".htmlentities($CONTENT);
-						$skos_subject_related{$s} = $this->scan_src_results($CONTENT,$TERM_SEPARATOR);
-						
+					$s = trim(strtolower($s));
+					if ($s<>'')
+					{
+				
+						$skos_subject_related{$s} = 
+								array($broader	=array(),
+											$narrower	=array(),
+											$related	=get_related_subjects_from_sparql_endpoint($s,$src_name,$sds_sparql_endpoint,$sds_sparql_endpoint_params,$SRC_MAXRESULTS));
+					}
 				}
 			}
+			else {
+								$WEBSERVICE_q=$WEBROOT."$RODINROOT/$RODINSEGMENT/app/s/refine/index.php"
+										.'?'.'sid='.$sid
+										.'&'.'cid=0'
+										.'&'.'cid=0'
+										.'&'.'action=preall'
+										.'&'.'v=' // must be empty = use q without preprocessing
+										.'&'.'sortrank=standard'
+										.'&'.'w=0'
+										.'&'.'m='.$MAXRESULTS
+										.'&'.'l='.$lang
+										.'&'.'c=c'
+										.'&'.'service_id='.$ID
+										.'&'.'user='.$USER_ID
+										.'&'.'q='
+										;
+				
+				//Call the refine method inside $CLASS
+				if ($DEBUG) print "<hr>";
+				
+				$broder_arr=$narrower_arr=$related_arr=array();
+				foreach ($subjects as $s)
+				{
+					if (trim($s))
+					{
+						//In case the refine method gets some results, 
+						//do not ask the same service again for a subject 
+						//which is contained in the previously sserved call if successful!
+							$s64 = base64_encode($s);
+							$WEBSERVICE = $WEBSERVICE_q.$s64;
+							if ($DEBUG) print "<br>Calling internal webservice for subject ($s) and class <b>$CLASS</b>:<br>".htmlentities($WEBSERVICE);
+							
+							$CONTENT=get_file_content($WEBSERVICE);
+							//print "<br>CONTENT: ".htmlentities($CONTENT);
+							$skos_subject_related{$s} = $this->scan_src_results($CONTENT,$TERM_SEPARATOR);
+							
+					}
+				}
+			}
+			
 		} // foreach($INITIALISED_SRCs as $INITIALISED_SRC)
 		
 		return $skos_subject_related;
@@ -1147,50 +1187,214 @@ class RodinRDFResult {
 		$DEBUG=0;
 		
 		$broder_arr=$related_arr=$narrower_arr=array();
+		//In the following statement the flag LIBXML_NOCDATA is mandatory for reading and processing CDATA sections:
 		$sxmldom = simplexml_load_string($CONTENT,'SimpleXMLElement', LIBXML_NOCDATA);
-		//Extract $RESULTS_B, $RESULTS_N, $RESULTS_R
-		$broader64_ = $sxmldom->xpath("/refine/srv/broader"); //find the doc list results
-		$broader64 = trim($broader64_[0]);
-		$narrower64_ = $sxmldom->xpath("/refine/srv/narrower"); //find the doc list results
-		$narrower64 = trim($narrower64_[0]);
-		$related64_ = $sxmldom->xpath("/refine/srv/related"); //find the doc list results
-		$related64 = trim($related64_[0]);
-		
-		if($broader64)
+		if ($sxmldom)
 		{
-			$broader= (base64_decode(($broader64)));
-			$broder_arr=explode($TERM_SEPARATOR,$broader);
-			if ($DEBUG) 
-			{
-				print "<br><b>Broader:</b>";
-				foreach($broder_arr as $b) print "<br>$b";
-			}
-		}
-
-		if($narrower64)
-		{
-			$narrower= (base64_decode(($narrower64)));
-			$narrower_arr=explode($TERM_SEPARATOR,$narrower);
-			if ($DEBUG) 
-			{
-				print "<br><b>Narrower:</b>";
-				foreach($narrower_arr as $b) print "<br>$b";
-			}
-		}
-
-		if($related64)
-		{
-			$related= (base64_decode(($related64)));
-			$related_arr=explode($TERM_SEPARATOR,$related);
-			if ($DEBUG) 
-			{
-				print "<br><b>Related:</b>";
-				foreach($related_arr as $b) print "<br>$b";
-			}
-		}
+			//Extract $RESULTS_B, $RESULTS_N, $RESULTS_R
+			$broader64_ = $sxmldom->xpath("/refine/srv/broader"); //find the (CDATA) doc list results
+			$broader64 = trim($broader64_[0]);
+			$narrower64_ = $sxmldom->xpath("/refine/srv/narrower"); //find the (CDATA) doc list results
+			$narrower64 = trim($narrower64_[0]);
+			$related64_ = $sxmldom->xpath("/refine/srv/related"); //find the doc (CDATA) list results
+			$related64 = trim($related64_[0]);
 			
+			if($broader64)
+			{
+				$broader= (base64_decode(($broader64)));
+				$broder_arr=explode($TERM_SEPARATOR,$broader);
+				if ($DEBUG) 
+				{
+					print "<br><b>Broader:</b>";
+					foreach($broder_arr as $b) print "<br>$b";
+				}
+			}
+	
+			if($narrower64)
+			{
+				$narrower= (base64_decode(($narrower64)));
+				$narrower_arr=explode($TERM_SEPARATOR,$narrower);
+				if ($DEBUG) 
+				{
+					print "<br><b>Narrower:</b>";
+					foreach($narrower_arr as $b) print "<br>$b";
+				}
+			}
+	
+			if($related64)
+			{
+				$related= (base64_decode(($related64)));
+				$related_arr=explode($TERM_SEPARATOR,$related);
+				if ($DEBUG) 
+				{
+					print "<br><b>Related:</b>";
+					foreach($related_arr as $b) print "<br>$b";
+				}
+			}
+		}
 		return array($broder_arr,$narrower_arr,$related_arr);
 	} // scan_src_results
+	
+	
+	
+	
+	
+	/**
+	 * Using the attached LOD sources
+	 * Using the related-to subject won by rdfize
+	 * Calculate the documents related to these subjects 
+	 * LOD-Link these documents inside the local result rdf store
+	 * Store these documents in the local store for 
+	 * Suggestions
+	 * 
+	 * CACHE CALLS
+	 */
+	public function rdfLODexpand($sid,$datasource,$searchterm,$USER_ID)
+	{
+		$subjects_labels=$this->getDCSubjects();
+		
+		if (is_array($subjects_labels) && count($subjects_labels))
+		{
+			$LOD_SOURCES=get_active_LOD_expansion_sources($USER_ID);
+			$LOD_SOURCES_RECORDS= $LOD_SOURCES['records'];
+			
+			if (is_array($LOD_SOURCES_RECORDS) && count($LOD_SOURCES_RECORDS))
+			{
+				foreach($LOD_SOURCES_RECORDS as $LOD_SOURCES_RECORD)
+				{
+					$sds_name=$LOD_SOURCES_RECORD['Name'];
+					$sds_sparql_endpoint=$LOD_SOURCES_RECORD['sparql_endpoint'];
+					$sds_sparql_endpoint_params=$LOD_SOURCES_RECORD['sparql_endpoint_params'];
+					
+					$sds_url_base="$sds_sparql_endpoint?$sds_sparql_endpoint_params";
+					
+					print "<br> TODO expanding RDF subject using LOD source <b>$sds_name</b> ($sds_url_base)";
+					
+					foreach($subjects_labels as $subject)
+					{
+						print "<br>Fetching document triples for subject '$subject'";
+						$triples = get_triples_on_subject_from_sparql_endpoint(	$subject,
+																																		$sds_name,
+																																		$sds_sparql_endpoint,
+																																		$sds_sparql_endpoint_params,
+																																		RodinRDFResult::$NAMESPACES);
+						$homogenized_triples= $this->homogenize_foreign_triples($triples,$sds_name);
+						$this->import_triples($homogenized_triples);
+					} // foreach($subjects_labels
+				} // foreach($LOD_SOURCES_RECORDS
+			}
+			else
+				print "<br> NO LOD sources (yet) used to expand result rdf information";
+		}
+	} // rdfLODexpand
+	
+	
+	
+	/**
+	 * Returns an array with dcsubjects from the current local store for this result
+	 */
+	public function getDCSubjects()
+	{
+		$subjects_labels=array();
+		if (RodinRDFResult::$store)
+		{
+			$dce_ns_url=RodinRDFResult::$NAMESPACES{'dce'};
+			$rdf_ns_url=RodinRDFResult::$NAMESPACES{'rdf'};
+			$rodin_ns_url=RodinRDFResult::$NAMESPACES{'rodin'};
+			
+			$sparql_query=<<<EOS
+			PREFIX dce:  	<$dce_ns_url>
+			PREFIX rdf: 	<$rdf_ns_url>
+			PREFIX rodin: <$rodin_ns_url>
+						select ?l 
+			{
+				?s rdf:type dce:subject .
+				?s rodin:label ?l .
+			} 
+EOS;
+			//print "<br>querying: ".htmlentities($sparql_query);
+			if (($rows = RodinRDFResult::$store->query($sparql_query, 'rows')))
+			{
+				foreach($rows as $row)
+				{
+					$subjects_labels[] = $row['l'];
+				} // foreach
+			}	// results
+		} //store
+		return $subjects_labels;
+	} // getDCSubjects
+	
+	
+	
+	/**
+	 * Returns the triples passed with some 
+	 * specific needed transformation
+	 * in order to be used inside the RODIN SPACE
+	 * 
+	 * @param triples array $triples - the triples
+	 * @param string $src_name - The name of the refining component
+	 */
+	public function homogenize_foreign_triples(&$triples,$src_name)
+	{
+		print "<br>homogenize_foreign_triples for ($src_name)";
+		switch (strtolower($src_name))
+		{
+			#########################################
+			case 'europeana';
+			#########################################
+				foreach($triples as $triple)
+				{
+					list($s,$p,$o) = $triple;
+					$add_triple=true;
+					//print "<br>HOMOG triple ($s)($p)($o)";
+					
+					$new_p=$p; $new_o=$o;
+					if (strstr($s,'epp:'))
+						$new_s='rodin_e:'.str_replace('epp:','',$s);
+					
+					if ($p=='rdf:type' && $o=='ore:terms/Proxy')
+					{
+						//change this triple: We need the "real" type. not a proxy trick like in europeana	
+						$homogenized_triples[]=array($new_s,$new_p,'dce:BibliographicResource');
+					}
+					else if ($p=='dce:subject')
+					{
+							//TODO: LINK work with subject 
+							//is such a subject=$o in rodin?
+							//print "<br>PROC dce:subject: $o";
+							$o=l_inverse($o); //eliminate douple quote from literal
+							if (!($subject_uid=get_triple_subject('rodin:label',$o,$this)))
+							{
+								//$o should not contain double quote...
+								//Construct a rodin subject
+								$subject_uid='rodin:'.RodinRDFResult::adapt_name_for_uid($o);
+								//Generate a rodin:label $o 
+								$homogenized_triples[]=array($subject_uid,	'rodin:label', 	l($o)); 
+								$homogenized_triples[]=array($subject_uid,	'rdf:type', 	'dce:subject'); 
+							}
+							$homogenized_triples[]=array($new_s,	$new_p, 	$subject_uid); 
+							$add_triple=false;
+					} //dce:subject 
+					
+					//TODO: check doubles work ...	
+					//TODO: Link Work with subject
+					//TODO: Link Subject (if possible or create)
+					//Is the subject literal linked with a rodin-literal (subject)?
+					//if yes: change the literal to a rodin: link to this element
+					//if not: create a rodin:subject to this literal (to be related with that subject)
+	
+					if ($add_triple)
+								$homogenized_triples[]=array($new_s,$new_p,$new_o);
+				}	// foreach $triples		
+			break; //europeana
+			#########################################
+			default: $homogenized_triples=$triples;
+		}
+				
+		return $homogenized_triples;
+	} // homogenize_foreign_triples
+	
+	
 	
 	
 	
@@ -1199,12 +1403,12 @@ class RodinRDFResult {
 	 * $INITIALISED_SRCs = initialize_SRC($USER_ID)
 	 * @param $USER_ID - the user id for which some SRC's are activated
 	 */
-	public function initialize_SRC($USER_ID,$lang)
+	public function get_THESAURI_RECORDS($USER_ID,$lang)
 	{
 		$DEBUG=0;
 		global $DOCROOT;
 		$initialised_src=0;
-		$INIT_SRC_OBJ = initialize_SRC_MODULES( $USER_ID , ' AND UsedForSubjects=1 ');
+		$INIT_SRC_OBJ = get_active_THESAURI_expansion_sources( $USER_ID );
 		
 		$SRCs = $INIT_SRC_OBJ['records'];
 		$NoOfUsableSRC=count($SRCs);
@@ -1215,7 +1419,12 @@ class RodinRDFResult {
 		{
 			$i++;
 			$src_name=$SRC['Name'];
-			$src_path=$SRC['Path_Refine']; // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+			$src_path=trim($SRC['Path_Refine']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+			$sds_sparql_endpoint=trim($SRC['sparql_endpoint']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+			$src_sparql_endpoint_params=trim($SRC['sparql_endpoint_params']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+						
+			//Is this a classical SRC or nonSKOS a sparql endpoint ?
+			$IS_SPARQL_ENDPOINT=($src_path=='' && $sds_sparql_endpoint<>'');
 			
 			$CLASS=basename($src_path);
 			$SUPERCLASS=basename(dirname($src_path));
@@ -1267,6 +1476,9 @@ class RodinRDFResult {
 			}
 			
 			$INITIALISED_SRCs[]= array(	$src_name,
+																	$IS_SPARQL_ENDPOINT,
+																	$sds_sparql_endpoint,
+																	$sds_sparql_endpoint_params,
 																	$CLASS,
 																	$pathSuperClass,
 																	$pathClass,

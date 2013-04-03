@@ -36,6 +36,9 @@ $checked_list3pls=$list3pls?' checked ':'';
 $list3page=$list3pls;
 $checked_list3page=$list3page?' checked ':'';
 
+//If $list3page then also $want_rdfexpand
+$want_rdfexpand=$list3page;
+
 
 if ($sid<>'')
 {
@@ -85,10 +88,14 @@ if ($sid<>'')
 		//print "<br>SEG: $SEG, USER: $USER ";
 		$search_term = collect_queries_tag($SEG,$USER_ID,$sid);
 		//print "<br>collect_queries_tag($SEG,$USER,$sid) = $search_term";
+		$store=null;
 		if ($list3pls)
-			$ok = $result->rdfize($sid,$datasource,$search_term,$USER_ID);
+			$store = $result->rdfize($sid,$datasource,$search_term,$USER_ID);
 	
-		
+		if($store && $want_rdfexpand)
+		{
+			$ok=$result->rdfLODexpand($sid,$datasource,$search_term,$USER_ID);
+		}
 		//$singleResult['minContent'] = ($result->toInWidgetHtml('min'));
 		//$singleResult['tokenContent'] = ($result->toInWidgetHtml('token'));
 		//$singleResult['allContent'] = ($result->toInWidgetHtml('all'));
@@ -117,6 +124,9 @@ $PAGEWIDTH="400px";
 print<<<EOP
 	<div id='div1' style="width:100%;height:400px">
 	<h2>RODIN USECASE III semantic expansion LAB</h2>
+	<p>
+		<a href='$RDFSEMEXP_STOREEXPLORER' target='_blank' title='Click to open LOCAL STORE SPARQL Explorer in new tab'> LOCAL STORE SPARQL Explorer </a>
+	</p>
 	<form name='fsid' action=''>
 	<table style="width:100%">
 		<tr>

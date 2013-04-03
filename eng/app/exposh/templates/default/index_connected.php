@@ -108,7 +108,7 @@ EOI;
 	$_SESSION['FRI_START'] = 0; //only 1 time
 	
 	if ($FRI_START || 1) {
-		$INIT_SRC_OBJ = initialize_SRC_MODULES( $_SESSION['user_id'] );
+		$INIT_SRC_OBJ = initialize_SRC_MODULES( $_SESSION['user_id'],' AND UsedAsThesaurus=1 ');
 		$INIT_SRC_CODE = $INIT_SRC_OBJ['ajax_init_src_code'];
 		$INIT_SRC_REF_TABS = $INIT_SRC_OBJ['src_interface_specs'];
 	}
