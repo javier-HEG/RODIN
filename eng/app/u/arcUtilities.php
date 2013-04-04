@@ -54,9 +54,10 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 		if ($rows = $RDFenhancementCLASS::$store->query($QUERY, 'rows')) 
 		{
 			$i=0;
-			
+			$TRIPLECOUNT = count($rows);
+			$STORENAME=$RDFenhancementCLASS::$storename;
 			$HTML.= "<table  border='1' class='$tableclass'>";
-			$HTML.= "<tr><td colspan='4'><b>$TITLE</b></td></tr>";
+			$HTML.= "<tr><td colspan='4'><b>$TRIPLECOUNT TRIPLES in STORE '$STORENAME' $TITLE</b></td></tr>";
 			foreach($rows as $row) 	
 			{	$i++;
 			
@@ -164,6 +165,108 @@ EOX;
 			return $literal;
 		}
 		
+		
+		
+		/**
+		 * Extracts portions of $txt which are numbers or (en) stopwords
+		 * @param $txt0 - The text to be cleaned
+		 */
+		function filter_as_subject($txt0)
+		{
+			$pattern = '/[0-9&!;\.\:\-_\[\]\(\)]+/';
+			$replace = '';
+			$txt= trim(preg_replace($pattern, $replace, $txt0));
+			//print "<br>filter_as_subject($txt0)=>($txt)";
+			$stopWords = get_stopwords();
+			
+			$newtxt='';
+		
+			if (is_numeric($txt))
+			return $newtxt;
+			
+			if (strstr($txt,' '))
+				$arr=preg_split("/[\;\:\. ]+/", $txt);
+			else $arr=array($txt);
+			
+			foreach($arr as $microseg)
+			{
+				$microseg=trim($microseg);
+				if ($microseg<>'')
+				{
+				  //print "<br>microseg ($microseg)";
+					if (!is_numeric($microseg) 
+					&& !is_date_segment($microseg) 
+					&& !is_romanic_number($microseg)  
+					&& !in_array($microseg, $stopWords))
+					$newtxt.=' '.$microseg;
+					//else print " discard! ";
+				}
+			}
+			$newtxt = ltrim($newtxt);
+			$newtxt = utf8_encode($newtxt);
+			
+			//print "<br>filter_as_subject($txt0)=>($txt)=>($newtxt)";
+			return $newtxt;
+		}
+		
+		
+		
+		
+		
+		/**
+		 * 
+		 */
+		function tell_subjects(&$subjects,$TITLE)
+		{
+			global $RDFLOG;	
+	 		if (is_array($subjects) && ($c=count($subjects)))
+			{
+				
+				$RDFLOG.="<hr><i>$c $TITLE</i>";
+				foreach($subjects as $sub)
+					$RDFLOG.="<br>$sub";
+				$RDFLOG.="<hr>";
+			}
+		}
+		
+		
+		
+		function tell_skos_subjects($skos_subjects, $TITLE)
+		{
+			global $RDFLOG;	
+	 		if (is_array($skos_subjects) && ($c=count($skos_subjects)))
+			{
+				
+				$RDFLOG.="<hr><i>$c $TITLE</i>";
+				foreach($skos_subjects as $s=>$SKOS)
+				{
+					list($src_name,$broaders,$narrowers,$related)=$SKOS;
+					$RDFLOG.= "<br><b>$src_name</b>.SKOS ($s):";
+					
+					if (($bc=count($broaders)))
+					{
+						$RDFLOG.="<br><i>$bc Broaders:</i>";
+						foreach($broaders as $b)
+						$RDFLOG.="<br>&nbsp;&nbsp; $b";
+					}
+					
+					if (($nc=count($narrowers)))
+					{
+						$RDFLOG.="<br><i>$nc Narrowers:</i>";
+						foreach($narrowers as $n)
+						$RDFLOG.="<br>&nbsp;&nbsp; $n";
+					}
+
+					if (($rc=count($related)))
+					{
+						$RDFLOG.="<br><i>$rc Related:</i>";
+						foreach($related as $r)
+						$RDFLOG.="<br>&nbsp;&nbsp; $r";
+					}
+				}
+				$RDFLOG.="<hr>";
+			}
+		}
 		
 		
 		
@@ -740,19 +843,24 @@ EOR;
 																											$src_name,
 																											$sds_sparql_endpoint,
 																											$sds_sparql_endpoint_params,
+																											&$NAMESPACES,
+																											$lang,
 																											$limit=5 )
 	{
 		$debug=0;
 		$subject_arr = array();
-		$cache_id="relatedsubjects.$src_name.$subject.$limit";
+		$cache_id="relatedsubjects.$src_name.$subject.$lang.$limit";
+		
+		Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Start with cache_id $cache_id"));
+		$dce_ns_url=$NAMESPACES{'dce'};
 		
 		$sparqlquery=<<<EOQ
-PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dce: <$dce_ns_url>
 
 select ?srelated
 {
   ?s ?_ "$subject" .
-  ?s dc:subject ?srelated .
+  ?s dce:subject ?srelated .
  } limit $limit		
 EOQ;
 
@@ -778,9 +886,11 @@ EOQ;
       $timestamp0=time();
       $age_in_sec=0;
       $expiring_in_sec=$max_age_in_sec;
-      if ($debug) {
-      	print "<br><br>CALLING ".$url_endpoint."<br><br>";
+      
+		 	if ($debug) {
+      	$RDFLOG.= "<br><br>CALLING REMOTE SOURCE ".$url_endpoint."<br><br>";
       }
+			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Open $url_endpoint"));
 			
 			$xml_content=get_file_content($url_endpoint);
 		
@@ -788,61 +898,115 @@ EOQ;
 			$xmlCached_content = $xml_content;
 		}
 
-		//scan/open $xmlCached_content for later use
-		//print "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
-		$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
-		foreach($sxmldom->results->result as $result)
+		$valid_xml=true;
+		$xml_content_len=count($xmlCached_content);
+		if (datasource_error($xmlCached_content,$src_name))
 		{
-			$rel_sub=trim($related_sub=$result->binding->literal."");
-			if ($rel_sub<>'')
-					$subject_arr[]=$result->binding->literal."";		
+			fontprint("<hr>ERROR FROM DATASOURCE $src_name called on subject ($subject) for related subjects:"
+						."<br>Check for CACHE?<br>"
+						."<br>QUERY:<br>"
+						.str_replace("\n","<br>",htmlentities($sparqlquery)),'red')
+						."<br><br>Using url:"
+						."<br>$url_endpoint";
+			$valid_xml=false;
+	 		Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"));
 		}
 		
-		if ($debug)
+		if ($valid_xml)
 		{
-			$subject_arr_noof=count($subject_arr);
-			print "<br>RETURNING $subject_arr_noof SPARQL related subjects to $subject from $src_name:";
-			foreach($subject_arr as $sub)
+			//scan/open $xmlCached_content for later use
+			//print "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
+			$xml_content_len = strlen($xml_content);
+			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"));
+			
+			$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
+			foreach($sxmldom->results->result as $result)
 			{
-				print "<br>$sub";
+				$rel_sub=trim($related_sub=$result->binding->literal."");
+				if ($rel_sub<>'')
+				{
+					$subject_candidate = $result->binding->literal."";	
+					//Add only iff filtered is once and in the same lang	
+					//$RDFLOG.="<br>CONSIDER related subject ($subject_candidate)";
+					insert_filtered_once($subject_candidate,$subject_arr,$lang);
+				}
 			}
-		}
+			
+			if ($debug)
+			{
+				$subject_arr_noof=count($subject_arr);
+				print "<br>RETURNING $subject_arr_noof SPARQL related subjects to $subject from $src_name:";
+				foreach($subject_arr as $sub)
+				{
+					print "<br>$sub";
+				}
+			}
+			
+			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Exit"));
+		} // valid xml
 		return $subject_arr;
 	}	// get_related_subjects_from_sparql_endpoint
 		
 		
 		
-		
+	/**
+	 * enrich the vector
+	 * if the filtered version is new to $vector
+	 * 
+	 * @param text $candidate - a term
+	 * @param array $vector - the vector to fill
+	 * @param string $lang
+	 */
+	function insert_filtered_once($candidate,&$vector,$lang)
+	{
+		global $RDFLOG;
+		$DEBUG=0;
+		if (($subject=filter_as_subject($candidate)))
+		{
+			//print "==> FILTERED TO: $subject";
+			if ($DEBUG) $RDFLOG.="<br>Considering subject '$subject'";
+			
+			if (($langt=detectLanguage($subject))==$lang)
+			{
+				if (!in_array($subject,$vector))
+						$vector[]= $subject;
+				//print "<br>TAKE($langt==$lang) SUBJ($subject):";
+			 
+				if($DEBUG)  
+					$RDFLOG.= "<br>TAKE($langt==$lang) SUBJ($subject):";
+				else {
+					//fontprint("<br>DISC SUBJ($langt<>$lang) SUBJ($subject)",'red');
+					if($DEBUG)  $RDFLOG.= htmlprint("<br>DISC SUBJ($langt<>$lang) SUBJ($subject)",'red');
+				}
+			} // lang
+		}
+		//return $vector;
+	} // insert_filtered_once
 		
 		
 	/**
 	 * Compute related subjects to subject inside a given spqrql source
-	 * using
-	 * 
-	 * PREFIX dc: <http://purl.org/dc/elements/1.1/>
-	 * select ?srelated {
-	 *   ?s ?_ "$subject" .
-	 *   ?s dc:subject ?srelated .
-	 * } limit 10
 	 *
 	 * @param string $subject
 	 * @param string $src_name
 	 * @param string $sds_sparql_endpoint
 	 * @param string $sds_sparql_endpoint_params
-	 * @param $integer $limit
-	 *  
+	 * @param vector &$NAMESPACES
+	 * @param integer $limit
+	 * 	 *  
 	 */	
 	function get_triples_on_subject_from_sparql_endpoint(	$subject,
 																												$src_name,
 																												$sds_sparql_endpoint,
 																												$sds_sparql_endpoint_params,
 																												&$NAMESPACES,
-																												$limit=150 )
+																												$tripleslimit=15)
 	{
+		global $RDFLOG;
+		
 		$debug=0;
 		$subject_arr = array();
-		$cache_id="expansion.$src_name.$subject.$limit";
-		
+		$cache_id="expansion.$src_name.$subject.$tripleslimit";		
 		$dce_ns_url=$NAMESPACES{'dce'}
 ;		
 		$sparqlquery=<<<EOQ
@@ -852,18 +1016,18 @@ select distinct ?s ?p ?o
 {
   ?s dce:subject "$subject" .
   ?s ?p ?o 
- } limit $limit		
+ } limit $tripleslimit
 EOQ;
 
 		if ($debug)
-		print "<br>get_triples_on_subject_from_sparql_endpoint:<br><br>query:<br>".(str_replace("\n","<br>",htmlentities($sparqlquery)))."<br><br>";
+		$RDFLOG.= "<br>get_triples_on_subject_from_sparql_endpoint:<br><br>query:<br>".(str_replace("\n","<br>",htmlentities($sparqlquery)))."<br><br>";
 
 		$url_endpoint= $sds_sparql_endpoint
 								 	.'?query='.urlencode($sparqlquery)
 									.'&'.$sds_sparql_endpoint_params;
 		
 		//cache_src_response($cache_id,$xml_src_content)
-    //Logger::logAction(25, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id));
+    Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id));
     list($xmlCached_content,
             $creationtimestamp,
             $age_in_sec,
@@ -878,8 +1042,10 @@ EOQ;
       $age_in_sec=0;
       $expiring_in_sec=$max_age_in_sec;
       if ($debug) {
-      	print "<br><br>CALLING ".$url_endpoint."<br><br>";
+      	$RDFLOG.= "<br><br>CALLING REMOTE SOURCE ".$url_endpoint."<br><br>";
       }
+			
+			Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Open $url_endpoint"));
 			
 			$xml_content=get_file_content($url_endpoint);
 		
@@ -888,48 +1054,74 @@ EOQ;
 		}
 
 		//scan/open $xmlCached_content for later use
-		if ($debug) print "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
-		$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
-		foreach($sxmldom->results->result as $result)
+		if ($debug) $RDFLOG.= "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
+		
+		$xml_content_len=strlen($xml_content);
+		$valid_xml=true;
+		if (datasource_error($xmlCached_content,$src_name))
 		{
-			//print "<hr>";
-			
-			$s=$result->binding->uri.'';
-			$s = separate_namespace($NAMESPACES,$s,':',false);
-			//print "<br><br>s:<br>$s";
-			
-			
-			$p=$result->binding[1]->uri.'';
-			$p = separate_namespace($NAMESPACES,$p,':',false);
-			//print "<br><br>p:<br>$p";
-						
-			$o_literal= $result->binding[2]->literal.'';
-			$o_uri= $result->binding[2]->uri.'';
-			$o_bnode= $result->binding[2]->bnode.'';
-			
-			if ($o_uri)
-				$o_uri = separate_namespace($NAMESPACES,$o_uri,':',false);
-			
-			$o=$o_literal
-				?l($o_literal) //Use special quote function
-				:($o_uri
-				 ?$o_uri
-				 :$o_bnode);
-					 
-			//print "<br><br>o: ($o_literal,$o_uri,$o_bnode)<br>";
-			
-			$triples[]=array($s,$p,$o);	
+			fontprint("<hr>ERROR FROM DATASOURCE called on subject ($subject):"
+						."<br>Check for CACHE?<br>"
+						."<br>QUERY:<br>"
+						.str_replace("\n","<br>",htmlentities($sparqlquery)),'red')
+						."<br><br>Using url:"
+						."<br>$url_endpoint";
+			$valid_xml=false;
+	 		Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"));
 		}
 		
-		if ($debug)
+		
+		if ($valid_xml)
 		{
-			$triples_noof=count($triples);
-			print "<br>RETURNING $triples_noof SPARQL triples to $subject from $src_name:";
-			foreach($triples as $triple)
+	 		Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"));
+			$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
+			if ($sxmldom)
 			{
-				list($$s,$p,$o)= $triple;
-				print "<br><b>TRIPLE</b>: $s $p $o";
+				foreach($sxmldom->results->result as $result)
+				{
+					//print "<hr>";
+					
+					$s=$result->binding->uri.'';
+					$s = separate_namespace($NAMESPACES,$s,':',false);
+					//print "<br><br>s:<br>$s";
+					
+					
+					$p=$result->binding[1]->uri.'';
+					$p = separate_namespace($NAMESPACES,$p,':',false);
+					//print "<br><br>p:<br>$p";
+								
+					$o_literal= $result->binding[2]->literal.'';
+					$o_uri= $result->binding[2]->uri.'';
+					$o_bnode= $result->binding[2]->bnode.'';
+					
+					if ($o_uri)
+						$o_uri = separate_namespace($NAMESPACES,$o_uri,':',false);
+					
+					$o=$o_literal
+						?l($o_literal) //Use special quote function
+						:($o_uri
+						 ?$o_uri
+						 :$o_bnode);
+							 
+					//print "<br><br>o: ($o_literal,$o_uri,$o_bnode)<br>";
+					
+					$triples[]=array($s,$p,$o);	
+				}
 			}
+			
+			$triples_noof=count($triples);
+			
+			if ($debug)
+			{
+				$RDFLOG.= "<br>RETURNING $triples_noof SPARQL triples to $subject from $src_name:";
+				foreach($triples as $triple)
+				{
+					list($$s,$p,$o)= $triple;
+					$RDFLOG.= "<br><b>TRIPLE</b>: $s $p $o";
+				}
+			}
+			
+			Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Exit with $triples_noof triples"));
 		}
 		return $triples;
 	}	// get_triples_on_subject_from_sparql_endpoint
@@ -938,7 +1130,21 @@ EOQ;
 		
 		
 		
-		
+	 function datasource_error(&$txt, $src_name)
+	 {
+	 	$is_error=false;
+	 	switch(strtolower($src_name))
+		{
+			case 'europeana':
+				$is_error = (strstr(substr($txt,0,100),'Error report'));
+				break;
+			case 'dbpedia':
+				$is_error = (strstr(substr($txt,0,100),'FATAL error'));
+				break;
+		}
+	 	return $is_error;
+	 }
+	 
 		
 		
 		

@@ -38,8 +38,10 @@ if ($getStopwords) {
 /**
  * Cleans the stopwords from the array passed as parameter,
  * it returns the clean array.
+ * 
+ * @param vector $words - A vector of words to be examined
  */
-function cleanup_stopwords($words) {
+function cleanup_stopwords(&$words) {
 	$DEBUG=0;
 		$stopWords = get_stopwords();
 		foreach($words as $word) {

@@ -189,6 +189,7 @@ EOP;
 			$Servlet_Refine=$_REQUEST['Servlet_Refine'];
 			$sparql_endpoint=$_REQUEST['sparql_endpoint'];
 			$sparql_endpoint_params=$_REQUEST['sparql_endpoint_params'];
+			$src_parameters=$_REQUEST['src_parameters'];
 			$comment=$_REQUEST['comment'];
 			$Type=$_REQUEST['Type'];
 			$mode=$_REQUEST['mode'];
@@ -280,6 +281,7 @@ EOE;
 						Servlet_Start='$Servlet_Start',
 						comment='$comment',
 						sparql_endpoint='$sparql_endpoint',
+						src_parameters='$src_parameters',
 						Modified=CURRENT_TIMESTAMP
 				 WHERE id=$ID
 				";
@@ -295,8 +297,8 @@ EOE;
 			{
 				$SQL_DUP=
 				"INSERT INTO src_interface
-				 (POS,Name,forRODINuser,AuthUser,AuthPasswd,Protocol,Server,Port,Type,mode,Path_Start,Servlet_Start,Path_Refine,comment,sparql_endpoint,sparql_endpoint_params,Servlet_refine,sparql_endpoint,Modified) 
-				 SELECT POS,Name,forRODINuser,AuthUser,AuthPasswd,Protocol,Server,Port,Type,mode,Path_Start,Servlet_Start,Path_Refine,comment,sparql_endpoint,sparql_endpoint_params,Servlet_refine,sparql_endpoint,CURRENT_TIMESTAMP 
+				 (POS,Name,forRODINuser,AuthUser,AuthPasswd,Protocol,Server,Port,Type,mode,Path_Start,Servlet_Start,Path_Refine,comment,sparql_endpoint,sparql_endpoint_params,Servlet_refine,sparql_endpoint,src_parameters,Modified) 
+				 SELECT POS,Name,forRODINuser,AuthUser,AuthPasswd,Protocol,Server,Port,Type,mode,Path_Start,Servlet_Start,Path_Refine,comment,sparql_endpoint,sparql_endpoint_params,Servlet_refine,sparql_endpoint,src_parameters,CURRENT_TIMESTAMP 
 				 FROM src_interface WHERE id=$ID
 				";
 				
@@ -565,6 +567,7 @@ EOP;
 								|| $attr=='sparql_endpoint'
 								|| $attr=='comment'
 								|| $attr=='sparql_endpoint_params'
+								|| $attr=='src_parameters'
 								)
 								$SIZE=60;
 								

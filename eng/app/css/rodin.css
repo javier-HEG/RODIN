@@ -205,15 +205,47 @@ srcmultiplecontainer.span.reftextarea
 
 
 /* RDF Section */
-.tripletable
+
+
+div.rdf_widgetinfo {
+	padding:3px 3px 3px 3px;
+	background-color:white;
+	border-color:black;
+	border-width:1px;
+	border-style:solid;
+	width:800px;
+	max-height:300px;
+	overflow:auto;
+} 
+
+
+div#divLOGGING {
+	padding:3px 3px 3px 3px;
+	border:2px solid black;
+	width:800px;
+	max-height:300px;
+	/*visibility:hidden;
+	display:none;*/
+	visibility:visible;
+	display:block;
+	background-color:#eee;
+	overflow:auto
+}
+
+div.tripletable
 {
 	background-color:#FFeeee;
+	width:810px;
+	max-height:500px;
+	overflow:auto;
 }
 
 div.headertripelpage
 {
 	background-color:<?php print $TRIPLEPAGE_COLOR_BG_DARKER;?> ;
 	padding:2px;
+	width:800px;
+	overflow:auto;
 }
 
 

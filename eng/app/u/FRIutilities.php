@@ -333,6 +333,48 @@ function detect_language($text)
 
 
 
+
+
+function is_date_segment($txt)
+{
+	$txt=strtolower(trim($txt));
+	
+	return (
+			strstr($txt,'monday') 
+	||	strstr($txt,'tuesday') 
+	||	strstr($txt,'wednesday') 
+	||	strstr($txt,'thursday') 
+	||	strstr($txt,'friday') 
+	||	strstr($txt,'saturday') 
+	||	strstr($txt,'sunday') 
+	
+	||	strstr($txt,'january') 
+	||	strstr($txt,'february') 
+	||	strstr($txt,'march') 
+	||	strstr($txt,'april') 
+	||	strstr($txt,'may') 
+	||	strstr($txt,'june') 
+	||	strstr($txt,'july') 
+	||	strstr($txt,'august') 
+	||	strstr($txt,'september') 
+	||	strstr($txt,'october') 
+	||	strstr($txt,'november') 
+	||	strstr($txt,'december') 
+	);	
+}
+
+
+function is_romanic_number($txt)
+{
+	global $ROMAN_REGEX;
+  $test = (preg_match($ROMAN_REGEX, $txt) > 0);
+	//print "<br>Testing tomanic number ($txt) with pattern ($ROMAN_REGEX) = $test";
+  return $test;
+}
+
+
+
+
 function clean_html($str)
 {
   $debug=0;
@@ -357,7 +399,7 @@ function clean_html($str)
  */
 function clean_spechalchars($txt)
 {
-	$pattern = '/[\(\)\/]/'; // replace every nonword with ''
+	$pattern = '/[\,\.\;\&\+\(\)\/\[\]]/'; // replace every nonword with ''
 	$text = trim(preg_replace($pattern, '', $txt));
 	
 	//print "<br>clean_spechalchars($txt) returning (($text))";
@@ -372,6 +414,12 @@ function fontprint($txt,$txtcolor="black",$fontsize="12pt",$fontart="arial")
 	print "<font style='color:$txtcolor; font:$fontart;'> $txt </font>";
 }
 
+
+function htmlprint($txt,$txtcolor="black",$fontsize="12pt",$fontart="arial")
+{
+	#return "<font style='color:$txtcolor; font:$fontart;font-size:$fontsize;'>$txt</font>";
+	return "<font style='color:$txtcolor;'>$txt</font>";
+}
 
 /*
  * return a string split to the nth occurence of needle:

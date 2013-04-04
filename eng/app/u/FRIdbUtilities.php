@@ -2351,7 +2351,6 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 				$comment=$REC['comment'];
 				$Servlet_Start	=$REC['Servlet_Start'];
 				$Servlet_Refine	=$REC['Servlet_Refine'];
-				$Servlet_Test		=$REC['Servlet_Test'];
 				*/
 				$RECS[]=$REC;
 				//print "<br>Servletname:$Servletname";

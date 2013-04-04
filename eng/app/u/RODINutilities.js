@@ -3519,4 +3519,22 @@ function open_ns(ns)
 	window.open(ns,'_blank');
 }
 
+
+function toggle_visibility(obj)
+{
+	if (obj)
+	{
+		var s=obj.style;
+		if(s.visibility=='visible')
+		{
+			s.visibility='hidden';
+			s.display='none';
+		} else {
+			s.visibility='visible';
+			s.display='block';
+		}
+	}	
+}
+
+
 //alert('RODINutilities.js loaded');

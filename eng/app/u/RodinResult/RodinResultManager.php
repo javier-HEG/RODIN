@@ -396,10 +396,14 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
     global $aggView;
 		global $WANT_RFLAB, $RDFSEMEXPLABURL; // DEBUG
 		global $SOLR_RODIN_CONFIG;
+		global $RODINUTILITIES_GEN_URL;
     global $SOLR_MLT_MINSCORE;
     global $USER;
     global $RODINSEGMENT;
     global $m; if($m==0) $m=1000; //we do not know how may rows are to retrieve
+    
+    $RDFLAB_ICON = "$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png";
+		$RDFLAB_LINK="<img src='$RDFLAB_ICON' width='15'>";
     
     $slrq='';
     if ($slrq_base64)
@@ -464,8 +468,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
       		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x' || $RODINSEGMENT=='st') 
               || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on p, st 
       {
-      	$RDFSEMEXPLABURL.="?sid=$sid&datasource=$datasource&listwr=on";  
-        print "&nbsp;<a href='$RDFSEMEXPLABURL' target='_blank' title='Click to open RDFLAB on these results in a new TAB'>rdflab</a>";
+      	$RDFSEMEXPLABURL.="?sid=$sid&datasource=$datasource&listwr=on&user_id=".$_SESSION['user_id']."&username=".$_SESSION['username'];  
+        print "&nbsp;<a href='$RDFSEMEXPLABURL' target='_blank' title='Click to open RDFLAB on these results in a new TAB'>rdflab $RDFLAB_LINK</a>";
       	$needbr=true;
 			}
 			if ($needbr) print "<br>";

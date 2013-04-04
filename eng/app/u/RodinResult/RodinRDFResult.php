@@ -21,6 +21,16 @@ $filename="fsrc/gen/u/arc/ARC2.php"; $maxretries=10;
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 			
+
+
+$filename="app/u/LanguageDetection.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+
+
+
 class RodinRDFResult {
 	
 	private $my_result; //triples from this result were generated and inserted into store
@@ -124,45 +134,56 @@ class RodinRDFResult {
 	public function rdfize( $sid )
 	{
 		$DEBUG=0;
+		$showsubjects=1;
+		global $RDFLOG;
+		
+		$RDFLOG.="<hr>RDFIZE RESULT:<hr>";
+		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Started with sid:'.$sid));
+		$lang=detectLanguage(RodinRDFResult::$searchterm);
+		#####################################################################
+		
 		$triple= array();
 		//Do we have one or more authors?
 		$authors= $this->my_result->getAuthors() 
 							?explode(',',$this->my_result->getAuthors())
 							:null;
 		$isbn= $this->extract_isbn($this->my_result->getProperty('isbn')); 
-		$title= $this->my_result->getTitle(); 
+		$title= trim($this->my_result->getTitle()); 
 		$date = $this->my_result->getDate();
 		$urlPage = $this->my_result->getUrlPage();
 		$publisher = $this->my_result->getProperty('publisher');
-		$datasource_subjects = explode(',',strtolower(trim($this->my_result->getProperty('subjects'))));
+		//$datasource_subjects = explode(',',strtolower(trim($this->my_result->getProperty('subjects'))));
+		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($this->my_result->getProperty('subjects'))),$lang);
+		if ($showsubjects) tell_subjects($datasource_subjects,"considered datasource subjects:");
 		
 		//print "<br>Datasource >Subjects (".$this->my_result->getProperty('subjects').")";
 		
 		//Prepare title category etc ... if possibile
 		list($title,$category,$presentation_at,$date_event) = $this->scan_datasource_title($title,RodinRDFResult::$datasource);
-		$additional_subjects=$this->compute_subjects(RodinRDFResult::$searchterm,$title,RodinRDFResult::$datasource);
+		$additional_subjects=$this->compute_title_subjects(RodinRDFResult::$searchterm,$title,RodinRDFResult::$datasource,$lang);
+		if ($showsubjects) tell_subjects($additional_subjects,"extracted additional title subjects:");
 
 
 		//print "<br>ADDITIONAL Subjects (".implode('+',$additional_subjects).")";
 
-		$uniquesubjects=array();
-		foreach( $additional_subjects as $sss)
-		{
-			$sss_arr=explode(' ',$sss);
-			foreach($sss_arr as $s)
-			{
-				if (!in_array($s,$uniquesubjects))
-				{
-					$uniquesubjects[]=$s;
-				}}}
+		$msubjects=array_unique(array_merge($datasource_subjects,$additional_subjects));
+		$uniquesubjects = $this->compute_unique_subjects($msubjects,$lang);
+		if ($showsubjects) tell_subjects($uniquesubjects,"extracted unique subjects:");
 		
-		$subjects=array_unique(array_merge($datasource_subjects,$additional_subjects,$uniquesubjects));
+		$subjects=array_unique(array_merge($msubjects,$uniquesubjects));
 		//print "<br>FINAL Subjects (".implode('+',$subjects).")";
+		
+		if ($showsubjects) tell_subjects($subjects,"globally considered subjects:");
+
+		
 		
 		$skos_subjects = $this->get_relatedsubjects_from_thesauri(	$subjects,
 																																$sid,
 																																RodinRDFResult::$USER_ID,
-																																RodinRDFResult::$searchterm  );
+																																RodinRDFResult::$NAMESPACES,
+																																$lang );
+																																
+		if ($showsubjects) tell_skos_subjects($skos_subjects, 'SKOS subjects');
 		
 		//If a work document is given: rdfize it
 		//first of all create workuid
@@ -217,7 +238,7 @@ class RodinRDFResult {
 							//add related subjects from thesauri to s
 							if (count(($SKOS=$skos_subjects{$subject})))
 							{
-								list($broaders,$narrowers,$related) = $SKOS;
+								list($src_name,$broaders,$narrowers,$related) = $SKOS;
 
 								if (count($broaders))
 								foreach($broaders as $bs)
@@ -309,6 +330,7 @@ class RodinRDFResult {
 				
 		} // publishers
 		
+		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Import triples start'));
 	
 		
 		// IMPORT TRIPLE INTO LOCAL STORE:
@@ -318,6 +340,7 @@ class RodinRDFResult {
 		//if ($statistics) print "<hr>$statistics";
 		$return_value=$statistics?RodinRDFResult::$store:null;
 				
+		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Exit'));
 		return $return_value; 
 	} // rdfize 
 	
@@ -336,6 +359,7 @@ class RodinRDFResult {
 	 */
 	function import_triples(&$triples)
 	{
+		$statistics=null;
 		$GRAPH=RodinRDFResult::$importGraph;
 		$NAMESPACES_PREFIX = RodinRDFResult::$NAMESPACES_PREFIX;
 		$TRIPLETEXT="
@@ -344,79 +368,84 @@ class RodinRDFResult {
     {";
  	
 		$i=0;
-		foreach($triples as $triple)
+		
+		
+		//print "<br>import_triples called with:<br>"; var_dump($triples);
+		if (is_array($triples) && count($triples)>0)
 		{
-			$i++;
-			$s=$triple[0];
-			$p=$triple[1];
-			$o=cleanup4literal($triple[2]); // literals might contain ' '' ... addslashes?
+			foreach($triples as $triple)
+			{
+				$i++;
+				$s=$triple[0];
+				$p=$triple[1];
+				$o=cleanup4literal($triple[2]); // literals might contain ' '' ... addslashes?
+				
+		  	$TRIPLETEXT.="\n $s $p $o .";
+				
+				//if($i>13) break;
+			}
 			
-	  	$TRIPLETEXT.="\n $s $p $o .";
+			$TRIPLETEXT.='}';
 			
-			//if($i>13) break;
-		}
-		
-		$TRIPLETEXT.='}';
-		
-		$debug=0;
-		if($debug) print "<br>ARC CONSTRUCTING: <hr>".str_replace("\n","<br>",htmlentities($TRIPLETEXT));	
-		
-		$num_triples_before=count_ARC_triples(RodinRDFResult::$store);
-    $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
-
-    //We need on the server at HEG to enhance php execution time limit, 
-    //since this server is slowlee and need more time than the local power macs
-    set_time_limit ( 1000000 ); // 250h -> Feature in 5.3.0 deprecated, in 5.4.0 deleted - but useful right now
-    $rs=NULL;
-    $repetitions=0;
-    $added_triples=0;
-		
-    $rs= RodinRDFResult::$store->query($TRIPLETEXT);
-    $added_triples = intval($rs['result']['t_count']);
-    $repetitions++;
-    if (($errs = RodinRDFResult::$store->getErrors())) {
-
-      foreach($errs as $err)
-      fontprint("<br>ARC ERROR: $err",'red');
-			print "<hr>ARC CONSTRUCTING USING: <br>".str_replace("\n","<br>",htmlentities($TRIPLETEXT));	
+			$debug=0;
+			if($debug) print "<br>ARC CONSTRUCTING: <hr>".str_replace("\n","<br>",htmlentities($TRIPLETEXT));	
 			
+			$num_triples_before=count_ARC_triples(RodinRDFResult::$store);
+	    $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
+	
+	    //We need on the server at HEG to enhance php execution time limit, 
+	    //since this server is slowlee and need more time than the local power macs
+	    set_time_limit ( 1000000 ); // 250h -> Feature in 5.3.0 deprecated, in 5.4.0 deleted - but useful right now
+	    $rs=NULL;
+	    $repetitions=0;
+	    $added_triples=0;
+			
+	    $rs= RodinRDFResult::$store->query($TRIPLETEXT);
+	    $added_triples = intval($rs['result']['t_count']);
+	    $repetitions++;
+	    if (($errs = RodinRDFResult::$store->getErrors())) {
+	
+	      foreach($errs as $err)
+	      fontprint("<br>ARC ERROR: $err",'red');
+				print "<hr>ARC CONSTRUCTING USING: <br>".str_replace("\n","<br>",htmlentities($TRIPLETEXT));	
+				
+	    }
+	    
+			$duration = $rs['query_time'];
+			//$added_triples = $rs['result']['t_count'];
+			$load_time = $rs['result']['load_time'];
+	
+	    $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
+	
+	    $added_triples_formatted=number_format($added_triples, 0, '.', "'");
+	
+		  $delta_triples=abs($num_triples_before - $added_triples);
+		  $delta_triples_formatted=number_format($delta_triples, 0, '.', "'");
+		 
+		  $verb= ($delta_triples==0)?'Updated':'Loaded';  
+	    
+			if ($delta_triples > 0)
+			$EVTL_ADDED="Added $delta_triples_formatted triples";
+			
+	    if ($added_triples==0) 
+	        $statistics=null;
+	    else
+	    { 
+	      $num_triples_after=count_ARC_triples(RodinRDFResult::$store);
+	      $num_triples_after_formatted=number_format($num_triples_after, 0, '.', "'");
+	      
+	      $triples_delta=$num_triples_after - $num_triples_before;
+	      $EVTL_DELTA=" (delta triples=$triples_delta)";
+	        
+	      $REPS=($repetitions>1)?" ($repetitions repetitions)":"";
+	      $ESITO=($added_triples>0)
+	                  ?"$added_triples triples$EVTL_DELTA$REPS"
+	                  :"<b><font style='color:red'>No triples ($added_triples_formatted) added after $repetitions repetitions</font></b>";
+	      $statistics="Triple file processed: $ESITO, duration: $duration sec, load_time: $load_time sec - total triples after processing: $num_triples_after_formatted";
+	    }
+	    //Avoid updating statistics if no triples added...
     }
-    
-		$duration = $rs['query_time'];
-		//$added_triples = $rs['result']['t_count'];
-		$load_time = $rs['result']['load_time'];
 
-    $num_triples_before_formatted=number_format($num_triples_before, 0, '.', "'");
-
-    $added_triples_formatted=number_format($added_triples, 0, '.', "'");
-
-	  $delta_triples=abs($num_triples_before - $added_triples);
-	  $delta_triples_formatted=number_format($delta_triples, 0, '.', "'");
-	 
-	  $verb= ($delta_triples==0)?'Updated':'Loaded';  
-    
-		if ($delta_triples > 0)
-		$EVTL_ADDED="Added $delta_triples_formatted triples";
-		
-    if ($added_triples==0) 
-        $statistics=null;
-    else
-    { 
-      $num_triples_after=count_ARC_triples(RodinRDFResult::$store);
-      $num_triples_after_formatted=number_format($num_triples_after, 0, '.', "'");
-      
-      $triples_delta=$num_triples_after - $num_triples_before;
-      $EVTL_DELTA=" (delta triples=$triples_delta)";
-        
-      $REPS=($repetitions>1)?" ($repetitions repetitions)":"";
-      $ESITO=($added_triples>0)
-                  ?"$added_triples triples$EVTL_DELTA$REPS"
-                  :"<b><font style='color:red'>No triples ($added_triples_formatted) added after $repetitions repetitions</font></b>";
-      $statistics="Triple file processed: $ESITO, duration: $duration sec, load_time: $load_time sec - total triples after processing: $num_triples_after_formatted";
-    }
-    //Avoid updating statistics if no triples added...
-    
-    
     return $statistics;
 		
 	} // import_triples
@@ -506,29 +535,133 @@ class RodinRDFResult {
 	
 	
 	
+	
+	
+	
+	
+	
+	/** returns a vector of strings (subjects)
+	 * gained from search and title text
+	 * Uses only the subjects with the same language as $lang
+	 * 
+	 * @param string $subjects - the subjects
+	 * @param string $lang - the abbreviation of the language of the search term
+	 */
+	public function compute_unique_subjects($subjects,$lang)
+	{
+		$DEBUG=0;
+		global $RDFLOG;
+	
+		$uniquesubjects=array();
+		
+		if ($DEBUG) $RDFLOG.="<br>compute_unique_subjects(".count($n)." subjects,$lang)";		
+		foreach( $subjects as $sss )
+		{
+			$subjects_cand=preg_split("/[ ]+/",$sss); //factorize by blank a compound subject
+			foreach($subjects_cand as $candidate_subject)
+			{
+				//print "<br>Consider $candidate_subject";
+				if ($DEBUG) $RDFLOG.="<br>Considering candidate_subject '$candidate_subject'";
+				insert_filtered_once($candidate_subject,$uniquesubjects,$lang);
+			} // foreach
+		} // foreach
+		
+		return $uniquesubjects;
+	} // compute_unique_subjects
+	
+	
+	
+	/** returns a vector of strings (subjects)
+	 * gained from search and title text
+	 * Uses only the subjects with the same language as $lang
+	 * 
+	 * @param string $ds_subjects - the original datasource subject string already trimmed and strlowered
+	 * @param string $lang - the abbreviation of the language of the search term
+	 */
+	public function compute_datasource_subjects($ds_subjects,$lang)
+	{
+		$DEBUG=0;
+		global $RDFLOG;
+		
+		//print "<br>compute_datasource_subjects($ds_subjects,$lang)";
+		
+		$subject_arr=array();
+		$subjects_cand=preg_split("/[,:;\+\-*]+/",$ds_subjects);
+		
+		if(count($subjects_cand))
+		{
+			foreach($subjects_cand as $candidate_subject)
+			{
+				//print "<br>Consider $candidate_subject";
+				insert_filtered_once($candidate_subject,$subject_arr,$lang);
+			} // foreach
+		}
+		
+		return $subject_arr;
+	} // compute_datasource_subjects
+	
+	
+	
+	
 		
 	/**
 	 * returns a vector of strings (subjects)
 	 * gained from search and title text
+	 * tries to discard event in structures like
+	 * 1. text (event)
+	 * 2. text [event]
+	 * 
+	 * @param string $search
+	 * @param string $title
+	 * @param string $datasource
+	 * @param string $lang
 	 */
-	public function compute_subjects($search,$title,$datasource)
+	public function compute_title_subjects($search,$title,$datasource,$lang)
 	{
 		$DEBUG=0;
-		if ($DEBUG) print "<br><br>compute_subjects";
-		//stopwordclean both
+		global $RDFLOG;
 	
-		if (!trim($title)) print "<br>Error compute_subjects called with empty title !!!";
+		if (!$title) print "<br>compute_title_subjects(): Error compute_subjects called with empty title !!!";
+	
+	  if($DEBUG) $RDFLOG.="<br>compute_title_subjects($title)<br>TRY TO RECOGNIZE/DELETE EVENTS";
+		//Recognize and filter out event
+		$PATTERNEVENT[]="/(.*)\(.*\)/"; // text (event)
+		$PATTERNEVENT[]="/(.*)\[.*\]/"; // text [event]
+		foreach($PATTERNEVENT as $PATTERN)
+		{
+			if($DEBUG) $RDFLOG.="<br>CONSIDER PATTERN ($PATTERN) on ($title)";
+			
+			if (preg_match($PATTERN,$title,$match))
+			{
+				$title=$match[1];
+				if($DEBUG) $RDFLOG.=" YES ($title)";
+				break;
+			}
+			else 
+			{
+				if($DEBUG) $RDFLOG.=" NO!";
+			}
+		}
+	
+	
 		$title_cleaned_arr=array_unique(cleanup_stopwords(explode(' ',strtolower(clean_spechalchars($title)))));
-		$title_cleaned=implode(' ',$title_cleaned_arr);
+		$title_cleaned=implode(' ',$title_cleaned_arr); //separate into chunks
 		
 		if($DEBUG)
 		{
-			print "<br><b>compute_subjects</b>((($search)),(($title))):";
-			print "<br>title_cleaned: (($title_cleaned))";
+			$RDFLOG.= "<br><b>compute_title_subjects</b>((($search)),(($title))):";
+			$RDFLOG.= "<br>title_cleaned: (($title_cleaned))";
 		}
 		$subjects=array();	
 		//Add as subject the whole title - without colons...
-		$subjects[]=  trim(preg_replace("/[:;]/",'',$title_cleaned));
+		if (($langt=detectLanguage($title_cleaned))==$lang)
+		{
+			$subjects[]=  trim(preg_replace("/[:;]/",'',$title_cleaned));
+			if($DEBUG)  $RDFLOG.= "<br>TAKE($langt==$lang) SUBJ($title_cleaned):";
+		} else {
+			if($DEBUG)  $RDFLOG.= htmlprint("<br>DISC SUBJ($langt<>$lang) SUBJ($title_cleaned)",'red');
+		}
+			
 		//Try to build complex compund and validate them in vikipedia
 		//each validated vikipedia term is a subject.
 		//use also RODIN's thesauri 
@@ -541,20 +674,23 @@ class RodinRDFResult {
 			
 		//Returns as speedup 1. the subject as is, 2. every single segment separated by nonblank of the $title_cleaned
 		
-		$segments=preg_split("/[,:;]+/",$title_cleaned);
+		$segments=preg_split("/[,:;\+\-*]+/",$title_cleaned);
 		
 		if (count($segments))
 		{
 			foreach($segments as $segment)
 			{
-				$s = trim($segment);
-				if ($s<>'' && !in_array($s,$subjects))
-				$subjects[]=$s;
-			}
+				insert_filtered_once($candidate_subject,$subjects,$lang);
+			} // foreach
 		}
 		
 		return $subjects;
 	} // compute_subjects
+	
+	
+	
+	
+	
 	
 
 	/**
@@ -1054,15 +1190,26 @@ class RodinRDFResult {
 	/**
 	 * For each active thesaurus: gather skos information on the subjects
 	 * Returns $skos_subject_related = 
+	 * 
+	 * @param vector $subjects
+	 * @param string $sid
+	 * @param integet $USER_ID
+	 * @param vector $NAMESPACES
+	 * @param string $lang
 	 */
-	public function get_relatedsubjects_from_thesauri($subjects,$sid,$USER_ID,$searchterm)
+	public function get_relatedsubjects_from_thesauri(&$subjects,$sid,$USER_ID,&$NAMESPACES,$lang)
 	{
 		if ($DEBUG) {
 			print "<br>get_relatedsubjects_from_thesauri on the following subjects:";
 			foreach($subjects as $s) if ($s) print "<br>&nbsp;$s";
 		}
+		
+		$subject_count=count($subjects);
+		Logger::logAction(27, array('from'=>'get_relatedsubjects_from_thesauri','msg'=>"Started with $subject_count subjects"));
+		
 		global $VERBOSE;
 		global $SRCDEBUG;
+		global $RDFLOG;
 		$MAXSUBJECTSRELATED_RESULTS=5;
 		//$VERBOSE=0; $SRCDEBUG=0;
 		$MAXRESULTS=5;
@@ -1070,17 +1217,10 @@ class RodinRDFResult {
 		global $SRC_SEARCH_MAX;
 		global $TERM_SEPARATOR; 
 		if (!$TERM_SEPARATOR) $TERM_SEPARATOR=',';
-		$INIT_SRC_OBJ = get_active_THESAURI_expansion_sources( $USER_ID );
 		
-		global $LANGUAGE_DETECTION;
-		include_once($LANGUAGE_DETECTION);
-		$lang=detectLanguage($searchterm);
-		
-		$SRCs = $INIT_SRC_OBJ['records'];
-		$NoOfUsableSRC=count($SRCs);
 		$INITIALISED_SRCs = $this->get_THESAURI_RECORDS($USER_ID,$lang);
 
-		if ($DEBUG) print "<br>".count($INITIALISED_SRCs)." USED SRCs for related subjects !";
+		if ($DEBUG) $RDFLOG.= "<br>".count($INITIALISED_SRCs)." USED SRCs for related subjects !";
 
 		if (count($INITIALISED_SRCs))
 		foreach($INITIALISED_SRCs as $INITIALISED_SRC)
@@ -1106,17 +1246,22 @@ class RodinRDFResult {
 						$Port,
 						$Path_Start,
 						$Path_Refine,
-						$Path_Test,
 						$Servlet_Start,
 						$Servlet_Refine,
-						$Servlet_Test ) = $INITIALISED_SRC;
+						$src_parameters ) = $INITIALISED_SRC;
 			
 			//unset($SRCINSTANCE->refine_skosxl_solr);
 			//unset($SRCINSTANCE->refine_skos_solr);
 			
+			Logger::logAction(27, array('from'=>'get_relatedsubjects_from_thesauri','msg'=>"Starting $src_name on $subject_count subjects (".implode('+',$subjects).") extracting further (SKOS) $max_subjects subjects"));
+			
+			###########################
 			if ($IS_SPARQL_ENDPOINT)
+			###########################
 			{
 				global $SRC_MAXRESULTS;
+				eval($src_parameters); // $max_triples=11; $max_docs=5; $max_subjects=5;
+				$RDFLOG.="<br>Compute max $max_subjects subjects from Thesaurus $src_name for $subject_count subjects (".implode('+',$subjects).")";
 				
 				foreach ($subjects as $s)
 				{
@@ -1125,9 +1270,10 @@ class RodinRDFResult {
 					{
 				
 						$skos_subject_related{$s} = 
-								array($broader	=array(),
+								array($src_name,
+											$broader	=array(),
 											$narrower	=array(),
-											$related	=get_related_subjects_from_sparql_endpoint($s,$src_name,$sds_sparql_endpoint,$sds_sparql_endpoint_params,$SRC_MAXRESULTS));
+											$related	=get_related_subjects_from_sparql_endpoint($s,$src_name,$sds_sparql_endpoint,$sds_sparql_endpoint_params,$NAMESPACES,$lang,$max_subjects));
 					}
 				}
 			}
@@ -1140,7 +1286,7 @@ class RodinRDFResult {
 										.'&'.'v=' // must be empty = use q without preprocessing
 										.'&'.'sortrank=standard'
 										.'&'.'w=0'
-										.'&'.'m='.$MAXRESULTS
+										.'&'.'m='.$max_subjects
 										.'&'.'l='.$lang
 										.'&'.'c=c'
 										.'&'.'service_id='.$ID
@@ -1165,13 +1311,16 @@ class RodinRDFResult {
 							
 							$CONTENT=get_file_content($WEBSERVICE);
 							//print "<br>CONTENT: ".htmlentities($CONTENT);
-							$skos_subject_related{$s} = $this->scan_src_results($CONTENT,$TERM_SEPARATOR);
+							$skos_subject_related{$s} = $this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$s,$WEBSERVICE_q);
 							
 					}
 				}
 			}
-			
+
+			Logger::logAction(27, array('from'=>'get_relatedsubjects_from_thesauri','msg'=>"Exit $src_name with $max_subjects subjects"));
 		} // foreach($INITIALISED_SRCs as $INITIALISED_SRC)
+		
+		Logger::logAction(27, array('from'=>'get_relatedsubjects_from_thesauri','msg'=>'Exit'));
 		
 		return $skos_subject_related;
 		
@@ -1182,57 +1331,72 @@ class RodinRDFResult {
 	/**
 	 * list($broder_arr,$narrower_arr,$related_arr) = scan_src_results($CONTENT,$TERM_SEPARATOR)
 	 */
-	public function scan_src_results($CONTENT,$TERM_SEPARATOR)
+	public function scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$subject,$urlcall)
 	{
 		$DEBUG=0;
 		
 		$broder_arr=$related_arr=$narrower_arr=array();
 		//In the following statement the flag LIBXML_NOCDATA is mandatory for reading and processing CDATA sections:
-		$sxmldom = simplexml_load_string($CONTENT,'SimpleXMLElement', LIBXML_NOCDATA);
-		if ($sxmldom)
+		
+		$valid_xml=true;
+		if (datasource_error($CONTENT,$src_name))	
 		{
-			//Extract $RESULTS_B, $RESULTS_N, $RESULTS_R
-			$broader64_ = $sxmldom->xpath("/refine/srv/broader"); //find the (CDATA) doc list results
-			$broader64 = trim($broader64_[0]);
-			$narrower64_ = $sxmldom->xpath("/refine/srv/narrower"); //find the (CDATA) doc list results
-			$narrower64 = trim($narrower64_[0]);
-			$related64_ = $sxmldom->xpath("/refine/srv/related"); //find the doc (CDATA) list results
-			$related64 = trim($related64_[0]);
-			
-			if($broader64)
+			fontprint("<hr>$src_name error"
+								."<br>CACHE checked ?"
+								."<br>On subject ($subject) "
+								."<br>Used url: <b>".htmlentities($urlcall)."</b>"
+								,'red');
+			$valid_xml=false;
+		} 
+		
+		if ($valid_xml)
+		{
+			$sxmldom = simplexml_load_string($CONTENT,'SimpleXMLElement', LIBXML_NOCDATA);
+			if ($sxmldom)
 			{
-				$broader= (base64_decode(($broader64)));
-				$broder_arr=explode($TERM_SEPARATOR,$broader);
-				if ($DEBUG) 
+				//Extract $RESULTS_B, $RESULTS_N, $RESULTS_R
+				$broader64_ = $sxmldom->xpath("/refine/srv/broader"); //find the (CDATA) doc list results
+				$broader64 = trim($broader64_[0]);
+				$narrower64_ = $sxmldom->xpath("/refine/srv/narrower"); //find the (CDATA) doc list results
+				$narrower64 = trim($narrower64_[0]);
+				$related64_ = $sxmldom->xpath("/refine/srv/related"); //find the doc (CDATA) list results
+				$related64 = trim($related64_[0]);
+				
+				if($broader64)
 				{
-					print "<br><b>Broader:</b>";
-					foreach($broder_arr as $b) print "<br>$b";
+					$broader= (base64_decode(($broader64)));
+					$broder_arr=explode($TERM_SEPARATOR,$broader);
+					if ($DEBUG) 
+					{
+						print "<br><b>Broader:</b>";
+						foreach($broder_arr as $b) print "<br>$b";
+					}
+				}
+		
+				if($narrower64)
+				{
+					$narrower= (base64_decode(($narrower64)));
+					$narrower_arr=explode($TERM_SEPARATOR,$narrower);
+					if ($DEBUG) 
+					{
+						print "<br><b>Narrower:</b>";
+						foreach($narrower_arr as $b) print "<br>$b";
+					}
+				}
+		
+				if($related64)
+				{
+					$related= (base64_decode(($related64)));
+					$related_arr=explode($TERM_SEPARATOR,$related);
+					if ($DEBUG) 
+					{
+						print "<br><b>Related:</b>";
+						foreach($related_arr as $b) print "<br>$b";
+					}
 				}
 			}
-	
-			if($narrower64)
-			{
-				$narrower= (base64_decode(($narrower64)));
-				$narrower_arr=explode($TERM_SEPARATOR,$narrower);
-				if ($DEBUG) 
-				{
-					print "<br><b>Narrower:</b>";
-					foreach($narrower_arr as $b) print "<br>$b";
-				}
-			}
-	
-			if($related64)
-			{
-				$related= (base64_decode(($related64)));
-				$related_arr=explode($TERM_SEPARATOR,$related);
-				if ($DEBUG) 
-				{
-					print "<br><b>Related:</b>";
-					foreach($related_arr as $b) print "<br>$b";
-				}
-			}
-		}
-		return array($broder_arr,$narrower_arr,$related_arr);
+		} // valid_xml
+		return array($src_name,$broder_arr,$narrower_arr,$related_arr);
 	} // scan_src_results
 	
 	
@@ -1251,6 +1415,10 @@ class RodinRDFResult {
 	 */
 	public function rdfLODexpand($sid,$datasource,$searchterm,$USER_ID)
 	{
+		global $RDFLOG;
+		
+ 		Logger::logAction(27, array('from'=>'rdfLODexpand','msg'=>'Started'));
+		
 		$subjects_labels=$this->getDCSubjects();
 		
 		if (is_array($subjects_labels) && count($subjects_labels))
@@ -1265,27 +1433,35 @@ class RodinRDFResult {
 					$sds_name=$LOD_SOURCES_RECORD['Name'];
 					$sds_sparql_endpoint=$LOD_SOURCES_RECORD['sparql_endpoint'];
 					$sds_sparql_endpoint_params=$LOD_SOURCES_RECORD['sparql_endpoint_params'];
-					
+					$sds_parameters= $LOD_SOURCES_RECORD['src_parameters'];
+					eval($sds_parameters); // expecting: $max_triples=10; $max_docs=5; $max_subjects=5;
 					$sds_url_base="$sds_sparql_endpoint?$sds_sparql_endpoint_params";
 					
-					print "<br> TODO expanding RDF subject using LOD source <b>$sds_name</b> ($sds_url_base)";
+					$RDFLOG.= "<br> Expanding RDF subject using LOD source <b>$sds_name</b> ($sds_url_base) $max_triples max_triples";
 					
 					foreach($subjects_labels as $subject)
 					{
-						print "<br>Fetching document triples for subject '$subject'";
+						$RDFLOG.= "<br>Fetching document triples for subject '$subject'";
 						$triples = get_triples_on_subject_from_sparql_endpoint(	$subject,
 																																		$sds_name,
 																																		$sds_sparql_endpoint,
 																																		$sds_sparql_endpoint_params,
-																																		RodinRDFResult::$NAMESPACES);
-						$homogenized_triples= $this->homogenize_foreign_triples($triples,$sds_name);
+																																		RodinRDFResult::$NAMESPACES,
+																																		$max_triples);
+						$otriplescount=count($triples);																												
+						list($homogenized_triples,$htriplescount,$hdocscount)
+											= $this->homogenize_foreign_triples($triples,$sds_name);
+											
+						$RDFLOG.= "--> $hdocscount docs in ($otriplescount) $htriplescount homogenized triples imported";
 						$this->import_triples($homogenized_triples);
 					} // foreach($subjects_labels
 				} // foreach($LOD_SOURCES_RECORDS
 			}
 			else
-				print "<br> NO LOD sources (yet) used to expand result rdf information";
+				$RDFLOG.= "<br> NO LOD sources (yet) used to expand result rdf information";
 		}
+
+ 		Logger::logAction(27, array('from'=>'rdfLODexpand','msg'=>'Exit'));
 	} // rdfLODexpand
 	
 	
@@ -1336,12 +1512,16 @@ EOS;
 	 */
 	public function homogenize_foreign_triples(&$triples,$src_name)
 	{
-		print "<br>homogenize_foreign_triples for ($src_name)";
+		$hdocscount=0;
+		$htriplescount=0;
+		//print "<br>homogenize_foreign_triples for ($src_name)";
 		switch (strtolower($src_name))
 		{
 			#########################################
 			case 'europeana';
 			#########################################
+			if (is_array($triples) && count($triples))
+			{
 				foreach($triples as $triple)
 				{
 					list($s,$p,$o) = $triple;
@@ -1356,6 +1536,7 @@ EOS;
 					{
 						//change this triple: We need the "real" type. not a proxy trick like in europeana	
 						$homogenized_triples[]=array($new_s,$new_p,'dce:BibliographicResource');
+						$hdocscount++;
 					}
 					else if ($p=='dce:subject')
 					{
@@ -1386,12 +1567,13 @@ EOS;
 					if ($add_triple)
 								$homogenized_triples[]=array($new_s,$new_p,$new_o);
 				}	// foreach $triples		
+			}
 			break; //europeana
 			#########################################
 			default: $homogenized_triples=$triples;
 		}
 				
-		return $homogenized_triples;
+		return array($homogenized_triples,count($homogenized_triples),$hdocscount);
 	} // homogenize_foreign_triples
 	
 	
@@ -1461,7 +1643,8 @@ EOS;
 			$Path_Test			=$SRC['Path_Test'];
 			$Servlet_Start	=$SRC['Servlet_Start'];
 			$Servlet_Refine	=$SRC['Servlet_Refine'];
-			$Servlet_Test		=$SRC['Servlet_Test'];
+			
+			$src_parameters	=$SRC['src_parameters'];
 			
 			
 			$initialised_src++;
@@ -1493,10 +1676,9 @@ EOS;
 																	$Port,
 																	$Path_Start,
 																	$Path_Refine,
-																	$Path_Test,
 																	$Servlet_Start,
 																	$Servlet_Refine,
-																	$Servlet_Test
+																	$src_parameters
 																	);
 			
 		} // foreach $SRC

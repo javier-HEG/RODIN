@@ -3,7 +3,6 @@
 /**
  * Library in order to use the detecton from PHP
  */
-	include_once '../root.php';
 
 	#Automatically load root
 	$filename="app/u/root.php"; $max=10;

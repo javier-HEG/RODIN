@@ -3,21 +3,37 @@ require_once("../u/arcUtilities.php");
 require_once("../u/FRIutilities.php");
 require_once("../u/RodinResult/RodinResultManager.php");
 
+$sid=$_GET['sid'];
+$USER_ID=$_GET['user_id'];
+$USER=$USER_ID;
+$USER_NAME=$_GET['username'];
+$SEG=$RODINSEGMENT;
+$_SESSION['user_id']=$USER_ID;
+$_SESSION['username']=$USER_NAME;
+	
+	
+if ($sid<>'')
+{
+	$search_term = collect_queries_tag($SEG,$USER_ID,$sid);
+}
+
+$TITLEPAGE="'$search_term' RDFLAB";
 
 ?>
 <html>
 	<head>
-		<title>USECASE III semantic expansion lab</title>
+		<title><?php print $TITLEPAGE; ?></title>
 		<link rel="stylesheet" type="text/css" href="../css/rodin.css.php?" />
 		<script type='text/javascript' src='../u/RODINutilities.js.php?skin=<?php print $RODINSKIN;?>'></script>
 	</head>	
-	<body bgcolor='<?php print $COLOR_PAGE_BACKGROUND;?>'
+	<body bgcolor='<?php print $COLOR_PAGE_BACKGROUND;?>' >
 
 <?php
 
+
+
 $sid_example='20130308.191559.379.305';
 $datasource_swissbib="/rodin/$RODINSEGMENT/app/w/RDW_swissbib.rodin";
-
 $sid=$_GET['sid'];
 if (!$sid) $sid=$sid_example;
 
@@ -40,24 +56,30 @@ $checked_list3page=$list3page?' checked ':'';
 $want_rdfexpand=$list3page;
 
 
+############
+//print "unlinking $RODIN_PROFILING_PATH";
+unlink($RODIN_PROFILING_PATH);
+############
+
+
+
 if ($sid<>'')
 {
 	$fromResult = 0;
-	if (!$USER_ID) $USER_ID=2; // set it for shorten up
-	$SEG=$RODINSEGMENT;
-	$USER=$USER_ID;
 	
 	//Recall results from SOLR using sid
 	$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource);
 	$resultCount = count($allResults);
 
-	$CONTENT2="$resultCount Results retrieved";
+	$CONTENT2="$resultCount Widget results found for sid $sid";
 	
 	//var_dump($allResults);
 	// Both a maximum size and a maximum number of results are set
 	$resultMaxSetSize = $resultCount;
 	
 	$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
+	
+	Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start using $resultCount results on search term '$search_term'"));
 	
 	$i = $fromResult;
 	while ($i < $uptoResult) {
@@ -86,9 +108,12 @@ if ($sid<>'')
 		}
 	
 		//print "<br>SEG: $SEG, USER: $USER ";
-		$search_term = collect_queries_tag($SEG,$USER_ID,$sid);
 		//print "<br>collect_queries_tag($SEG,$USER,$sid) = $search_term";
 		$store=null;
+		
+		
+		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start RDF on $resultCounter result"));
+		
 		if ($list3pls)
 			$store = $result->rdfize($sid,$datasource,$search_term,$USER_ID);
 	
@@ -96,6 +121,8 @@ if ($sid<>'')
 		{
 			$ok=$result->rdfLODexpand($sid,$datasource,$search_term,$USER_ID);
 		}
+		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit RDF on $resultCounter result"));
+
 		//$singleResult['minContent'] = ($result->toInWidgetHtml('min'));
 		//$singleResult['tokenContent'] = ($result->toInWidgetHtml('token'));
 		//$singleResult['allContent'] = ($result->toInWidgetHtml('all'));
@@ -111,51 +138,65 @@ if ($sid<>'')
 		$CONTENT2='';
 
 	if ($list3pls)
-		$CONTENT3 = get_triples_as_html_table($result->RDFenhancement,$list3page,'','TRIPLES for WIDGET RESULTS:','tripletable');
+		$CONTENT3 = get_triples_as_html_table($result->RDFenhancement,$list3page,'',' for WIDGET RESULTS:','tripletable');
 	
 	}
 	else fontprint( "Sorry: No data for this sid" , 'red' );
+	
+	Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit using $resultCount results on search term '$search_term'"));
 } // $sid
 
 
 $PAGEWIDTH="400px";
 
+##########################################
+# The following is filled by the programs:
+# $RDFLOG
+##########################################
 
 print<<<EOP
-	<div id='div1' style="width:100%;height:400px">
-	<h2>RODIN USECASE III semantic expansion LAB</h2>
+	<div id='div1' style="width:810px;height:400px;scroll:auto">
+	<h2>$TITLEPAGE</h2>
 	<p>
-		<a href='$RDFSEMEXP_STOREEXPLORER' target='_blank' title='Click to open LOCAL STORE SPARQL Explorer in new tab'> LOCAL STORE SPARQL Explorer </a>
+		<input type='button' title='Click to open LOCAL STORE SPARQL Explorer in new tab' value='OPEN LOCAL STORE SPARQL Explorer' onclick="window.open('$RDFSEMEXP_STOREEXPLORER')">
+		&nbsp;&nbsp;&nbsp;
+		<input type='button' title='Click to toggle RDF log display' value='show/hide RDF Logs' onclick="var l=document.getElementById('divLOGGING');toggle_visibility(l)">
+		&nbsp;&nbsp;&nbsp;
+		<input type='button' title='Click to see profiling execution times for optimization in new tab' value='Open profiling'onclick="window.open('$RODIN_PROFILING_LINK','_blank')">
 	</p>
-	<form name='fsid' action=''>
-	<table style="width:100%">
-		<tr>
-		<td colspan="2">
-		</tr>
-		<tr>
-			<td colspan="2">
-				<input type='button' name='go' value='press to recalculate' style="width:100%" onclick="fsid.submit()">
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2">
-				SID:<input type='text' name='sid' value='$sid' title='Enter a SID like '$sid_example' choose some options and recalculate'>&nbsp;
-				DS:<input type='text' name='datasource' 
-					style='text-align:center'
-					value='$datasource' size="40" title='Enter a Datasource like '$datasource_swissbib' choose some options and recalculate'>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2">
-			List widget results:<input type='checkbox' name='listwr' $checked_listwr>&nbsp;&nbsp;&nbsp;
-			List triples:<input type='checkbox' name='list3pls' $checked_list3pls>&nbsp;&nbsp;&nbsp;
-			Search was: '<label><b>$search_term</b></label>'
+		<div id='divLOGGING'>
+			$RDFLOG
+		</div>
+	<div id='formdiv'>
+		<form name='fsid' action=''>
+		<input type='hidden' name='user_id' value='$USER_ID'>
+		<input type='hidden' name='username' value='$USER_NAME'>
+		<table style="width:100%">
+			<tr>
+				<td colspan="2">
+					<input type='button' name='go' value='press to RDFize' style="width:800px" onclick="fsid.submit()">
+				</td>
 			</tr>
-			</table>
-	</form>	
+			<tr>
+				<td colspan="2">
+					SID:<input type='text' name='sid' value='$sid' title='Enter a SID like '$sid_example' choose some options and recalculate'>&nbsp;
+					DS:<input type='text' name='datasource' 
+						style='text-align:center'
+						value='$datasource' size="40" title='Enter a Datasource like '$datasource_swissbib' choose some options and recalculate'>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+				List widget results:<input type='checkbox' name='listwr' $checked_listwr>&nbsp;&nbsp;&nbsp;
+				RDFize & display triples:<input type='checkbox' name='list3pls' $checked_list3pls>&nbsp;&nbsp;&nbsp;
+				Search was: '<label><b>$search_term</b></label>'
+				</tr>
+				</table>
+		</form>
 	</div>
 	
-	<div id='div2' style="background-color:white;border-color:black;border-width:1px;border-style:solid;width:100%;">
+	
+	<div id='div2' class='rdf_widgetinfo'>
 		$CONTENT2
 	</div>
 	
@@ -168,7 +209,6 @@ print<<<EOP
 	<div id='div4' class='triplepagediv'>
 		$CONTENT4
 	</div>
-	
 EOP;
 
 

@@ -39,6 +39,7 @@ class Logger {
 //	const ACCESS_USER_CONFIGURATION_ACTION = 24;
 	const LOG_SRC_TIME = 25;
 	const LOG_SRC_IMPORT = 26;
+	const LOG_SRC_RDF = 27;
 	
 	public static function emptyLogFile() {
 		$filename = $_SERVER['DOCUMENT_ROOT'] . "/rodin/usabilityLogFile.txt";
@@ -67,11 +68,11 @@ class Logger {
 			$userId = $_SESSION['user_id'];
 			$userName = $_SESSION['username'];
 			
-			$callTime = time();
-	    	
-			$logLine =  date('d-m-Y H:i:s') . ';' . $segment . ';' . $userId . ';' . $userName . ';' . Logger::makeActionString($action, $info);		
+			//date('d-m-Y H:i:s:u') 
+			$logLine =  date('H:i:s.') . str_pad(substr((float)microtime(), 2), 6, '0', STR_PAD_LEFT)
+									. ';' . $segment . ';' . $userId . ';' . $userName . ';' . Logger::makeActionString($action, $info);		
 			
-	        $h=fopen($filename, "a");
+	    $h=fopen($filename, "a");
 			fwrite($h, $logLine . "\n");
 			fclose($h);
     	}
@@ -146,6 +147,9 @@ class Logger {
     			break;
         case Logger::LOG_SRC_IMPORT :
     			return 'SRC-import';
+    			break;
+        case Logger::LOG_SRC_RDF :
+    			return 'RDF';
     			break;
     		default:
     			return 'unknown action';

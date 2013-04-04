@@ -7,8 +7,8 @@
 # Main Vars File
 # 18.1.2010
 #
-include_once("tests/TomaNota.php");
-include_once("tests/Logger.php");
+
+
 
 $_SESSION['RODINVERSION'] = '2.5';
 
@@ -124,6 +124,21 @@ else {
 if (false) // If case we need to set the segment manually
 	$RODINSEGMENT =	'eng';
 
+
+//include_once("$RODINSEGMENT/app/tests/TomaNota.php");
+$filename="$RODINSEGMENT/app/tests/TomaNota.php"; $max=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+
+//include_once("$RODINSEGMENT/app/tests/Logger.php");
+$filename="$RODINSEGMENT/app/tests/Logger.php"; $max=10;
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+
+
 $candidatePath = str_replace("\\", "/", $thisScriptDirname);
 
 if (preg_match("/(.\S+)\/$RODINSEGMENT\/(posh|app)/",$candidatePath,$match))
@@ -153,9 +168,10 @@ $RODINU = "$RODINROOT/$RODINSEGMENT/app/u";
 $STOPWORD_SERVER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/stopwords.php";
 $TAGCLOUDRESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/TagCloudResponder.php";
 $AUTOCOMPLETERESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/AutoCompleteResponder.php";
-$RDFSEMEXPLABURL = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/tests/semexp.php";
+$RDFSEMEXPLABURL = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php";
 $RDFSEMEXP_STOREEXPLORER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_show_all_triples.php?limit=5&storename=rodin_rdf";
-
+$RODIN_PROFILING_LINK ="$WEBROOT$RODINROOT/usabilityLogFile.txt";
+$RODIN_PROFILING_PATH ="$DOCROOT$RODINROOT/usabilityLogFile.txt";
 
 
 $CURL_COOCKIEDIR = "$DOCROOT$RODINROOT/gen/u/tmp";
@@ -201,7 +217,7 @@ $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';
 $RODINLOGO=$POSHIMGWEBROOT . '/logo_portal.gif';
 #############################################
 
-$W3SLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/tests/semexp.php";
+$W3SLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php";
 
 $MANTIS_REPORTISSUE=str_replace(" ","+",
 										"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=Please describe the subject of your issue here"
@@ -366,6 +382,12 @@ $B_FILTER_ICON_NORMAL = "$RODINUTILITIES_GEN_URL/images/button-filter-normal.png
 $B_FILTER_ICON_SELECTED = "$RODINUTILITIES_GEN_URL/images/button-filter-selected.png";
 $B_FILTER_ICON_HOVER = "$RODINUTILITIES_GEN_URL/images/button-filter-hover.png";
 #######################################
+$ROMAN_REGEX='/^m{0,3}(cm|cd|d?C{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$/';
+
+
+
+
+
 
 #######################################
 # Other global variables
