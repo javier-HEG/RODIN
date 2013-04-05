@@ -173,7 +173,8 @@ EOX;
 		 */
 		function filter_as_subject($txt0)
 		{
-			$pattern = '/[0-9&!;\.\:\-_\[\]\(\)]+/';
+			//Do not want to see the following chars inside the term $txt0
+			$pattern = '/[0-9&!;\\\.\:\-_\[\]\(\)]+/';
 			$replace = '';
 			$txt= trim(preg_replace($pattern, $replace, $txt0));
 			//print "<br>filter_as_subject($txt0)=>($txt)";
@@ -238,32 +239,36 @@ EOX;
 			{
 				
 				$RDFLOG.="<hr><i>$c $TITLE</i>";
-				foreach($skos_subjects as $s=>$SKOS)
+				foreach($skos_subjects as $s=>$EXPANSIONS)
 				{
-					list($src_name,$broaders,$narrowers,$related)=$SKOS;
-					$RDFLOG.= "<br><b>$src_name</b>.SKOS ($s):";
 					
-					if (($bc=count($broaders)))
+					foreach($EXPANSIONS as $SKOS)
 					{
-						$RDFLOG.="<br><i>$bc Broaders:</i>";
-						foreach($broaders as $b)
-						$RDFLOG.="<br>&nbsp;&nbsp; $b";
+						list($src_name,$broaders,$narrowers,$related)=$SKOS;
+						$RDFLOG.= "<br><b>$src_name</b>.SKOS ($s):";
+						
+						if (($bc=count($broaders)))
+						{
+							$RDFLOG.="<br><i>$bc Broaders:</i>";
+							foreach($broaders as $b)
+							$RDFLOG.="<br>&nbsp;&nbsp; $b";
+						}
+						
+						if (($nc=count($narrowers)))
+						{
+							$RDFLOG.="<br><i>$nc Narrowers:</i>";
+							foreach($narrowers as $n)
+							$RDFLOG.="<br>&nbsp;&nbsp; $n";
+						}
+	
+						if (($rc=count($related)))
+						{
+							$RDFLOG.="<br><i>$rc Related:</i>";
+							foreach($related as $r)
+							$RDFLOG.="<br>&nbsp;&nbsp; $r";
+						}
 					}
-					
-					if (($nc=count($narrowers)))
-					{
-						$RDFLOG.="<br><i>$nc Narrowers:</i>";
-						foreach($narrowers as $n)
-						$RDFLOG.="<br>&nbsp;&nbsp; $n";
-					}
-
-					if (($rc=count($related)))
-					{
-						$RDFLOG.="<br><i>$rc Related:</i>";
-						foreach($related as $r)
-						$RDFLOG.="<br>&nbsp;&nbsp; $r";
-					}
-				}
+				} // EXPANSIONS
 				$RDFLOG.="<hr>";
 			}
 		}
@@ -1175,9 +1180,45 @@ EOQ;
 		
  	function cleanup4literal($str)
 	{
-		$str = str_replace("'","\\'",$str);
+		//$str0=$str;
+		//print "<br>cleanup4literal($str)->";
+		//Do not want to see the following chars inside the term $txt0
+		if (!strstr($str,'http://'))
+		{
+			//Incase literal is already double quoted:
+			if (substr($str,0,1)=='"'
+			|| substr($str,strlen($str)-1,1)=='"' )
+			{
+				$netto_str=trim(substr($str,1,strlen($str)-2));
+				$str = '"'.cleanup4token($netto_str).'"';
+			}
+			else {
+				$str = cleanup4token($str);
+			}
+		}
+		//$str = str_replace("'","\\'",$str);
+		//print "<br>cleanup4literal ($str0)-->($str)";
 		return $str;
 	}
+
+	
+	
+	function cleanup4token($str)
+	{
+		
+		//print "<br>cleanup4literal($str)->";
+		//Do not want to see the following chars inside the term $txt0
+		$pattern = '/[\*&\|!;\'""\\\.\[\]\(\)]+/';
+		$replace = '';
+		$str= trim(preg_replace($pattern, $replace, $str));
+			//print "($str)";
+		//$str = str_replace("'","\\'",$str);
+		return $str;
+	}
+	
+	
+	
+	
 	
 	
 	/**

@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Fabio Ricci
+ *
  * Library in order to use the detecton from PHP
  */
 

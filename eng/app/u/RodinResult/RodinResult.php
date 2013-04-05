@@ -422,10 +422,10 @@ class BasicRodinResult {
 	 * 
 	 * CACHE CALLS
 	 */
-	public function rdfLODexpand($sid,$datasource,$searchterm,$USER_ID)
+	public function rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID)
 	{
-		$this->RDFenhancement->rdfLODexpand($sid,$datasource,$searchterm,$USER_ID);
-	} // rdfLODexpand
+		$this->RDFenhancement->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID);
+	} // rdfLODfetchDocumentsOnSubjects
 	
 	
 	

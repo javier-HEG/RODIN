@@ -49,6 +49,8 @@ $checked_list3pls=$list3pls?' checked ':'';
 //Automatically show triple page pointers
 //$list3page=$_GET['list3page']=='on';
 //$checked_list3page=$list3page?' checked ':'';
+
+
 $list3page=$list3pls;
 $checked_list3page=$list3page?' checked ':'';
 
@@ -119,7 +121,7 @@ if ($sid<>'')
 	
 		if($store && $want_rdfexpand)
 		{
-			$ok=$result->rdfLODexpand($sid,$datasource,$search_term,$USER_ID);
+			$ok=$result->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$search_term,$USER_ID);
 		}
 		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit RDF on $resultCounter result"));
 
@@ -148,7 +150,7 @@ if ($sid<>'')
 
 
 $PAGEWIDTH="400px";
-
+$SRCLINK="$SRCLINKBASE/select_src.php?nl=0&u=$USER_ID&showuser=$USER_ID";
 ##########################################
 # The following is filled by the programs:
 # $RDFLOG
@@ -163,6 +165,8 @@ print<<<EOP
 		<input type='button' title='Click to toggle RDF log display' value='show/hide RDF Logs' onclick="var l=document.getElementById('divLOGGING');toggle_visibility(l)">
 		&nbsp;&nbsp;&nbsp;
 		<input type='button' title='Click to see profiling execution times for optimization in new tab' value='Open profiling'onclick="window.open('$RODIN_PROFILING_LINK','_blank')">
+		&nbsp;&nbsp;&nbsp;
+		<input type='button' title='Click to open SRC-Management in new tab' value='Open SRC management'onclick="window.open('$SRCLINK','_blank')">
 	</p>
 		<div id='divLOGGING'>
 			$RDFLOG

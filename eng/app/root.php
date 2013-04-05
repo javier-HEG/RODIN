@@ -288,6 +288,7 @@ $SRC_INTERFACE_BASE_URL = $AUTH_SELF_USERNAME <> '' ?
 
 $LOCAL_SRC_START_INTERFACE = "$SRC_INTERFACE_BASE_URL/start/";
 $LOCAL_SRC_REFINE_INTERFACE	= "$SRC_INTERFACE_BASE_URL/refine/";
+$SRCLINKBASE="$WEBROOT{$RODINROOT}/$RODINSEGMENT/fsrc/app/u";
 ########################################################################
 
 ###########################################

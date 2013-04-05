@@ -374,6 +374,30 @@ function is_romanic_number($txt)
 
 
 
+/**
+ * Add $obj in $assoc under $subject
+ * SIDE EFFECT ON $assoc !
+ * @param $assoc
+ * @param $subject
+ * @param $obj 
+ */
+function add_to_assocvector(&$assoc,$subject,&$obj)
+{
+	if (($X = $assoc{$subject}))
+	{
+		$assoc{$subject} = array_merge($X,array($obj));
+	}
+	else // under subject there is nothing =>
+	{ 
+		$assoc{$subject} = array($obj);
+	}
+	
+	
+} // add_to_assocvector
+
+
+
+
 
 function clean_html($str)
 {

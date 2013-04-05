@@ -37,6 +37,7 @@ class RodinRDFResult {
 	public  static $USER_ID						= null; 
 	public  static $importGraph				= null;
 	public  static $searchterm				= null; 
+	public  static $searchtermlang		= null; 
 	public  static $datasource				= null; 
 	public  static $storename 				='rodin_rdf'; // Name of store where to insert triples
 	public  static $store 						= null; // ARC localstore Config obj
@@ -62,6 +63,7 @@ class RodinRDFResult {
 		if (!RodinRDFResult::$USER_ID) 					RodinRDFResult::$USER_ID					=$USER_ID;
 		if (!RodinRDFResult::$datasource) 			RodinRDFResult::$datasource				=$datasource;
 		if (!RodinRDFResult::$searchterm) 			RodinRDFResult::$searchterm				=$searchterm;
+		if (!RodinRDFResult::$searchtermlang) 	RodinRDFResult::$searchtermlang		=detectLanguage($searchterm);
 		if (!RodinRDFResult::$importGraph) 			RodinRDFResult::$importGraph			="http://$HOST/rodin/w3s/";
 		if (!RodinRDFResult::$PUBBLICATION_URL) RodinRDFResult::$PUBBLICATION_URL	="http://$HOST/rodin/$RODINSEGMENT/app/w3s";
 		
@@ -177,13 +179,14 @@ class RodinRDFResult {
 
 		
 		
-		$skos_subjects = $this->get_relatedsubjects_from_thesauri(	$subjects,
+		$skos_subjects_expansions 
+							= $this->expand_related_subjects_using_thesauri(	$subjects,
 																																$sid,
 																																RodinRDFResult::$USER_ID,
 																																RodinRDFResult::$NAMESPACES,
 																																$lang );
 																																
-		if ($showsubjects) tell_skos_subjects($skos_subjects, 'SKOS subjects');
+		if ($showsubjects) tell_skos_subjects($skos_subjects_expansions, 'SKOS subjects');
 		
 		//If a work document is given: rdfize it
 		//first of all create workuid
@@ -236,53 +239,56 @@ class RodinRDFResult {
 							
 							$subject=strtolower($subject);
 							//add related subjects from thesauri to s
-							if (count(($SKOS=$skos_subjects{$subject})))
+							if (count(($SKOSEXPANSIONS=$skos_subjects_expansions{$subject})))
 							{
-								list($src_name,$broaders,$narrowers,$related) = $SKOS;
-
-								if (count($broaders))
-								foreach($broaders as $bs)
+								foreach($SKOSEXPANSIONS as $SKOS)
 								{
-									if (strtolower($bs)<>$subject)
+									list($src_name,$broaders,$narrowers,$related) = $SKOS;
+	
+									if (count($broaders))
+									foreach($broaders as $bs)
 									{
-										if ($DEBUG) print "<br>asserting ($s broader $bs)";
-										$bs_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($bs);
-										$triple[]=array($subject_uid,	'rodin:broader', 					$bs_uid); 
-										$triple[]=array($subject_uid,	'rodin:subject_related', 	$bs_uid); 
-										$triple[]=array($bs_uid,			'rodin:label', 	 					l($bs)); 
-										$triple[]=array($bs_uid,			'rdf:type', 	 						'dce:subject'); 
+										if (strtolower($bs)<>$subject)
+										{
+											if ($DEBUG) print "<br>asserting ($s broader $bs)";
+											$bs_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($bs);
+											$triple[]=array($subject_uid,	'rodin:broader', 					$bs_uid); 
+											$triple[]=array($subject_uid,	'rodin:subject_related', 	$bs_uid); 
+											$triple[]=array($bs_uid,			'rodin:label', 	 					l($bs)); 
+											$triple[]=array($bs_uid,			'rdf:type', 	 						'dce:subject'); 
+										}
 									}
-								}
-
-								if (count($narrowers))
-								foreach($narrowers as $ns)
-								{
-									if (strtolower($ns)<>$subject) 
+	
+									if (count($narrowers))
+									foreach($narrowers as $ns)
 									{
-										if ($DEBUG) print "<br>asserting ($s narrower $ns)";
-										$ns_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($ns);
-										$triple[]=array($subject_uid,	'rodin:narrower', 				 $ns_uid); 
-										$triple[]=array($subject_uid,	'rodin:subject_related', 	 $ns_uid); 
-										$triple[]=array($ns_uid,			'rodin:label', 	 					l($ns));
-										$triple[]=array($ns_uid,			'rdf:type', 	 						'dce:subject'); 
+										if (strtolower($ns)<>$subject) 
+										{
+											if ($DEBUG) print "<br>asserting ($s narrower $ns)";
+											$ns_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($ns);
+											$triple[]=array($subject_uid,	'rodin:narrower', 				 $ns_uid); 
+											$triple[]=array($subject_uid,	'rodin:subject_related', 	 $ns_uid); 
+											$triple[]=array($ns_uid,			'rodin:label', 	 					l($ns));
+											$triple[]=array($ns_uid,			'rdf:type', 	 						'dce:subject'); 
+										}
 									}
-								}
-
-								if (count($related))
-								foreach($related as $rs)
-								{
-									if (strtolower($rs)<>$subject) 
+	
+									if (count($related))
+									foreach($related as $rs)
 									{
-										if ($DEBUG) print "<br>asserting ($s related $rs)";
-										
-										$rs_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($rs);
-										$triple[]=array($subject_uid,	'rodin:related', 					$rs_uid); 
-										$triple[]=array($subject_uid,	'rodin:subject_related', 	$rs_uid); 
-										$triple[]=array($rs_uid,			'rodin:label', 	 					l($rs)); 
-										$triple[]=array($rs_uid,			'rdf:type', 	 						'dce:subject'); 
+										if (strtolower($rs)<>$subject) 
+										{
+											if ($DEBUG) print "<br>asserting ($s related $rs)";
+											
+											$rs_uid=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($rs);
+											$triple[]=array($subject_uid,	'rodin:related', 					$rs_uid); 
+											$triple[]=array($subject_uid,	'rodin:subject_related', 	$rs_uid); 
+											$triple[]=array($rs_uid,			'rodin:label', 	 					l($rs)); 
+											$triple[]=array($rs_uid,			'rdf:type', 	 						'dce:subject'); 
+										}
 									}
-								}
-							} // add related subjects from thesauri to s
+								} // add related subjects from thesauri to s
+								} // SKOS
 						} // nonzero sobject
 					} // for subjects
 				} // subjects
@@ -378,7 +384,7 @@ class RodinRDFResult {
 				$i++;
 				$s=$triple[0];
 				$p=$triple[1];
-				$o=cleanup4literal($triple[2]); // literals might contain ' '' ... addslashes?
+				$o=cleanup4literal($triple[2]); // literals might contain ' '' ... / \ etc ... ?
 				
 		  	$TRIPLETEXT.="\n $s $p $o .";
 				
@@ -1197,15 +1203,15 @@ class RodinRDFResult {
 	 * @param vector $NAMESPACES
 	 * @param string $lang
 	 */
-	public function get_relatedsubjects_from_thesauri(&$subjects,$sid,$USER_ID,&$NAMESPACES,$lang)
+	public function expand_related_subjects_using_thesauri(&$subjects,$sid,$USER_ID,&$NAMESPACES,$lang)
 	{
 		if ($DEBUG) {
-			print "<br>get_relatedsubjects_from_thesauri on the following subjects:";
+			print "<br>expand_related_subjects_using_thesauri on the following subjects:";
 			foreach($subjects as $s) if ($s) print "<br>&nbsp;$s";
 		}
 		
 		$subject_count=count($subjects);
-		Logger::logAction(27, array('from'=>'get_relatedsubjects_from_thesauri','msg'=>"Started with $subject_count subjects"));
+		Logger::logAction(27, array('from'=>'expand_related_subjects_using_thesauri','msg'=>"Started with $subject_count subjects"));
 		
 		global $VERBOSE;
 		global $SRCDEBUG;
@@ -1250,77 +1256,107 @@ class RodinRDFResult {
 						$Servlet_Refine,
 						$src_parameters ) = $INITIALISED_SRC;
 			
+			
 			//unset($SRCINSTANCE->refine_skosxl_solr);
 			//unset($SRCINSTANCE->refine_skos_solr);
 			
-			Logger::logAction(27, array('from'=>'get_relatedsubjects_from_thesauri','msg'=>"Starting $src_name on $subject_count subjects (".implode('+',$subjects).") extracting further (SKOS) $max_subjects subjects"));
-			
-			###########################
-			if ($IS_SPARQL_ENDPOINT)
-			###########################
+			###################################
+			#
+			# VALIDATION $src_parameters from SRC_management record:
+			#
+			eval($src_parameters); // $max_triples=11; $max_docs=5; $max_subjects=5;
+			$valid_src_parameters=true;
+			if (!$max_subjects)
 			{
-				global $SRC_MAXRESULTS;
-				eval($src_parameters); // $max_triples=11; $max_docs=5; $max_subjects=5;
+				global $USER_ID,$SRCLINKBASE;
+				$SRCLINK="$SRCLINKBASE/select_src.php?nl=1&u=$USER_ID&showuser=$USER_ID&filter={$src_name}";
+				$SRCHREF="<a href=$SRCLINK target='_blank' title='Click to open SRC_Management on the concerning record'>SRC_management</a>";
+				$ERRORTXT="<br>Error in src_parameters for '{$src_name}' concerning '\$max_subjects' - zero value provided."
+									."<br>Please provide a value like '\$max_subjects=n;' (n>0) in $SRCHREF in field 'src_parameters'";
+				fontprint($ERRORTXT,'red');
+				$valid_src_parameters=false;
+				Logger::logAction(27, array('from'=>'expand_related_subjects_using_thesauri','msg'=>$ERRORTXT));
+				$RDFLOG.="<br>$ERRORTXT";
+			}
+			#
+			###################################
+			
+			
+			if ($valid_src_parameters)
+			{
+				Logger::logAction(27, array('from'=>'expand_related_subjects_using_thesauri','msg'=>"Starting $src_name on $subject_count subjects (".implode('+',$subjects).") extracting further (SKOS) $max_subjects subjects"));
 				$RDFLOG.="<br>Compute max $max_subjects subjects from Thesaurus $src_name for $subject_count subjects (".implode('+',$subjects).")";
 				
-				foreach ($subjects as $s)
+				###########################
+				if ($IS_SPARQL_ENDPOINT)
+				###########################
 				{
-					$s = trim(strtolower($s));
-					if ($s<>'')
+					global $SRC_MAXRESULTS;
+					
+					foreach ($subjects as $s)
 					{
-				
-						$skos_subject_related{$s} = 
-								array($src_name,
-											$broader	=array(),
-											$narrower	=array(),
-											$related	=get_related_subjects_from_sparql_endpoint($s,$src_name,$sds_sparql_endpoint,$sds_sparql_endpoint_params,$NAMESPACES,$lang,$max_subjects));
+						$s = trim(strtolower($s));
+						if ($s<>'')
+						{
+					
+							$expanded_subjects =
+									array($src_name,
+												$broader	=array(),
+												$narrower	=array(),
+												$related	=get_related_subjects_from_sparql_endpoint($s,$src_name,$sds_sparql_endpoint,$sds_sparql_endpoint_params,$NAMESPACES,$lang,$max_subjects));
+						
+							add_to_assocvector($skos_subject_related,$s,$expanded_subjects);					
+						
+						}
 					}
 				}
-			}
-			else {
-								$WEBSERVICE_q=$WEBROOT."$RODINROOT/$RODINSEGMENT/app/s/refine/index.php"
-										.'?'.'sid='.$sid
-										.'&'.'cid=0'
-										.'&'.'cid=0'
-										.'&'.'action=preall'
-										.'&'.'v=' // must be empty = use q without preprocessing
-										.'&'.'sortrank=standard'
-										.'&'.'w=0'
-										.'&'.'m='.$max_subjects
-										.'&'.'l='.$lang
-										.'&'.'c=c'
-										.'&'.'service_id='.$ID
-										.'&'.'user='.$USER_ID
-										.'&'.'q='
-										;
-				
-				//Call the refine method inside $CLASS
-				if ($DEBUG) print "<hr>";
-				
-				$broder_arr=$narrower_arr=$related_arr=array();
-				foreach ($subjects as $s)
-				{
-					if (trim($s))
+				else {
+									$WEBSERVICE_q=$WEBROOT."$RODINROOT/$RODINSEGMENT/app/s/refine/index.php"
+											.'?'.'sid='.$sid
+											.'&'.'cid=0'
+											.'&'.'cid=0'
+											.'&'.'action=preall'
+											.'&'.'v=' // must be empty = use q without preprocessing
+											.'&'.'sortrank=standard'
+											.'&'.'w=0'
+											.'&'.'m='.$max_subjects
+											.'&'.'l='.$lang
+											.'&'.'c=c'
+											.'&'.'service_id='.$ID
+											.'&'.'user='.$USER_ID
+											.'&'.'q='
+											;
+					
+					//Call the refine method inside $CLASS
+					if ($DEBUG) $RDFLOG.= "<hr>";
+					
+					$broder_arr=$narrower_arr=$related_arr=array();
+					foreach ($subjects as $s)
 					{
-						//In case the refine method gets some results, 
-						//do not ask the same service again for a subject 
-						//which is contained in the previously sserved call if successful!
-							$s64 = base64_encode($s);
-							$WEBSERVICE = $WEBSERVICE_q.$s64;
-							if ($DEBUG) print "<br>Calling internal webservice for subject ($s) and class <b>$CLASS</b>:<br>".htmlentities($WEBSERVICE);
-							
-							$CONTENT=get_file_content($WEBSERVICE);
-							//print "<br>CONTENT: ".htmlentities($CONTENT);
-							$skos_subject_related{$s} = $this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$s,$WEBSERVICE_q);
-							
-					}
-				}
-			}
-
-			Logger::logAction(27, array('from'=>'get_relatedsubjects_from_thesauri','msg'=>"Exit $src_name with $max_subjects subjects"));
-		} // foreach($INITIALISED_SRCs as $INITIALISED_SRC)
+						if (trim($s))
+						{
+							//In case the refine method gets some results, 
+							//do not ask the same service again for a subject 
+							//which is contained in the previously sserved call if successful!
+								$s64 = base64_encode($s);
+								$WEBSERVICE = $WEBSERVICE_q.$s64;
+								//print "<br>Calling internal webservice for subject ($s) and class <b>$CLASS</b>:<br>".htmlentities($WEBSERVICE);
+								
+								$CONTENT=get_file_content($WEBSERVICE);
+								//print "<br>CONTENT: ".htmlentities($CONTENT);
+								$expanded_subjects = $this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$s,$WEBSERVICE_q);
 		
-		Logger::logAction(27, array('from'=>'get_relatedsubjects_from_thesauri','msg'=>'Exit'));
+								add_to_assocvector($skos_subject_related,$s,$expanded_subjects)	;					
+								//$skos_subject_related{$s} = $expanded_subjects;
+								
+						}
+					}
+				}
+	
+				Logger::logAction(27, array('from'=>'expand_related_subjects_using_thesauri','msg'=>"Exit $src_name with $max_subjects subjects"));
+			} // foreach($INITIALISED_SRCs as $INITIALISED_SRC)
+		} // valid_src_parameters
+		Logger::logAction(27, array('from'=>'expand_related_subjects_using_thesauri','msg'=>'Exit'));
 		
 		return $skos_subject_related;
 		
@@ -1337,7 +1373,6 @@ class RodinRDFResult {
 		
 		$broder_arr=$related_arr=$narrower_arr=array();
 		//In the following statement the flag LIBXML_NOCDATA is mandatory for reading and processing CDATA sections:
-		
 		$valid_xml=true;
 		if (datasource_error($CONTENT,$src_name))	
 		{
@@ -1351,6 +1386,7 @@ class RodinRDFResult {
 		
 		if ($valid_xml)
 		{
+			
 			$sxmldom = simplexml_load_string($CONTENT,'SimpleXMLElement', LIBXML_NOCDATA);
 			if ($sxmldom)
 			{
@@ -1361,6 +1397,7 @@ class RodinRDFResult {
 				$narrower64 = trim($narrower64_[0]);
 				$related64_ = $sxmldom->xpath("/refine/srv/related"); //find the doc (CDATA) list results
 				$related64 = trim($related64_[0]);
+				
 				
 				if($broader64)
 				{
@@ -1412,12 +1449,27 @@ class RodinRDFResult {
 	 * Suggestions
 	 * 
 	 * CACHE CALLS
+	 * 
+	 * For each present subject $sx in ($this->getDCSubjects())
+	 * 
+	 * if $sx is not contained in $processed_subject or
+	 *    $sx is contained in $processed_subject and $processed_subject{$sx}=0 (no docs fetched)
+	 * then
+	 * Fetch documents records for this subject $sx, 
+	 * register the subject into $processed_subject{$sx}=Number of docs fetched.
+	 * 
+	 * Only labels in the same language as $searchterm are considered.
 	 */
-	public function rdfLODexpand($sid,$datasource,$searchterm,$USER_ID)
+	public function rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID)
 	{
 		global $RDFLOG;
+		$CLASS=get_class($this);
+		if (!$CLASS::$searchtermlang)
+			$CLASS::$searchtermlang = detectLanguage($searchterm);
+		$lang=$CLASS::$searchtermlang;
 		
- 		Logger::logAction(27, array('from'=>'rdfLODexpand','msg'=>'Started'));
+		$processed_subjects = array();
+ 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Started'));
 		
 		$subjects_labels=$this->getDCSubjects();
 		
@@ -1441,28 +1493,75 @@ class RodinRDFResult {
 					
 					foreach($subjects_labels as $subject)
 					{
-						$RDFLOG.= "<br>Fetching document triples for subject '$subject'";
-						$triples = get_triples_on_subject_from_sparql_endpoint(	$subject,
-																																		$sds_name,
-																																		$sds_sparql_endpoint,
-																																		$sds_sparql_endpoint_params,
-																																		RodinRDFResult::$NAMESPACES,
-																																		$max_triples);
-						$otriplescount=count($triples);																												
-						list($homogenized_triples,$htriplescount,$hdocscount)
-											= $this->homogenize_foreign_triples($triples,$sds_name);
-											
-						$RDFLOG.= "--> $hdocscount docs in ($otriplescount) $htriplescount homogenized triples imported";
-						$this->import_triples($homogenized_triples);
-					} // foreach($subjects_labels
+						list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($subject,$processed_subjects);
+						if ($still_to_process)
+						{
+							$RDFLOG.= "<br>Fetching document triples for subject '$subject'";
+							$triples = get_triples_on_subject_from_sparql_endpoint(	$subject,
+																																			$sds_name,
+																																			$sds_sparql_endpoint,
+																																			$sds_sparql_endpoint_params,
+																																			RodinRDFResult::$NAMESPACES,
+																																			$max_triples);
+							$otriplescount=count($triples);																												
+							list($homogenized_triples,$htriplescount,$hdocscount)
+												= $this->homogenize_foreign_triples($triples,$sds_name,$lang);
+							
+							$processed_subjects{$subject}=$hdocscount; 
+							
+							$RDFLOG.= "--> $hdocscount docs in ($otriplescount) $htriplescount homogenized triples imported";
+							$this->import_triples($homogenized_triples);
+						} // $processed_subjects
+						else {
+						if ($DEBUG || 1)
+							$RDFLOG.="<br>SUPPRESS LOD document fetch on subject ($subject), since there was a more complicated one ($subsuming_subject) having $numdocs document(s).";
+						}
+					} // foreach($subjects_labels 
 				} // foreach($LOD_SOURCES_RECORDS
 			}
 			else
 				$RDFLOG.= "<br> NO LOD sources (yet) used to expand result rdf information";
+
 		}
 
- 		Logger::logAction(27, array('from'=>'rdfLODexpand','msg'=>'Exit'));
-	} // rdfLODexpand
+ 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Exit'));
+	} // rdfLODfetchDocumentsOnSubjects
+	
+	
+	
+	
+	
+	/**
+	 * if $sx is not contained in $processed_subject or
+	 *    $sx is contained in $processed_subject and $processed_subject{$sx}=0 (no docs fetched)
+	 * then true
+	 * @param $subject
+	 * @param $processed_subjects
+	 */
+	public function subject_is_still_to_process($subject,&$processed_subjects)
+	{
+		$subsumed=false;
+		$subsuming='';
+		$fetched_docs=0;
+		foreach($processed_subjects as $s=>$docs)
+		{
+			if (strstr($s,$subject) && $docs > 0)
+			//A more complicated subject delivered documents.
+			//do not process
+			{
+				$subsumed=true;
+				$subsuming=$s;
+				$fetched_docs=$docs;
+				break;
+			}
+		}
+		
+		//If subject was not subsumed, 
+		//it must be processed:
+		return array(!$subsumed,$subsuming,$fetched_docs);
+	} // subject_is_still_to_process
+	
+	
 	
 	
 	
@@ -1506,14 +1605,22 @@ EOS;
 	 * Returns the triples passed with some 
 	 * specific needed transformation
 	 * in order to be used inside the RODIN SPACE
+	 * accept titles, descriptions and subject literal 
+	 * only if in the same language as the searchterm
 	 * 
 	 * @param triples array $triples - the triples
 	 * @param string $src_name - The name of the refining component
 	 */
-	public function homogenize_foreign_triples(&$triples,$src_name)
+	public function homogenize_foreign_triples(&$triples,$src_name,$lang)
 	{
+		global $RDFLOG;
 		$hdocscount=0;
 		$htriplescount=0;
+		$CLASS=get_class($this);
+		if (!$CLASS::$searchtermlang)
+			$CLASS::$searchtermlang = detectLanguage($searchterm);
+		$lang=$CLASS::$searchtermlang;
+		
 		//print "<br>homogenize_foreign_triples for ($src_name)";
 		switch (strtolower($src_name))
 		{
@@ -1538,6 +1645,24 @@ EOS;
 						$homogenized_triples[]=array($new_s,$new_p,'dce:BibliographicResource');
 						$hdocscount++;
 					}
+					else if ($p=='dce:title' 
+								|| $p=='dce:description' )
+					{
+						//Only the SAME language!
+						$langt='';
+						if (($langt=detectLanguage($new_o))==$lang)
+						{
+							if($DEBUG || 1)  
+										$RDFLOG.= "<br>TAKE($langt==$lang) OBJ($new_o):";
+						}
+						else 
+						{
+							$add_triple=false;
+							if($DEBUG || 1)  
+										$RDFLOG.= htmlprint("<br>SUPPRESS($langt<>$lang) OBJ($new_o):",'red');
+						}					
+											
+					}				
 					else if ($p=='dce:subject')
 					{
 							//TODO: LINK work with subject 
