@@ -739,16 +739,21 @@ EOF;
         if ($sortrank=='standard')
         {
           arsort($CANDIDATES); // sortiere nach Values - top value first
-					array_splice($CANDIDATES, $m); // behalte die ersten $m insgesamt
+					$CANDIDATES=array_splice($CANDIDATES, $m); // behalte die ersten $m insgesamt
         }
           
-				
 				$refined_terms=''; //reset
 				$refined_terms_raw='';
+				if ($this->srcdebug) print "<br> SPLICED ($m) CANDIDATES: ".cout($CANDIDATES);
+
 				foreach($CANDIDATES as $term=>$RANK)
 				{
 					if ($term) // term is non stopword
 					{
+						
+						if ($this->srcdebug) print "<br> CANDIDATE ($term):";
+						
+						
 						//-----------------------------------------------
 						if ($this->getWordbinding() == 'STW')
 						{

@@ -379,7 +379,11 @@ function cleanup_commas($terms)
 
 
 
-
+function cleanup_comma_in_descr_label($label)
+{
+	$label=str_replace(',','',$label);
+	return $label;
+}
 
 
 

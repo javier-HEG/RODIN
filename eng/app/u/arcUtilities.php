@@ -1041,7 +1041,7 @@ EOQ;
 
     if (! sparql_cached_content_quality_control($xmlCached_content,$src_name,$age_in_sec))
     { // ask service and rebuild cache
-       
+      $used_cache=false;
       $timestamp=date("d.m.Y H:i:s");
       $timestamp0=time();
       $age_in_sec=0;
@@ -1056,6 +1056,9 @@ EOQ;
 		
 			cache_src_response($cache_id,$xml_content);
 			$xmlCached_content = $xml_content;
+		} 
+		else {
+			$used_cache=true;
 		}
 
 		//scan/open $xmlCached_content for later use
@@ -1128,7 +1131,9 @@ EOQ;
 			
 			Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Exit with $triples_noof triples"));
 		}
-		return $triples;
+
+
+		return array($triples,$used_cache);
 	}	// get_triples_on_subject_from_sparql_endpoint
 			
 		

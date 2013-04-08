@@ -219,26 +219,37 @@ EOP;
 					{
 						//print "<br>DB VALUE: ($value)";
 						if ($attr=='allow__UsedAsThesaurus')
+						{
 							$allowed__UsedAsThesaurus = $value;
+						}
 						else 
 						if ($attr=='allow__UsedForSubjects')
+						{
 							$allowed__UsedForSubjects = $value;
+						}
 						else 
 						if ($attr=='allow__UsedForLODRdfExpansion')
+						{
 							$allowed__UsedForLODRdfExpansion = $value;
+						}	
 					}
 				}
 			} // !$admin
 			
 			
-			if (!is_a_value($UsedAsThesaurus)) $UsedAsThesaurus=0;
-			else if ($UsedAsThesaurus=='on') $UsedAsThesaurus=$allowed__UsedAsThesaurus; 
+			if ($UsedAsThesaurus==null) $UsedAsThesaurus=0;
+			else if ($UsedAsThesaurus) $UsedAsThesaurus=$allowed__UsedAsThesaurus; 
 			
-			if (!is_a_value($UsedForSubjects)) $UsedForSubjects=0;
-			else if ($UsedForSubjects=='on') $UsedForSubjects=$allowed__UsedForSubjects; 
+			if ($UsedForSubjects==null) $UsedForSubjects=0;
+			else if ($UsedForSubjects) $UsedForSubjects=$allowed__UsedForSubjects; 
 
-			if (!is_a_value($UsedForLODRdfExpansion)) $UsedForLODRdfExpansion=0;
-			else if ($UsedForLODRdfExpansion=='on') $UsedForLODRdfExpansion=$allowed__UsedForLODRdfExpansion; 
+			if ($UsedForLODRdfExpansion==null) $UsedForLODRdfExpansion=0;
+			else if ($UsedForLODRdfExpansion) $UsedForLODRdfExpansion=$allowed__UsedForLODRdfExpansion; 
+			
+			//if ($UsedAsThesaurus==null) $UsedAsThesaurus=0;
+			//if ($UsedForSubjects==null) $UsedForSubjects=0;
+			//if ($UsedForLODRdfExpansion==null) $UsedForLODRdfExpansion=0;
+			
 			
 		/*
 			$UsedAsThesaurus=$UsedAsThesaurus?1:0;

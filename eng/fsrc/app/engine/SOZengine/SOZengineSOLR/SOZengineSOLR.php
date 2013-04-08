@@ -488,64 +488,72 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang)
           {
             print "<br>Reading $d. document for query ... '$term' (or '$descriptor')";
           }
-          $PREFLABELS_DE=$PREFLABELS_EN=$ALTLABELS_DE=$ALTLABELS_EN=array();
-        // the documents are also iterable, to get all fields
-          foreach($document AS $fieldname => $value)
-          {
-              // this converts multivalue fields to a comma-separated string
-              if(!is_array($value)) $value = array($value);
-              //Filter out SKOS Elements
-
-              switch($fieldname)
-              {
-                //Sum all skos nodes over all found node elements
-                case 'skos_broader': $BROADER_DESC = array_merge($BROADER_DESC,is_array($value)?$value:array($value));break;
-                case 'skos_narrower':$NARROWER_DESC = array_merge($NARROWER_DESC,is_array($value)?$value:array($value));break;
-                case 'skos_related': $RELATED_DESC = array_merge($RELATED_DESC,is_array($value)?$value:array($value));break;
-
-                case 'id': $ID =$value; break;
-                case 'skos_inScheme': /*noop*/ break;
-
-                /* Labels of the current ID */
-                case 'skosxl_prefLabel_de': if (is_array($value)) 
-                                               $PREFLABELS_DE = $value;
-                                          else $PREFLABELS_DE = array($value);
-                      break;
-                case 'skosxl_prefLabel_en': if (is_array($value)) 
-                                               $PREFLABELS_EN = $value;
-                                          else $PREFLABELS_EN = array($value);
-                      break;
-                case 'skosxl_altLabel_de':  if (is_array($value)) 
-                                               $ALTLABELS_DE = $value;
-                                          else $ALTLABELS_DE = array($value);
-                      break;
-                case 'skosxl_altLabel_en':  if (is_array($value)) 
-                                               $ALTLABELS_EN = $value;
-                                          else $ALTLABELS_EN = array($value);
-                      break;
-
-                case 'rdf_type': /*useless here*/break;
-                case 'body': /*used for a search, useless here*/break;
-                
-                case 'skos_exactMatch': /* maybe soon used? */break;
-                case 'skos_broadMatch': /* maybe soon used? */break;
-                case 'skos_relatedMatch': /* maybe soon used? */break;
-                case 'skosxl_altLabel_ptc': /* maybe soon used? */break;
-                case 'skosxl_altLabel_cnpt': /* maybe soon used? */break;
-              
-                case 'timestamp': /*SOLR*/break;
-                case 'score': /*SOLR*/break;
-
-              } // switch
-
-          } // foreach field
-          //The following are n documents found on the text search...
-          //They shoudl be ranked...
-          //Currently not used - but hties broader/narrower/related nodes
+					
+						
+	          $PREFLABELS_DE=$PREFLABELS_EN=$ALTLABELS_DE=$ALTLABELS_EN=array();
+	        // the documents are also iterable, to get all fields
+	          foreach($document AS $fieldname => $value)
+	          {
+	              // this converts multivalue fields to a comma-separated string
+	              if(!is_array($value)) $value = array($value);
+	              //Filter out SKOS Elements
+	
+	              switch($fieldname)
+	              {
+	                //Sum all skos nodes over all found node elements
+	                case 'skos_broader': $BROADER_DESC = array_merge($BROADER_DESC,is_array($value)?$value:array($value));break;
+	                case 'skos_narrower':$NARROWER_DESC = array_merge($NARROWER_DESC,is_array($value)?$value:array($value));break;
+	                case 'skos_related': $RELATED_DESC = array_merge($RELATED_DESC,is_array($value)?$value:array($value));break;
+	
+	                case 'id': $ID =$value; break;
+	                case 'skos_inScheme': /*noop*/ break;
+	
+	                /* Labels of the current ID */
+	                case 'skosxl_prefLabel_de': if (is_array($value)) 
+	                                               $PREFLABELS_DE = $value;
+	                                          else $PREFLABELS_DE = array($value);
+	                      break;
+	                case 'skosxl_prefLabel_en': if (is_array($value)) 
+	                                               $PREFLABELS_EN = $value;
+	                                          else $PREFLABELS_EN = array($value);
+	                      break;
+	                case 'skosxl_altLabel_de':  if (is_array($value)) 
+	                                               $ALTLABELS_DE = $value;
+	                                          else $ALTLABELS_DE = array($value);
+	                      break;
+	                case 'skosxl_altLabel_en':  if (is_array($value)) 
+	                                               $ALTLABELS_EN = $value;
+	                                          else $ALTLABELS_EN = array($value);
+	                      break;
+	
+	                case 'rdf_type': /*useless here*/break;
+	                case 'body': /*used for a search, useless here*/break;
+	                
+	                case 'skos_exactMatch': /* maybe soon used? */break;
+	                case 'skos_broadMatch': /* maybe soon used? */break;
+	                case 'skos_relatedMatch': /* maybe soon used? */break;
+	                case 'skosxl_altLabel_ptc': /* maybe soon used? */break;
+	                case 'skosxl_altLabel_cnpt': /* maybe soon used? */break;
+	              
+	                case 'timestamp': /*SOLR*/break;
+	                case 'score': /*SOLR*/break;
+	
+	              } // switch
+	
+	          } // foreach field
+	          //The following are n documents found on the text search...
+	          //They shoudl be ranked...
+	          //Currently not used - but hties broader/narrower/related nodes
+          
           $returndocument[]=array($ID,$PREFLABELS_DE,$PREFLABELS_EN,$ALTLABELS_DE,$ALTLABELS_EN);
       }
 
     }
+
+    //Limit found descriptors to exactely to $m
+    $BROADER_DESC=array_splice($BROADER_DESC,$m);
+		$NARROWER_DESC=array_splice($NARROWER_DESC,$m);
+		$RELATED_DESC=array_splice($RELATED_DESC,$m);
 
     // Processing... resolving descriptors... all at once
 
@@ -737,7 +745,7 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang)
                 $id=$value;
             }  
           } // each fieldname
-          $descriptor_label{$id}=$label; // right label to right id
+          $descriptor_label{$id}=cleanup_comma_in_descr_label($label); // right label to right id
         } // foreach $document
       } // $SOLRCLIENT
 

@@ -4,7 +4,18 @@
  * An RDF enhancement to the basic rodin result
  * A helper class
  * @author Fabio Ricci fabio.ricci@ggaweb.ch
- *  */
+ */
+ 
+ 
+ /**
+  * TODO
+  * 
+  * 1. ACCESS europeana different - SPARQL query more precise, language in query
+  * 2. Limit subjects ... they are still to many ... ?
+  * 3. Rank documents
+  * 4. Integrate in GUI (sid -> store ?)
+  */
+ 
  
 //Include ARC2 LOCAL STORE INFOS
 $filename="u/arcUtilities.php"; $maxretries=10;
@@ -139,6 +150,15 @@ class RodinRDFResult {
 		$showsubjects=1;
 		global $RDFLOG;
 		
+		##############################################
+		#
+		#In case the datasource supplies at least five subjects, 
+		#do not calculate further subjects from title.
+		#
+		$THRESHOLD_DATASOURCE_MIN_SUBJECTS=5; 
+		#
+		##############################################
+		
 		$RDFLOG.="<hr>RDFIZE RESULT:<hr>";
 		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Started with sid:'.$sid));
 		$lang=detectLanguage(RodinRDFResult::$searchterm);
@@ -161,22 +181,29 @@ class RodinRDFResult {
 		//print "<br>Datasource >Subjects (".$this->my_result->getProperty('subjects').")";
 		
 		//Prepare title category etc ... if possibile
-		list($title,$category,$presentation_at,$date_event) = $this->scan_datasource_title($title,RodinRDFResult::$datasource);
-		$additional_subjects=$this->compute_title_subjects(RodinRDFResult::$searchterm,$title,RodinRDFResult::$datasource,$lang);
-		if ($showsubjects) tell_subjects($additional_subjects,"extracted additional title subjects:");
-
-
-		//print "<br>ADDITIONAL Subjects (".implode('+',$additional_subjects).")";
-
-		$msubjects=array_unique(array_merge($datasource_subjects,$additional_subjects));
-		$uniquesubjects = $this->compute_unique_subjects($msubjects,$lang);
-		if ($showsubjects) tell_subjects($uniquesubjects,"extracted unique subjects:");
-		
-		$subjects=array_unique(array_merge($msubjects,$uniquesubjects));
-		//print "<br>FINAL Subjects (".implode('+',$subjects).")";
-		
-		if ($showsubjects) tell_subjects($subjects,"globally considered subjects:");
-
+		if (count($datasource_subjects) < $THRESHOLD_DATASOURCE_MIN_SUBJECTS)
+		{
+			list($title,$category,$presentation_at,$date_event) = $this->scan_datasource_title($title,RodinRDFResult::$datasource);
+			$additional_subjects=$this->compute_title_subjects(RodinRDFResult::$searchterm,$title,RodinRDFResult::$datasource,$lang);
+			if ($showsubjects) tell_subjects($additional_subjects,"extracted additional title subjects:");
+	
+	
+			//print "<br>ADDITIONAL Subjects (".implode('+',$additional_subjects).")";
+	
+			$msubjects=array_unique(array_merge($datasource_subjects,$additional_subjects));
+			$uniquesubjects = $this->compute_unique_subjects($msubjects,$lang);
+			if ($showsubjects) tell_subjects($uniquesubjects,"extracted unique subjects:");
+			
+			$subjects=array_unique(array_merge($msubjects,$uniquesubjects));
+			//print "<br>FINAL Subjects (".implode('+',$subjects).")";
+			
+			if ($showsubjects) tell_subjects($subjects,"globally considered subjects:");
+		} // $THRESHOLD_DATASOURCE_MIN_SUBJECTS
+		else
+		{
+			//Take simply these - they should be enaugh
+			$subjects = $datasource_subjects;
+		}
 		
 		
 		$skos_subjects_expansions 
@@ -1292,21 +1319,26 @@ class RodinRDFResult {
 				###########################
 				{
 					global $SRC_MAXRESULTS;
-					
+					$processed_subjects=array();
 					foreach ($subjects as $s)
 					{
 						$s = trim(strtolower($s));
 						if ($s<>'')
 						{
-					
-							$expanded_subjects =
-									array($src_name,
-												$broader	=array(),
-												$narrower	=array(),
-												$related	=get_related_subjects_from_sparql_endpoint($s,$src_name,$sds_sparql_endpoint,$sds_sparql_endpoint_params,$NAMESPACES,$lang,$max_subjects));
-						
-							add_to_assocvector($skos_subject_related,$s,$expanded_subjects);					
-						
+								
+							list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($s,$processed_subjects);
+							if ($still_to_process)
+							{
+								$expanded_subjects =
+										array($src_name,
+													$broader	=array(),
+													$narrower	=array(),
+													$related	=get_related_subjects_from_sparql_endpoint($s,$src_name,$sds_sparql_endpoint,$sds_sparql_endpoint_params,$NAMESPACES,$lang,$max_subjects));
+							
+								add_to_assocvector($skos_subject_related,$s,$expanded_subjects);					
+								$processed_subjects{$s}=count($broader)+count($narrower)+count($related); 
+							}
+							else $RDFLOG.=htmlprint("<br>SUPPRESS (sparql) Subject '{$s}' because subsumed by '{$subsuming_subject}' having already $numdocs results",'red');
 						}
 					}
 				}
@@ -1335,6 +1367,9 @@ class RodinRDFResult {
 					{
 						if (trim($s))
 						{
+							list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($s,$processed_subjects);
+							if ($still_to_process)
+							{
 							//In case the refine method gets some results, 
 							//do not ask the same service again for a subject 
 							//which is contained in the previously sserved call if successful!
@@ -1344,11 +1379,16 @@ class RodinRDFResult {
 								
 								$CONTENT=get_file_content($WEBSERVICE);
 								//print "<br>CONTENT: ".htmlentities($CONTENT);
-								$expanded_subjects = $this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$s,$WEBSERVICE_q);
-		
+								$expanded_subjects = 
+								list($src_name,$broader,$narrower,$related) = 
+											$this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$s,$WEBSERVICE_q);
+								
 								add_to_assocvector($skos_subject_related,$s,$expanded_subjects)	;					
 								//$skos_subject_related{$s} = $expanded_subjects;
-								
+								$processed_subjects{$s}=$max_bnr=count($broader)+count($narrower)+count($related); 
+													
+							}
+							else $RDFLOG.=htmlprint("<br>SUPPRESS (src) Subject '{$s}' because subsumed by '{$subsuming_subject}' having already $numdocs results",'red');	
 						}
 					}
 				}
@@ -1463,6 +1503,7 @@ class RodinRDFResult {
 	public function rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID)
 	{
 		global $RDFLOG;
+		$entry = microtime_float();
 		$CLASS=get_class($this);
 		if (!$CLASS::$searchtermlang)
 			$CLASS::$searchtermlang = detectLanguage($searchterm);
@@ -1471,11 +1512,24 @@ class RodinRDFResult {
 		$processed_subjects = array();
  		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Started'));
 		
+		$subj_start = microtime_float();
 		$subjects_labels=$this->getDCSubjects();
+		$subj_end = microtime_float();
+		$ubj_elapsed+= ($subj_end - $subj_start);
+		
+		$sl_count=count($subjects_labels);
+		
+		$RDFLOG.="<ht>FETCHING LOD Documents using $sl_count subjects ...";
 		
 		if (is_array($subjects_labels) && count($subjects_labels))
 		{
+			foreach($subjects_labels as $l) $RDFLOG."<br>subj $l";
+			
+			$lods_start = microtime_float();
 			$LOD_SOURCES=get_active_LOD_expansion_sources($USER_ID);
+			$lods_end = microtime_float();
+			$lods_elapsed+= ($lods_end - $lods_start);
+			
 			$LOD_SOURCES_RECORDS= $LOD_SOURCES['records'];
 			
 			if (is_array($LOD_SOURCES_RECORDS) && count($LOD_SOURCES_RECORDS))
@@ -1491,38 +1545,102 @@ class RodinRDFResult {
 					
 					$RDFLOG.= "<br> Expanding RDF subject using LOD source <b>$sds_name</b> ($sds_url_base) $max_triples max_triples";
 					
+					$cached_time=$open_time=0;
+					$timeelapsed_microsec=0;
+					$cache_used = $open_used=0;
+					$import_elapsed=0;
 					foreach($subjects_labels as $subject)
 					{
+						$toproc_start = microtime_float();
 						list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($subject,$processed_subjects);
+						$toproc_end = microtime_float();
+						$toproc_elapsed+= ($toproc_end - $toproc_start);
+						
+						
 						if ($still_to_process)
 						{
 							$RDFLOG.= "<br>Fetching document triples for subject '$subject'";
-							$triples = get_triples_on_subject_from_sparql_endpoint(	$subject,
+							$mtime1 = microtime_float();
+							list($triples,$used_cache)
+											 = get_triples_on_subject_from_sparql_endpoint(	$subject,
 																																			$sds_name,
 																																			$sds_sparql_endpoint,
 																																			$sds_sparql_endpoint_params,
 																																			RodinRDFResult::$NAMESPACES,
 																																			$max_triples);
-							$otriplescount=count($triples);																												
+							$timeelapsed_microsec= microtime_float() - $mtime1;
+																									
+							$RDFLOG.="<br>$timeelapsed_microsec - LOD call $sds_name on subject '$subject'";
+							if ($used_cache) 
+							{
+								$cached_time+=$timeelapsed_microsec;
+								$cache_used++;
+							}
+							else {
+								$open_used++;
+								$open_time+=$timeelapsed_microsec;
+							}
+								
+							$otriplescount=count($triples);	
+																					
+																																		
+							$homog_start = microtime_float();
 							list($homogenized_triples,$htriplescount,$hdocscount)
 												= $this->homogenize_foreign_triples($triples,$sds_name,$lang);
-							
+							$homog_end = microtime_float();
+							$homog_elapsed+=($homog_end - $homog_start);
 							$processed_subjects{$subject}=$hdocscount; 
 							
 							$RDFLOG.= "--> $hdocscount docs in ($otriplescount) $htriplescount homogenized triples imported";
+							
+							$import_start = microtime_float();
 							$this->import_triples($homogenized_triples);
-						} // $processed_subjects
+							$import_end = microtime_float();
+							$import_elapsed+=$import_end - $import_start;
+					  } // $processed_subjects
 						else {
 						if ($DEBUG || 1)
 							$RDFLOG.="<br>SUPPRESS LOD document fetch on subject ($subject), since there was a more complicated one ($subsuming_subject) having $numdocs document(s).";
 						}
 					} // foreach($subjects_labels 
+					$datasource_LOD_fetch_statistics{$sds_name}=array($sl_count,$cache_used,$cached_time,$open_used,$open_time,$import_elapsed);
+					
 				} // foreach($LOD_SOURCES_RECORDS
 			}
 			else
 				$RDFLOG.= "<br> NO LOD sources (yet) used to expand result rdf information";
 
 		}
+		$exit = microtime_float();
+		$elapsed=$exit-$entry;
+		//Print statistics:
+		$RDFLOG.= "<hr>rdfLODfetchDocumentsOnSubjects STAT<br>applied at (".($cache_used+$open_used)."/".$sl_count.") subjects";
+		$RDFLOG.= "<br> computation in $elapsed secs";
+		
+		$homog_elapsed_pro = round($homog_elapsed/$elapsed*100,1);
+		$lods_elapsed_pro = round($lods_elapsed/$elapsed*100,1);
+		$ubj_elapsed_pro = round($ubj_elapsed/$elapsed*100,1);
+		
+		$RDFLOG.= "<br> - inside subjects get took $ubj_elapsed secs = $ubj_elapsed%";
+		$RDFLOG.= "<br> - inside 'lods_elapsed' took $lods_elapsed secs = $lods_elapsed_pro";
+		$RDFLOG.= "<br> - inside homogenization took $homog_elapsed secs = $homog_elapsed_pro%";
+				
+			
+		
+		foreach($datasource_LOD_fetch_statistics as $src_name=>$STAT)
+		{
+			list($subjects_labels,$cache_used,$cached_time,$open_used,$open_time,$import_elapsed) = $STAT;
+			$RDFLOG.= "<br><br>STAT $src_name: ";
+
+			$cached_time_pro = round($cached_time / $elapsed*100,1);
+			if ($cache_used) $RDFLOG.= "<br> $cache_used times cache_used ($cached_time sec = $cached_time_pro%)";
+
+			$open_time_pro = round($open_time / $elapsed*100,1);
+			if ($open_used) $RDFLOG.=htmlprint( "<br> $open_used LOD remote calls ($open_time sec = $open_time_pro%)",'red');
+
+			$import_elapsed_pro= round($import_elapsed / $elapsed*100,1);
+			$RDFLOG.= " + import time elapsed ($import_elapsed sec = $import_elapsed_pro%)";
+		} // stat
 
  		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Exit'));
 	} // rdfLODfetchDocumentsOnSubjects
@@ -1543,6 +1661,7 @@ class RodinRDFResult {
 		$subsumed=false;
 		$subsuming='';
 		$fetched_docs=0;
+		if (count($processed_subjects))
 		foreach($processed_subjects as $s=>$docs)
 		{
 			if (strstr($s,$subject) && $docs > 0)

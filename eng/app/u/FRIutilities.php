@@ -397,6 +397,12 @@ function add_to_assocvector(&$assoc,$subject,&$obj)
 
 
 
+function microtime_float()
+{
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float)$usec + (float)$sec);
+}
+
 
 
 function clean_html($str)
