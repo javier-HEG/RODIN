@@ -31,19 +31,18 @@ $PAGETITLE_BIG=strtoupper($PAGETITLE)." FOR ENTITY $uid";
 
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<title><?php print $PAGETITLE_BIG?></title>
-		<link rel="stylesheet" href="../../css/rodin.css.php" type="text/css" />
-		<script type="text/javascript" src="../../u/RODINutilities.js.php"></script>
+		<link rel="stylesheet" href="../../../css/rodin.css.php" type="text/css" />
+		<script type="text/javascript" src="../../../u/RODINutilities.js.php"></script>
 	</head>
-	<body class='triplepage_rodin'>
+	<body class='triplepage_rodin_a'>
 <?php
 
 	
 
 
 if ($uid)
-	print_triplespage($uid,$PAGETITLE,'rodin');
+	print_triplespage($uid,$PAGETITLE,'rodin_a');
 
 
 

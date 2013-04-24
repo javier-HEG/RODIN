@@ -9,7 +9,6 @@
  */
 
 /*The following can be used as mechanism for carrying complex data inside triples using base64 coding: */
-$TOBECODED64 = array('dc:description','rodin:abbreviation');
 
 $filenamex="app/root.php"; $max=10;
 #######################################
@@ -48,6 +47,9 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 		$IMG3P="<img src='$IMG3P_ICON' width='15'>";
 		$RDFenhancementCLASS = get_class($RDFenhancement);
 		$QUERY=$RDFenhancementCLASS::$NAMESPACES_PREFIX." select ?s ?p ?o { ?s ?p ?o . }";
+		
+		$TOBECODED64=$RDFenhancementCLASS::$TOBECODED64;
+		
 		$TITLE_TPAGELINK="Click to open rodin w3s triple page in new tab";
 		$HTML='';
 		//print "<br>QUERY:<br>".htmlentities($QUERY);
@@ -64,7 +66,8 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 				$subject	= prettyprintURI($row['s'],$RDFenhancementCLASS::$NAMESPACES) ;
 				$predicate= prettyprintURI($row['p'],$RDFenhancementCLASS::$NAMESPACES) ;
 				
-				$object		= prettyprintURI($row['o'],$RDFenhancementCLASS::$NAMESPACES) ;
+				$predicatex= printURI($row['p'],$RDFenhancementCLASS::$NAMESPACES) ;
+				$object		= prettyprintURI(decode_64_literal($predicatex,$row['o'],$TOBECODED64),$RDFenhancementCLASS::$NAMESPACES) ;
 				$object   = strstr($row['o'],'http://')
 										?"<a href='".$row['o']."' target='_blank' title='click to open url in a new tab'>$object</a>"
 										:$object;
@@ -137,7 +140,7 @@ EOX;
 				$HTML.= "</td>";
 				$HTML.= "</tr>";
 			}
-			$HTML.= "<table>";
+			$HTML.= "</table>";
 		}
 		return $HTML;
 	} // print_triples
@@ -147,22 +150,21 @@ EOX;
 			
 			
 			
+		function timestamp_fortripleannotation()
+		{
 			
+			$now =  time() .'_'. str_pad(substr((float)microtime(), 2), 6, '0', STR_PAD_LEFT);
+			
+			return $now;
+		}	
 			
 			
 		
 		function decode_64_literal($p,$literal,&$TOBECODED64)
 		{
-			if (count($TOBECODED64))			
-			foreach($TOBECODED64 as $pname)
-			{
-				if ($p==$pname)
-				{
+			if ($TOBECODED64{$p})	
 					$literal=base64_decode($literal);
-					break;
-				}
-			}
-			return $literal;
+			return str_replace('"','',$literal);
 		}
 		
 		
@@ -244,24 +246,24 @@ EOX;
 					
 					foreach($EXPANSIONS as $SKOS)
 					{
-						list($src_name,$broaders,$narrowers,$related)=$SKOS;
-						$RDFLOG.= "<br><b>$src_name</b>.SKOS ($s):";
+						list($src_name,$srcuid,$src_data_fresh,$broaders,$narrowers,$related)=$SKOS;
+						$RDFLOG.= "<br><b>$src_name</b> ($srcuid).SKOS ($s):";
 						
-						if (($bc=count($broaders)))
+						if (($bc=count($broaders))>0)
 						{
 							$RDFLOG.="<br><i>$bc Broaders:</i>";
 							foreach($broaders as $b)
 							$RDFLOG.="<br>&nbsp;&nbsp; $b";
 						}
 						
-						if (($nc=count($narrowers)))
+						if (($nc=count($narrowers))>0)
 						{
 							$RDFLOG.="<br><i>$nc Narrowers:</i>";
 							foreach($narrowers as $n)
 							$RDFLOG.="<br>&nbsp;&nbsp; $n";
 						}
 	
-						if (($rc=count($related)))
+						if (($rc=count($related))>0)
 						{
 							$RDFLOG.="<br><i>$rc Related:</i>";
 							foreach($related as $r)
@@ -292,19 +294,27 @@ EOX;
 			print get_triples_as_navi_page(	$RDFenhancement,
 																			$word_id,
 																			$pagetitle,
-																			$tableclass='triplepagetable');
+																			$namespace_short,
+																			$tableclass='triplepagetable_'.$namespace_short);
 		} // print_triplespage
 		
 		
 	/**
 	 * return a text with the triples from $storename using QUERY
 	 * or all triples from store rodin
-	 * @param $storename
-	 * @param $rodin_uid_short an expr like "rodin:blabla" with ns short!
+	 * 
+	 * color on $namespace_short
+	 * 
+	 * @param $RDFenhancement
+	 * @param $word_id
+	 * @param $pagetitle
+	 * @param $namespace_short
+	 * @param $tableclass
 	 */
 	function get_triples_as_navi_page(	&$RDFenhancement,
 																			$word_id,
 																			$pagetitle,
+																			$namespace_short,
 																			$tableclass='triplepagetable')
 	{
 		global $RODINLOGO;
@@ -313,10 +323,22 @@ EOX;
 		$RDFenhancementCLASS = get_class($RDFenhancement);
 		$GRAPH=$RDFenhancementCLASS::$importGraph;
 		
+		//Descript what kind of entity we are displaying right now:
+		switch($namespace_short)
+		{
+			case 'rodin_a': $METATYPED='<b>annotation</b> '; break;
+			case 'rodin_e': $METATYPED='<b>imported</b> '; break;
+			case 'rodin': $METATYPED=''; break;
+			default: $METATYPED='?';
+		}
+		//Look and feel
+		$TRIPLEPAGECLASS='triplepage-'.$namespace_short;
+		
+		
 		//$SORTLITERALS = array('foaf:name', 'rodin:id','dbo:Place','dbo:birthDate','dbo:deathDate','rodin:profession','dc:description','dc:isReferencedBy','dc:creator');
-		list($ns_short,$short_uid)=explode(':',$word_id);
+	  list($ns_short,$short_uid)=explode(':',$word_id);
 		$w_full=correct_rodin_url(  get_full_url($word_id,$RDFenhancementCLASS::$NAMESPACES), $RDFenhancementCLASS::$NAMESPACES  );
-		$w_target=(strstr($word_id,'rodin:')||strstr($word_id,'rodin_e:'))?"":"target='_blank'";
+		$w_target=(strstr($word_id,'rodin:')||strstr($word_id,'rodin_e:')||strstr($word_id,'rodin_a:'))?"":"target='_blank'";
 		$WORDID_HREF="<a class='about' href='$w_full' $w_target><small>$ns_short:</small>$short_uid</a>";
 		
 		//print "<br>get_triples_as_navi_page getting triples for '$word_id' (about: $about)";
@@ -346,7 +368,7 @@ $TRIPLEPAGE=<<<EOP
 				<span class='triplepagei'>$pagetitle</span>
 			</td>
 			<td align='right' valign='top'>
-			<span class='triplepage'>$URL_MANTIS</span>
+			<span class='$TRIPLEPAGECLASS'>$URL_MANTIS</span>
 			</td>
 		</tr>
 		<tr height='20'>
@@ -354,7 +376,7 @@ $TRIPLEPAGE=<<<EOP
     <div id="header" >
 			  <h2 id="title">About $WORDID_HREF</h2>
 		  	<div class="page-resource-uri" title="An entity is connotated by direct (and inverse) properties obtained traversing the graph centerd on the subject '$word_id'">
-			    An entity $EVTL_ENTITY_TYPE_DEF 
+			    An {$METATYPED}entity $EVTL_ENTITY_TYPE_DEF 
 			    from graph <a href="$GRAPH" target='_blank'>$GRAPH</a>
 		    </div>
 		</div> <!-- header -->
@@ -383,11 +405,9 @@ $TRIPLEPAGE=<<<EOP
 				<table class="description $tableclass" width="100%" cellpadding="1" cellspacing="0">
 EOP;
 
-	$i=0;
+	$i=1;
 	foreach($p_o as $p=>$ooo)
 	{
-		$i++; $even = !($i%2); 
-		$bgclass=$even?'even':'odd';
 		//print "<br>even($i): class $class";
 		//Skip some
 		if ($i==1) // only once
@@ -405,15 +425,19 @@ EOP;
 		</tr>
 EOP;
 		}
-			
-				if ($p<>'rdf:type')
+		
+		$i++;
+		if ($p<>'rdf:type')
 		{
-			
+			 
+			$even = !($i%2); 
+			$bgclass=($even?'even':'odd').'_'.$namespace_short;
+		
 			$p_full=correct_rodin_url(  get_full_url($p,$RDFenhancementCLASS::$NAMESPACES), $RDFenhancementCLASS::$NAMESPACES  );
 			$pns=get_ns($p);
 			$pshort=str_replace("$pns:",'',$p);
 			$class="literal";
-			$p_target=(strstr($p,'rodin:')||strstr($p,'rodin_e'))?"":"target='_blank'";
+			$p_target=(strstr($p,'rodin:')||strstr($p,'rodin_e')||strstr($p,'rodin_a'))?"":"target='_blank'";
 			//show section on all same content:
 			$P_HREF="<a href='$p_full' $p_target><small>$pns:</small>$pshort</a>";
 $TRIPLEPAGE.=<<<EOP
@@ -428,7 +452,6 @@ EOP;
 				if ($o_is_literal)
 				{
 					$O_HREF=decode_64_literal($p,$o,$RDFenhancementCLASS::$TOBECODED64);
-					
 					//Check url -> make clickable:
 					$O_HREF   = strstr($o,'http://')
 										?"<a href='".$o."' target='_blank' title='click to open url in a new tab'>$O_HREF</a>"
@@ -436,7 +459,7 @@ EOP;
 				} else {
 					$o_full = correct_rodin_url($o_full,$RDFenhancementCLASS::$NAMESPACES);
 					$o_short=str_replace("$ns:",'',$o);
-					$o_target=(strstr($o,'rodin:')||strstr($o,'rodin_e:'))?'':"target='_blank'";
+					$o_target=(strstr($o,'rodin:')||strstr($o,'rodin_e:')||strstr($o,'rodin_a:'))?'':"target='_blank'";
 					//print "<br>o=$o o_target=$o_target";
 					$O_HREF="<a href='$o_full' $o_target><small>$ns:</small>$o_short</a>";
 				} 
@@ -451,7 +474,7 @@ EOP;
 	foreach($s_p_inverse as $p=>$sss)
 	{
 		$i++; $even = !($i%2); 
-		$bgclass=$even?'even':'odd';
+		$bgclass=($even?'even':'odd').'_'.$namespace_short;
 		
 		if (!$inverted_header_shown)
 		{
@@ -472,7 +495,7 @@ EOP;
 		$pns=get_ns($p);
 		$pshort=str_replace("$pns:",'',$p);
 		$class="literal";
-		$p_target=(strstr($p,'rodin:')||strstr($p,'rodin_e:'))?"":"target='_blank'";
+		$p_target=(strstr($p,'rodin:')||strstr($p,'rodin_e:')||strstr($p,'rodin_a:'))?"":"target='_blank'";
 		//show section on all same content:
 		$P_HREF="<a href='$p_full' $p_target>inv(<small>$pns:</small>{$pshort})</a>";
 $TRIPLEPAGE.=<<<EOP
@@ -486,7 +509,7 @@ EOP;
 			
 			$s_full = correct_rodin_url($s_full,$RDFenhancementCLASS::$NAMESPACES);
 			$s_short=str_replace("$ns:",'',$s);
-			$s_target=(strstr($s,'rodin:')||strstr($s,'rodin_e:'))?'':"target='_blank'";
+			$s_target=(strstr($s,'rodin:')||strstr($s,'rodin_e:')||strstr($s,'rodin_a:'))?'':"target='_blank'";
 			//print "<br>o=$o o_target=$o_target";
 			$S_HREF="<a href='$s_full' $s_target><small>$ns:</small>$s_short</a>";
 			
@@ -540,21 +563,35 @@ else print "<br>Sorry: No further information found on $word_id";
 			$path_parts=pathinfo($url);
 			$filename=$path_parts['filename'];
 			$dirname=$path_parts['dirname'];
+			if (substr($dirname,strlen($dirname)-1,1)<>'/') 
+			$dirname.='/';
 			
 			//in case rodin house address matches ... correct:
+			// print "<br><br>dirname: $dirname";
+			// print "<br>filename: $filename";
+			// print "<br>rodin_a: ".$NAMESPACES{'rodin_a'};
 			if (strstr($dirname,$NAMESPACES{'rodin_e'}))
+			{
 				$delta_rodin= str_replace($NAMESPACES{'rodin_e'},'',$dirname);
-			if (!$delta_rodin && strstr($dirname,$NAMESPACES{'rodin'}))
-			$delta_rodin= str_replace($NAMESPACES{'rodin'},'',$dirname);
+			}
+			else {
+
+				// print "<br>TRY ELSE ($dirname)(".$NAMESPACES{'rodin_a'}.")";
+				if (strstr($dirname,$NAMESPACES{'rodin_a'}))
+					$delta_rodin= str_replace($NAMESPACES{'rodin_a'},'',$dirname);
+				else if (strstr($dirname,$NAMESPACES{'rodin'}))
+					$delta_rodin= str_replace($NAMESPACES{'rodin'},'',$dirname);
+			}
+			
 			
 			if ($delta_rodin)
 			{
-				//print "<br>correct_rodin_url($url) (delta=($delta_rodin)) filename=$filename dirname=$dirname";
+				// print "<br>correct_rodin_url($url) (delta=($delta_rodin))<br>filename=$filename<br>dirname=$dirname";
 				
 				//Attach delta to filename
 				$dirname=str_replace($delta_rodin,'',$dirname);
-				$filename=$delta_rodin.'/'.$filename; //Assume always '/'
-				//print "<br>corrected: filename=$filename dirname=$dirname";
+				$filename=str_replace("//","/",$delta_rodin.'/'.$filename); //Assume always '/'
+				// print "<br>corrected: filename=$filename dirname=$dirname";
 			}
 			$url=$dirname.'?token='.$filename;
 		}
@@ -563,6 +600,64 @@ else print "<br>Sorry: No further information found on $word_id";
 	}
 	
 	
+	
+	
+	/**
+	 * retuns the value of 
+	 */
+	function lookup_firstvalue($s,$p,&$RDFenhancement)
+	{
+		$o=null;
+		$RDFenhancementCLASS = get_class($RDFenhancement);
+		
+		$QUERY = $RDFenhancementCLASS::$NAMESPACES_PREFIX . " select ?o { $s $p ?o . } limit 1";
+		
+		//print "<br>Query:<br>".str_replace("\n","<br>",htmlentities(urldecode($QUERY)));
+		
+		if ($rows = $RDFenhancementCLASS::$store->query($QUERY, 'rows')) 
+		{			
+				foreach($rows as $row) 	
+				{
+					$o_full=$row['o'];
+					$o = separate_namespace($RDFenhancementCLASS::$NAMESPACES,$o_full,':',false);
+					//print " O FOUND ";
+					break;
+				}
+		}
+		
+		//print "<br>lookup_firstvalue($s,$p) returning ($o)";
+		
+		return $o;
+	} // lookup_firstvalue
+	
+	
+	//Convenience function
+	function exists_in_store($s,$p,&$RDFenhancement)
+	{
+		return (lookup_firstvalue($s,$p,$RDFenhancement) == null);
+	}
+	
+	
+	
+	function get_ARC_triples(&$store)
+	##################################
+	# 
+	# Computes the query to SKOS $verb
+	# $verb= related, broader, narrower
+	{
+		
+		$QUERY=<<<EOQ
+		select ?s ?p ?o 
+		{ ?s ?p ?o .}
+EOQ;
+	
+		$result=array();
+		$rows = $store->query($QUERY, 'rows');
+		
+		//var_dump($rows);
+		
+		return $rows;
+	}
 	
 	
 	
@@ -677,8 +772,6 @@ else print "<br>Sorry: No further information found on $word_id";
 	  list($left,$right,$literal) = analyzeURI($URIexpr,$namespaces);
 	  
 		
-		
-		
 	  if ($left)
 	  {
 	    $left= separate_namespace($namespaces,$left.$SEP,':',true);
@@ -693,7 +786,16 @@ EOR;
 	}
 
 
+	function printURI($URIexpr,&$namespaces)
+	{
+	  $SEP='';
 	
+	  list($left,$right,$literal) = analyzeURI($URIexpr,$namespaces);
+	  
+	  if ($left) $left = separate_namespace($namespaces,$left.$SEP,':',false);
+		
+	 	return $left.$SEP.$right;
+	}
 	
 	/**
 	 * separate an expression into namespace and term
@@ -702,11 +804,14 @@ EOR;
 	 */
 	function separate_namespace(&$namespaces,$term,$sep=':',$href=true)
 	{
+		$debug=0;
 	  //OPTIMIZE
-	  //print "<br><br>separate_namespace ... Test substitution on <b>$term</b>";
+	  
+	  if (!count($namespaces)) fontprint("<br>separate_namespaces(".htmlentities($term).") called with EMPTY namespaces",'red');
+	  if ($debug) print "<br><br>separate_namespace(".htmlentities($term).") ... Test substitution on <b>$term</b>";
 	  if (!(strstr($term,'http://')))
 	  {
-	    //print "<br>Exit: Term '<b>$term</b>' already done";
+	    if ($debug) print "<br>Exit: Term '<b>$term</b>' already done";
 	    return $term;
 	  }
 	  else
@@ -716,7 +821,7 @@ EOR;
 	      $expr2=str_replace("/","\/",$expr);
 	      $pattern="/$expr2(.*)/";
 	
-	      //print "<br>Pattern $pattern ";
+	      if ($debug) print "<br>Pattern $pattern ";
 	
 	      if (preg_match($pattern,$term,$match))
 	      {
@@ -733,7 +838,7 @@ EOR;
 	            $nakedterm=substr($nakedterm,1);
 	
 	        $returnterm=$ns_title_span_expl.$sep.$nakedterm;
-	        //print " YES ";
+	        if ($debug) print " YES ";
 	        break;
 	      }
 	    }
@@ -741,9 +846,12 @@ EOR;
 	    if (!$matched) 
 	    {
 	      $returnterm=$term;
-	      //print " ERROR applying $pattern -> $returnterm<br>";
+	      if ($debug) print " ERROR applying $pattern -> $returnterm<br>";
 	    } 
-	    //else print " SUCCESS: $term -> $returnterm<br>";
+	    else 
+	    {
+	    	if ($debug) print " SUCCESS: $term -> $returnterm<br>";
+			}
 	  }
 	  return $returnterm;
 	}
@@ -848,13 +956,15 @@ EOR;
 																											$src_name,
 																											$sds_sparql_endpoint,
 																											$sds_sparql_endpoint_params,
+																											$cache_id,
 																											&$NAMESPACES,
 																											$lang,
 																											$limit=5 )
 	{
-		$debug=0;
+		$debug=1;
+		global $RDFLOG;
 		$subject_arr = array();
-		$cache_id="relatedsubjects.$src_name.$subject.$lang.$limit";
+		if (!$cache_id) $cache_id="relatedsubjects.$src_name.$subject.$lang.$limit";
 		
 		Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Start with cache_id $cache_id"));
 		$dce_ns_url=$NAMESPACES{'dce'};
@@ -866,15 +976,21 @@ select ?srelated
 {
   ?s ?_ "$subject" .
   ?s dce:subject ?srelated .
- } limit $limit		
+	FILTER(?srelated != "$subject") .
+} limit $limit		
 EOQ;
 
+		//print "<br> get_related_subjects_from_sparql_endpoint cache_id=$cache_id";
+
 		if ($debug)
-		print "<br>get_related_subjects_from_sparql_endpoint:";
+		$RDFLOG.= "<br>get_related_subjects_from_sparql_endpoint:";
 
 		$url_endpoint= $sds_sparql_endpoint
 								 	.'?query='.urlencode($sparqlquery)
 									.'&'.$sds_sparql_endpoint_params;
+		if ($debug) {
+      	$RDFLOG.= "<br><br>USING SOLR CACHED SOURCE for subject expansion ".str_replace("\n","<br>",htmlentities(urldecode($url_endpoint)))."<br><br>";
+     }
 		
 		//cache_src_response($cache_id,$xml_src_content)
     //Logger::logAction(25, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id));
@@ -893,7 +1009,7 @@ EOQ;
       $expiring_in_sec=$max_age_in_sec;
       
 		 	if ($debug) {
-      	$RDFLOG.= "<br><br>CALLING REMOTE SOURCE ".$url_endpoint."<br><br>";
+      	$RDFLOG.= htmlprint("<br><br>CALLING REMOTE SOURCE for subject expansion ".$url_endpoint."<br><br>",'red');
       }
 			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Open $url_endpoint"));
 			
@@ -901,6 +1017,12 @@ EOQ;
 		
 			cache_src_response($cache_id,$xml_content);
 			$xmlCached_content = $xml_content;
+		}
+		else {
+			if ($debug)
+			{
+      	$RDFLOG.= htmlprint("<br><br>USING CACHED SOURCE CONTENT for subject expansion ".$url_endpoint."<br><br>",'green');
+			}
 		}
 
 		$valid_xml=true;
@@ -921,29 +1043,33 @@ EOQ;
 		{
 			//scan/open $xmlCached_content for later use
 			//print "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
-			$xml_content_len = strlen($xml_content);
+			$xml_content_len = strlen($xmlCached_content);
 			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"));
 			
 			$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
-			foreach($sxmldom->results->result as $result)
+			//if (is_array($sxmldom->results))
 			{
-				$rel_sub=trim($related_sub=$result->binding->literal."");
-				if ($rel_sub<>'')
+				//print "<br>ARRAY subext $src_name on '$subject': <br>";var_dump($sxmldom->results->result);
+				foreach($sxmldom->results->result as $_=>$result)
 				{
-					$subject_candidate = $result->binding->literal."";	
-					//Add only iff filtered is once and in the same lang	
-					//$RDFLOG.="<br>CONSIDER related subject ($subject_candidate)";
-					insert_filtered_once($subject_candidate,$subject_arr,$lang);
+					$rel_sub=trim($related_sub=$result->binding->literal."");
+					if ($rel_sub<>'')
+					{
+						$subject_candidate = $rel_sub;	
+						//Add only iff filtered is once and in the same lang	
+						if ($debug) $RDFLOG.="<br>CONSIDER nth related subject ($subject_candidate)";
+						insert_filtered_once($subject_candidate,$subject_arr,$lang);
+					}
 				}
 			}
 			
 			if ($debug)
 			{
 				$subject_arr_noof=count($subject_arr);
-				print "<br>RETURNING $subject_arr_noof SPARQL related subjects to $subject from $src_name:";
+				$RDFLOG.= "<br>RETURNING $subject_arr_noof SPARQL related subjects to $subject from $src_name:";
 				foreach($subject_arr as $sub)
 				{
-					print "<br>$sub";
+					$RDFLOG.= "<br>$sub";
 				}
 			}
 			
@@ -990,7 +1116,8 @@ EOQ;
 		
 		
 	/**
-	 * Compute related subjects to subject inside a given spqrql source
+	 * Compute related subjects to subject inside a given spqrql source 
+	 * and with the SAME document language as $lang
 	 *
 	 * @param string $subject
 	 * @param string $src_name
@@ -1000,18 +1127,21 @@ EOQ;
 	 * @param integer $limit
 	 * 	 *  
 	 */	
-	function get_triples_on_subject_from_sparql_endpoint(	$subject,
-																												$src_name,
-																												$sds_sparql_endpoint,
-																												$sds_sparql_endpoint_params,
-																												&$NAMESPACES,
-																												$tripleslimit=15)
+	function get_cached_triples_on_subject_from_sparql_endpoint(	$subject,
+																																$subject_uid,
+																																$src_name,
+																																$solr_cache_max_age_in_sec,
+																																$sds_sparql_endpoint,
+																																$sds_sparql_endpoint_params,
+																																&$NAMESPACES,
+																																$lang,
+																																$tripleslimit=200)
 	{
 		global $RDFLOG;
 		
 		$debug=0;
 		$subject_arr = array();
-		$cache_id="expansion.$src_name.$subject.$tripleslimit";		
+		$cache_id="expansion.$src_name.$subject.$lang.$tripleslimit";		
 		$dce_ns_url=$NAMESPACES{'dce'}
 ;		
 		$sparqlquery=<<<EOQ
@@ -1019,25 +1149,27 @@ PREFIX dce: <$dce_ns_url>
 
 select distinct ?s ?p ?o
 {
-  ?s dce:subject "$subject" .
-  ?s ?p ?o 
- } limit $tripleslimit
+?s dce:subject "$subject" .
+?s dce:language ?lang . 
+FILTER regex(?lang, "$lang") .
+?s ?p ?o 
+} limit $tripleslimit
 EOQ;
 
 		if ($debug)
-		$RDFLOG.= "<br>get_triples_on_subject_from_sparql_endpoint:<br><br>query:<br>".(str_replace("\n","<br>",htmlentities($sparqlquery)))."<br><br>";
+		$RDFLOG.= "<br>get_cached_triples_on_subject_from_sparql_endpoint:<br><br>query:<br>".(str_replace("\n","<br>",htmlentities($sparqlquery)))."<br><br>";
 
 		$url_endpoint= $sds_sparql_endpoint
 								 	.'?query='.urlencode($sparqlquery)
 									.'&'.$sds_sparql_endpoint_params;
 		
 		//cache_src_response($cache_id,$xml_src_content)
-    Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id));
+    Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id));
     list($xmlCached_content,
             $creationtimestamp,
             $age_in_sec,
             $max_age_in_sec, // this is always set!! even if no data
-            $expiring_in_sec) = get_cached_src_response($cache_id);
+            $expiring_in_sec) = get_cached_src_response($cache_id,$solr_cache_max_age_in_sec);
 
     if (! sparql_cached_content_quality_control($xmlCached_content,$src_name,$age_in_sec))
     { // ask service and rebuild cache
@@ -1050,11 +1182,13 @@ EOQ;
       	$RDFLOG.= "<br><br>CALLING REMOTE SOURCE ".$url_endpoint."<br><br>";
       }
 			
-			Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Open $url_endpoint"));
+			Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Open $url_endpoint"));
 			
 			$xml_content=get_file_content($url_endpoint);
-		
-			cache_src_response($cache_id,$xml_content);
+			
+			$xml_content = utf8_encode($xml_content);
+			
+			cache_src_response($cache_id, $xml_content);
 			$xmlCached_content = $xml_content;
 		} 
 		else {
@@ -1075,13 +1209,13 @@ EOQ;
 						."<br><br>Using url:"
 						."<br>$url_endpoint";
 			$valid_xml=false;
-	 		Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"));
+	 		Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"));
 		}
 		
 		
 		if ($valid_xml)
 		{
-	 		Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"));
+	 		Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"));
 			$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
 			if ($sxmldom)
 			{
@@ -1129,12 +1263,12 @@ EOQ;
 				}
 			}
 			
-			Logger::logAction(27, array('from'=>'get_triples_on_subject_from_sparql_endpoint','msg'=>"Exit with $triples_noof triples"));
+			Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Exit with $triples_noof triples"));
 		}
 
 
 		return array($triples,$used_cache);
-	}	// get_triples_on_subject_from_sparql_endpoint
+	}	// get_cached_triples_on_subject_from_sparql_endpoint
 			
 		
 		
@@ -1223,7 +1357,183 @@ EOQ;
 	
 	
 	
+	/**
+	 * Returns an assoc with the number of subject each doc in docs
+	 */
+	function rank_docs_with_its_subjects($docs,&$RDFenhancementCLASS,$PREFIX)
+	{
+		$debug=0;
+		global $RDFLOG;
+		$docs_ranked = array();
+		
+		if (count($docs))
+		foreach($docs as $doc_uid)
+		{
+			
+			$QUERY=<<<EOQ
+				$PREFIX
+				select count(?sub) as c
+				where
+				{
+					$doc_uid dce:subject ?sub .
+				}
+EOQ;
+
+			if ($debug)
+				$RDFLOG.="<br>rank_docs_with_its_subjects($doc_uid): <br>".str_replace("\n","<br>",htmlentities($QUERY));
 	
+			if ($rows = $RDFenhancementCLASS::$store->query($QUERY, 'rows')) 
+			{
+				if (is_array($rows) && count($rows))	
+				{
+					$row = $rows[0];
+					if($debug) $RDFLOG.="<br>Setting $doc_uid => ".$row['c'];
+					$docs_ranked{$doc_uid} = intval($row['c']);
+				}
+			}
+		} // foreach
+		
+		if ($debug)
+		{
+			$oc=count($docs_ranked);
+			$RDFLOG.="<br>rank_docs_with_its_subjects $oc ranked Objects found: "; 
+			foreach($docs_ranked as $docuid=>$rank)
+			{
+				$RDFLOG.="<br>docr: $docuid=>$rank";
+			}
+			$RDFLOG.="<br>EXIT";
+		}
+		
+		arsort($docs_ranked);
+		
+		return $docs_ranked;
+	} // rank_doc_with_its_subjects
+	
+	
+	
+	
+	function get_external_rdf_docs($searchuid, &$RDFenhancementCLASS, $PREFIX2)
+	{
+		$debug=0;
+		global $RDFLOG;
+		
+		$QUERY_EXT_DOC=<<<EOD
+$PREFIX2
+select distinct ?docext
+where 
+{
+ ?doc dce:subject ?sub .
+ { 
+  $searchuid rodin_a:resultdoc ?doc . 
+  ?docext dce:subject ?sub .
+ }
+ UNION
+ {
+  ?doc rodin:subject_related ?subx .
+  ?docext dce:subject ?subx .
+ }
+ FILTER Regex ( ?docext , "/resource/e/" ) .
+}
+EOD;
+
+	if ($debug)
+			$RDFLOG.="<br>get_external_rdf_docs($s,$p): <br>".str_replace("\n","<br>",htmlentities($QUERY_EXT_DOC));
+	
+	if ($rows = $RDFenhancementCLASS::$store->query($QUERY_EXT_DOC, 'rows')) 
+		{
+			if (is_array($rows) && count($rows)>0)
+			{	
+				foreach($rows as $row)
+				{
+					$o_full=$row['docext'];
+					$o[] = separate_namespace($RDFenhancementCLASS::$NAMESPACES,$o_full,':',false);
+				}
+			}
+		}
+		
+		if ($debug)
+		{
+			$oc=count($o);
+			$RDFLOG.="<br>$oc Objects found: "; 
+			foreach($o as $docuid)
+			{
+				$RDFLOG.="<br>doc: $docuid";
+			}
+		}
+		return $o;
+	} // get_external_rdf_docs
+	
+	
+	
+
+	/**
+	 * Returns an s string value: subject_uid used by the first triple having value
+	 */
+	function get_triple_objects($s,$p,&$RDFenhancementCLASS,$PREFIX)
+	{
+		$debug=0;
+		global $RDFLOG;
+		$store=$RDFenhancementCLASS::$store;
+		$PREFIX=$PREFIX<>''?$PREFIX:$RDFenhancementCLASS::$NAMESPACES_PREFIX;
+		$o=array();
+		
+		if ($p=='')
+		{
+			$need_p=true;
+			$p = array();
+			$QUERY = $PREFIX . " select ?o ?p { $s ?p ?o . }";
+		}
+		else 
+		{
+			$QUERY = $PREFIX . " select ?o { $s $p ?o . }";
+		}
+
+		if ($debug)
+			$RDFLOG.="<br>get_triple_objects($s,$p): <br>".str_replace("\n","<br>",htmlentities($QUERY));
+	
+		if ($rows = $RDFenhancementCLASS::$store->query($QUERY, 'rows')) 
+		{
+			if (is_array($rows) && count($rows)>0)
+			{
+				foreach($rows as $row)
+				{
+					if ($need_p)
+					{
+						$p_full=$row['p'];
+						$p[] = separate_namespace($RDFenhancementCLASS::$NAMESPACES,$p_full,':',false);
+					}
+					$o_full=$row['o'];
+					$o[] = separate_namespace($RDFenhancementCLASS::$NAMESPACES,$o_full,':',false);
+				}
+			}
+		}
+		
+		if ($debug)
+		{
+			if ($need_p)
+			{
+				$pc=count($p);
+				
+				$RDFLOG.="<br>$pc Predicates found: ";
+				foreach($p as $pred)
+				{
+					$RDFLOG.="<br>pred: $pred";
+				}
+			}
+			
+			$oc=count($o);
+			$RDFLOG.="<br>$oc Objects found: ";
+			foreach($o as $docuid)
+			{
+				$RDFLOG.="<br>doc: $docuid";
+			}
+		}
+	
+		//print "<br>get_triple_subject returns ($literal)=>($s)";
+		return array($p,$o);
+ 	} // get_triple_subject
+
+
 	
 	
 	/**
@@ -1248,16 +1558,287 @@ EOQ;
  	} // get_triple_subject
 	
 
+	
+	
+	/**
+	 * Returns a list of subjects taken from the src use corresponding to cache_id
+	 */
+	function rdf_get_subjects_created_in_src_use_lodfetch($cache_id,&$RDFresultCLASS)
+	{
+		
+		$rodin_a_ns_url = $RDFresultCLASS::$NAMESPACES{'rodin_a'};
+		$dce_ns_url 		= $RDFresultCLASS::$NAMESPACES{'dce'};
+		$PREFIXES				="PREFIX rodin_a: <$rodin_a_ns_url> PREFIX dce: <$dce_ns_url>";
+		
+		$QUERY=<<<EOQ
+	$PREFIXES
+	select distinct ?srcuse ?subj
+	{
+		?srcuse rodin_a:cache_id "$cache_id" .
+	  ?srcuse rodin_a:expdoc ?extdoc .
+	  ?extdoc dce:subject ?subj .
+  }
+EOQ;
+		
+		if ($rows = $RDFresultCLASS::$store->query($QUERY, 'rows')) 
+		{
+			foreach($rows as $row)
+			{			
+				$subj_full=$row['subj'];
+				$subj[] = separate_namespace($RDFresultCLASS::$NAMESPACES,$subj_full,':',false);
+				if (!$src_use_uid)
+				{
+					$src_use_uid_full=$row['src_use'];
+					$src_use_uid = separate_namespace($RDFresultCLASS::$NAMESPACES,$src_use_uid_full,':',false);
+				}
+				
+			}
+		}
+		return array($src_use_uid,$subj);
+	} // rdf_get_subjects_created_in_src_use_lodfetch
+	
+	
+	/**
+	 * Returns a list of subjects taken from the src use corresponding to cache_id
+	 */
+	function rdf_get_subjects_created_in_src_use_subexp($cache_id,&$RDFresultCLASS)
+	{
+		$subj= array();
+		$rodin_a_ns_url = $RDFresultCLASS::$NAMESPACES{'rodin_a'};
+		$dce_ns_url 		= $RDFresultCLASS::$NAMESPACES{'dce'};
+		$PREFIXES				="PREFIX rodin_a: <$rodin_a_ns_url> PREFIX dce: <$dce_ns_url>";
+		
+		$QUERY=<<<EOQ
+	$PREFIXES
+	select distinct ?srcuse ?subj
+	{
+		?srcuse rodin_a:cache_id "$cache_id" .
+	  ?srcuse rodin_a:subexp_related ?subj .
+  }
+EOQ;
+		
+		if ($rows = $RDFresultCLASS::$store->query($QUERY, 'rows')) 
+		{
+			foreach($rows as $row)
+			{			
+				$subj_full=$row['subj'];
+				$subj[] = separate_namespace($RDFresultCLASS::$NAMESPACES,$subj_full,':',false);
+				if (!$src_use_uid)
+				{
+					$src_use_uid_full=$row['src_use'];
+					$src_use_uid = separate_namespace($RDFresultCLASS::$NAMESPACES,$src_use_uid_full,':',false);
+				}
+				
+			}
+		}
+		return array($src_use_uid,$subj);
+	} // rdf_get_subjects_created_in_src_use_subexp
+	
+	
+	
+	/**
+	 * Returns $other_source or false
+	 * $other_source if there is a dependency from another entity (not coming from $src_use_uid) using $link_predicate
+	 * False if there is not such a dependency.
+	 * 
+	 * Notes: 1) This is in PHP because the used tool ARC2 does not allow Filters like "NOT EXISTS" or "MINUS"
+	 *        2) ASK is not supported by ARC2 (true or false are not readable after query)
+	 * 
+	 * @param $link_predicate - e.g. rodin:subject_related
+	 * @param $entity_uid - e.g. a given subject uid
+	 * @param $src_use_uid - the current src_use_uid
+	 * @param &$RDFresultCLASS - Reference to RDF result class
+	 */
+	function rdf_check_existence_of_other_dependencies( $link_predicate, $entity_uid, $src_use_uid, &$RDFresultCLASS )
+	{
+		global $RDFLOG;
+		$debug=1;
+		$rodin_a_ns_url = $RDFresultCLASS::$NAMESPACES{'rodin_a'};
+		$dce_ns_url 		= $RDFresultCLASS::$NAMESPACES{'dce'};
+		$PREFIXES				="PREFIX rodin_a: <$rodin_a_ns_url> PREFIX dce: <$dce_ns_url>";
+
+		//Check if there is some other link from another lodfetch src use 
+		//															 or from another subexp src use
+		//      												 or from a rodin search		
+		
+		//USE ALL NAMESPACES ???
+		$QUERY=<<<EOQ
+	$PREFIXES
+	select ?other_source
+	{
+		{
+		  ?subjectx $link_predicate $entity_uid .
+		  ?extdoc ?link ?subjectx . 
+	    ?other_source rodin_a:expdoc ?extdoc .
+		  FILTER ( ?other_source != $src_use_uid ) .
+	  }
+	  UNION
+	  {
+		  ?subjectx $link_predicate $entity_uid .
+		  ?other_source rodin_a:subexp_related ?subjectx .
+		  FILTER ( ?other_source != $src_use_uid ) .
+	  }
+	  UNION
+	  {
+	  	?other_source rodin_a:resultdoc ?rdoc .
+	  	?rdoc dce:subject $entity_uid .
+	  } 
+  }
+  LIMIT 1
+EOQ;
+		
+		if ($debug)
+		{
+			$RDFLOG.="<br>rdf_check_existence_of_other_dependencies( $link_predicate, $entity_uid, $src_use_uid)<br><br>QUERY:<br>"
+							 .str_replace("\n","<br>",htmlentities(urldecode($QUERY)));
+		}
+		
+		
+		if ($rows = $RDFresultCLASS::$store->query($QUERY, 'rows')) 
+		{
+			$row=$rows[0];
+			{			
+				$other_source_full=$row['other_source'];
+				$other_source = separate_namespace($RDFresultCLASS::$NAMESPACES,$other_source_full,':',false);
+				
+				if ($debug)
+				{
+					$RDFLOG.="<br>Other source for entity $entity_uid found: $other_source";
+				}
+			}
+		}
+		else
+			$other_source=false;
+		
+		
+		if ($debug)
+				{
+					$RDFLOG.="<br>rdf_check_existence_of_other_dependencies returning: ($other_source)";
+				}
+		
+		return $other_source;
+	} // rdf_check_existence_of_other_dependencies
+	
+	
+	
+	/**
+	 * deletes every triple with subject $entity_uid
+	 * 
+	 * returns NOTHING (since in this case in ARC2 no return value is produced)
+	 */
+	function rdf_delete_entity($entity_uid,&$linkpredicates,&$RDFresultCLASS)
+	{
+		global $RDFLOG;
+		$debug=1;
+		$rodin_a_ns_url = $RDFresultCLASS::$NAMESPACES{'rodin_a'};
+		$dce_ns_url 		= $RDFresultCLASS::$NAMESPACES{'dce'};
+		$PREFIXES				="PREFIX rodin_a: <$rodin_a_ns_url> PREFIX dce: <$dce_ns_url>";
+		
+		$linkpredicate=is_array($linkpredicates)&&count($linkpredicates)?$linkpredicates[0]:false; // used until now with one elem 'rodin:subject_related'
+		
+		if ($linkpredicate)
+	{
+		$EVTL_LINK=" + $linkpredicate";
+		$DELETE_LINKS=<<<EOQ
+	$PREFIXES
+	delete {
+	 $entity_uid ?p ?o .
+	 ?sa $linkpredicate $entity_uid .
+	}where
+	{
+	 {
+	   $entity_uid ?p ?o .
+	 }
+	 UNION
+	 {
+	  $entity_uid ?p ?o .
+	  ?sa rodin:subject_related $entity_uid .
+	 }
+	}
+EOQ;
+}
+		else	
+		
+		$DELETE_LINKS=<<<EOQ
+	$PREFIXES
+	delete {?s ?p ?o}
+	where
+	{
+		$entity_uid ?p ?o .
+		?s ?p ?o .
+  }
+EOQ;
+		
+		if ($debug)
+		{
+			$RDFLOG.="<br>rdf_delete_entity($entity_uid$EVTL_LINK)<br><br>QUERY:<br>"
+							 .str_replace("\n","<br>",htmlentities(urldecode($DELETE_LINKS)));
+		}
+		
+		$RDFresultCLASS::$store->query($DELETE_LINKS);
+	} // rdf_delete_entity
+	
+	
+	
+	/**
+	 * Deletes the triples of an src use (rodin_a: namespace)
+	 * and all the dependend triples around them (if not dependent from another source)
+	 */
+	function rdf_delete_entity_on_cacheid($cache_id,&$link_predicates,&$RDFresultCLASS)
+	{
+		global $RDFLOG;
+		$debug=0;
+	
+		$rodin_a_ns_url = $RDFresultCLASS::$NAMESPACES{'rodin_a'};
+		
+		
+		
+		
+		
+		$sparql_deletequery=<<<EOS
+PREFIX rodin_a: <$rodin_a_ns_url>
+delete {?s ?p ?o}
+where
+{
+  ?s rodin_a:cache_id "$cache_id" .
+  ?s ?p ?o .
+}
+EOS;
+//  FILTER( ?p != rodin_a:cache_id ) .
+		
+		if ($RDFresultCLASS::$store)
+		{
+			if ($debug) $RDFLOG.= "<br>querying: ".htmlentities($sparql_deletequery);
+			$RDFresultCLASS::$store->query($sparql_deletequery);
+		}
+	
+	} // rdf_delete_entity_on_cacheid
+	
+	
+	
+	
+	function l64($o,$p,&$TOBECODED64)
+	{
+		
+		if ($TOBECODED64{$p})
+					$o = base64_encode($o);
+		return l($o);
+	}
+	
+	
+	
 	/**
 	 * returns "$str"
 	 */
 	function l($str)
 	{
+		//TOGLIERE / da un literale !!!!
 		return '"'.addslashes($str).'"';
 	}
 
 	function l_inverse($str)
 	{
+		
 		return str_replace('"','',$str);
 	}
 

@@ -219,6 +219,9 @@ $RODINLOGO=$POSHIMGWEBROOT . '/logo_portal.gif';
 
 $W3SLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php";
 
+$WANT_RDF_ANNOTATION=true; 
+$WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=false;
+
 $MANTIS_REPORTISSUE=str_replace(" ","+",
 										"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=Please describe the subject of your issue here"
 										."&description=Following issue on $PROGRAMNAME $VERSION: \n\n");
@@ -226,9 +229,9 @@ $URL_MANTIS=<<<EOM
 <a class="mantisissueurl" 
 		target="blank" 
 		href="$MANTIS_REPORTISSUE" 
-		title="Click to open a mantis issue on $PROGRAMNAME version $VERSION"
+		title="Click to open an issue on $PROGRAMNAME version $VERSION"
 		 - For any idea, suggestion or error reporting please
-		 - click to open a mantis issue">open a mantis issue</a>
+		 - click to open an issue">open an issue</a>&nbsp;
 EOM;
 
 
@@ -302,7 +305,10 @@ $INTERNET_CHECK_TIMEOUT = 2;
 $CALLING_TIMEOUT_SEC = 15;
 $WIDGET_SEARCH_MAX = 15000; //msek = 15sec
 $SRC_SEARCH_MAX = 15000; //msek = 15sec
+
 ###########################################
+
+$EPSILON=0.0000000001;
 
 ########################################################################
 # Enabling use of local ARC2 copy of DBPedia
@@ -325,6 +331,9 @@ $SRC_MAXRESULTS = 15;
 	$ARCDB_USERNAME = getA('ARCDB_USERNAME');
 	$ARCDB_USERPASS = getA('ARCDB_USERPASS');
 	$SRCDB_DBHOST = getA('ARCDB_DBHOST');
+	
+	$GRAPHVIZ_PATH= getA('GRAPHVIZ_PATH');
+	$GRAPHVIZ_TMP_PATH= getA('GRAPHVIZ_TMP_PATH');
 					
 	$ARCCONFIG = array(
 		/* db */
@@ -334,9 +343,15 @@ $SRC_MAXRESULTS = 15;
 	
 		/* store */
 		'store_name' => '', // must be set
-	
+		'adjust_utf8' => true,
 		/* stop after 100 errors */
 		'max_errors' => 100,
+		/* path to dot ?*/
+	  'graphviz_path' => $GRAPHVIZ_PATH,
+	  /* tmp dir (default: '/tmp/') */
+	  'graphviz_temp' => $GRAPHVIZ_TMP_PATH,
+		
+		'arcUtilities' => "$DOCROOT$RODINROOT/$RODINSEGMENT/app/u/arcUtilities.php",
 	);
 	
 	

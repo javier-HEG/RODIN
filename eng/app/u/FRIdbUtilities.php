@@ -1740,6 +1740,36 @@ EOQ;
 
 
 
+function dblogger($timestamp_prog,$segment,$userid,$username,$sid,$action,$info,$msg)
+{
+	$DEBUG=0;
+	$msg = addslashes($msg);
+	
+	if (!$userid) $userid=-1;
+	if (!$username) $username='undef'; //this comes when called from an SRC over web - in this case no session is set with user and userid... should be revisited with the new RODIN architecture
+	
+	
+	$DBQUERY=<<<EOQ
+	insert into 
+	`logger`(`timestamp_prog`,`sid`,`segment`,`userid`,`username`,`action`,`msg`) 
+	values	('$timestamp_prog','$sid','$segment',$userid,'$username',$action,'$msg');
+EOQ;
+
+	$DB = new RODIN_DB('rodin');
+	$DBconn=$DB->DBconn;
+
+	$urset = mysql_query($DBQUERY);
+	$affected=mysql_affected_rows($DBconn);
+	if ($affected < 0)
+	{
+		fontprint("<br>dblogger: Problem (affected=$affected) inserting into 'logger' ...<br>(($DBQUERY)))",'red');
+	}
+	else {
+		if ($DEBUG)
+			fontprint("<br>dblogger SUCCESS inserting ... <br>(($DBQUERY)))",'green');
+	}
+} // dblogger
+
 
 
 

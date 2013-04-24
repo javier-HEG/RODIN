@@ -219,6 +219,27 @@ div.rdf_widgetinfo {
 } 
 
 
+div.limitstats {
+	padding:3px 3px 3px 3px;
+	background-color:white;
+	border-color:black;
+	border-width:1px;
+	border-style:solid;
+	width:800px;
+	max-height:300px;
+	overflow:auto;	
+}
+
+div.graphviz {
+	padding:3px 3px 3px 3px;
+	background-color:white;
+	border-color:black;
+	border-width:1px;
+} 
+
+
+
+
 div#divLOGGING {
 	padding:3px 3px 3px 3px;
 	border:2px solid black;
@@ -249,27 +270,64 @@ div.headertripelpage
 }
 
 
-body.triplepage
+body.triplepage_rodin_a
 {
 	margin:3px;
-	background-color:<?php print $TRIPLEPAGE_COLOR_BG_DARKER;?> ;
+	background-color:<?php print $TRIPLEPAGE_RODINA_COLOR_BG_DARKER;?> ;
 }
+
+body.triplepage_rodin_e
+{
+	margin:3px;
+	background-color:<?php print $TRIPLEPAGE_RODINE_COLOR_BG_DARKER;?> ;
+}
+
+body.triplepage_rodin
+{
+	margin:3px;
+	background-color:<?php print $TRIPLEPAGE_RODIN_COLOR_BG_DARKER;?> ;
+}
+
+
 
 hr.triplepage
 {
 	color:lightgray;
 }
 
-table.triplepagetable
+table.triplepagetable_rodin
 {
-	background-color: <?php print $TRIPLEPAGE_COLOR_BG_LIGHTER;?> ;
+	background-color: <?php print $TRIPLEPAGE_RODIN_COLOR_BG_LIGHTER;?> ;
+	padding:2px;
+}
+
+table.triplepagetable_rodin_e
+{
+	background-color: <?php print $TRIPLEPAGE_RODINE_COLOR_BG_LIGHTER;?> ;
+	padding:2px;
+}
+
+table.triplepagetable_rodin_a
+{
+	background-color: <?php print $TRIPLEPAGE_RODINA_COLOR_BG_LIGHTER;?> ;
 	padding:2px;
 }
 
 
-table.triplepagetable .even td {
-    background: <?php print $TRIPLEPAGE_COLOR_BG_WHITE; ?>;
+
+
+table.triplepagetable_rodin tr.even_rodin {
+    background-color: <?php print $TRIPLEPAGE_RODIN_COLOR_BG_WHITE; ?>;
 }
+
+table.triplepagetable_rodin_e tr.even_rodin_e {
+    background: <?php print $TRIPLEPAGE_RODINE_COLOR_BG_WHITE; ?>;
+}
+
+table.triplepagetable_rodin_a tr.even_rodin_a {
+    background-color: <?php print $TRIPLEPAGE_RODINA_COLOR_BG_WHITE; ?>;
+}
+
 
 
 table#triplepageframe tbody tr td span.triplepage

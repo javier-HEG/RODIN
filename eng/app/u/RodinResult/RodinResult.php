@@ -395,7 +395,7 @@ class BasicRodinResult {
 	 * which will be taken as a basis for further 
 	 * semantic expansions (meshups)
 	 */
-	public function rdfize($sid,$datasource,$searchterm,$USER_ID)
+	public function rdfize($sid,$datasource,$searchterm,$USER_ID,$timestamp)
 	{
 		
 		include_once("RodinRDFResult.php");
@@ -406,7 +406,7 @@ class BasicRodinResult {
 		$RDF = $this->RDFenhancement;
 		$this->is_rdfized = true;
 			
-		$store = $RDF->rdfize($sid);
+		$store = $RDF->rdfize($sid,$timestamp);
 		
 		return $store;
 	} // rdfize 
@@ -424,11 +424,15 @@ class BasicRodinResult {
 	 */
 	public function rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID)
 	{
-		$this->RDFenhancement->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID);
+		return $this->RDFenhancement->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID);
 	} // rdfLODfetchDocumentsOnSubjects
 	
 	
-	
+	public function rerank_rdf_documents_related_to_search($sid,$datasource,$searchterm,$USER_ID)
+	{
+		return $this->RDFenhancement->rerank_rdf_documents_related_to_search($sid,$datasource,$searchterm,$USER_ID);
+	}
+
 	
 	/**
 	 * This method sets a property of the result. However, since

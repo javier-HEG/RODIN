@@ -35,7 +35,7 @@ $PAGETITLE_BIG=strtoupper($PAGETITLE)." FOR ENTITY $uid";
 		<link rel="stylesheet" href="../../../css/rodin.css.php" type="text/css" />
 		<script type="text/javascript" src="../../../u/RODINutilities.js.php"></script>
 	</head>
-	<body class='triplepage'>
+	<body class='triplepage_rodin_e'>
 <?php
 
 	

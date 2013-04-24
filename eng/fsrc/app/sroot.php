@@ -48,7 +48,7 @@
 	$WIKIPEDIASEARCH2="$WIKIPEDIABASE/w/index.php?";
 
 	
-	$HOST = $_ENV["HTTP_HOST"];
+	$HOST = $_SERVER["SERVER_NAME"];
 	//$DEFAULT_MAX_REFINE_RESULTS=10; -> IS IN root.php
 	$MAX_DISAMBIGUATED_TERMS=5;
 	$TERM_SEPARATOR=',';
@@ -68,6 +68,8 @@
 	$ARCDB_USERNAME = getA('ARCDB_USERNAME');
 	$ARCDB_USERPASS = getA('ARCDB_USERPASS');
 	$ARCDB_DBHOST = getA('ARCDB_DBHOST');
+	$GRAPHVIZ_PATH= getA('GRAPHVIZ_PATH');
+	$GRAPHVIZ_TMP_PATH= getA('GRAPHVIZ_TMP_PATH');
 					
 	$ARCCONFIG = array(
 		/* db */
@@ -77,9 +79,19 @@
 	
 		/* store */
 		'store_name' => '', // must be set
-	
 		/* stop after 100 errors */
 		'max_errors' => 100,
+		
+		/* path to dot ?*/
+	  'graphviz_path' => $GRAPHVIZ_PATH,
+	  /* tmp dir (default: '/tmp/') */
+	  'graphviz_temp' => $GRAPHVIZ_TMP_PATH,
+	  /* pre-defined namespace prefixes (optional) */
+	  'ns' => array(
+	  					'foaf' => 'http://xmlns.com/foaf/0.1/'
+						),
+						
+		'arcUtilities' => "$DOCROOT$UPATH1/arcUtilities.php",
 	);
 	
 	#SRC DB

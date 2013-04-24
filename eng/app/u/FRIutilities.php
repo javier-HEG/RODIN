@@ -913,7 +913,7 @@ function get_cached_widget_response($url)
 
 
 //----- from fsrc
-function get_cached_src_response($cache_id)
+function get_cached_src_response($cache_id,$max_age_in_sec=-1)
 {
    global $RESULTS_STORE_METHOD;
     switch($RESULTS_STORE_METHOD)
@@ -922,7 +922,7 @@ function get_cached_src_response($cache_id)
             $cached_src_response = get_cached_src_response_DB($cache_id);
             break;
       case 'solr':
-            $cached_src_response = get_cached_src_response_SOLR($cache_id);
+            $cached_src_response = get_cached_src_response_SOLR($cache_id,$max_age_in_sec);
     }
     return $cached_src_response;
 } // get_cache_response
@@ -941,7 +941,7 @@ function get_cached_src_response_DB($cache_id)
 
 
 
-function get_cached_src_response_SOLR($cache_id)
+function get_cached_src_response_SOLR($cache_id, $max_age_in_sec=-1)
 {
   global $SOLR_RODIN_CONFIG;
   global $RODINSEGMENT;
@@ -969,6 +969,7 @@ function get_cached_src_response_SOLR($cache_id)
   //$solr_core=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['core'];
   //$solr_timeout=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['timeout'];
   $src_cache_expiry_hours=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['rodin']['cache_expiring_time_hour'];
+	if ($max_age_in_sec==-1) // unset
   $max_age_in_sec = $src_cache_expiry_hours * 3600;
   
    //Query in the last $rodin_cache_expiry_hour for $url ...
@@ -1311,6 +1312,9 @@ function cache_response_SOLR($cacheid,$response)
 
 
 
+
+
+
 function good_response($datasource_response)
 // returns false if some network errors could be scanned in the response
 // else returns true
@@ -1319,6 +1323,25 @@ function good_response($datasource_response)
 } // good response
 
 
+
+#$supplied= timstamp with microseconds = "1365801457_721488"
+function compute_age($timestamp_data)
+{
+	global $RDFLOG;
+	$DEBUG=0;
+	$timestamp_now=timestamp_fortripleannotation();
+	list($ts_sec,$ts_msec)=preg_split('[_]',$timestamp_data);
+	list($now_sec,$now_msec)=preg_split('[_]',$timestamp_now);
+
+	$ts 	= $ts_sec 	+ $ts_msec	* 0.0000001;
+	$now 	= $now_sec 	+ $now_msec	*	0.0000001;
+
+	$age=$now - $ts;
+	
+	if ($DEBUG) $RDFLOG.="<br>compute_age: $now($timestamp_now) - $ts($timestamp_data) = $age";
+	
+	return $age;
+} // compute_age
 
 
 

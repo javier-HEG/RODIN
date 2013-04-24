@@ -5,6 +5,7 @@
  */
 class Logger {
 	const LOGGER_ACTIVATED = true;
+	const LOG_INTO_DB = true;
 
   const LOGIN_ACTION = 0;
 	const LOGOUT_ACTION = 1;
@@ -58,24 +59,35 @@ class Logger {
 		}
 	}
 	
-    public static function logAction($action, $info = null) {
-    	if (Logger::LOGGER_ACTIVATED) {
-			$filename = $_SERVER['DOCUMENT_ROOT'] . "/rodin/usabilityLogFile.txt";
-			
-			$segment = substr($_SESSION['RODINDB_DBNAME'], 6);
-			$segment = $segment != '' ? $segment : '?';
-			
-			$userId = $_SESSION['user_id'];
-			$userName = $_SESSION['username'];
-			
-			//date('d-m-Y H:i:s:u') 
-			$logLine =  date('H:i:s.') . str_pad(substr((float)microtime(), 2), 6, '0', STR_PAD_LEFT)
-									. ';' . $segment . ';' . $userId . ';' . $userName . ';' . Logger::makeActionString($action, $info);		
-			
-	    $h=fopen($filename, "a");
-			fwrite($h, $logLine . "\n");
-			fclose($h);
-    	}
+  public static function logAction($action, $info = null) 
+  {
+	  	if (Logger::LOGGER_ACTIVATED) {
+				$server_root = $_SERVER['DOCUMENT_ROOT'];
+				$filename = $server_root . "/rodin/usabilityLogFile.txt";
+				
+				$segment = substr($_SESSION['RODINDB_DBNAME'], 6);
+				$segment = $segment != '' ? $segment : '?';
+				
+				$userId = $_SESSION['user_id'];
+				$userName = $_SESSION['username'];
+				
+				//date('d-m-Y H:i:s:u') 
+				$timestamp =  date('H:i:s.') . str_pad(substr((float)microtime(), 2), 6, '0', STR_PAD_LEFT);
+				$msg = Logger::makeActionString($action, $info);
+				$logLine =  $timestamp . ';' . $segment . ';' . $userId . ';' . $userName . ';' . $msg;		
+				
+		    $h=fopen($filename, "a");
+				fwrite($h, $logLine . "\n");
+				fclose($h);
+				
+				if (Logger::LOG_INTO_DB)
+				{ 
+					if (!function_exists('dblogger'))
+						include_once("../../../../../../app/u/FRIdbUtilities.php");
+					dblogger($timestamp,$segment,$userId,$userName,$sid,$action,$info, $msg);
+				} // 
+				
+	  	}
     }
     
     private static function makeActionString($action, $info = null, $delimiter = ';') {
