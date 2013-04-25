@@ -11,7 +11,7 @@ require_once 'RodinResult.php';
 class RodinUrlResult extends BasicRodinResult {
 	public function __construct() {
 		parent::__construct(RodinResultManager::RESULT_TYPE_URL);
-		$this->setValidProperties(array('description', 'url', 'tags'));
+		$this->setValidProperties(array('datasource','description', 'url', 'tags'));
 	}
 	
 	public function toBasicHtml() {

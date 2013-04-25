@@ -11,7 +11,7 @@ require_once 'RodinResult.php';
 class RodinBookResult extends BasicRodinResult {
 	public function __construct() {
 		parent::__construct(RodinResultManager::RESULT_TYPE_BOOK);
-		$this->setValidProperties(array('description', 'subjects', 'publisher', 'review', 'cover', 'isbn'));
+		$this->setValidProperties(array('datasource','description', 'subjects', 'publisher', 'review', 'cover', 'isbn'));
 	}
 	
 	public function toBasicHtml() {

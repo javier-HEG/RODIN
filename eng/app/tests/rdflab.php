@@ -30,15 +30,12 @@ $TITLEPAGE="'$search_term' RDFLAB";
 
 <?php
 
-
-
-$sid_example='20130308.191559.379.305';
-$datasource_swissbib="/rodin/$RODINSEGMENT/app/w/RDW_swissbib.rodin";
+#######################################
+#Get switches:
+#######################################
+#
 $sid=$_GET['sid'];
 if (!$sid) $sid=$sid_example;
-
-$datasource=$_GET['datasource'];
-if (!$datasource) $datasource=$datasource_swissbib;
 
 $listwr=$_GET['listwr']=='on';
 $checked_listwr=$listwr?' checked ':'';
@@ -46,10 +43,13 @@ $checked_listwr=$listwr?' checked ':'';
 $list3pls=$_GET['list3pls']=='on';
 $checked_list3pls=$list3pls?' checked ':'';
 
-
 $viz3pls=$_GET['viz3pls']=='on';
 $checked_viz3pls=$viz3pls?' checked ':'';
 
+$viz3search=$_GET['viz3search']=='on';
+$checked_viz3search=$viz3search?' checked ':'';
+#
+#########################################
 //Automatically show triple page pointers
 //$list3page=$_GET['list3page']=='on';
 //$checked_list3page=$list3page?' checked ':'';
@@ -73,8 +73,8 @@ if ($sid<>'')
 {
 	$fromResult = 0;
 	
-	//Recall results from SOLR using sid
-	$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource);
+	//Recall results from SOLR using sid but no datasource! (get for every datasource)
+	$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource='');
 	$resultCount = count($allResults);
 
 	$CONTENT2="$resultCount Widget results found for sid $sid";
@@ -90,8 +90,11 @@ if ($sid<>'')
 	$searchres_timestamp = timestamp_fortripleannotation();
 	
 	$i = $fromResult;
+	$added_triples=0;
 	while ($i < $uptoResult) {
 		$result = $allResults[$i];
+		//print "<hr>Result: ";var_dump($result);
+		$datasource = $result->getProperty('datasource');
 		$resultCounter = $i + 1;
 	
 		$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
@@ -123,12 +126,19 @@ if ($sid<>'')
 		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start RDF on $resultCounter result"));
 		
 		if ($list3pls)
-			$store = $result->rdfize($sid,$datasource,$search_term,$USER_ID,$searchres_timestamp);
-	
+		{ 
+			list($store,$count_triples_added) = $result->rdfize($sid,$datasource,$search_term,$USER_ID,$searchres_timestamp);
+			$added_triples+=$count_triples_added;
+			$RDFLOG.="<br>rdfize: $count_triples_added (of $added_triples) triples added";
+		}
+		
 		if($store && $want_rdfexpand)
 		{
-			$ok=$result->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$search_term,$USER_ID);
+			list($ok,$count_triples_added)=$result->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$search_term,$USER_ID);
 			$ok=$result->rerank_rdf_documents_related_to_search($sid,$datasource,$search_term,$USER_ID);
+			
+			$added_triples+=$count_triples_added;
+			$RDFLOG.="<br>LODfetch: $count_triples_added (of $added_triples) triples added";
 		}
 		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit RDF on $resultCounter result"));
 
@@ -147,9 +157,15 @@ if ($sid<>'')
 			$CONTENT2='';
 	
 		if ($list3pls)
-			$CONTENT3 = get_triples_as_html_table($result->RDFenhancement,$list3page,'',' for WIDGET RESULTS:','tripletable');
+		{
+			$CONTENT3 = get_triples_as_html_table($result->RDFenhancement,$added_triples,$list3page,'',' for WIDGET RESULTS:','tripletable');
+		}
 		
-		if ($viz3pls)
+		if ($viz3search)
+		{
+		  $png = $result->RDFenhancement->get_jpeg_display_store_with_graphviz($search_term);	
+		}
+		else if ($viz3pls)
 		{
 		  $png = $result->RDFenhancement->get_jpeg_display_store_with_graphviz();	
 		}
@@ -167,6 +183,7 @@ if ($result->RDFenhancement)
 	
 	$TOLERATED_SRC_SOLR_DATA_AGE_SEC=$C::$TOLERATED_SRC_SOLR_DATA_AGE_SEC;
 	$TOLERATED_SRC_RDF_DATA_AGE_SEC	=$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC;
+	$THRESHOLD_DATASOURCE_MIN_SUBJECTS = $C::$THRESHOLD_DATASOURCE_MIN_SUBJECTS;
 	$MAX_SRC_SUBJECT_EXPANSION			=$C::$MAX_SRC_SUBJECT_EXPANSION;
 	$MAX_LOD_SUBJECT_DOCFETCH				=$C::$MAX_LOD_SUBJECT_DOCFETCH;
 		
@@ -175,6 +192,7 @@ if ($result->RDFenhancement)
 	$LIMITSSTAT .= "<tr><th align=left colspan=3>LIMITS used during RDFization:</th></tr>";
 	$LIMITSSTAT .= "<tr><td title='(Re)Use SOLR CACHE with a maximum age of $TOLERATED_SRC_SOLR_DATA_AGE_SEC secs '>Limit SOLR SRC CACHE AGE TO: </td><td $TDR>$TOLERATED_SRC_SOLR_DATA_AGE_SEC</td><td> secs</td></tr>";
 	$LIMITSSTAT .= "<tr><td title='(Re)Use RDF STORE HOLD TRIPLES with a maximum age of $TOLERATED_SRC_RDF_DATA_AGE_SEC secs '>Limit RDF STORE TRIPLE AGE TO: </td><td $TDR>$TOLERATED_SRC_RDF_DATA_AGE_SEC</td><td> secs</td></tr>";
+	$LIMITSSTAT .= "<tr><td title='Threshold to trigger title driven subjects computation during analysis of a single RODIN widget result document'>TRHESHOLD DECISION TITLE SUBJECTS: </td><td $TDR>$MAX_SRC_SUBJECT_EXPANSION</td><td> subjects</td></tr>";
 	$LIMITSSTAT .= "<tr><td title='LIMIT expansion loop (in subject expansion) to maximum $MAX_SRC_SUBJECT_EXPANSION of the gathered RDF STORE subjects'>Limit RDF SUBJECT EXPANSION LOOP TO: </td><td $TDR>$MAX_SRC_SUBJECT_EXPANSION</td><td> subjects</td></tr>";
 	$LIMITSSTAT .= "<tr><td title='LIMIT expansion loop (in LOD DOC FETCH) to maximum $MAX_SRC$MAX_LOD_SUBJECT_DOCFETCH_SUBJECT_EXPANSION of the gathered RDF STORE subjects'>Limit RDF DOC FETCH LOOP TO: </td><td $TDR>$MAX_LOD_SUBJECT_DOCFETCH</td><td> subjects</td></tr>";
 	$LIMITSSTAT .= "</table>";
@@ -225,8 +243,9 @@ print<<<EOP
 				<td colspan="2">
 				List widget results:<input type='checkbox' name='listwr' $checked_listwr>&nbsp;&nbsp;&nbsp;
 				RDFize & display triples:<input type='checkbox' name='list3pls' $checked_list3pls>&nbsp;&nbsp;&nbsp;
-				graphviz triples:<input type='checkbox' name='viz3pls' $checked_viz3pls title='Visualize triples graphically' >&nbsp;&nbsp;&nbsp;
-				Search was: '<label><b>$search_term</b></label>'
+				graphviz search graph:<input type='checkbox' name='viz3search' $checked_viz3search title='Visualize search subgraph for $search_term' >&nbsp;&nbsp;&nbsp;
+				graphviz whole graph:<input type='checkbox' name='viz3pls' $checked_viz3pls title='Visualize all triples graphically' >&nbsp;&nbsp;&nbsp;
+				Search term: '<label><b>$search_term</b></label>'
 				</tr>
 				</table>
 		</form>

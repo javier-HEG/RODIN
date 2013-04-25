@@ -399,16 +399,24 @@ class BasicRodinResult {
 	{
 		
 		include_once("RodinRDFResult.php");
-		
+		global $RDFLOG;
 		//Sets as class var the RDF helper
 		if (! $this->RDFenhancement)
 			$this->RDFenhancement = new RodinRDFResult($this,$datasource,$searchterm,$USER_ID);
 		$RDF = $this->RDFenhancement;
+		$C=get_class($RDF);
+
 		$this->is_rdfized = true;
-			
-		$store = $RDF->rdfize($sid,$timestamp);
 		
-		return $store;
+		$count_triples_before=count_ARC_triples($C::$store);
+		
+		$RDF->rdfize($sid,$timestamp);
+
+		$count_triples_after=count_ARC_triples($C::$store);
+		
+		$count_triples_added = $count_triples_after - $count_triples_before;
+		
+		return array($C::$store,$count_triples_added);
 	} // rdfize 
 	
 	
@@ -424,7 +432,18 @@ class BasicRodinResult {
 	 */
 	public function rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID)
 	{
-		return $this->RDFenhancement->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID);
+		$C=get_class($this->RDFenhancement);
+		
+		$count_triples_before=count_ARC_triples($C::$store);
+		
+		$ok = $this->RDFenhancement->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$searchterm,$USER_ID);
+		
+		$count_triples_after=count_ARC_triples($C::$store);
+		
+		$count_triples_added = $count_triples_after - $count_triples_before;
+		
+		return array($ok,$count_triples_added);
+		
 	} // rdfLODfetchDocumentsOnSubjects
 	
 	

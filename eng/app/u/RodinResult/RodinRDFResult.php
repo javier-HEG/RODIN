@@ -63,10 +63,16 @@ class RodinRDFResult {
 	public  static $TOBECODED64 			= null; // to be used inside a SPARQL query
 	private static $PUBBLICATION_URL 	= null; // to see/navigate/access triples
 	public  static $one_work = null; // root node for triples page
+	public  static $stopwords = null;
+	public  static $languages    = array('en','fr','de','it','es');
+	
 	public  static $MAX_SRC_SUBJECT_EXPANSION = 4; // Limit SRC subjects expansion
 	public  static $MAX_LOD_SUBJECT_DOCFETCH  = 3; // Limit DOC FETCH expansion to (n) subjects
+	public  static $THRESHOLD_DATASOURCE_MIN_SUBJECTS = 4;
 	public  static $TOLERATED_SRC_SOLR_DATA_AGE_SEC =604800; // 1 week RDF STORAGE tolerated data age before removing/recalling/refreshing data from remote source
 	public  static $TOLERATED_SRC_RDF_DATA_AGE_SEC =604800; // 1 week RDF STORAGE tolerated data age before removing/recalling/refreshing data from remote source
+	
+	
 	private static $TERM_SEPARATOR    =',';
 	private static $DBPEDIA_BASE="http://dbpedia.org";
 	private static $WIKIPEDIABASE="http://en.wikipedia.org";
@@ -74,9 +80,6 @@ class RodinRDFResult {
 	private static $WIKIPEDIABASEURL="http://en.wikipedia.org/wiki";
 	private static $WIKIPEDIASEARCH= "http://en.wikipedia.org/w/api.php?action=opensearch&format=xml";
 	private static $WIKIPEDIASEARCH2="http://en.wikipedia.org/w/index.php?";
-
-
-
 
 
 	public function RodinRDFResult(&$my_result,$datasource,$searchterm,$USER_ID) 
@@ -90,6 +93,11 @@ class RodinRDFResult {
 		if (!RodinRDFResult::$datasource) 			RodinRDFResult::$datasource				=$datasource;
 		if (!RodinRDFResult::$searchterm) 			RodinRDFResult::$searchterm				=$searchterm;
 		if (!RodinRDFResult::$searchtermlang) 	RodinRDFResult::$searchtermlang		=detectLanguage($searchterm);
+		
+		if (in_array(RodinRDFResult::$searchtermlang, RodinRDFResult::$languages))
+		{
+			if (!RodinRDFResult::$stopwords) 		RodinRDFResult::$stopwords			=get_stopwords_from_db(RodinRDFResult::$searchtermlang);
+		}	
 		if (!RodinRDFResult::$importGraph) 			RodinRDFResult::$importGraph			="http://$HOST/rodin/w3s/";
 		if (!RodinRDFResult::$PUBBLICATION_URL) RodinRDFResult::$PUBBLICATION_URL	="http://$HOST/rodin/$RODINSEGMENT/app/w3s";
 		
@@ -185,16 +193,7 @@ class RodinRDFResult {
 		global $WANT_RDF_ANNOTATION;
 		
 		$triple= array();
-		
-		##############################################
-		#
-		#In case the datasource supplies at least five subjects, 
-		#do not calculate further subjects from title.
-		#
-		$THRESHOLD_DATASOURCE_MIN_SUBJECTS=5; 
-		#
-		##############################################
-		
+			
 		$RDFLOG.="<hr>RDFIZE RESULT:<hr>";
 		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Started with sid:'.$sid));
 		$lang=detectLanguage(RodinRDFResult::$searchterm);
@@ -206,7 +205,7 @@ class RodinRDFResult {
 		#
 		if ($WANT_RDF_ANNOTATION)
 		{
-			$this->remove_unused_result_triples_on_search($sid);
+			$this->remove_unused_result_triples_on_search(RodinRDFResult::$searchterm);
 			#
 			# Annotate the main search params (older are superseeded)
 			#
@@ -251,7 +250,13 @@ class RodinRDFResult {
 		#TODO: Introduce here check to USE already stored RDF subjects (and use them)
 		#############################################################################
 		#		
+		# If the provided keywords are NOT in the same language as the search term, 
+		# they are discarded and a search from the title is performed
+		#
 		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($this->my_result->getProperty('subjects'))),$lang);
+		if (!$datasource_subjects)
+		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($sss= $this->my_result->getProperty('keywords'))),$lang);
+		
 		if ($showsubjects) tell_subjects($datasource_subjects,"considered datasource subjects:");
 		
 		//print "<br>Datasource >Subjects (".$this->my_result->getProperty('subjects').")";
@@ -260,10 +265,12 @@ class RodinRDFResult {
 		#
 		# Prepare title category etc ... if possibile
 		#
-		if (count($datasource_subjects) < $THRESHOLD_DATASOURCE_MIN_SUBJECTS)
+		if (($c=count($datasource_subjects)) < RodinRDFResult::$THRESHOLD_DATASOURCE_MIN_SUBJECTS)
 		{
-			list($title,$category,$presentation_at,$date_event) = $this->scan_datasource_title($title,RodinRDFResult::$datasource);
-			$additional_subjects=$this->compute_title_subjects(RodinRDFResult::$searchterm,$title,RodinRDFResult::$datasource,$lang);
+			if ($DEBUG || 1)
+				$RDFLOG.= htmlprint("<br>Compute subjects from title",'red').", since threshold ".RodinRDFResult::$THRESHOLD_DATASOURCE_MIN_SUBJECTS." not reached ($c subjects read)";
+			list($title,$category,$presentation_at,$date_event) = $this->scan_datasource_title($title,RodinRDFResult::$datasource,$lang);
+			$additional_subjects=$this->compute_title_subjects($title,RodinRDFResult::$searchterm,RodinRDFResult::$datasource,$lang);
 			if ($showsubjects) tell_subjects($additional_subjects,"extracted additional title subjects:");
 	
 			//print "<br>ADDITIONAL Subjects (".implode('+',$additional_subjects).")";
@@ -445,7 +452,8 @@ class RodinRDFResult {
 			$triple[]=array($author_uid, 	'foaf:name', 			l64($authortxt,'foaf:name',RodinRDFResult::$TOBECODED64)); 
 			$triple[]=array($author_uid, 	'rodin:name', 		l64($authortxt,'foaf:name',RodinRDFResult::$TOBECODED64)); 
 			//$triple[]=array($author_uid, 	'dce:creator', 	 $work_uid);
-			$triple[]=array($work_uid ,	'rodin:author', $author_uid);
+			if ($work_uid)
+				$triple[]=array($work_uid ,	'rodin:author', $author_uid);
 			if ($urlPage)
 				$triple[]=array($author_uid,	'foaf:Document', l($urlPage)); 
 			
@@ -766,8 +774,16 @@ class RodinRDFResult {
 		
 		//print "<br>compute_datasource_subjects($ds_subjects,$lang)";
 		
+		
 		$subject_arr=array();
 		$subjects_cand=preg_split("/[,:;\+\-*]+/",$ds_subjects);
+		
+		if ($DEBUG)
+		{
+			$RDFLOG.= "<br>compute_datasource_subjects($ds_subjects,$lang):";
+			foreach($subjects_cand as $s) $RDFLOG.="<br>$s";
+		}
+		
 		
 		if(count($subjects_cand))
 		{
@@ -797,37 +813,46 @@ class RodinRDFResult {
 	 * @param string $datasource
 	 * @param string $lang
 	 */
-	public function compute_title_subjects($search,$title,$datasource,$lang)
+	public function compute_title_subjects($title,$search,$datasource,$lang)
 	{
 		$DEBUG=0;
 		global $RDFLOG;
+	  $C=get_class($this);
+	  
+	  
+	  if (!$title) $RDFLOG.= htmlprint("<br>compute_title_subjects(): Error compute_subjects called with empty title !!!");
 	
-		if (!$title) print "<br>compute_title_subjects(): Error compute_subjects called with empty title !!!";
-	
-	  if($DEBUG) $RDFLOG.="<br>compute_title_subjects($title)<br>TRY TO RECOGNIZE/DELETE EVENTS";
-		//Recognize and filter out event
-		$PATTERNEVENT[]="/(.*)\(.*\)/"; // text (event)
-		$PATTERNEVENT[]="/(.*)\[.*\]/"; // text [event]
-		foreach($PATTERNEVENT as $PATTERN)
+		if (strstr($datasource,'swissbib'))
 		{
-			if($DEBUG) $RDFLOG.="<br>CONSIDER PATTERN ($PATTERN) on ($title)";
+			  if($DEBUG) $RDFLOG.="<br>compute_title_subjects($title)<br>TRY TO RECOGNIZE/DELETE EVENTS";
+			//Recognize and filter out event
+			$PATTERNEVENT[]="/(.*)\(.*\)/"; // text (event)
+			$PATTERNEVENT[]="/(.*)\[.*\]/"; // text [event]
+			foreach($PATTERNEVENT as $PATTERN)
+			{
+				if($DEBUG) $RDFLOG.="<br>CONSIDER PATTERN ($PATTERN) on ($title)";
+				
+				if (preg_match($PATTERN,$title,$match))
+				{
+					$title=$match[1];
+					if($DEBUG) $RDFLOG.=" YES ($title)";
+					break;
+				}
+				else 
+				{
+					if($DEBUG) $RDFLOG.=" NO!";
+				}
+			}
+		} // Swissbib
+		else // if (strstr($datasource,'alexandria'))
+		{
 			
-			if (preg_match($PATTERN,$title,$match))
-			{
-				$title=$match[1];
-				if($DEBUG) $RDFLOG.=" YES ($title)";
-				break;
-			}
-			else 
-			{
-				if($DEBUG) $RDFLOG.=" NO!";
-			}
-		}
-	
-	
-		$title_cleaned_arr=array_unique(cleanup_stopwords(explode(' ',strtolower(clean_spechalchars($title)))));
-		$title_cleaned=implode(' ',$title_cleaned_arr); //separate into chunks
+		} // alexandria
 		
+	
+		$title_cleaned_arr=array_unique(cleanup_stopwords(explode(' ',strtolower(clean_spechalchars($title))),$C::$stopwords));
+		$title_cleaned=implode(' ',$title_cleaned_arr); //separate into chunks
+	  
 		if($DEBUG)
 		{
 			$RDFLOG.= "<br><b>compute_title_subjects</b>((($search)),(($title))):";
@@ -855,13 +880,16 @@ class RodinRDFResult {
 			
 		//Returns as speedup 1. the subject as is, 2. every single segment separated by nonblank of the $title_cleaned
 		
-		$segments=preg_split("/[,:;\+\-*]+/",$title_cleaned);
+		$segments=preg_split("/[,:;\+\s*]+/",$title_cleaned);
 		
+		$tolerated_lang = 'en';
 		if (count($segments))
 		{
 			foreach($segments as $segment)
 			{
-				insert_filtered_once($candidate_subject,$subjects,$lang);
+				if ($DEBUG) $RDFLOG.="<br>Consider subject segment $segment";
+				$segment=put_to_singular($segment);
+				insert_filtered_once($segment,$subjects,$lang,$tolerated_lang);
 			} // foreach
 		}
 		
@@ -903,11 +931,12 @@ class RodinRDFResult {
 	 * @param $text
 	 * @param $datasource
 	 */
-	public function scan_datasource_title($text,$datasource)
+	public function scan_datasource_title($text,$datasource,$lang)
 	{
 		$DEBUG=0;
+		$C = get_class($this);
 		//tokenize and date_parse
-		//print "<br>cleanup_dates($text,$datasource) ...";
+		//print "<br>scan_datasource_title($text,$datasource,$lang) ...";
 		if (strstr($datasource,'swissbib'))
 		{
 			//print " SWISSBIB ";
@@ -982,7 +1011,15 @@ class RodinRDFResult {
 			}
 			$scanned_obj=array($title,$congress,$place,$eventdaterange);
 		
-		} // swissbib
+		} // swissbib$
+		
+		###########################################
+		else if (strstr($datasource,'alexandria'))
+		###########################################
+		{
+			$scanned_obj=array($text,null,null,null);
+		} // alexandria
+							
 							
 		return $scanned_obj;
 	} // cleanup_dates
@@ -1792,7 +1829,7 @@ class RodinRDFResult {
  		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Started'));
 		
 		
-		$RDFLOG.="<ht>Carefully FETCHING LOD Documents using $sl_count subject labels...";
+		$RDFLOG.="<hr>Carefully FETCHING LOD Documents using $sl_count subject labels...";
 		if ($DEBUG || 1)
 		{
 			if(count($subjects_labels))
@@ -2344,93 +2381,61 @@ EOS;
 	
 	
 	
+	
+	
 	/**
 	 * removes all triples corresponding to the current search values
 	 */
 	
-	public function remove_unused_result_triples_on_search()
+	public function remove_unused_result_triples_on_search($searchterm)
 	{
-		//TODO
 		global $RDFLOG;
 		global $WANT_RDF_ANNOTATION;
+		$debug=0;
+		
 		$C = get_class($this);
-		$RDFLOG.="<br>TODO remove_unused_result_triples_on_search() on search='".$C::$searchterm."' user: ".$C::$USER_ID;
+		if ($debug)
+	  	$RDFLOG.="<br>remove_unused_result_triples_on_search() on search='$searchterm' user: ".$C::$USER_ID;
 		
-		// DO NOT REMOVE A TRIPLE IF IT IS (transitively) REFERENCED BY ANOTHER SEARCH !!!!
-		/* The following query returs a subgraph of depht=3 starting from a search object:
-		 * 
-PREFIX rodin: <http://localhost/rodin/eng/app/w3s/resource/> 
-PREFIX rodin_a: <http://localhost/rodin/eng/app/w3s/resource/a/> 
-PREFIX rodin_e: <http://localhost/rodin/eng/app/w3s/resource/e/> 
-PREFIX dce: <http://purl.org/dc/elements/1.1/>
-
-select ?s ?p ?o
-WHERE
+		$rodin_a_ns_url =$C::$NAMESPACES{'rodin_a'};
+		
+	/**
+	 * A search is recorded in the RDF store with a SUBTREE of 3 node levels.
+	 * ACCESSING all the subtree elements up to level 3 reaches all produced triples
+	 */ 
+$QUERY_DELETE=<<<EOQ
+PREFIX rodin_a: <$rodin_a_ns_url>
+delete {?s ?p ?o}
 {
- {
-  FILTER(?s=rodin_a:search_20130423_110232_480_2) .
-  ?s ?p ?o.
- }
- UNION
- {
-  FILTER(?s_m1=rodin_a:search_20130423_110232_480_2) .
-  ?s_m1 ?p_m1 ?o_m1.
-  FILTER(?o_m1=?s) .
-  ?s ?p ?o.
- }
- UNION
- {
-  FILTER(?s_m2=rodin_a:search_20130423_110232_480_2) .
-  ?s_m2 ?p_m2 ?o_m2.
-  FILTER(?o_m2=?s_m1) .
-  ?s_m1 ?p_m1 ?o_m1.
-  FILTER(?o_m1=?s) .
-  ?s ?p ?o.
- }
+	{
+	  ?s rodin_a:search_term "$searchterm" .
+	  ?s ?p ?o .
+	}
+	UNION
+	{
+	  ?sm1 rodin_a:search_term "$searchterm" .
+	  ?sm1 ?pm1 ?om1 .
+	  FILTER (?om1 = ?s ) .
+	  ?s ?p ?o .
+	}
+	UNION
+	{
+	  ?sm2 rodin_a:search_term "$searchterm" .
+	  ?sm2 ?pm2 ?om2 .
+	  FILTER (?om2 = ?sm1 ) .
+	  ?sm1 ?pm1 ?om1 .
+	  FILTER (?om1=?s) .
+	  ?s ?p ?o .
+	}
 }
-	*/
-	/* The following is a query to a tree node gaghering 
-	 * all triples from tree root node
-	 * all triples from triples from tree root node
-	 * all triples to triples from tree root node
-PREFIX rodin: <http://localhost/rodin/eng/app/w3s/resource/> 
-PREFIX rodin_a: <http://localhost/rodin/eng/app/w3s/resource/a/> 
-PREFIX rodin_e: <http://localhost/rodin/eng/app/w3s/resource/e/> 
-PREFIX dce: <http://purl.org/dc/elements/1.1/>
-
-select ?s ?p ?o
-WHERE
-{
- #get triples from tree root node:
- {
-  FILTER(?s=rodin_a:src_81_subexp_1366713884_596071) .
-  ?s ?p ?o.
- }
- UNION 
- #Level 1 = get triples to tree root node:
- {
-  FILTER(?o=rodin_a:src_81_subexp_1366713884_596071) .
-  ?s ?p ?o.
- }
- 
- UNION 
- #Level 2 = get triples from triples from tree root node
- {
-  FILTER(?s_m1=rodin_a:src_81_subexp_1366713884_596071) .
-  ?s_m1 ?p_m1 ?o_m1. FILTER(?o_m1=?s) .
-  ?s ?p ?o.
- }
- UNION
- #Level 2 = get triples to triples from tree root node
- {
-  FILTER(?s_m1=rodin_a:src_81_subexp_1366713884_596071) .
-  ?s_m1 ?p_m1 ?o_m1. FILTER(?o_m1=?o) .
-  ?s ?p ?o.
- }
-}
-	*/
+EOQ;
 		
-		
+		//on 3 results this subtree is deleted/reconstructed each time?
+		if ($C::$store && $deakt)
+		{
+			if ($debug) $RDFLOG.= "<br>deleting: ".htmlentities($QUERY_DELETE);
+			$C::$store->query($QUERY_DELETE);
+		}
 		
 	} // remove_unused_result_triples_on_search
 	
@@ -2884,13 +2889,13 @@ EOS;
 	 * Returns a jpeg with a triple representation
 	 * TODO: In case we divide a store by user ... 
 	 */
-	public function get_jpeg_display_store_with_graphviz()
+	public function get_jpeg_display_store_with_graphviz($searchterm='')
 	{
 		$C = get_class($this);
 		
 		$viz = ARC2::getComponent('TriplesVisualizerPlugin', $C::$LOCALARCCONFIG);
 		
-		$triples= get_ARC_triples($C::$store);
+		$triples= get_ARC_triples_for_viz($C::$store,$searchterm,$C::$NAMESPACES);
 		
 		$tc=count($triples);
 		

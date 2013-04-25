@@ -492,8 +492,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
         $FORGET_RESULT=false;
         $id='';
         $row=array();
-//        print "<hr>DOC:";
-//        print "<hr> SOLR_DOC: <br>"; var_dump($DOC);
+       // print "<hr>DOC:";
+       // print "<hr> SOLR_DOC: <br>"; var_dump($DOC);
 
         foreach($DOC->children() as $ATTRVAL)
         {
@@ -517,6 +517,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
             $id=$value;
           else if ($name=='wdatasource')
           {
+          	$wdatasource=$value;
             $owner= ($datasource==$value);
             $reference= ($CNT==1 && $owner);
           } //  $name=='wdatasource'
@@ -569,7 +570,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
           $result->setSid($sid);
           $result->setId($id);
-
+					$result->setProperty('datasource', $wdatasource); 
+          
           foreach($row as $attribute=>$value)
           {
           	//print "<br>$attribute=>$value";

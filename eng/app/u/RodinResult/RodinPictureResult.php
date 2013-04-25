@@ -11,7 +11,7 @@ require_once 'RodinResult.php';
 class RodinPictureResult extends BasicRodinResult {
 	public function __construct() {
 		parent::__construct(RodinResultManager::RESULT_TYPE_PICTURE);
-		$this->setValidProperties(array('pictureUrl', 'description', 'tags', 'geoloc'));
+		$this->setValidProperties(array('datasource','pictureUrl', 'description', 'tags', 'geoloc'));
 	}
 	
 	public function toBasicHtml() {

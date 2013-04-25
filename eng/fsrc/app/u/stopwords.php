@@ -40,10 +40,11 @@ if ($getStopwords) {
  * it returns the clean array.
  * 
  * @param vector $words - A vector of words to be examined
+ * @param vector $stopWords - If provided, a vector of stopword
  */
-function cleanup_stopwords(&$words) {
+function cleanup_stopwords(&$words,&$stopWords=array()) {
 	$DEBUG=0;
-		$stopWords = get_stopwords();
+		$stopWords = is_array($stopWords) && count($stopWords)? $stopWords: get_stopwords();
 		foreach($words as $word) {
 			if ($DEBUG) print "<br>csw($word)? ";
 	    if (!in_array($word, $stopWords))
@@ -84,7 +85,7 @@ function get_stopwords() {
 /**
  * Loads stop words from the database.
  */
-function get_stopwords_from_db() {
+function get_stopwords_from_db($lang='') {
 	$stopWords = array();
 	
 	try {
@@ -92,6 +93,8 @@ function get_stopwords_from_db() {
 		$DBconn = $DB->DBconn;
 
 		$query = "SELECT word FROM stopwords";
+		if ($lang)
+			$query.=" WHERE Lang='$lang'";
 		$resultset = mysql_query($query, $DBconn);
 
 		while ($row = mysql_fetch_array($resultset)) {

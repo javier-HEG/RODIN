@@ -1387,7 +1387,7 @@ EOQ;
     
  	}
   
-  //print " returning $no triples in store ";
+  //print "<br> count_ARC_triples returning $no triples in store ";
   
 	return $no;
 }

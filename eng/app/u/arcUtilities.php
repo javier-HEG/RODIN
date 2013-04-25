@@ -37,6 +37,7 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	 */
 	function get_triples_as_html_table
 												(	&$RDFenhancement,
+												  $added_triples,
 													$show_list3pagelinks,
 													$QUERY='',
 													$TITLE='All triples',
@@ -59,7 +60,7 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 			$TRIPLECOUNT = count($rows);
 			$STORENAME=$RDFenhancementCLASS::$storename;
 			$HTML.= "<table  border='1' class='$tableclass'>";
-			$HTML.= "<tr><td colspan='4'><b>$TRIPLECOUNT TRIPLES in STORE '$STORENAME' $TITLE</b></td></tr>";
+			$HTML.= "<tr><td colspan='4'><b>$added_triples added triples ($TRIPLECOUNT TRIPLES in STORE '$STORENAME') $TITLE</b></td></tr>";
 			foreach($rows as $row) 	
 			{	$i++;
 			
@@ -173,10 +174,10 @@ EOX;
 		 * Extracts portions of $txt which are numbers or (en) stopwords
 		 * @param $txt0 - The text to be cleaned
 		 */
-		function filter_as_subject($txt0)
+		function filter_as_subject($txt0,$pattern='')
 		{
 			//Do not want to see the following chars inside the term $txt0
-			$pattern = '/[0-9&!;\\\.\:\-_\[\]\(\)]+/';
+			$pattern = $pattern<>''?$pattern:'/[0-9&!;\\\.\:\-_\[\]\(\)]+/';
 			$replace = '';
 			$txt= trim(preg_replace($pattern, $replace, $txt0));
 			//print "<br>filter_as_subject($txt0)=>($txt)";
@@ -638,6 +639,60 @@ else print "<br>Sorry: No further information found on $word_id";
 	}
 	
 	
+
+
+	function get_ARC_triples_for_viz(&$store,$searchterm,&$NAMESPACES)
+	##################################
+	# 
+	# Computes the query to SKOS $verb
+	# $verb= related, broader, narrower
+	{
+		if (!$searchterm)
+		$QUERY=<<<EOQ
+		select ?s ?p ?o 
+		{ ?s ?p ?o .}
+EOQ;
+		else {
+			$rodin_a_ns_url =$NAMESPACES{'rodin_a'};
+			
+			$QUERY=<<<EOQ
+PREFIX rodin_a: <$rodin_a_ns_url>
+select ?s ?p ?o
+{
+	{
+	  ?s rodin_a:search_term "$searchterm" .
+	  ?s ?p ?o .
+	}
+	UNION
+	{
+	  ?sm1 rodin_a:search_term "$searchterm" .
+	  ?sm1 ?pm1 ?om1 .
+	  FILTER (?om1 = ?s ) .
+	  ?s ?p ?o .
+	}
+	UNION
+	{
+	  ?sm2 rodin_a:search_term "$searchterm" .
+	  ?sm2 ?pm2 ?om2 .
+	  FILTER (?om2 = ?sm1 ) .
+	  ?sm1 ?pm1 ?om1 .
+	  FILTER (?om1=?s) .
+	  ?s ?p ?o .
+	}
+}			
+EOQ;
+		}
+	
+		$result=array();
+		$rows = $store->query($QUERY, 'rows');
+		
+		return $rows;
+	}
+
+
+
+
+
 	
 	function get_ARC_triples(&$store)
 	##################################
@@ -658,6 +713,7 @@ EOQ;
 		
 		return $rows;
 	}
+	
 	
 	
 	
@@ -1087,31 +1143,36 @@ EOQ;
 	 * @param text $candidate - a term
 	 * @param array $vector - the vector to fill
 	 * @param string $lang
+	 * @param string $tolerated_lang
 	 */
-	function insert_filtered_once($candidate,&$vector,$lang)
+	function insert_filtered_once($candidate,&$vector,$lang,$tolerated_lang='')
 	{
 		global $RDFLOG;
 		$DEBUG=0;
-		if (($subject=filter_as_subject($candidate)))
+		
+		if (!discard_subject_word_candidate($candidate))
 		{
-			//print "==> FILTERED TO: $subject";
-			if ($DEBUG) $RDFLOG.="<br>Considering subject '$subject'";
-			
-			if (($langt=detectLanguage($subject))==$lang)
+			//The following is the same as on a triple subject but allows minus sign as trade d'union (natural language)
+			if (($subject=filter_as_subject($candidate,'/[0-9&!;\\\.\:_\[\]\(\)]+/')))
 			{
-				if (!in_array($subject,$vector))
-						$vector[]= $subject;
-				//print "<br>TAKE($langt==$lang) SUBJ($subject):";
-			 
-				if($DEBUG)  
-					$RDFLOG.= "<br>TAKE($langt==$lang) SUBJ($subject):";
-				else {
-					//fontprint("<br>DISC SUBJ($langt<>$lang) SUBJ($subject)",'red');
-					if($DEBUG)  $RDFLOG.= htmlprint("<br>DISC SUBJ($langt<>$lang) SUBJ($subject)",'red');
-				}
-			} // lang
-		}
-		//return $vector;
+				//print "==> FILTERED TO: $subject";
+				if ($DEBUG) $RDFLOG.="<br>Considering subject '$subject'";
+				
+				if ($lang=='' || ($langt=detectLanguage($subject))==$lang || ($tolerated_lang<>'' && $langt==$tolerated_lang))
+				{
+					if (!in_array($subject,$vector))
+							$vector[]= $subject;
+					//print "<br>TAKE($langt==$lang) SUBJ($subject):";
+				 
+					if($DEBUG)  
+						$RDFLOG.= "<br>TAKE($langt==$lang) SUBJ($subject):";
+					else {
+						//fontprint("<br>DISC SUBJ($langt<>$lang) SUBJ($subject)",'red');
+						if($DEBUG)  $RDFLOG.= htmlprint("<br>DISC SUBJ($langt<>$lang) SUBJ($subject)",'red');
+					}
+				} // lang
+			}
+		} else {if ($DEBUG) $RDFLOG.="<br>DISCARD ($candidate)";}
 	} // insert_filtered_once
 		
 		
@@ -1315,7 +1376,50 @@ EOQ;
 	}
 		
 		
+	function discard_subject_word_candidate($token)
+	{
+		$ttoken=trim($token);
+		$discard=false;
 		
+		$discard = (preg_match($PAT='/^[\W]$/',$ttoken)); // $ttokan is not a word
+		//print "<br>Checking discard_subject_word_candidate($ttoken) ... ($discard) with pattern $PAT";
+					
+		return $discard;
+	} // discard_subject_word_candidate
+	
+	
+	function put_to_singular($word)
+	{
+		global $RDFLOG;
+		$DEBUG=0;
+		$lang=detectLanguage($word);
+		$lastc=substr($word,strlen($word)-1);
+		
+		
+		if ($lang=='en' || $lang=='fr' || $lang=='es')
+		{
+			if ($lastc=='s')
+				$lastsubtract=$lastc;
+		}
+		else 
+		if ($lang=='de')
+		{
+			if ($lastc=='n')
+				$lastsubtract=$lastc;
+		}
+			
+		if($lastsubtract)
+			$singular_word=substr($word,0,strlen($word)-3);
+		else
+			$singular_word=$word;
+		if ($DEBUG)
+			$RDFLOG.="<br>put_to_singular($word,$lang), lastc=($lastc) lastsubtract=($lastsubtract) returning ($singular_word)";
+		
+		return $singular_word;
+	} // put_to_singular
+	
+	
+	
 		
  	function cleanup4literal($str)
 	{
@@ -1344,9 +1448,8 @@ EOQ;
 	
 	function cleanup4token($str)
 	{
-		
 		//print "<br>cleanup4literal($str)->";
-		//Do not want to see the following chars inside the term $txt0
+		//Do not want to see the following chars inside the term $str
 		$pattern = '/[\*&\|!;\'""\\\.\[\]\(\)]+/';
 		$replace = '';
 		$str= trim(preg_replace($pattern, $replace, $str));
