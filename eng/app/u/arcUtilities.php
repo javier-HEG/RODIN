@@ -649,7 +649,7 @@ else print "<br>Sorry: No further information found on $word_id";
 	{
 		if (!$searchterm)
 		$QUERY=<<<EOQ
-		select ?s ?p ?o 
+		select distinct ?s ?p ?o 
 		{ ?s ?p ?o .}
 EOQ;
 		else {
@@ -1056,7 +1056,7 @@ EOQ;
             $max_age_in_sec, // this is always set!! even if no data
             $expiring_in_sec) = get_cached_src_response($cache_id);
 
-    if (! sparql_cached_content_quality_control($xmlCached_content,$src_name,$age_in_sec))
+    if (! sparql_cached_content_quality_control($xmlCached_content,$src_name,$age_in_sec,$max_age_in_sec))
     { // ask service and rebuild cache
        
       $timestamp=date("d.m.Y H:i:s");
@@ -1232,7 +1232,7 @@ EOQ;
             $max_age_in_sec, // this is always set!! even if no data
             $expiring_in_sec) = get_cached_src_response($cache_id,$solr_cache_max_age_in_sec);
 
-    if (! sparql_cached_content_quality_control($xmlCached_content,$src_name,$age_in_sec))
+    if (! sparql_cached_content_quality_control($xmlCached_content,$src_name,$age_in_sec,$solr_cache_max_age_in_sec))
     { // ask service and rebuild cache
       $used_cache=false;
       $timestamp=date("d.m.Y H:i:s");
@@ -1246,8 +1246,7 @@ EOQ;
 			Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Open $url_endpoint"));
 			
 			$xml_content=get_file_content($url_endpoint);
-			
-			$xml_content = utf8_encode($xml_content);
+			//$xml_content=utf8_encode(html_entity_decode($xml_content));
 			
 			cache_src_response($cache_id, $xml_content);
 			$xmlCached_content = $xml_content;
@@ -1257,7 +1256,7 @@ EOQ;
 		}
 
 		//scan/open $xmlCached_content for later use
-		if ($debug) $RDFLOG.= "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
+		if ($debug) $RDFLOG.= "<br>XML GOT FROM $src_name:<br>".htmlentities((($xmlCached_content)));
 		
 		$xml_content_len=strlen($xml_content);
 		$valid_xml=true;
@@ -1317,6 +1316,7 @@ EOQ;
 			if ($debug)
 			{
 				$RDFLOG.= "<br>RETURNING $triples_noof SPARQL triples to $subject from $src_name:";
+				if (is_array($triples) && count($triples))
 				foreach($triples as $triple)
 				{
 					list($$s,$p,$o)= $triple;
@@ -1358,15 +1358,13 @@ EOQ;
 	 * State using either cache age or content
 	 * whether the cache content should be considered valid
 	 */
-	function sparql_cached_content_quality_control($xmlcontent,$src_name,$age_in_sec)
+	function sparql_cached_content_quality_control($xmlcontent,$src_name,$age_in_sec,$tolerated_age_sec)
 	{
 		$ok = trim($xmlcontent) <> '';
 
 		//Special case empty xml object		
 		if ($ok && strstr(strtolower($src_name),'europeana'))
 		{
-			//recompute only after 4 hours
-			$tolerated_age_sec=4*3600;
 			$ok = ($age_in_sec < $tolerated_age_sec);
 			//$sxmldom=simplexml_load_string($xmlcontent,'SimpleXMLElement', LIBXML_NOCDATA);
 			//$ok = count($sxmldom->results->result)>0; // there are/where results

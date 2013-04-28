@@ -903,12 +903,14 @@ EOT;
  */
 function rodin_service_diagnostics()
 {
+	//print "rodin_service_diagnostics ...";
   include_once("SOLRinterface/solr_interface.php");
   $ok=true;
   $now=date("d.m.Y H:i:s");
   global $USER;
   global $RODINSEGMENT;
   global $RODINIMAGESURL;
+	global $RESULTS_STORE_METHOD;
   
   $old_ERROR_REPORTING = error_reporting(NULL);
   
@@ -2421,17 +2423,16 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
  * @param unknown_type $USER_ID
  * @param unknown_type $SERVICE_ID
  */
-function get_service_url($Type,$USER_ID,$SERVICE_ID) {
+function get_service_url($Type,$USER_ID,$SERVICE_ID,$PRINT_IT=0) {
 	// Get information from the DB
-	$PRINT_IT = 0;
 	$QUERY_GET = "SELECT * FROM src_interface WHERE forRODINuser=$USER_ID"
-		. " AND ID=$SERVICE_ID AND UsedAsThesaurus=1";
+		. " AND ID=$SERVICE_ID";
 
 	if ($PRINT_IT) print "<br>get_service_url($Type,$USER_ID,$SERVICE_NAME)<br>";
 
 	if ($SERVICE_NAME) $QUERY_GET .= " AND Name='$SERVICE_NAME' ";
 
-	if ($PRINT_IT) print "QUERY_GET: $QUERY_GET<br>";
+	if ($PRINT_IT) print "QUERY_GET: <br>$QUERY_GET<br>";
 
 	$REC = fetch_record($QUERY_GET);
 

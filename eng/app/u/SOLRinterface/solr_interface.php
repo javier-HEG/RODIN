@@ -271,8 +271,11 @@ function test_solr_connected($collections)
 {
   $connected=false;
   $problem='';
+ 	//print "<br>test_solr_connected()";
+	
   foreach($collections as $collection)
   {
+  	//print "<br>test_solr_connected($collection)";
     if (($SOLRCLIENT = init_SOLRCLIENT($collection,'test_solr_connected system error init SOLRCLIENT')))
     {
       $ping = $SOLRCLIENT->createPing();

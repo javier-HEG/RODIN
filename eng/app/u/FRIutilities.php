@@ -1084,6 +1084,9 @@ function cache_src_response_SOLR($cache_id,$xml_src_content)
 	if (!$USER)
 	  $USER = 'nb';
 	
+	//print "<br>cache_src_response_SOLR cache_id:$cache_id";
+	
+	
   //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
   $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['host'];
   $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_src_response']['adapteroptions']['port'];
@@ -2053,6 +2056,10 @@ function parametrizable_curl($url, array $get = array(), array $options = array(
       $defaults[CURLOPT_PROXYTYPE] = "CURLPROXY_HTTP";
       $defaults[CURLOPT_PROXY] = "$PROXY_NAME:$PROXY_PORT";
       $defaults[CURLOPT_PROXYUSERPWD] = "$PROXY_AUTH_USERNAME:$PROXY_AUTH_PASSWD";
+			
+			
+			//$defaults[] = "Accept-Charset: utf-8;"; 
+			
     }
 
     $finalOptions = $options + $defaults;

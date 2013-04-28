@@ -211,6 +211,7 @@ class RodinRDFResult {
 			#
 			# ORDER SECTION (is repeated for each Result ... but no impact since once stored -> OPTIMIZE)
 			#
+			$sid_uid=	RodinRDFResult::sid_uid($sid);
 			$searchuid=	RodinRDFResult::metasearch_uid($sid);
 			$triple[]=array('rodin_a:'.$searchuid,	'rodin_a:sid', 					l($sid_uid));		
 			$triple[]=array('rodin_a:'.$searchuid,	'rodin_a:userid', 			l(RodinRDFResult::$USER_ID));		
@@ -721,13 +722,18 @@ class RodinRDFResult {
 	
 		public static function metasearch_uid($sid)
 		{
-			$sid_uid=RodinRDFResult::adapt_name_for_uid($sid,'.');
+			$sid_uid=RodinRDFResult::sid_uid($sid);
 			$searchuid="search_".$sid_uid;
 			return $searchuid;
 		}
 		
 	
-	
+		public static function sid_uid($sid)
+		{
+			$sid_uid=RodinRDFResult::adapt_name_for_uid($sid,'.');
+			return $sid_uid;
+		}
+		
 	
 	/** returns a vector of strings (subjects)
 	 * gained from search and title text
@@ -1612,6 +1618,7 @@ class RodinRDFResult {
 					{
 						if (trim($s))
 						{
+							//print "<br>using subject for SRC subexp: ($s)";
 							list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($s,$processed_subjects);
 							if ($still_to_process)
 							{
@@ -1670,13 +1677,17 @@ class RodinRDFResult {
 										
 										$s64 = base64_encode($s);
 										$WEBSERVICE = $WEBSERVICE_q.$s64;
+										
+										//print "<br>Added ($s64) outof ($s) to webservice ($WEBSERVICE_q) subject for SRC subexp giving: ($WEBSERVICE)";
+										
+										
 										//print "<br>Calling internal webservice for subject ($s) and class <b>$CLASS</b>:<br>".htmlentities($WEBSERVICE);
 										
 										$CONTENT=get_file_content($WEBSERVICE);
 										//print "<br>CONTENT: ".htmlentities($CONTENT);
 										$expanded_subjects = 
 										list($src_name,$srcuse_uid,$src_fresh_data,$broader,$narrower,$related) = 
-													$this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$srcuse_uid,$s,$src_fresh_data=true,$WEBSERVICE_q);
+													$this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$srcuse_uid,$s,$src_fresh_data=true,$WEBSERVICE);
 										
 										add_to_assocvector($skos_subject_related,$s,$expanded_subjects)	;					
 										//$skos_subject_related{$s} = $expanded_subjects;
@@ -2718,7 +2729,7 @@ EOS;
 	
 	public function check_rdf_annotated_last_src_lodfetch_use($src_name,$src_id,$cache_id,$subject)
 	{
-		$debug=0;
+		$debug=1;
 		global $RDFLOG;
 		global $WANT_RDF_ANNOTATION;
 		$ok=true;

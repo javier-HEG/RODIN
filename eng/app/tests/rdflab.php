@@ -24,6 +24,7 @@ $TITLEPAGE="'$search_term' RDFLAB";
 	<head>
 		<title><?php print $TITLEPAGE; ?></title>
 		<link rel="stylesheet" type="text/css" href="../css/rodin.css.php?" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<script type='text/javascript' src='../u/RODINutilities.js.php?skin=<?php print $RODINSKIN;?>'></script>
 	</head>	
 	<body bgcolor='<?php print $COLOR_PAGE_BACKGROUND;?>' >

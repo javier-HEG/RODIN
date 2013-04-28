@@ -23,7 +23,7 @@ if ($VERBOSE) {
 	print "<li>service_id: $service_id</li></ul>";
 }
 
-$url_info_array = get_service_url('refine', $user, $service_id);
+$url_info_array = get_service_url('refine', $user, $service_id, $VERBOSE);
 $SRC_REFINE_URL = $url_info_array[0];
 
 if (!$user)	{
@@ -81,7 +81,7 @@ if ($VERBOSE) {
 $discard = array('showmenu', 'currentpage', 'myhomepage',
 	'laststate', 'PHPSESSID', 'MANTIS_STRING_COOKIE',
 	'MANTIS_BUG_LIST_COOKIE', 'MANTIS_VIEW_ALL_COOKIE',
-	'ZDEDebuggerPresent', 'VERBOSE');
+	'ZDEDebuggerPresent', 'VERBOSE','__utmz','__utma');
 	
 if ($action<>'dummy' && $action<>'dummytimeout') {
 	############################################################
@@ -107,6 +107,10 @@ if ($action<>'dummy' && $action<>'dummytimeout') {
 	);
   
 	$output = parametrizable_curl($SRCurl, array(), $options);
+	
+	if ($new_location=get_new_location($output,$VERBOSE))
+		$output = parametrizable_curl($new_location, array(), $options);
+	
 	
 	if (strstr($output, "Operation timed out") || strstr($output, "Couldn't resolve host") || $output=='') {
 		if ($VERBOSE) {
@@ -165,10 +169,36 @@ if ($VERBOSEhere) {
 	print "<h2>Output:</h2>";
 	//print '<div style="border: 1px solid gray;">' . html_printable_xml($output) . '</div>';
   print $output;
+	
+	$MOVEDP_PATTERN="/The document has moved <a href=\"(.*)\"\>/";
+	if (preg_match($MOVEDP_PATTERN,$output,$match))
+	{
+		$new_location=$match[1];
+		print "<br>MOVED to  $new_location";
+	}
+	
+	
 } else {
 	header("content-type: text/xml");
 	print $output;
 }
+
+
+
+
+
+
+function get_new_location($output,$VERBOSE)
+{
+	$MOVEDP_PATTERN="/The document has moved <a href=\"(.*)\"\>/";
+	if (preg_match($MOVEDP_PATTERN,$output,$match))
+	{
+		$new_location=$match[1];
+		if($VERBOSE) print "<br>get_new_location: MOVED to  $new_location";
+	}
+	return $new_location;
+}
+
 
 
 ?>

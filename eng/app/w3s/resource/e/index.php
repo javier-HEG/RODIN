@@ -32,6 +32,7 @@ $PAGETITLE_BIG=strtoupper($PAGETITLE)." FOR ENTITY $uid";
 <html>
 	<head>
 		<title><?php print $PAGETITLE_BIG?></title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<link rel="stylesheet" href="../../../css/rodin.css.php" type="text/css" />
 		<script type="text/javascript" src="../../../u/RODINutilities.js.php"></script>
 	</head>
