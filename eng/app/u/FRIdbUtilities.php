@@ -816,6 +816,7 @@ function cleanup_datasource_name($datasourcename)
 
 
 
+
 /**
  * Used by the GoogleBooks and ViatImages widgets, which don't use
  * the stantdard widget rendering.
@@ -1377,6 +1378,39 @@ function cleanup_strangecharacgers($text)
 
 
 
+function get_logger_records($sid)
+{
+	$logger_records=array();
+	try {
+		$DB = new RODIN_DB();
+		$DBconn=$DB->DBconn;
+	
+		$Q=<<<EOQ
+SELECT * FROM `logger` 
+where sid='$sid' 
+ORDER BY `id`  ASC
+EOQ;
+
+		//print "<br>$Q<br>";
+
+		$resultset = mysql_query($Q);
+		$DB->close();
+		if ($resultset)
+	  while ($row = mysql_fetch_assoc($resultset))
+	  {
+			$logger_records[]=$row;
+		}
+
+	}
+	catch (Exception $e)
+	{
+		inform_bad_db($e);
+	}
+	return $logger_records;
+} // get_logger_records
+
+
+
 
 function db_get_topqueries($TOP)
 {
@@ -1740,6 +1774,22 @@ EOQ;
 	return $users;
 }
 
+
+function db_logger_delete($sid)
+{
+	$DBQUERY=<<<EOQ
+	DELETE from 
+	`logger`
+	WHERE sid='$sid';
+EOQ;
+
+	$DB = new RODIN_DB('rodin');
+	$DBconn=$DB->DBconn;
+	$urset = mysql_query($DBQUERY);
+	$affected=mysql_affected_rows($DBconn);
+
+	return $affected;
+} // db_logger_delete
 
 
 function dblogger($timestamp_prog,$segment,$userid,$username,$sid,$action,$info,$msg)

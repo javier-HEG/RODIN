@@ -45,6 +45,7 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 class RodinRDFResult {
 	
 	private $my_result; //triples from this result were generated and inserted into store
+	public  static $sid								= null; 
 	public  static $USER_ID						= null; 
 	public  static $importGraph				= null;
 	public  static $searchterm				= null; 
@@ -82,13 +83,14 @@ class RodinRDFResult {
 	private static $WIKIPEDIASEARCH2="http://en.wikipedia.org/w/index.php?";
 
 
-	public function RodinRDFResult(&$my_result,$datasource,$searchterm,$USER_ID) 
+	public function RodinRDFResult(&$my_result,$datasource,$searchterm,$USER_ID,$sid) 
 	{
 		$this->my_result = $my_result;
 		//init namespaces & co once for all 
 		global $HOST, $RODINSEGMENT;
 		global $WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH;
 		
+		if (!RodinRDFResult::$sid) 							RodinRDFResult::$sid							=$sid;
 		if (!RodinRDFResult::$USER_ID) 					RodinRDFResult::$USER_ID					=$USER_ID;
 		if (!RodinRDFResult::$datasource) 			RodinRDFResult::$datasource				=$datasource;
 		if (!RodinRDFResult::$searchterm) 			RodinRDFResult::$searchterm				=$searchterm;
@@ -191,11 +193,12 @@ class RodinRDFResult {
 		$showsubjects=1;
 		global $RDFLOG;
 		global $WANT_RDF_ANNOTATION;
+		$result_id=$this->my_result->getId();
 		
 		$triple= array();
 			
 		$RDFLOG.="<hr>RDFIZE RESULT:<hr>";
-		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Started with sid:'.$sid));
+		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Started with sid:'.$sid),RodinRDFResult::$sid);
 		$lang=detectLanguage(RodinRDFResult::$searchterm);
 		#####################################################################
 		#
@@ -248,8 +251,6 @@ class RodinRDFResult {
 		//$datasource_subjects = explode(',',strtolower(trim($this->my_result->getProperty('subjects'))));
 		
 		#############################################################################
-		#TODO: Introduce here check to USE already stored RDF subjects (and use them)
-		#############################################################################
 		#		
 		# If the provided keywords are NOT in the same language as the search term, 
 		# they are discarded and a search from the title is performed
@@ -292,6 +293,10 @@ class RodinRDFResult {
 		#
 		#####################################################################
 		
+		
+		Logger::logAction(27, array('from'=>'rdfize','countsubjects_x_result'=>"$result_id=".count(RodinRDFResult::$rodin_subjects)),RodinRDFResult::$sid);
+		
+		
 		//Construct UID for later use!
 		foreach($subjects as $slabel)
 			RodinRDFResult::$rodin_subjects{$slabel}=RodinRDFResult::$ownnamespacename.':'.RodinRDFResult::adapt_name_for_uid($slabel);
@@ -309,11 +314,9 @@ class RodinRDFResult {
 		
 		//If a work document is given: rdfize it
 		//first of all create workuid
-		if ($isbn)
-			$work_uid=RodinRDFResult::$ownnamespacename.':'.'isbn_'.$isbn;
-		else // in case no isbn be provided:
-		if ($title) // a title HAS ALWAYS to be there
-			$work_uid = $this->getWork_uid($title, $date);
+		
+		
+		$work_uid=$this->get_result_uid();
 
 		//Are there one or more authors?
 		if (is_array($authors) && count($authors))
@@ -486,7 +489,7 @@ class RodinRDFResult {
 				
 		} // publishers
 		
-		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Import triples start'));
+		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Import triples start'),$sid);
 	
 		
 		// IMPORT TRIPLE INTO LOCAL STORE:
@@ -512,7 +515,7 @@ class RodinRDFResult {
 				
 				
 				
-		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Exit'));
+		Logger::logAction(27, array('from'=>'rdfize','msg'=>'Exit'),$sid);
 		return $return_value; 
 	} // rdfize 
 	
@@ -650,6 +653,22 @@ class RodinRDFResult {
 			return $wuid_short;
 		} // getWork_uid
 	
+	
+	
+	
+	public function get_result_uid()
+	{
+		$isbn= $this->extract_isbn($this->my_result->getProperty('isbn')); 
+		if ($isbn)
+				$work_uid=RodinRDFResult::$ownnamespacename.':'.'isbn_'.$isbn;
+			else // in case no isbn be provided:
+			{
+				$title= trim($this->my_result->getTitle()); 
+				if ($title) // a title HAS ALWAYS to be there
+					$work_uid = $this->getWork_uid($title, $date);
+			}
+		return $work_uid;
+	}
 	
 	/**
 		 * Construct an id for SPQRQL USE
@@ -1025,6 +1044,9 @@ class RodinRDFResult {
 		{
 			$scanned_obj=array($text,null,null,null);
 		} // alexandria
+		else {
+			$scanned_obj=array($text,null,null,null);
+		}
 							
 							
 		return $scanned_obj;
@@ -1409,6 +1431,28 @@ class RodinRDFResult {
 	
 	
 	
+	/**
+	 * Logs the following params:
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	public function log_rdf_parameters()
+	{
+		$C=get_class($this);
+		$LOGPARAMS['TOLERATED_SRC_SOLR_DATA_AGE_SEC']		=$C::$TOLERATED_SRC_SOLR_DATA_AGE_SEC;
+		$LOGPARAMS['TOLERATED_SRC_RDF_DATA_AGE_SEC']		=$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC;
+		$LOGPARAMS['THRESHOLD_DATASOURCE_MIN_SUBJECTS'] =$C::$THRESHOLD_DATASOURCE_MIN_SUBJECTS;
+		$LOGPARAMS['MAX_SRC_SUBJECT_EXPANSION']					=$C::$MAX_SRC_SUBJECT_EXPANSION;
+		$LOGPARAMS['MAX_LOD_SUBJECT_DOCFETCH']					=$C::$MAX_LOD_SUBJECT_DOCFETCH;
+		
+		foreach($LOGPARAMS as $key=>$value)
+					$LOGPARAMS_DB.=($LOGPARAMS_DB?';':'')."\$LOGPARAMS['$key']=$value";
+		Logger::logAction(27, array('from'=>'log_rdf_parameters','rdf_exec_params'=>$LOGPARAMS_DB),$C::$sid);
+
+	} // log_rdf_parameters
+	
 	
 	
 	/**
@@ -1426,13 +1470,14 @@ class RodinRDFResult {
 	public function get_related_subjects_expansions_using_thesauri(&$subjects,$sid,$servicename,$USER_ID,&$NAMESPACES,$lang)
 	{
 		$DEBUG=0;
+		$C = get_class($this);
 		if ($DEBUG) {
 			print "<br>get_related_subjects_expansions_using_thesauri on the following subjects:";
 			foreach($subjects as $s=>$uid_notused) if ($s) print "<br>&nbsp;$s ($uid_notused)";
 		}
 		$ann_servicename=$servicename;
 		$subject_count=count($subjects);
-		Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>"Started with $subject_count subjects"));
+		Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>"Started with $subject_count subjects"),$C::$sid);
 		
 		global $VERBOSE;
 		global $SRCDEBUG;
@@ -1498,7 +1543,7 @@ class RodinRDFResult {
 									."<br>Please provide a value like '\$max_subjects=n;' (n>0) in $SRCHREF in field 'src_parameters'";
 				fontprint($ERRORTXT,'red');
 				$valid_src_parameters=false;
-				Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$ERRORTXT));
+				Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','error'=>$ERRORTXT),RodinRDFResult::$sid);
 				$RDFLOG.="<br>$ERRORTXT";
 			}
 			#
@@ -1506,7 +1551,8 @@ class RodinRDFResult {
 			
 			if ($valid_src_parameters)
 			{
-				Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>"Starting $src_name on $subject_count subjects (".implode('+',$subjects).") extracting further (SKOS) $max_subjects subjects"));
+				Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>"Starting $src_name on $subject_count subjects (".implode('+',$subjects).") extracting further (SKOS) $max_subjects subjects"),RodinRDFResult::$sid);
+				Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','src_parameters'=>"$src_name,$servicename,$src_parameters"),RodinRDFResult::$sid);
 				$RDFLOG.="<br>Compute max $max_subjects subjects from Thesaurus $src_name for $subject_count subjects (".implode('+',$subjects).")";
 				
 				###########################
@@ -1516,6 +1562,9 @@ class RodinRDFResult {
 					$processed_subjects=array();
 					foreach ($subjects as $s=>$_)
 					{
+						
+						$counter++;
+						Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="CALLING $servicename SRC $src_name on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 						$s = trim(strtolower($s));
 						if ($s<>'')
 						{
@@ -1544,24 +1593,25 @@ class RodinRDFResult {
 									if ($src_use && $age_of_last_src_use <= $C::$TOLERATED_SRC_RDF_DATA_AGE_SEC)
 									//Data is still fresh in triple store - no need of calling src
 									{
+										list($broader,$narrower,$related)=$SKOSOBJ;			
+										$processed_subjects{$s}=$count_results=count($broader)+count($narrower)+count($related); 
 										//Simply add information without calling the remote store:
-										Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="USING PERSISTED DATA FROM RDF SPARQL SRC $src_name on subject $s with max $max_subjects subjects"));
+										Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="USING PERSISTED DATA ($count_results) FROM RDF SPARQL SRC $src_name on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 										$RDFLOG.=htmlprint("<br>$msg",'green');
 											$expanded_subjects =
 												array($src_name,
 															$srcuse_uid,
 															$src_fresh_data=false,
-															$broader	= $SKOSOBJ[0],
-															$narrower	= $SKOSOBJ[1],
-															$related	= $SKOSOBJ[2]);
+															$broader	= $SKOSOBJ____[0], // should not be reexpanded later from rdfize()
+															$narrower	= $SKOSOBJ____[1], // should not be reexpanded later from rdfize()
+															$related	= $SKOSOBJ____[2]);// should not be reexpanded later from rdfize()
 										add_to_assocvector($skos_subject_related,$s,$expanded_subjects);	
-										list($broader,$narrower,$related)=$SKOSOBJ;				
-										$processed_subjects{$s}=count($broader)+count($narrower)+count($related); 
+										
 									}
 									else // src data too old or non existent in this way
 									//CALL SRC
 									{
-										Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="REQUESTING NEW DATA FROM (CACHED) RDF SPARQL SRC $src_name (age=$age_of_last_src_use > {$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"));
+										Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="REQUESTING NEW DATA FROM (CACHED) RDF SPARQL SRC $src_name (age=$age_of_last_src_use > {$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 										$RDFLOG.=htmlprint("<br>$msg",'red');
 										# provide / update ann information
 										$this->remove_unused_src_triples_on_service_and_search($src_name,$ID,$cache_id,$ann_servicename,$s);
@@ -1582,7 +1632,9 @@ class RodinRDFResult {
 															$broader	=array(),
 															$narrower	=array(),
 															$related	=get_related_subjects_from_sparql_endpoint($s,$src_name,$sds_sparql_endpoint,$sds_sparql_endpoint_params,$cache_id,$NAMESPACES,$lang,$max_subjects));
-									
+										
+										$countresults=count($related);
+										Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="EXIT NEW DATA ($countresults) FROM (CACHED) RDF SPARQL SRC $src_name (age=$age_of_last_src_use > {$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 										add_to_assocvector($skos_subject_related,$s,$expanded_subjects);					
 										$processed_subjects{$s}=count($broader)+count($narrower)+count($related); 
 									
@@ -1616,6 +1668,10 @@ class RodinRDFResult {
 					$broder_arr=$narrower_arr=$related_arr=array();
 					foreach ($subjects as $s=>$uid_notused)
 					{
+						
+						$counter++;
+						Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="CALLING $servicename SRC $src_name on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
+						
 						if (trim($s))
 						{
 							//print "<br>using subject for SRC subexp: ($s)";
@@ -1632,8 +1688,11 @@ class RodinRDFResult {
 								if ($src_use && $age_of_last_src_use <= $C::$TOLERATED_SRC_RDF_DATA_AGE_SEC)
 								//Data is still fresh in triple store - no need of calling src
 								{
-									Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>"USING PERSISTED DATA FROM RDF SRC $src_name on subject $s with $max_subjects subjects"));
-									$RDFLOG.=htmlprint("<br>USING PERSISTED DATA FROM RDF SRC $src_name on subject $s with $max_subjects subject",'green');
+									list($broader,$narrower,$related)=$SKOSOBJ;				
+									$processed_subjects{$s}=$count_results=count($broader)+count($narrower)+count($related); 	
+									
+									Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>"USING PERSISTED DATA ($count_results) FROM RDF SRC $src_name on subject $s with $max_subjects subjects"),RodinRDFResult::$sid);
+									$RDFLOG.=htmlprint("<br>USING PERSISTED DATA ($count_results) FROM RDF SRC $src_name on subject $s with $max_subjects subject",'green');
 									
 									$expanded_subjects = 
 										array(	$src_name,
@@ -1644,8 +1703,6 @@ class RodinRDFResult {
 														$related	);
 									
 									add_to_assocvector($skos_subject_related,$s,$expanded_subjects);			
-									list($broader,$narrower,$related)=$SKOSOBJ;				
-									$processed_subjects{$s}=count($broader)+count($narrower)+count($related); 		
 								}
 								else // src data too old or non existent in this way
 								//CALL SRC
@@ -1672,7 +1729,7 @@ class RodinRDFResult {
 									//do not ask the same service again for a subject 
 									//which is contained in the previously sserved call if successful!
 									
-										Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="REQUESTING NEW DATA FROM RDF SRC $src_name (age=$age_of_last_src_use > {$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with $max_subjects subjects"));
+										Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="REQUESTING NEW DATA FROM RDF SRC $src_name (age=$age_of_last_src_use > {$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with $max_subjects subjects"),RodinRDFResult::$sid);
 										$RDFLOG.=htmlprint("<br>$msg",'red');
 										
 										$s64 = base64_encode($s);
@@ -1692,7 +1749,8 @@ class RodinRDFResult {
 										add_to_assocvector($skos_subject_related,$s,$expanded_subjects)	;					
 										//$skos_subject_related{$s} = $expanded_subjects;
 										$processed_subjects{$s}=$max_bnr=count($broader)+count($narrower)+count($related); 
-															
+										
+										Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="EXIT NEW DATA ($max_bnr) FROM RDF SRC $src_name (age=$age_of_last_src_use > {$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with $max_subjects subjects"),RodinRDFResult::$sid);
 									}
 									else $RDFLOG.=htmlprint("<br>SUPPRESS (src) Subject '{$s}' because subsumed by '{$subsuming_subject}' having already $numdocs results",'red');	
 								} // CALL SRC
@@ -1701,10 +1759,10 @@ class RodinRDFResult {
 					} // foreach subjects
 				} // !$IS_SPARQL_ENDPOINT
 				
-				Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>"Exit $src_name with $max_subjects subjects"));
+				Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>"Exit $servicename SRC $src_name with $max_subjects subjects"),RodinRDFResult::$sid);
 			} // foreach($INITIALISED_SRCs as $INITIALISED_SRC)
 		} // valid_src_parameters
-		Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>'Exit'));
+		Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>'Exit'),RodinRDFResult::$sid);
 		
 		return $skos_subject_related;
 		
@@ -1837,7 +1895,7 @@ class RodinRDFResult {
 		$ann_servicename=$servicename;
 		
 		$processed_subjects = array();
- 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Started'));
+ 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Started'),RodinRDFResult::$sid);
 		
 		
 		$RDFLOG.="<hr>Carefully FETCHING LOD Documents using $sl_count subject labels...";
@@ -1872,6 +1930,9 @@ class RodinRDFResult {
 					$sds_url_base="$sds_sparql_endpoint?$sds_sparql_endpoint_params";
 					
 					$RDFLOG.= "<br> Expanding RDF subject using LOD source <b>$src_name</b> ($sds_url_base) $max_triples max_triples";
+					
+					Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','src_parameters'=>"$src_name,$servicename,$sds_parameters"),RodinRDFResult::$sid);
+					
 					
 					$cached_time=$open_time=0;
 					$timeelapsed_microsec=0;
@@ -1910,14 +1971,14 @@ class RodinRDFResult {
 								if ($src_use && $age_of_last_src_use <= $CLASS::$TOLERATED_SRC_RDF_DATA_AGE_SEC)
 									//Data is still fresh in triple store - no need of calling src
 									{
-										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="USING PERSISTED DATA FROM RDF SPARQL LODFETCH $src_name on subject $s with max $max_subjects subjects"));
+										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="USING PERSISTED DATA FROM RDF SPARQL LODFETCH $src_name on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 										$RDFLOG.=htmlprint("<br>$msg",'green');
 										$processed_subjects{$s}=$numexpandeddocs; // We do not need here the list of fetched documents as with check_rdf_annotated_last_src_subexp_use()
 									}
 									else // src data too old or non existent in this way
 									//CALL SRC
 									{
-										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="REQUESTING NEW DATA FROM (CACHED) RDF SPARQL LOD FETCH $src_name (age=$age_of_last_src_use > {$CLASS::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"));
+										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="REQUESTING NEW DATA FROM (CACHED) RDF SPARQL LOD FETCH $src_name (age=$age_of_last_src_use > {$CLASS::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 										$RDFLOG.=htmlprint("<br>$msg",'red');
 										
 										# provide / update ann information
@@ -1981,7 +2042,7 @@ class RodinRDFResult {
 						  } // $processed_subjects
 							else {
 							if ($DEBUG || 1)
-								$RDFLOG.="<br>SUPPRESS LOD document fetch on subject ($s), since there was a more complicated one ($subsuming_subject) having $numdocs document(s).";
+								$RDFLOG.=htmlprint("<br>PREVENT further LOD document fetch on subject ($s), since there was a more complicated one ($subsuming_subject) having $numdocs document(s).",'red');
 							}
 						} // continue process subjects LOD seeking for documents
 					} // foreach($subjects_labels 
@@ -2033,7 +2094,7 @@ class RodinRDFResult {
 			$RDFLOG.= " + import time elapsed ($import_elapsed sec = $import_elapsed_pro%)";
 		} // stat
 
- 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Exit'));
+ 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Exit'),RodinRDFResult::$sid);
 	} // rdfLODfetchDocumentsOnSubjects
 	
 	
@@ -2149,6 +2210,7 @@ EOS;
 	 */
 	public function homogenize_foreign_RDFentities(&$RDFentities,$orig_subject_uid,$src_name,$src_uid,$lang)
 	{
+		$debug=1;
 		global $RDFLOG;
 		global $WANT_RDF_ANNOTATION;
 		$hdocscount=0;
@@ -2255,11 +2317,15 @@ EOS;
 								$homogenized_triples[]=array($new_s,	$new_p, 								$subject_uid); 
 								$homogenized_triples[]=array($new_s,	'rodin:writes_about', 	$subject_uid); 
 								
-								
 								//DO NOT ADD ANY further triple
 								$add_triple=false;
 							} //dce:subject 
-							
+							else if ($p=='dce:type' || $p=='edm:type')
+							{
+								$new_p=$p;
+								$new_o=$o;
+								$add_triple=true;
+							}
 							//TODO: check double works ...	
 							//TODO: Link Work with subject
 							//TODO: Link Subject (if possible or create)
@@ -2267,8 +2333,13 @@ EOS;
 							//if yes: change the literal to a rodin: link to this element
 							//if not: create a rodin:subject to this literal (to be related with that subject)
 			
+							
 							if ($add_triple)
-										$homogenized_triples[]=array($new_s,$new_p,$new_o);
+							{
+								$homogenized_triples[]=array($new_s,$new_p,$new_o);
+								if ($debug) 
+									$RDFLOG.="<br>HOMOGENIZE: ADD ($new_s)($new_p)($new_o)";
+							}
 						}	// foreach $triples		
 					} // check count triples
 				} // foreach RDFentitiy
@@ -2716,7 +2787,7 @@ EOS;
 			}
 		} // debug
 		
-		if ($debug) $SKOSOBJ=array($broader_subjects,$narrower_subjects,$related_subjects);
+		$SKOSOBJ=array($broader_subjects,$narrower_subjects,$related_subjects);
 		
 		// DO NOT REMOVE A TRIPLE IF IT IS (transitively) REFERENCED BY ANOTHER SEARCH !!!!
 		if ($debug) $RDFLOG.="<br>RETURNING age_sec=$age_sec, src_use=$src_use,src_use_uid=$src_use_uid, $SKOSOBJ)";
@@ -2887,11 +2958,95 @@ EOS;
 		}
 		
 		//Adjust the rank annotation of each doc
-		//DO NOT NEED IT FOR NOW
+		
+		//foreach($ranked_docs as $docuid=>$rank)
+		{
+			$C=get_class($this);
+			$rank = rank_my_doc_with_its_subjects($result,$this,$PREFIX3);
+			// rank the result corresponding to this doc with $rank
+			$result=$this->my_result;
+			$result->setRank($rank);
+			RodinResultManager::saveRodinResults($allResults=array($result), $C::$sid, $datasource=$result->getProperty('datasource'), $timestamp='');
+		} // foreach $ranked_docs
+		
+		
 		//$this->adjust_rank_annotation($ranked_docs);
 		//$this->adjust_rank_annotation($ranked_docs_ext);
-		
-	} // rerank_rdf_documents
+		foreach($ranked_docs_ext as $docuid=>$rank)
+		{
+			$rodin_result_type='';
+			//Gather data to build result info
+			//from RDF store
+			$p_o = get_entity_infos($this,$docuid,true);
+			if (is_array($p_o) && count($p_o))
+			{
+				$RDFLOG.="<br><br>Assembling info for external doc $docuid:";
+				foreach($p_o as $p=>$ooo)
+				{
+					$RDFLOG.="<br>($p) => ";
+					
+					if (is_array($ooo))
+					{
+						$RDFLOG.= "[";
+						foreach($ooo as $ovalue) $RDFLOG.= "(".$ovalue[0].")";
+						$RDFLOG.= "]";
+					}
+					
+					
+					switch ($p)
+					{
+						case 'dce:type': 
+									if ($ooo[0][0]=='pdf' 
+									|| $ooo[0][0]=='Thesis') 
+										 $rodin_result_type = 'article';
+									if (!$rodin_result_type)
+										fontprint("<br>Error mapping LOD document types to rodin result types (".$ooo[0][0]." ?)",'red');
+									break;
+						case 'dce:date': 
+									$date_created = $ooo[0][0];
+									break;
+						case 'dce:title':
+									$title=decode_64_literal($p,$ooo[0][0],$C::$TOBECODED64);
+									break;
+						case 'dce:description':
+									$description=decode_64_literal($p,$ooo[0][0],$C::$TOBECODED64);
+									break;
+						case 'dce:identifier':
+									if (count($ooo)>=1)
+										$source_url = $ooo[0][0];
+									if (count($ooo)>1)
+										$identifier_url = $ooo[1][0];
+									break;
+						case 'dce:creator':
+									foreach($ooo as $ovalue)
+										$creators[]=decode_64_literal($p,$ovalue[0],$C::$TOBECODED64);
+									$authors=array('creator'=>$creators);
+									break;
+						case 'dce:subject':
+									foreach($ooo as $ovalue)
+										$subjects[]=read_rodin_label($ovalue[0],$this);
+									break;
+											
+					} // switch
+				} // foreach pair
+				//add once -> yes but at the moment SOLR stores it once ... even on multiple calls
+				$R = RodinResultManager::create_rodinResult_for_lod(  $rodin_result_type,
+																															$rank,
+																															$title,
+																															$description,
+																															$date_created,
+																															$source_url,
+																															$identifier_url,
+																															$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
+																															$subjects  );
+																											
+				RodinResultManager::saveRodinResults($allResults=array($R), $C::$sid, $datasource='extern', $timestamp='');
+			}
+			else 
+				$RDFLOG.=htmlprint("<br>Error adding external document ($docuid)",'red');
+		} // $ranked_docs_ext
+	}
+	// rerank_rdf_documents
 	
 	
 	

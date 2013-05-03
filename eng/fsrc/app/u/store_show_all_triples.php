@@ -65,7 +65,7 @@ EOP;
 include_once "../../../app/u/RodinResult/RodinRDFResult.php";
 
 
-$RDFobj = new RodinRDFResult($nix,null,null,-1);
+$RDFobj = new RodinRDFResult($nix,null,null,-1,null);
 $RDFC=get_class($RDFobj);
 $NAMESPACES=$RDFC::$NAMESPACES;
 //Fill namespaces into config

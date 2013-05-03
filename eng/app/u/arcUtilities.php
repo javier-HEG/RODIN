@@ -161,10 +161,17 @@ EOX;
 			
 			
 		
+		
 		function decode_64_literal($p,$literal,&$TOBECODED64)
 		{
 			if ($TOBECODED64{$p})	
-					$literal=base64_decode($literal);
+			{
+				if (is_array($literal))
+				{
+					$literal=$literal[0]; // assume
+				}
+				$literal=base64_decode($literal);
+			}
 			return str_replace('"','',$literal);
 		}
 		
@@ -288,7 +295,7 @@ EOX;
 		function print_triplespage($uid,$pagetitle,$namespace_short='')
 		{
 			$nix = null;
-			$RDFenhancement = new RodinRDFResult($nix,$nix,$nix,$nix);
+			$RDFenhancement = new RodinRDFResult($nix,$nix,$nix,$nix,$nix);
 			if (!$namespace_short)
 					$namespace_short=RodinRDFResult::$ownnamespacename;
 			$word_id = $namespace_short.':'.$uid;
@@ -601,7 +608,10 @@ else print "<br>Sorry: No further information found on $word_id";
 	}
 	
 	
-	
+	function read_rodin_label($entity,&$RDFenhancement)
+	{
+		return lookup_firstvalue($entity,'rodin:label',$RDFenhancement);
+	}
 	
 	/**
 	 * retuns the value of 
@@ -734,8 +744,8 @@ EOQ;
 	 * @param string $subject_uid_short ID to be use to find triples
 	 * @param bool $direct flag indicating whether the direct or the inverse relationshould be computed
 	 * 
-	 * In case of $direct=true returns triples ($subject_uid_short ?p ?o)
-	 * In case of $direct=false returns triples (?s ?p $subject_uid_short)
+	 * In case of $direct=true returns pairs ($subject_uid_short ?p ?o)
+	 * In case of $direct=false returns pairs (?s ?p $subject_uid_short)
 	 */
 	function get_entity_infos(	&$RDFenhancement,
 															$subject_uid_short,
@@ -1022,7 +1032,7 @@ EOR;
 		$subject_arr = array();
 		if (!$cache_id) $cache_id="relatedsubjects.$src_name.$subject.$lang.$limit";
 		
-		Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Start with cache_id $cache_id"));
+		Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Start with cache_id $cache_id"),RodinRDFResult::$sid);
 		$dce_ns_url=$NAMESPACES{'dce'};
 		
 		$sparqlquery=<<<EOQ
@@ -1049,7 +1059,7 @@ EOQ;
      }
 		
 		//cache_src_response($cache_id,$xml_src_content)
-    //Logger::logAction(25, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id));
+    //Logger::logAction(25, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id),RodinRDFResult::$sid);
     list($xmlCached_content,
             $creationtimestamp,
             $age_in_sec,
@@ -1067,7 +1077,7 @@ EOQ;
 		 	if ($debug) {
       	$RDFLOG.= htmlprint("<br><br>CALLING REMOTE SOURCE for subject expansion ".$url_endpoint."<br><br>",'red');
       }
-			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Open $url_endpoint"));
+			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Open $url_endpoint"),RodinRDFResult::$sid);
 			
 			$xml_content=get_file_content($url_endpoint);
 		
@@ -1092,7 +1102,7 @@ EOQ;
 						."<br><br>Using url:"
 						."<br>$url_endpoint";
 			$valid_xml=false;
-	 		Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"));
+	 		Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"),RodinRDFResult::$sid);
 		}
 		
 		if ($valid_xml)
@@ -1100,7 +1110,7 @@ EOQ;
 			//scan/open $xmlCached_content for later use
 			//print "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
 			$xml_content_len = strlen($xmlCached_content);
-			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"));
+			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"),RodinRDFResult::$sid);
 			
 			$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
 			//if (is_array($sxmldom->results))
@@ -1129,7 +1139,7 @@ EOQ;
 				}
 			}
 			
-			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Exit"));
+			Logger::logAction(27, array('from'=>'get_related_subjects_from_sparql_endpoint','msg'=>"Exit"),RodinRDFResult::$sid);
 		} // valid xml
 		return $subject_arr;
 	}	// get_related_subjects_from_sparql_endpoint
@@ -1225,7 +1235,7 @@ EOQ;
 									.'&'.$sds_sparql_endpoint_params;
 		
 		//cache_src_response($cache_id,$xml_src_content)
-    Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id));
+    Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>'Started with cacheid:'.$cache_id),RodinRDFResult::$sid);
     list($xmlCached_content,
             $creationtimestamp,
             $age_in_sec,
@@ -1243,7 +1253,7 @@ EOQ;
       	$RDFLOG.= "<br><br>CALLING REMOTE SOURCE ".$url_endpoint."<br><br>";
       }
 			
-			Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Open $url_endpoint"));
+			Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Open $url_endpoint"),RodinRDFResult::$sid);
 			
 			$xml_content=get_file_content($url_endpoint);
 			//$xml_content=utf8_encode(html_entity_decode($xml_content));
@@ -1269,13 +1279,13 @@ EOQ;
 						."<br><br>Using url:"
 						."<br>$url_endpoint";
 			$valid_xml=false;
-	 		Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"));
+	 		Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"),RodinRDFResult::$sid);
 		}
 		
 		
 		if ($valid_xml)
 		{
-	 		Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"));
+	 		Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"),RodinRDFResult::$sid);
 			$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
 			if ($sxmldom)
 			{
@@ -1324,7 +1334,7 @@ EOQ;
 				}
 			}
 			
-			Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Exit with $triples_noof triples"));
+			Logger::logAction(27, array('from'=>'get_cached_triples_on_subject_from_sparql_endpoint','msg'=>"Exit with $triples_noof triples"),RodinRDFResult::$sid);
 		}
 
 
@@ -1456,6 +1466,20 @@ EOQ;
 		return $str;
 	}
 	
+	
+	
+	function rank_my_doc_with_its_subjects(&$result,&$RDFenhancement,$PREFIX)
+	{
+		$doc_uid=$RDFenhancement->get_result_uid();
+		
+		$ranked_docs=rank_docs_with_its_subjects($docs=array($doc_uid),$C=get_class($RDFenhancement),$PREFIX);
+		
+		//print "<br>rank internal result $doc_uid: ".$ranked_docs{$doc_uid};
+		
+		
+		return $ranked_docs{$doc_uid};
+		
+	} // rank_my_doc_with_its_subjects
 	
 	
 	/**

@@ -62,10 +62,10 @@ $checked_list3page=$list3page?' checked ':'';
 //If $list3page then also $want_rdfexpand
 $want_rdfexpand=$list3page;
 
-
+Logger::remove_db_logger_records($sid);
 ############
 //print "unlinking $RODIN_PROFILING_PATH";
-unlink($RODIN_PROFILING_PATH);
+if (file_exists($RODIN_PROFILING_PATH)) unlink($RODIN_PROFILING_PATH);
 ############
 
 
@@ -75,7 +75,7 @@ if ($sid<>'')
 	$fromResult = 0;
 	
 	//Recall results from SOLR using sid but no datasource! (get for every datasource)
-	$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource='');
+	$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource='',true,true);
 	$resultCount = count($allResults);
 
 	$CONTENT2="$resultCount Widget results found for sid $sid";
@@ -86,12 +86,13 @@ if ($sid<>'')
 	
 	$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
 	
-	Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start using $resultCount results on search term '$search_term'"));
+	Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start using $resultCount results on search term '$search_term'"),$sid);
 	
 	$searchres_timestamp = timestamp_fortripleannotation();
 	
 	$i = $fromResult;
 	$added_triples=0;
+
 	while ($i < $uptoResult) {
 		$result = $allResults[$i];
 		//print "<hr>Result: ";var_dump($result);
@@ -107,16 +108,16 @@ if ($sid<>'')
 		//Ausgabe extra:
 	
 		$CONTENT2.="<hr>";
-		$CONTENT2.="<b>Title:</b> " . $result->getTitle();
+		$CONTENT2.="<b>Title:</b> " . utf8_encode($result->getTitle());
 		$CONTENT2.="<br><b>ISBN:</b> " . $result->getProperty('isbn');
 		if($result->getAuthors())
-			$CONTENT2 .= "<br><b>Authors:</b> " . $result->getAuthors();
+			$CONTENT2 .= "<br><b>Authors:</b> " . utf8_encode($result->getAuthors());
 		$CONTENT2 .= '<br><b>Date:</b> ' . $result->getDate();
 		$CONTENT2.=  "<br><b>url:</b> ".$result->getUrlPage();
 		
 		foreach ($result->getValidProperties() as $property) {
 			if ($result->getProperty($property))
-			$CONTENT2.= "<br><b>$property:</b>" . $result->getProperty($property);
+			$CONTENT2.= "<br><b>$property:</b>" . utf8_encode($result->getProperty($property));
 		}
 	
 		//print "<br>SEG: $SEG, USER: $USER ";
@@ -124,11 +125,18 @@ if ($sid<>'')
 		$store=null;
 		
 		
-		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start RDF on $resultCounter result"));
+		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start RDF on $resultCounter result"),$sid);
 		
 		if ($list3pls)
 		{ 
 			list($store,$count_triples_added) = $result->rdfize($sid,$datasource,$search_term,$USER_ID,$searchres_timestamp);
+			
+			if (!$logged_rdfization_parameters)
+			{
+				$result->RDFenhancement->log_rdf_parameters();
+				$logged_rdfization_parameters=true;
+			}
+			
 			$added_triples+=$count_triples_added;
 			$RDFLOG.="<br>rdfize: $count_triples_added (of $added_triples) triples added";
 		}
@@ -141,7 +149,7 @@ if ($sid<>'')
 			$added_triples+=$count_triples_added;
 			$RDFLOG.="<br>LODfetch: $count_triples_added (of $added_triples) triples added";
 		}
-		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit RDF on $resultCounter result"));
+		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit RDF on $resultCounter result"),$sid);
 
 		//$singleResult['minContent'] = ($result->toInWidgetHtml('min'));
 		//$singleResult['tokenContent'] = ($result->toInWidgetHtml('token'));
@@ -173,7 +181,7 @@ if ($sid<>'')
 	}
 	else fontprint( "Sorry: No data for this sid" , 'red' );
 	
-	Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit using $resultCount results on search term '$search_term'"));
+	Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit using $resultCount results on search term '$search_term'"),$sid);
 } // $sid
 
 
@@ -202,6 +210,8 @@ if ($result->RDFenhancement)
 
 $PAGEWIDTH="400px";
 $SRCLINK="$SRCLINKBASE/select_src.php?nl=0&u=$USER_ID&showuser=$USER_ID";
+$STATLINK="rdf_exec_stat.php?sid=$sid&u=$USER_ID";
+
 ##########################################
 # The following is filled by the programs:
 # $RDFLOG
@@ -218,7 +228,9 @@ print<<<EOP
 		<input type='button' title='Click to see profiling execution times for optimization in new tab' value='Open profiling'onclick="window.open('$RODIN_PROFILING_LINK','_blank')">
 		&nbsp;&nbsp;&nbsp;
 		<input type='button' title='Click to open SRC-Management in new tab' value='Open SRC management'onclick="window.open('$SRCLINK','_blank')">
-	</p>
+		&nbsp;&nbsp;&nbsp;
+		<input type='button' title='Click to open Statistics for sid=$sid in new tab' value='Statistics'onclick="window.open('$STATLINK','_blank')">
+			</p>
 		<div id='divLOGGING'>
 			$RDFLOG
 		</div>

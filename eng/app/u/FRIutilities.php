@@ -987,7 +987,7 @@ function get_cached_src_response_SOLR($cache_id, $max_age_in_sec=-1)
    if ($need_src_log)
        fwrite($log, "\n$now get url: $solr_select");
 
-   $cachecontent=file_get_contents($solr_select);
+   $cachecontent=((file_get_contents($solr_select)));
    $solr_sxml= simplexml_load_string($cachecontent);
 //   print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
 //   print "<hr>SOLR_CONTENT: <br>(((".htmlentities($cachecontent).")))";
@@ -1384,6 +1384,18 @@ function filesystempermissionanalyse($path)
   }
 }
 
+
+
+
+function get_timestamp_diff_logger(&$last_record,&$first_record)
+{
+	$timestamp_microsec_start=$first_record['timestamp_prog'] ;
+	$timestamp_microsec_end=$last_record['timestamp_prog'];
+	$interval_microsecs = ($timestamp_microsec_end - $timestamp_microsec_start); //I have some strange effects ...  and I want to be sure
+	
+	$interval_str = "$interval_microsecs secs";
+	return array($interval_microsecs,$interval_str);
+}
 
 
 

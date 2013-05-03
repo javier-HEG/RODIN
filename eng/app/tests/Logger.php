@@ -59,7 +59,7 @@ class Logger {
 		}
 	}
 	
-  public static function logAction($action, $info = null) 
+  public static function logAction($action, $info = null, $sid= null) 
   {
 	  	if (Logger::LOGGER_ACTIVATED) {
 				$server_root = $_SERVER['DOCUMENT_ROOT'];
@@ -72,7 +72,10 @@ class Logger {
 				$userName = $_SESSION['username'];
 				
 				//date('d-m-Y H:i:s:u') 
-				$timestamp =  date('H:i:s.') . str_pad(substr((float)microtime(), 2), 6, '0', STR_PAD_LEFT);
+				$microtime=str_pad(substr((float)microtime(), 2), 6, '0', STR_PAD_LEFT);
+				$timestamp =  date('H:i:s.') . $microtime;
+				//$timestamp_msec =  time() + $microtime;
+				$timestamp_msec =  microtime(true);
 				$msg = Logger::makeActionString($action, $info);
 				$logLine =  $timestamp . ';' . $segment . ';' . $userId . ';' . $userName . ';' . $msg;		
 				
@@ -84,10 +87,11 @@ class Logger {
 				{ 
 					if (!function_exists('dblogger'))
 						include_once("../../../../../../app/u/FRIdbUtilities.php");
-					dblogger($timestamp,$segment,$userId,$userName,$sid,$action,$info, $msg);
+					
+					dblogger($timestamp_msec,$segment,$userId,$userName,$sid,$action,$info, $msg);
 				} // 
-				
 	  	}
+			return $timestamp;
     }
     
     private static function makeActionString($action, $info = null, $delimiter = ';') {
@@ -107,6 +111,12 @@ class Logger {
     	return implode($delimiter, $list);
     }
     
+		
+		public static function remove_db_logger_records($sid)
+		{
+			db_logger_delete($sid);
+		} //remove_db_logger_records
+		
     private static function getActionName($action) {
     	switch ($action) {
     		case Logger::LOGIN_ACTION :

@@ -13,7 +13,7 @@ $fromResult = isset($_POST['from']) ? $_POST['from'] : 0;
 
 $jsonAllResults = array();
 
-$allResults = RodinResultManager::getRodinResultsForASearch($sid);
+$allResults = RodinResultManager::getRodinResultsForASearch($sid,'',true,true); // only internal results
 $resultCount = count($allResults);
 
 // Both a maximum size and a maximum number of results are set

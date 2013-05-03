@@ -9,6 +9,7 @@
 #
 
 
+date_default_timezone_set('Europe/Zurich');
 
 $_SESSION['RODINVERSION'] = '2.5';
 

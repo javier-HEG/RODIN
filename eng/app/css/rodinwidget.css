@@ -181,11 +181,21 @@ div.wdscached {
 div.oo-result-header {
 	display: table-cell;
 	width: 24px;
-	background-color: lightgray;
+	background-color: #bbb;
 	text-align: center;
 	font-weight: bold;
 	color: gray;
 }
+
+div.oo-result-header-lod {
+	display: table-cell;
+	width: 24px;
+	background-color:#700;
+	text-align: center;
+	font-weight: bold;
+	color: gray;
+}
+
 
 div.oo-result-header img {
 	cursor: pointer;

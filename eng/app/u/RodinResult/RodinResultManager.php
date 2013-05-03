@@ -155,7 +155,7 @@ class RodinResultManager {
 	}
 
 
-  public static function saveRodinResultsInResultsSOLR($results, $sid, $datasource, $timestamp)
+  public static function saveRodinResultsInResultsSOLR(&$results, $sid, $datasource, $timestamp)
   {
     //print "<br>saveRodinResultsInResultsSOLR(<b> $sid, $datasource</b>)";
     require_once("../u/SOLRinterface/solr_interface.php");
@@ -184,10 +184,11 @@ class RodinResultManager {
 
         foreach ($results as $result)
         {
-//          print "\n<hr><br>RESULT: ";
-//          var_dump($result);
+          // print "\n<hr><br>RESULT: ";
+          // var_dump($result);
 
           $documents[] = $result->toInsertSOLRdocument($client, 
+          																							$result->getId(), // if set -> update result record in SOLR
                                                         $sid, 
                                                         $datasource, 
                                                         str_pad($resultNumber, $numberOfResultsOrderOfMagnitude + 1, '0', STR_PAD_LEFT), 
@@ -245,7 +246,7 @@ class RodinResultManager {
 	}
 	
 
-  public static function getRodinResultsForASearch($sid,$datasource='') 
+  public static function getRodinResultsForASearch($sid,$datasource='',$internal=true,$external=false) 
   {
   	global $RESULTS_STORE_METHOD;
 		global $aggView;
@@ -256,7 +257,7 @@ class RodinResultManager {
             break;
       case 'solr':
 			      $aggView=true;
-            return RodinResultManager::getRodinResultsFromSOLR($sid,$datasource,$slrq_base64='') ;
+            return RodinResultManager::getRodinResultsFromSOLR($sid,$datasource,$internal,$external,$slrq_base64='') ;
             break;
     }
 	}
@@ -385,7 +386,7 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
  * In case $datasource is not set, results for all widgets are retrieved 
  * The latter is used for the aggregated view
  */
-public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
+public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$external,$slrq_base64) {
 		$max=10;
 		$filenamex='/u/SOLRinterface/solr_interface.php';
 		
@@ -401,6 +402,10 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
     global $USER;
     global $RODINSEGMENT;
     global $m; if($m==0) $m=1000; //we do not know how may rows are to retrieve
+    
+		$LOD = $external && $internal
+    			 ?'*'
+    			 :($external?1:0);
     
     $RDFLAB_ICON = "$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png";
 		$RDFLAB_LINK="<img src='$RDFLAB_ICON' width='15'>";
@@ -428,7 +433,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 		
     if ($slrq=='' && $sid<>'')
         $solr_select= "http://$solr_host:$solr_port$solr_path"
-                       ."select?q=sid:$sid{$EVTL_datasource}%20user:$USER%20seg:$RODINSEGMENT&rows=$m";
+                       ."select?q=sid:$sid{$EVTL_datasource}%20user:$USER%20seg:$RODINSEGMENT%20lod:$LOD&rows=$m";
     else
         $solr_select= "http://$solr_host:$solr_port$solr_path".$slrq;
       
@@ -485,6 +490,9 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
       $dedup_hash= array();
       foreach($DOCS as $DOC)
       {
+      	$rank=null;
+        $lod=null;
+          
         if ($NO_OF_DISPLAYED_RESULTS>$m)
              break; // stop parsing and displyaing results
           
@@ -497,7 +505,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
         foreach($DOC->children() as $ATTRVAL)
         {
-          //print "<hr> ATTRVAL: <br>"; var_dump($ATTRVAL);
+        	//print "<hr> ATTRVAL: <br>"; var_dump($ATTRVAL);
           $attributes=$ATTRVAL->attributes();
           //print "<hr> ATTRIBUTES: <br>"; var_dump($attributes);
           $name=$attributes['name'];
@@ -515,6 +523,12 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 
           if ($name=='id') // we need the SOLR id...
             $id=$value;
+					else if ($name=='rank')
+						$rank=intval($value);
+					else if ($name=='lod')
+					{
+						$lod=intval($value);
+          }
           else if ($name=='wdatasource')
           {
           	$wdatasource=$value;
@@ -571,7 +585,9 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
           $result->setSid($sid);
           $result->setId($id);
 					$result->setProperty('datasource', $wdatasource); 
-          
+          $result->setLod($lod); //mark result as coming from LOD sources
+          $result->setRank($rank);
+          					
           foreach($row as $attribute=>$value)
           {
           	//print "<br>$attribute=>$value";
@@ -620,20 +636,52 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
           if (!$FORGET_RESULT)
           {
           	//print "<hr>RESULT: <br>"; var_dump($result);
-						$allResults[] = $result;
+          	//Create an ID which keeps tracks of the ranking
+          	$rank_formatted=str_pad($rank, 4, '0', STR_PAD_LEFT);
+          	$resseq_formatted=str_pad($NO_OF_DISPLAYED_RESULTS, 4, '0', STR_PAD_LEFT);
+          	$result_show_id="r_{$rank_formatted}_{$resseq_formatted}";
+						$tmp_allResults{$result_show_id} = $result;						
             $NO_OF_DISPLAYED_RESULTS++;
           }
         } // owner
       } // foreach DOCS
      
       //foreach($dedup_hash as $k=>$v) print "<br>$k=>$v"; //debug - show hash
-     
+      //Since $allResults should be read both from javascript and php
+      //reorder the dataset so that it is already sorted when looped.
+      if($debug)
+			{
+	      print "<hr>PRESORT results:";
+				while (list($rrrank, $result) = each($tmp_allResults))
+				{
+					print "<br>$rrrank for (".$result->getTitle()."): ".$result->getRank();
+				}
+	    }
+			krsort($tmp_allResults);
+      reset($tmp_allResults);
+				
+			if($debug)
+			{
+	    	print "<hr>AFTERSORT results:";
+				while (list($rrrank, $result) = each($tmp_allResults))
+				{
+					print "<br>$rrrank for (".$result->getTitle()."): ".$result->getRank();
+				}
+			}
+			      
+			while (list($rrrank, $result) = each($tmp_allResults))
+  	    $allResults[]=$result;
+	     
+			 
 		} catch (Exception $e) {
 			print "RodinResultManager EXCEPTION: $e";
 		}
 		//exit;
 		return $allResults;
 	}
+
+
+
 
 
   
@@ -663,7 +711,10 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 	public static function getRodinResultTypeColor($resultType) {
 		switch ($resultType) {
 			case RodinResultManager::RESULT_TYPE_ARTICLE:
-				return '#9fc5e8';
+				if ($lod)
+					return 'red';
+				else
+					return '#9fc5e8';
 				break;
 			case RodinResultManager::RESULT_TYPE_BOOK:
 				return '#b6d7a8';
@@ -695,9 +746,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
             $allResults = RodinResultManager::getRodinResultsFromResultsTable($sid, $datasource);
             break;
       case 'solr':
-        		$allResults = RodinResultManager::getRodinResultsFromSOLR($sid, $datasource, $slrq);
+        		$allResults = RodinResultManager::getRodinResultsFromSOLR($sid, $datasource, true, true, $slrq);
     }
-
 		if (count($allResults) > 0) {
 
       //print "<br>".count($allResults)." results :<br>";
@@ -714,7 +764,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 				
 				$resultIdentifier = str_replace('.rodin', '', substr($datasource, strrpos($datasource, '/') + 1)) . '-' . $resultCounter;
 
-				print $result->headerDiv($resultIdentifier);
+				print $result->headerDiv($resultIdentifier,$result->getLod());
 				print $result->contentDiv($resultIdentifier);
 				print $result->jsScriptAndRender($resultIdentifier, $resultCounter, $sid);
 				
@@ -733,4 +783,120 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$slrq_base64) {
 		RodinResultManager::renderAllResultsInWidget($sid, $datasource, $slrq, 'all');
 		return true;
 	}
+	
+	
+	
+	public static function create_rodinResult_for_lod(  $rodin_result_type,
+																											$rank,
+																											$title,
+																											$description,
+																											$date_created,
+																											$source_url,
+																											$identifier_url,
+																											&$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
+																											&$subjects  )
+	{
+		
+		$debug=1;
+		global $RDFLOG;
+		
+		if ($debug)
+		{
+			$RDFLOG.="<br>create_rodinResult($rodin_result_type)"
+			."<br>title=($title)"
+			."<br>description=($description)"
+			."<br>date_created=($date_created)"
+			."<br>source_url=($source_url)"
+			."<br>identifier_url=($identifier_url)"
+			."<br>authors=["; foreach($authors as $kind=>$values) { $RDFLOG.="$kind: "; foreach($values as $a) $RDFLOG.="$a,"; }
+			$RDFLOG.="]<br>subjects=";foreach($subjects as $a) $RDFLOG.="$a,";
+			$RDFLOG.="]<br>";
+		}
+		switch ($rodin_result_type) {
+				case 'article':
+					if ($debug)
+						$RDFLOG.="<br>create_rodinResult(article ....)";
+								// Create the result object
+					$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_ARTICLE);
+					$singleResult->setLod(true);
+					$singleResult->setRank($rank);
+					// General fields
+					$singleResult->setTitle($title);
+					$singleResult->setDate($date_created);
+					
+					if (isset($source_url)) {
+						$singleResult->setUrlPage($source_url);
+					} 
+					else
+					if (isset($identifier_url)) {
+						$singleResult->setUrlPage($jsonRecordInfo['identifier_url'][0]);
+					} 
+					
+					$authorArray = array();
+					$authorFieldNames = array('creator', 'person', 'contributor');
+					foreach ($authorFieldNames as $fieldName) {
+						$authorElements = $authors[$fieldName];
+						
+						if (count($authorElements) > 0) {
+							foreach ($authorElements as $author) {
+								// Put first name first, remove ','
+								$authorArray[] = implode(' ', array_reverse(explode(',', $author)));
+							}
+							
+							break;
+						}
+					}
+					$singleResult->setAuthors(implode(', ', $authorArray));
+						
+					// Article specific fields
+					// TODO Check if it's possible to have multiple abstracts
+					$singleResult->setProperty('abstract', $description);
+					
+					if (isset($jsonRecordInfo['subject']) && is_array($subjects)) {
+						$singleResult->setProperty('keywords', implode(', ', $subjects));
+					}
+					break;
+				case 'book':
+					// Create the result object
+					$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_BOOK);
+		
+					// General fields
+					$singleResult->setTitle($title);
+					$singleResult->setDate($date_created);
+					
+					if (isset($source_url)) {
+						$singleResult->setUrlPage($source_url);
+					} 
+					
+					$authorArray = array();
+					$authorFieldNames = array('creator', 'person', 'contributor');
+					foreach ($authorFieldNames as $fieldName) {
+						$authorElements = $authors[$fieldName];
+						
+						if (count($authorElements) > 0) {
+							foreach ($authorElements as $author) {
+								// Put first name first, remove ','
+								$authorArray[] = implode(' ', array_reverse(explode(',', $author)));
+							}
+							
+							break;
+						}
+					}
+					$singleResult->setAuthors(implode(', ', $authorArray));
+						
+					// Book specific fields
+					$singleResult->setProperty('description', strip_tags($jsonRecordInfo['abstract'][0]));
+					
+					if (isset($jsonRecordInfo['subject']) && is_array($jsonRecordInfo['subject'])) {
+						$singleResult->setProperty('subjects', implode(', ', $jsonRecordInfo['subject']));
+					}
+					break;
+				default:
+					// Create a dummmy result object
+					$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_BASIC);
+					break;
+			}
+		return $singleResult;
+	} // create_rodinResult
+	
 }

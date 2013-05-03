@@ -12,6 +12,8 @@ class BasicRodinResult {
 	private $urlPage;
 	private $title;
 	private $score; //SOLR score on morelikethis queries
+	private $rank;  //RDF rank for this result
+	private $lod;  //states result is taken from an LOD (external) source
 	private $authors;
 	private $date;
 	private $is_rdfized; //triples from this result were generated and inserted into store
@@ -234,15 +236,16 @@ class BasicRodinResult {
 	 * Method built following toInsertSqlCommand()
 	 *
 	 * @param $client - an instance of solarium
+	 * @param $id - the id of the result (in case result was already SOLR stored, and now here only updated)
 	 * @param $sid
-	 * @param $datasource
+ 	 * @param $datasource
 	 * @param $resultNumber
  	 * @param $seg
  	 * @param $user
  	 * @param $dscachetimestamp
  *  * 
 	 */
-	public function toInsertSOLRdocument(&$client, $sid, $datasource, $resultNumber, $seg, $user, $dscachetimestamp) {
+	public function toInsertSOLRdocument(&$client, $id='', $sid, $datasource, $resultNumber, $seg, $user, $dscachetimestamp) {
     
     //print "<br>toInsertSOLRdocument ($datasource)<br>";
 
@@ -251,8 +254,20 @@ class BasicRodinResult {
 
     $result_doc->sid        = $sid;
     $result_doc->seg        = $seg;
+    $result_doc->lod        = $this->getLod()?1:0;
+    $result_doc->rank    		= $this->getRank();
+		
+		
+		if ($result_doc->rank == 0)
+		{
+			//print "<br>NULL RANK... stimmtes? ";var_dump($this);
+		}
+		
+		
     $result_doc->user       = $user;
-    $result_doc->id         = $result_doc->sid.'-'.$resultNumber.'-'.uniqid(); //SOLR ID unique!!!
+    $result_doc->id         = $id // do we have already one id?
+    												? $id // yes: take old id
+														: $result_doc->sid.'-'.$resultNumber.'-'.uniqid(); //SOLR ID unique!!!
     $result_doc->type       = $this->getResultType();
     $result_doc->title      = encode4solr($this->getTitle());
     $result_doc->authors    = encode4solr($this->getAuthors());
@@ -260,6 +275,9 @@ class BasicRodinResult {
     $result_doc->urlPage    = encode4solr($this->getUrlPage());
     $result_doc->wdatasource = $datasource; //rodin datasource id (the widget url)
     $result_doc->wdscachetimestamp = $dscachetimestamp; //rodin datasource generation time of the current record
+    
+    
+    //print "<hr>inserting result: ";var_dump($result_doc);
     
     //Add specific attr/value fields:
 
@@ -280,16 +298,20 @@ class BasicRodinResult {
 		return $result_doc;
 	}
 
-  
-  
-  
-  
-  
+    
 
 	public function headerDiv($resultIdentifier) {
-		$color = RodinResultManager::getRodinResultTypeColor($this->resultType);
-		$title = RodinResultManager::getRodinResultTypeName($this->resultType);
-		$html = '<div id="header-' . $resultIdentifier . '" class="oo-result-header" style="border-left: 2px solid ' . $color . ';" title="' . $title . '"></div>';
+		if ($this->getLod()) 
+		{
+			$EVTL_SOURCE='EXTERNAL ';
+			$EVTL_CLASS='oo-result-header-lod';
+		}
+		else {
+			$EVTL_CLASS='oo-result-header';
+		}
+		$color = RodinResultManager::getRodinResultTypeColor($this->resultType,$this->getLod());
+		$title = $EVTL_SOURCE . RodinResultManager::getRodinResultTypeName($this->resultType) . ' ranked with ' . $this->getRank() . ' points';
+		$html = '<div id="header-' . $resultIdentifier . '" class="'.$EVTL_CLASS.'" style="border-left: 2px solid ' . $color . ';" title="' . $title . '"></div>';
 		return $html;
 	}
 
@@ -402,7 +424,7 @@ class BasicRodinResult {
 		global $RDFLOG;
 		//Sets as class var the RDF helper
 		if (! $this->RDFenhancement)
-			$this->RDFenhancement = new RodinRDFResult($this,$datasource,$searchterm,$USER_ID);
+			$this->RDFenhancement = new RodinRDFResult($this,$datasource,$searchterm,$USER_ID,$sid);
 		$RDF = $this->RDFenhancement;
 		$C=get_class($RDF);
 
@@ -480,6 +502,7 @@ class BasicRodinResult {
 		}
 	}
 	
+	
 	public function setCacheTimeStamp($timestamp) {
 		$this->wdsctimestamp = $timestamp;
 	}
@@ -503,6 +526,23 @@ class BasicRodinResult {
 	public function getScore() {
 		return $this->score;
 	}
+
+	public function setRank($rank) {
+		$this->rank = $rank;
+	}
+	
+	public function getRank() {
+		return $this->rank;
+	}
+
+	public function setLod($lod) {
+		$this->lod = $lod;
+	}
+	
+	public function getLod() {
+		return $this->lod;
+	}
+
 	public function setTitle($title) {
 		$this->title = $title;
 	}
