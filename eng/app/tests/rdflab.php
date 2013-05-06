@@ -75,7 +75,7 @@ if ($sid<>'')
 	$fromResult = 0;
 	
 	//Recall results from SOLR using sid but no datasource! (get for every datasource)
-	$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource='',true,true);
+	$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource='',true,false);
 	$resultCount = count($allResults);
 
 	$CONTENT2="$resultCount Widget results found for sid $sid";
@@ -86,7 +86,7 @@ if ($sid<>'')
 	
 	$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
 	
-	Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start using $resultCount results on search term '$search_term'"),$sid);
+	Logger::logAction(27, array('from'=>'rdflab','msg'=>"RDF Start using $resultCount results on search term '$search_term'"),$sid);
 	
 	$searchres_timestamp = timestamp_fortripleannotation();
 	
@@ -140,6 +140,7 @@ if ($sid<>'')
 			$added_triples+=$count_triples_added;
 			$RDFLOG.="<br>rdfize: $count_triples_added (of $added_triples) triples added";
 		}
+		Logger::logAction(27, array('from'=>'rdflab','msg'=>"RDFized on $resultCounter result"),$sid);
 		
 		if($store && $want_rdfexpand)
 		{
@@ -181,7 +182,7 @@ if ($sid<>'')
 	}
 	else fontprint( "Sorry: No data for this sid" , 'red' );
 	
-	Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit using $resultCount results on search term '$search_term'"),$sid);
+	Logger::logAction(27, array('from'=>'rdflab','msg'=>"RDF End using using $resultCount results on search term '$search_term'"),$sid);
 } // $sid
 
 

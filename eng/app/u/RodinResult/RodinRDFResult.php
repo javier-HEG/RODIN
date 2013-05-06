@@ -1560,10 +1560,10 @@ class RodinRDFResult {
 				###########################
 				{
 					$processed_subjects=array();
+					$loopcount=0;
 					foreach ($subjects as $s=>$_)
 					{
-						
-						$counter++;
+						$loopcount++;
 						Logger::logAction(27, array('from'=>'get_related_subjects_expansions_using_thesauri','msg'=>$msg="CALLING $servicename SRC $src_name on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 						$s = trim(strtolower($s));
 						if ($s<>'')
@@ -1573,7 +1573,7 @@ class RodinRDFResult {
 							if ($count_processed_subjects > $C::$MAX_SRC_SUBJECT_EXPANSION)		
 							{
 								if ($DEBUG || 1)
-									$RDFLOG.=htmlprint("<br>get_related_subjects_expansions_using_thesauri reached maximum number of subjects to seek/expand ({$C::$MAX_SRC_SUBJECT_EXPANSION}) - breaking loop",'red');
+									$RDFLOG.=htmlprint("<br>get_related_subjects_expansions_using_thesauri reached statical limit number of subjects to seek/expand ({$C::$MAX_SRC_SUBJECT_EXPANSION}) - breaking loop",'red');
 						
 								break;
 							} // $count_processed_subjects > $C::$MAX_SRC_SUBJECT_EXPANSION
@@ -1868,7 +1868,7 @@ class RodinRDFResult {
 	 * 
 	 * CACHE CALLS
 	 * 
-	 * For each present subject $sx in ($CLASS::$rodin_subjects)
+	 * For each present subject $sx in ($C::$rodin_subjects)
 	 * 
 	 * if $sx is not contained in $processed_subject or
 	 *    $sx is contained in $processed_subject and $processed_subject{$sx}=0 (no docs fetched)
@@ -1887,10 +1887,10 @@ class RodinRDFResult {
 		global $EPSILON;
 		global $WANT_RDF_ANNOTATION;
 		$entry = microtime_float();
-		$CLASS=get_class($this);
-		if (!$CLASS::$searchtermlang)
-			$CLASS::$searchtermlang = detectLanguage($searchterm);
-		$lang=$CLASS::$searchtermlang;
+		$C=get_class($this);
+		if (!$C::$searchtermlang)
+			$C::$searchtermlang = detectLanguage($searchterm);
+		$lang=$C::$searchtermlang;
 		$servicename='lodfetch';
 		$ann_servicename=$servicename;
 		
@@ -1906,9 +1906,9 @@ class RodinRDFResult {
 				$RDFLOG.="<br>label ($sl)";
 		}
 		
-		if (is_array($CLASS::$rodin_subjects) && count($CLASS::$rodin_subjects))
+		if (is_array($C::$rodin_subjects) && count($C::$rodin_subjects))
 		{
-			foreach($CLASS::$rodin_subjects as $l=>$subject_uid) $RDFLOG."<br>subj $l";
+			foreach($C::$rodin_subjects as $l=>$subject_uid) $RDFLOG."<br>subj $l";
 			
 			$lods_start = microtime_float();
 			$LOD_SOURCES=get_active_LOD_expansion_sources($USER_ID);
@@ -1917,10 +1917,12 @@ class RodinRDFResult {
 			
 			$LOD_SOURCES_RECORDS= $LOD_SOURCES['records'];
 			
+			
 			if (is_array($LOD_SOURCES_RECORDS) && count($LOD_SOURCES_RECORDS))
 			{
 				foreach($LOD_SOURCES_RECORDS as $LOD_SOURCES_RECORD)
 				{
+					
 					$src_name=$LOD_SOURCES_RECORD['Name'];
 					$src_id=$LOD_SOURCES_RECORD['ID'];
 					$sds_sparql_endpoint=$LOD_SOURCES_RECORD['sparql_endpoint'];
@@ -1933,19 +1935,22 @@ class RodinRDFResult {
 					
 					Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','src_parameters'=>"$src_name,$servicename,$sds_parameters"),RodinRDFResult::$sid);
 					
-					
 					$cached_time=$open_time=0;
 					$timeelapsed_microsec=0;
 					$cache_used = $open_used=0;
 					$import_elapsed=0;
-					foreach($CLASS::$rodin_subjects as $s=>$subject_uid)
+					$loopcount=0;
+					foreach($C::$rodin_subjects as $s=>$subject_uid)
 					{
-						// Check and break here if limit $CLASS::$MAX_LOD_SUBJECT_DOCFETCH reached
+						$loopcount++;
+						Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="CALLING $servicename SRC $src_name on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
+						
+						// Check and break here if limit $C::$MAX_LOD_SUBJECT_DOCFETCH reached
 						$count_processed_subjects=count($processed_subjects);
-						if ($count_processed_subjects > $CLASS::$MAX_LOD_SUBJECT_DOCFETCH)		
+						if ($count_processed_subjects > $C::$MAX_LOD_SUBJECT_DOCFETCH)		
 						{
 							if ($DEBUG || 1)
-								$RDFLOG.=htmlprint("<br>rdfLODfetchDocumentsOnSubjects reached maximum number of subjects to be used to seek/expand documents ({$CLASS::$MAX_LOD_SUBJECT_DOCFETCH}) - breaking loop",'red');
+								$RDFLOG.=htmlprint("<br>rdfLODfetchDocumentsOnSubjects reached limit number of subjects to be used to seek/expand documents ({$C::$MAX_LOD_SUBJECT_DOCFETCH}) - breaking loop",'red');
 					
 							break;
 						} // $count_processed_subjects > $C::$MAX_SRC_SUBJECT_EXPANSION
@@ -1968,17 +1973,17 @@ class RodinRDFResult {
 								# using $TOLERATED_SRC_RDF_DATA_AGE_SEC
 								#
 								list($age_of_last_src_use, $src_use, $src_uid, $numexpandeddocs) = $this->check_rdf_annotated_last_src_lodfetch_use($src_name,$src_id,$cache_id,$s);
-								if ($src_use && $age_of_last_src_use <= $CLASS::$TOLERATED_SRC_RDF_DATA_AGE_SEC)
+								if ($src_use && $age_of_last_src_use <= $C::$TOLERATED_SRC_RDF_DATA_AGE_SEC)
 									//Data is still fresh in triple store - no need of calling src
 									{
-										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="USING PERSISTED DATA FROM RDF SPARQL LODFETCH $src_name on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
+										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="USING PERSISTED DATA ($numexpandeddocs) FROM RDF SPARQL SRC $src_name on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 										$RDFLOG.=htmlprint("<br>$msg",'green');
 										$processed_subjects{$s}=$numexpandeddocs; // We do not need here the list of fetched documents as with check_rdf_annotated_last_src_subexp_use()
 									}
 									else // src data too old or non existent in this way
 									//CALL SRC
 									{
-										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="REQUESTING NEW DATA FROM (CACHED) RDF SPARQL LOD FETCH $src_name (age=$age_of_last_src_use > {$CLASS::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
+										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="REQUESTING NEW DATA FROM (CACHED) RDF SPARQL LOD FETCH $src_name (age=$age_of_last_src_use > {$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
 										$RDFLOG.=htmlprint("<br>$msg",'red');
 										
 										# provide / update ann information
@@ -2005,6 +2010,10 @@ class RodinRDFResult {
 																																									RodinRDFResult::$NAMESPACES,
 																																									$lang,
 																																									$max_triples);
+																						
+									$countresults=count($triples);																			
+									Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="EXIT NEW DATA ($countresults) FROM (CACHED) RDF SPARQL SRC $src_name (age=$age_of_last_src_use > {$C::$TOLERATED_SRC_RDF_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"),RodinRDFResult::$sid);
+									
 									$timeelapsed_microsec= microtime_float() - $mtime1;
 									$RDFLOG.="<br>$timeelapsed_microsec - LOD call $src_name on subject '$s'";
 									if ($used_cache) 
@@ -2023,26 +2032,36 @@ class RodinRDFResult {
 									$regroup_start = microtime_float();
 									$RDFentities = $this->regroup_triple_to_entities($triples);
 									$regroup_elapsed = microtime_float() - $regroup_start;
-																																				
-									$homog_start = microtime_float();
-									list($homogenized_triples,$htriplescount,$hdocscount)
-														= $this->homogenize_foreign_RDFentities($RDFentities,$subject_uid,$src_name,$srcuse_uid,$lang);
-									$homog_end = microtime_float();
-									$homog_elapsed+=($homog_end - $homog_start);
 									
-									$processed_subjects{$s}=$hdocscount; 
-									
-									$RDFLOG.= "--> $hdocscount docs in ($otriplescount) $htriplescount homogenized triples imported";
-									
-									$import_start = microtime_float();
-									$this->import_triples($homogenized_triples);
+									if ($otriplescount)
+									{
+										$homog_start = microtime_float();
+										//Homogenize is used with method rdfLODfetchDocumentsOnSubjects() hence:
+										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START HOMOGENIZE $otriplescount $src_name triples on subject $subject_uid"),RodinRDFResult::$sid);
+										
+										list($homogenized_triples,$htriplescount,$hdocscount)
+															= $this->homogenize_foreign_RDFentities($RDFentities,$subject_uid,$src_name,$srcuse_uid,$lang);
+										$homog_end = microtime_float();
+										$homog_elapsed+=($homog_end - $homog_start);
+										
+										
+										$processed_subjects{$s}=$hdocscount; 
+										
+										$RDFLOG.= "--> $hdocscount docs in $otriplescount homogenized triples imported";
+										
+										$import_start = microtime_float();
+										$this->import_triples($homogenized_triples);
+										
+										Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END HOMOGENIZE $otriplescount $src_name triples on subject $subject_uid"),RodinRDFResult::$sid);
+									}									
 									$import_end = microtime_float();
+
 									$import_elapsed+=$import_end - $import_start;
 								} // CALL SRC
 						  } // $processed_subjects
 							else {
-							if ($DEBUG || 1)
-								$RDFLOG.=htmlprint("<br>PREVENT further LOD document fetch on subject ($s), since there was a more complicated one ($subsuming_subject) having $numdocs document(s).",'red');
+								if ($DEBUG || 1)
+									$RDFLOG.=htmlprint("<br>PREVENT further LOD document fetch on subject ($s), since there was a more specialised one ($subsuming_subject) having $numexpandeddocs document(s).",'red');
 							}
 						} // continue process subjects LOD seeking for documents
 					} // foreach($subjects_labels 
@@ -2074,7 +2093,6 @@ class RodinRDFResult {
 		$RDFLOG.= "<br> - inside 'lods_elapsed' took $lods_elapsed secs = $lods_elapsed_pro";
 		$RDFLOG.= "<br> - inside homogenization took $homog_elapsed secs = $homog_elapsed_pro%";
 				
-			
 		if (is_array($datasource_LOD_fetch_statistics) && count($datasource_LOD_fetch_statistics))
 		foreach($datasource_LOD_fetch_statistics as $src_name=>$STAT)
 		{
@@ -2094,7 +2112,7 @@ class RodinRDFResult {
 			$RDFLOG.= " + import time elapsed ($import_elapsed sec = $import_elapsed_pro%)";
 		} // stat
 
- 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>'Exit'),RodinRDFResult::$sid);
+ 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>"Exit $servicename"),RodinRDFResult::$sid);
 	} // rdfLODfetchDocumentsOnSubjects
 	
 	
@@ -2215,10 +2233,11 @@ EOS;
 		global $WANT_RDF_ANNOTATION;
 		$hdocscount=0;
 		$htriplescount=0;
-		$CLASS=get_class($this);
-		if (!$CLASS::$searchtermlang)
-			$CLASS::$searchtermlang = detectLanguage($searchterm);
-		$lang=$CLASS::$searchtermlang;
+		$C=get_class($this);
+				
+		if (!$C::$searchtermlang)
+			$C::$searchtermlang = detectLanguage($searchterm);
+		$lang=$C::$searchtermlang;
 		
 		//print "<br>homogenize_foreign_triples for ($src_name)";
 		switch (strtolower($src_name))
@@ -2295,7 +2314,7 @@ EOS;
 								//print "<br>PROC external dce:subject: $o";
 								$o=l_inverse($o); //eliminate douple quote from literal for reuse of the same
 								
-								if(!($subject_uid=$CLASS::$rodin_subjects{$o}))
+								if(!($subject_uid=$C::$rodin_subjects{$o}))
 								{
 									//$o should not contain double quote...
 									//Construct a rodin subject
@@ -2384,7 +2403,7 @@ EOS;
 			//Is this a classical SRC or nonSKOS a sparql endpoint ?
 			$IS_SPARQL_ENDPOINT=($src_path=='' && $sds_sparql_endpoint<>'');
 			
-			$CLASS=basename($src_path);
+			$C=basename($src_path);
 			$SUPERCLASS=basename(dirname($src_path));
 			$DISKenginePATH=$DOCROOT.str_replace("$SUPERCLASS/$CLASS",'',$src_path);
 			$DISKfsrcPATH=dirname($DISKenginePATH);
@@ -2591,6 +2610,9 @@ EOQ;
 		$rodin_a_ns_url =$C::$NAMESPACES{'rodin_a'};
 		$cache_id=($C::$TOBECODED64{'rodin_a:cache_id'}?base64_encode($cache_id):$cache_id);
 
+		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START remove_unused_src_triples_on_service_and_search($src_name)"),RodinRDFResult::$sid);
+		
+		
 		$link_predicates=array('rodin:subject_related');
 		if ($ann_servicename=='lodfetch')
 		//Remove independent external introduced subjects only if they where not introduced by another search
@@ -2625,7 +2647,7 @@ EOQ;
 			
 			if ($debug || 1)
 			{
-				if (count($subjects))
+				if (is_array($subjects) && count($subjects))
 				{
 					$RDFLOG.="<br>LODFETCH case: rdf_get_subjects_created_in_src_use subjects touched by $src_use_uid :";
 					
@@ -2634,7 +2656,7 @@ EOQ;
 				}
 			}
 			
-			if (count($subjects))
+			if (is_array($subjects) && count($subjects))
 			{
 				foreach($subjects as $s)
 				{
@@ -2678,6 +2700,7 @@ EOQ;
 		//TODO: documents on lodfetch are not deleted... 
 		rdf_delete_entity_on_cacheid($cache_id,$link_predicates,$C);
 		
+		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END remove_unused_src_triples_on_service_and_search($src_name)"),RodinRDFResult::$sid);
 		
 		return $ok;
 	} // remove_unused_src_triples_on_service_and_search
@@ -2846,14 +2869,9 @@ EOS;
 						$s = separate_namespace($C::$NAMESPACES,$s_full,':',false);
 						$src_use_uid=$s; // get once the src_use_id
 					}
-					else if (strstr($p,'subexp'))
+					else if (strstr($p,'expdoc'))
 					{
-						if (strstr($p,'related'))
-							$related_subjects[]=$o;
-						else if (strstr($p,'broader'))
-							$broader_subjects[]=$o;
-						else if (strstr($p,'narrower'))
-							$narrower_subjects[]=$o;
+						$numexpandeddocs++;
 					}
 					else if (strstr($p,'cache_id'))
 					{
@@ -2863,38 +2881,15 @@ EOS;
 			}	// results
 		} //store
 		
-		
-		
 		#compute age from now
 		#$supplied= timstamp with microseconds = "1365801457_721488"
 		$age_sec = compute_age($supplied);
 		if ($debug) $RDFLOG.="<br>supplied($cache_id_decoded)= $supplied => age= $age_sec secs";
-		
 		$src_use = ($supplied<>null);
-		if ($debug || 1)
-		{
-			if (count($related_subjects))
-			{
-				if ($debug) $RDFLOG.="<br>related subjects from triples: ";
-				foreach($related_subjects as $s) $RDFLOG.="<br>$s";	
-			}
-			if (count($broader_subjects))
-			{
-				if ($debug) $RDFLOG.="<br>broader subjects from triples: ";
-				foreach($broader_subjects as $s) $RDFLOG.="<br>$s";	
-			}
-			if (count($narrower_subjects))
-			{
-				if ($debug) $RDFLOG.="<br>narrower subjects from triples: ";
-				foreach($narrower_subjects as $s) $RDFLOG.="<br>$s";	
-			}
-		} // debug
-		
-		if ($debug) $SKOSOBJ=array($broader_subjects,$narrower_subjects,$related_subjects);
 		
 		// DO NOT REMOVE A TRIPLE IF IT IS (transitively) REFERENCED BY ANOTHER SEARCH !!!!
-		if ($debug) $RDFLOG.="<br>RETURNING age_sec=$age_sec, src_use=$src_use,src_use_uid=$src_use_uid, $SKOSOBJ)";
-		return array($age_sec,$src_use,$src_use_uid,$SKOSOBJ);
+		if ($debug) $RDFLOG.="<br>RETURNING age_sec=$age_sec, src_use=$src_use,src_use_uid=$src_use_uid, $numexpandeddocs)";
+		return array($age_sec,$src_use,$src_use_uid, $numexpandeddocs);
 	} // check_rdf_annotated_last_src_lodfetch_use 
 		
 	
@@ -2936,8 +2931,13 @@ EOS;
 		$docs_ext = get_external_rdf_docs($searchuid,$C,$PREFIX2);		
 		
 		//Compute the number of subj each document
+		
+		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START RERANK"),RodinRDFResult::$sid);
+		
 		$ranked_docs= rank_docs_with_its_subjects($docs,$C,$PREFIX3);
 		$ranked_docs_ext= rank_docs_with_its_subjects($docs_ext,$C,$PREFIX4);
+
+		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END RERANK"),RodinRDFResult::$sid);
 		
 		if ($debug)
 		{
@@ -2958,6 +2958,7 @@ EOS;
 		}
 		
 		//Adjust the rank annotation of each doc
+		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START WRES ASSEMBLING"),RodinRDFResult::$sid);
 		
 		//foreach($ranked_docs as $docuid=>$rank)
 		{
@@ -2997,7 +2998,12 @@ EOS;
 					{
 						case 'dce:type': 
 									if ($ooo[0][0]=='pdf' 
-									|| $ooo[0][0]=='Thesis') 
+									|| $ooo[0][0]=='Thesis'
+									|| $ooo[0][0]=='Article'
+									|| $ooo[0][0]=='Text'
+									|| $ooo[0][0]=='czasopismo'
+									|| 1
+									) 
 										 $rodin_result_type = 'article';
 									if (!$rodin_result_type)
 										fontprint("<br>Error mapping LOD document types to rodin result types (".$ooo[0][0]." ?)",'red');
@@ -3030,21 +3036,27 @@ EOS;
 					} // switch
 				} // foreach pair
 				//add once -> yes but at the moment SOLR stores it once ... even on multiple calls
-				$R = RodinResultManager::create_rodinResult_for_lod(  $rodin_result_type,
-																															$rank,
-																															$title,
-																															$description,
-																															$date_created,
-																															$source_url,
-																															$identifier_url,
-																															$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
-																															$subjects  );
-																											
-				RodinResultManager::saveRodinResults($allResults=array($R), $C::$sid, $datasource='extern', $timestamp='');
+				//Do not forget: we might still get some uncomplete information (through triple limit)
+				
+				if ($rodin_result_type)
+				{
+					$R = RodinResultManager::create_rodinResult_for_lod(  $rodin_result_type,
+																																$rank,
+																																$title,
+																																$description,
+																																$date_created,
+																																$source_url,
+																																$identifier_url,
+																																$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
+																																$subjects  );
+																												
+					RodinResultManager::saveRodinResults($allResults=array($R), $C::$sid, $datasource='extern', $timestamp='');
+				}
 			}
 			else 
 				$RDFLOG.=htmlprint("<br>Error adding external document ($docuid)",'red');
 		} // $ranked_docs_ext
+	Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END WRES ASSEMBLING"),RodinRDFResult::$sid);
 	}
 	// rerank_rdf_documents
 	

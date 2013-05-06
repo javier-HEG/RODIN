@@ -1389,11 +1389,26 @@ function filesystempermissionanalyse($path)
 
 function get_timestamp_diff_logger(&$last_record,&$first_record)
 {
+	
 	$timestamp_microsec_start=$first_record['timestamp_prog'] ;
 	$timestamp_microsec_end=$last_record['timestamp_prog'];
+	
 	$interval_microsecs = ($timestamp_microsec_end - $timestamp_microsec_start); //I have some strange effects ...  and I want to be sure
 	
-	$interval_str = "$interval_microsecs secs";
+	if ($interval_microsecs < 0)
+	{
+		fontprint("<br>ERROR diff $timestamp_microsec_end ?? $timestamp_microsec_start ",'red');
+		print "<br>start:<br>"; var_dump($timestamp_microsec_start); print "<br>End:<br>";var_dump(&$last_record);
+		
+		$interval_microsecs=0;
+	}
+	
+	if($debug)
+	{
+	print "<br>get_timestamp_diff_logger ($timestamp_microsec_end - $timestamp_microsec_start) = $interval_microsecs";
+	print "<br>first_record: "; var_dump($first_record);
+	}
+	$interval_str  = "$interval_microsecs secs";
 	return array($interval_microsecs,$interval_str);
 }
 

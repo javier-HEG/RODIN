@@ -253,7 +253,7 @@ EOP;
 	<?php echo $textZoomButtons; ?>
 	<div id="maxResultsPerWidgetDiv" class="searchOptionDiv">
 		<span class="optionLabel"><?php print lg("lblMetaSearchPrefsNbResults");?>:</span>
-		<input id="rodinsearch_m" type="text" size="2" value="<?php print $m; ?>"
+		<input id="rodinsearch_m" style="text-align: right" type="text" size="2" value="<?php print $m; ?>"
 			title="<?php print lg("titleGlobalMaxResults");?>">
 	</div>
 </div>

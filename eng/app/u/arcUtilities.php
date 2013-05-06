@@ -1690,7 +1690,8 @@ EOD;
 	 */
 	function rdf_get_subjects_created_in_src_use_lodfetch($cache_id,&$RDFresultCLASS)
 	{
-		
+		$debug=1;
+		global $RDFLOG;
 		$rodin_a_ns_url = $RDFresultCLASS::$NAMESPACES{'rodin_a'};
 		$dce_ns_url 		= $RDFresultCLASS::$NAMESPACES{'dce'};
 		$PREFIXES				="PREFIX rodin_a: <$rodin_a_ns_url> PREFIX dce: <$dce_ns_url>";
@@ -1705,12 +1706,22 @@ EOD;
   }
 EOQ;
 		
+		if ($debug)
+			$RDFLOG.="<br><br><b>rdf_get_subjects_created_in_src_use_lodfetch($cache_id):</b><br><br> QUERY: <br>".str_replace("\n","<br>",htmlentities($QUERY));
 		if ($rows = $RDFresultCLASS::$store->query($QUERY, 'rows')) 
 		{
+			if ($debug)
+			$RDFLOG.="<br>rdf_get_subjects_created_in_src_use_lodfetch: processing results";
+		
+			$src_use_uid=null;
 			foreach($rows as $row)
 			{			
 				$subj_full=$row['subj'];
 				$subj[] = separate_namespace($RDFresultCLASS::$NAMESPACES,$subj_full,':',false);
+			
+				if ($debug)
+					$RDFLOG.="<br>rdf_get_subjects_created_in_src_use_lodfetch: processing result: ".$subj[count($subj)-1]; // last elem
+				
 				if (!$src_use_uid)
 				{
 					$src_use_uid_full=$row['src_use'];
@@ -1719,6 +1730,10 @@ EOQ;
 				
 			}
 		}
+		
+		if ($debug)
+			$RDFLOG.="<br>rdf_get_subjects_created_in_src_use_lodfetch exiting with ($src_use_uid,$subj)";
+		
 		return array($src_use_uid,$subj);
 	} // rdf_get_subjects_created_in_src_use_lodfetch
 	
@@ -1814,7 +1829,7 @@ EOQ;
 		
 		if ($debug)
 		{
-			$RDFLOG.="<br>rdf_check_existence_of_other_dependencies( $link_predicate, $entity_uid, $src_use_uid)<br><br>QUERY:<br>"
+			$RDFLOG.="<br><br><b>rdf_check_existence_of_other_dependencies( link_predicate=$link_predicate, entity_uid=$entity_uid, src_use_uid=$src_use_uid):</b><br><br>QUERY:<br>"
 							 .str_replace("\n","<br>",htmlentities(urldecode($QUERY)));
 		}
 		
