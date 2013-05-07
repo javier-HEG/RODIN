@@ -73,9 +73,18 @@ class BasicRodinResult {
 	/**
 	 * Produces the in-Widget represetation of the result
 	 */
-	public function toInWidgetHtml($textZoom = 'token') {
+	public function toInWidgetHtml($textZoom = 'token') 
+	{
+		if ($this->getLod()) 
+		{
+			$CLASS='oo-result-lod';
+			$TITLE="title='Document taken from an external resource'";
+		}
+		else {
+			$CLASS='oo-result';
+		}
 		
-		$html = '<div class="oo-result">';
+		$html = '<div class="'.$CLASS.'"'.$TITLE.'>';
 		
 		switch ($textZoom) {
 			case 'min':
@@ -304,14 +313,15 @@ class BasicRodinResult {
 		if ($this->getLod()) 
 		{
 			$EVTL_SOURCE='EXTERNAL ';
-			$EVTL_CLASS='oo-result-header-lod';
+			$HEADERCLASS='oo-result-header-lod';
 		}
 		else {
-			$EVTL_CLASS='oo-result-header';
+			$HEADERCLASS='oo-result-header';
 		}
 		$color = RodinResultManager::getRodinResultTypeColor($this->resultType,$this->getLod());
-		$title = $EVTL_SOURCE . RodinResultManager::getRodinResultTypeName($this->resultType) . ' ranked with ' . $this->getRank() . ' points';
-		$html = '<div id="header-' . $resultIdentifier . '" class="'.$EVTL_CLASS.'" style="border-left: 2px solid ' . $color . ';" title="' . $title . '"></div>';
+		$title = $EVTL_SOURCE . RodinResultManager::getRodinResultTypeName($this->resultType);
+		if ($this->getRank()) $title.= ' ranked with ' . $this->getRank() . ' points';
+		$html = '<div id="header-' . $resultIdentifier . '" class="'.$HEADERCLASS.'" style="border-left: 2px solid ' . $color . ';" title="' . $title . '"></div>';
 		return $html;
 	}
 

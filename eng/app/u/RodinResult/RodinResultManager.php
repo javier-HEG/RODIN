@@ -657,9 +657,11 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					print "<br>$rrrank for (".$result->getTitle()."): ".$result->getRank();
 				}
 	    }
-			krsort($tmp_allResults);
-      reset($tmp_allResults);
-				
+	    
+	    if (count($tmp_allResults))
+			{krsort($tmp_allResults);
+      	reset($tmp_allResults);}
+			
 			if($debug)
 			{
 	    	print "<hr>AFTERSORT results:";
@@ -668,7 +670,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					print "<br>$rrrank for (".$result->getTitle()."): ".$result->getRank();
 				}
 			}
-			      
+			
+			if (count($tmp_allResults))
 			while (list($rrrank, $result) = each($tmp_allResults))
   	    $allResults[]=$result;
 	     
