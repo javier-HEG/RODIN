@@ -1022,6 +1022,7 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 {
 	global $STATEMACHINE_DEBUG;
 	global $datasource;
+	global $sid;
 	global $headerAreaHeight;
 	global $minwidth;
 	global $widgetresultdivid;
@@ -1059,6 +1060,7 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 	{
 		//print "UNCACHE HERE";
 		print make_uncache_javascript_code('FRI: Uncache from $datasource');
+		perform_server_actions_after_last_widget_rendering();
 	}
 
 	adapt_widgetsareas_on_openclose_widgetmenu();

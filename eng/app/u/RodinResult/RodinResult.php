@@ -469,9 +469,9 @@ class BasicRodinResult {
 	} // rdfLODfetchDocumentsOnSubjects
 	
 	
-	public function rerank_rdf_documents_related_to_search($sid,$datasource,$searchterm,$USER_ID)
+	public function rerankadd_rdf_documents_related_to_search($sid,$datasource,$searchterm,$USER_ID)
 	{
-		return $this->RDFenhancement->rerank_rdf_documents_related_to_search($sid,$datasource,$searchterm,$USER_ID);
+		return $this->RDFenhancement->rerankadd_rdf_documents_related_to_search($sid,$datasource,$searchterm,$USER_ID);
 	}
 
 	

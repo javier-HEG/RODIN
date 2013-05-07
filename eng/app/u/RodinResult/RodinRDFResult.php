@@ -69,6 +69,7 @@ class RodinRDFResult {
 	
 	public  static $MAX_SRC_SUBJECT_EXPANSION = 4; // Limit SRC subjects expansion
 	public  static $MAX_LOD_SUBJECT_DOCFETCH  = 3; // Limit DOC FETCH expansion to (n) subjects
+	public  static $MAX_LOD_DOC_ADD  					= 2; // Limit DOC ADDING to (n) subjects
 	public  static $THRESHOLD_DATASOURCE_MIN_SUBJECTS = 4;
 	public  static $TOLERATED_SRC_SOLR_DATA_AGE_SEC =604800; // 1 week RDF STORAGE tolerated data age before removing/recalling/refreshing data from remote source
 	public  static $TOLERATED_SRC_RDF_DATA_AGE_SEC =604800; // 1 week RDF STORAGE tolerated data age before removing/recalling/refreshing data from remote source
@@ -1446,6 +1447,7 @@ class RodinRDFResult {
 		$LOGPARAMS['THRESHOLD_DATASOURCE_MIN_SUBJECTS'] =$C::$THRESHOLD_DATASOURCE_MIN_SUBJECTS;
 		$LOGPARAMS['MAX_SRC_SUBJECT_EXPANSION']					=$C::$MAX_SRC_SUBJECT_EXPANSION;
 		$LOGPARAMS['MAX_LOD_SUBJECT_DOCFETCH']					=$C::$MAX_LOD_SUBJECT_DOCFETCH;
+		$LOGPARAMS['MAX_LOD_DOC_ADD']										=$C::$MAX_LOD_DOC_ADD;
 		
 		foreach($LOGPARAMS as $key=>$value)
 					$LOGPARAMS_DB.=($LOGPARAMS_DB?';':'')."\$LOGPARAMS['$key']=$value";
@@ -2903,7 +2905,7 @@ EOS;
 	 * 
 	 */
 	 
-	public function rerank_rdf_documents_related_to_search($sid,$datasource,$searchterm,$USER_ID)
+	public function rerankadd_rdf_documents_related_to_search($sid,$datasource,$searchterm,$USER_ID)
 	{
 		global $RDFLOG;
 		$debug=1;
@@ -2941,7 +2943,7 @@ EOS;
 		
 		if ($debug)
 		{
-			$RDFLOG.="<br>rerank_rdf_documents_related_to_search:";
+			$RDFLOG.="<br>rerankadd_rdf_documents_related_to_search:";
 			$c=count($ranked_docs);
 			$RDFLOG.="<br>$c Internal docs:"; //print "<br>$c Internal docs:<br>"; var_dump($ranked_docs);
 			foreach($ranked_docs as $docuid=>$rank)
@@ -2981,7 +2983,7 @@ EOS;
 			$p_o = get_entity_infos($this,$docuid,true);
 			if (is_array($p_o) && count($p_o))
 			{
-				$RDFLOG.="<br><br>Assembling info for external doc $docuid:";
+				$RDFLOG.="<br><br>rerankadd_rdf_documents_related_to_search()<br>Assembling info for external doc $docuid:";
 				foreach($p_o as $p=>$ooo)
 				{
 					$RDFLOG.="<br>($p) => ";
@@ -3006,7 +3008,7 @@ EOS;
 									) 
 										 $rodin_result_type = 'article';
 									if (!$rodin_result_type)
-										fontprint("<br>Error mapping LOD document types to rodin result types (".$ooo[0][0]." ?)",'red');
+										fontprint("<br>rerankadd_rdf_documents_related_to_search() Error mapping LOD document types to rodin result types (".$ooo[0][0]." ?)",'red');
 									break;
 						case 'dce:date': 
 									$date_created = $ooo[0][0];
@@ -3040,25 +3042,41 @@ EOS;
 				
 				if ($rodin_result_type)
 				{
-					$R = RodinResultManager::create_rodinResult_for_lod(  $rodin_result_type,
-																																$rank,
-																																$title,
-																																$description,
-																																$date_created,
-																																$source_url,
-																																$identifier_url,
-																																$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
-																																$subjects  );
-																												
-					RodinResultManager::saveRodinResults($allResults=array($R), $C::$sid, $datasource='extern', $timestamp='');
+					if ($title==$oldtitle)
+					{
+						 $RDFLOG.=htmlprint("<br>rerankadd_rdf_documents_related_to_search():<br>prevent adding doc because title ($title) already added",'red');
+					}
+					else // do add
+					{
+						$R = RodinResultManager::create_rodinResult_for_lod(  $rodin_result_type,
+																																	$rank,
+																																	$title,
+																																	$description,
+																																	$date_created,
+																																	$source_url,
+																																	$identifier_url,
+																																	$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
+																																	$subjects  );
+																													
+						RodinResultManager::saveRodinResults($allResults=array($R), $C::$sid, $datasource='extern', $timestamp='');
+						$oldtitle=$title;
+						$added_documents++;
+						
+						if ($added_documents >= $C::$MAX_LOD_DOC_ADD)
+						{
+							$RDFLOG.=htmlprint("<br>rerankadd_rdf_documents_related_to_search():<br>breaking adding loop to $added_documents because of limit of (".$C::$MAX_LOD_DOC_ADD.") max docs to add",'red');
+							break;
+						}
+					}
 				}
 			}
 			else 
 				$RDFLOG.=htmlprint("<br>Error adding external document ($docuid)",'red');
 		} // $ranked_docs_ext
-	Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END WRES ASSEMBLING"),RodinRDFResult::$sid);
+		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END WRES ASSEMBLING"),RodinRDFResult::$sid);
+		return $added_documents;
 	}
-	// rerank_rdf_documents
+	// rerankadd_rdf_documents_related_to_search
 	
 	
 	

@@ -1190,7 +1190,6 @@ function get_cached_response_DB($url)
 
 function get_cached_response_SOLR($url)
 {
-//include_once("../tests/Logger.php");
 
   global $SOLR_RODIN_CONFIG;
   global $USER;
@@ -1896,6 +1895,74 @@ EOS;
 
 	return $CODE;
 }
+
+
+/**
+ * call (provisorily) sth like 	http://localhost/rodin/eng/app/tests/rdflab.php
+ * ?user_id=2
+ * &username=rodinuser
+ * &sid=20130507.101849.929.2
+ * &datasource=%2Frodin%2Feng%2Fapp%2Fw%2FRDW_swissbib.rodin
+ * &rdfize=on
+ * 
+ * and wait for completion ...
+ * this is a quick&dirty shot to see rdfized results inside RODIN 
+ * all in one shot!
+ */
+function perform_server_actions_after_last_widget_rendering()
+{
+	include_once("../tests/Logger.php");
+	//Read the content of var 'go' 
+	//execute (only once) this code 
+	//only when 'go' is set
+	//TRICK TO LET EXEC ONCE!
+	
+	$go=$_GET['go'];
+	$rdfize=($go=='');
+	global $RODINROOT,$RODINSEGMENT;
+	global $USER_ID;
+	$username = $_SESSION['longname']; 
+	global $sid, $datasource;
+	
+	if ($rdfize)
+	{
+	$RDFIZING="http://localhost$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php"
+							."?user_id=$USER_ID"
+							."&username=".str_replace(" ","%20",$username)
+							."&sid=$sid"
+							."&rdfize=on"
+						;
+
+	$QUERYSTRING=$_SERVER['QUERY_STRING'];
+
+	Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING U $RDFIZING"),$sid);
+	Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING? $QUERYSTRING"),$sid);
+	
+	$SCRIPT =<<<EOS
+	 <script type='text/javascript'>
+	 alert('$RDFIZING')
+	 </script>
+EOS;
+
+	if($RODINSEGMENT=='eng') 
+		print $SCRIPT;
+	
+	//ATTENTION: THIS WIDGET RENDERING IS EXECUTED TWICE ????
+	//call this to produce rdfizing
+	$res = file_get_contents($RDFIZING);
+	if (strstr($res,'400 Bad Request'))
+		$res='400 Bad Request';
+	else if (preg_match("/rdfized:\s(\d+)\sadded_triples\sand\s(\d+)\sadded_documents/",$res,$match))
+	{
+		$added_triples=$match[1];
+		$added_documents=$match[2];
+		$res="$added_documents added docs, $added_triples new triples";
+	} 
+	
+	Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING: $res"),$sid);
+	} // rerender
+} // perform_actions_after_last_widget_rendering
+
 
 
 

@@ -44,6 +44,9 @@ $checked_listwr=$listwr?' checked ':'';
 $list3pls=$_GET['list3pls']=='on';
 $checked_list3pls=$list3pls?' checked ':'';
 
+$rdfize=$list3pls || $_GET['rdfize']=='on';
+$checked_rdfize=$rdfize?' checked ':'';
+
 $viz3pls=$_GET['viz3pls']=='on';
 $checked_viz3pls=$viz3pls?' checked ':'';
 
@@ -60,9 +63,11 @@ $list3page=$list3pls;
 $checked_list3page=$list3page?' checked ':'';
 
 //If $list3page then also $want_rdfexpand
-$want_rdfexpand=$list3page;
+$want_rdfexpand=$rdfize || $list3page;
 
-Logger::remove_db_logger_records($sid);
+//For every interaction case cleanup db
+//Attention: you can destroy database records
+if ($list3page) Logger::remove_db_logger_records($sid);
 ############
 //print "unlinking $RODIN_PROFILING_PATH";
 if (file_exists($RODIN_PROFILING_PATH)) unlink($RODIN_PROFILING_PATH);
@@ -76,7 +81,9 @@ if ($sid<>'')
 	
 	//Recall results from SOLR using sid but no datasource! (get for every datasource)
 	$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource='',true,false);
-	$resultCount = count($allResults);
+	$resultCount = count($allResults);	
+
+	
 
 	$CONTENT2="$resultCount Widget results found for sid $sid";
 	
@@ -106,20 +113,21 @@ if ($sid<>'')
 		$singleResult['count'] = $resultCounter;
 		//$CONTENT2.=  "<br>tokenContent: ".$result->toInWidgetHtml('all');
 		//Ausgabe extra:
-	
-		$CONTENT2.="<hr>";
-		$CONTENT2.="<b>Title:</b> " . utf8_encode($result->getTitle());
-		$CONTENT2.="<br><b>ISBN:</b> " . $result->getProperty('isbn');
-		if($result->getAuthors())
-			$CONTENT2 .= "<br><b>Authors:</b> " . utf8_encode($result->getAuthors());
-		$CONTENT2 .= '<br><b>Date:</b> ' . $result->getDate();
-		$CONTENT2.=  "<br><b>url:</b> ".$result->getUrlPage();
-		
-		foreach ($result->getValidProperties() as $property) {
-			if ($result->getProperty($property))
-			$CONTENT2.= "<br><b>$property:</b>" . utf8_encode($result->getProperty($property));
+		if($listwr)
+		{
+			$CONTENT2.="<hr>";
+			$CONTENT2.="<b>Title:</b> " . utf8_encode($result->getTitle());
+			$CONTENT2.="<br><b>ISBN:</b> " . $result->getProperty('isbn');
+			if($result->getAuthors())
+				$CONTENT2 .= "<br><b>Authors:</b> " . utf8_encode($result->getAuthors());
+			$CONTENT2 .= '<br><b>Date:</b> ' . $result->getDate();
+			$CONTENT2.=  "<br><b>url:</b> ".$result->getUrlPage();
+			
+			foreach ($result->getValidProperties() as $property) {
+				if ($result->getProperty($property))
+				$CONTENT2.= "<br><b>$property:</b>" . utf8_encode($result->getProperty($property));
+			}
 		}
-	
 		//print "<br>SEG: $SEG, USER: $USER ";
 		//print "<br>collect_queries_tag($SEG,$USER,$sid) = $search_term";
 		$store=null;
@@ -127,10 +135,9 @@ if ($sid<>'')
 		
 		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Start RDF on $resultCounter result"),$sid);
 		
-		if ($list3pls)
-		{ 
+		if ($rdfize)
+		{
 			list($store,$count_triples_added) = $result->rdfize($sid,$datasource,$search_term,$USER_ID,$searchres_timestamp);
-			
 			if (!$logged_rdfization_parameters)
 			{
 				$result->RDFenhancement->log_rdf_parameters();
@@ -138,17 +145,22 @@ if ($sid<>'')
 			}
 			
 			$added_triples+=$count_triples_added;
-			$RDFLOG.="<br>rdfize: $count_triples_added (of $added_triples) triples added";
 		}
+
 		Logger::logAction(27, array('from'=>'rdflab','msg'=>"RDFized on $resultCounter result"),$sid);
 		
 		if($store && $want_rdfexpand)
 		{
 			list($ok,$count_triples_added)=$result->rdfLODfetchDocumentsOnSubjects($sid,$datasource,$search_term,$USER_ID);
-			$ok=$result->rerank_rdf_documents_related_to_search($sid,$datasource,$search_term,$USER_ID);
+			$added_documents=$result->rerankadd_rdf_documents_related_to_search($sid,$datasource,$search_term,$USER_ID);
 			
 			$added_triples+=$count_triples_added;
 			$RDFLOG.="<br>LODfetch: $count_triples_added (of $added_triples) triples added";
+		}
+		
+		if ($rdfize && !$list3pls) 
+		{
+			print "rdfized: $added_triples added_triples and $added_documents added_documents";
 		}
 		Logger::logAction(27, array('from'=>'rdflab','msg'=>"Exit RDF on $resultCounter result"),$sid);
 
@@ -196,6 +208,7 @@ if ($result->RDFenhancement)
 	$THRESHOLD_DATASOURCE_MIN_SUBJECTS = $C::$THRESHOLD_DATASOURCE_MIN_SUBJECTS;
 	$MAX_SRC_SUBJECT_EXPANSION			=$C::$MAX_SRC_SUBJECT_EXPANSION;
 	$MAX_LOD_SUBJECT_DOCFETCH				=$C::$MAX_LOD_SUBJECT_DOCFETCH;
+	$MAX_LOD_DOC_ADD								=$C::$MAX_LOD_DOC_ADD;	
 		
 	$TDR    		 ="align=right";
 	$LIMITSSTAT .= "<table>";
@@ -204,7 +217,8 @@ if ($result->RDFenhancement)
 	$LIMITSSTAT .= "<tr><td title='(Re)Use RDF STORE HOLD TRIPLES with a maximum age of $TOLERATED_SRC_RDF_DATA_AGE_SEC secs '>Limit RDF STORE TRIPLE AGE TO: </td><td $TDR>$TOLERATED_SRC_RDF_DATA_AGE_SEC</td><td> secs</td></tr>";
 	$LIMITSSTAT .= "<tr><td title='Threshold to trigger title driven subjects computation during analysis of a single RODIN widget result document'>TRHESHOLD DECISION TITLE SUBJECTS: </td><td $TDR>$MAX_SRC_SUBJECT_EXPANSION</td><td> subjects</td></tr>";
 	$LIMITSSTAT .= "<tr><td title='LIMIT expansion loop (in subject expansion) to maximum $MAX_SRC_SUBJECT_EXPANSION of the gathered RDF STORE subjects'>Limit RDF SUBJECT EXPANSION LOOP TO: </td><td $TDR>$MAX_SRC_SUBJECT_EXPANSION</td><td> subjects</td></tr>";
-	$LIMITSSTAT .= "<tr><td title='LIMIT expansion loop (in LOD DOC FETCH) to maximum $MAX_SRC$MAX_LOD_SUBJECT_DOCFETCH_SUBJECT_EXPANSION of the gathered RDF STORE subjects'>Limit RDF DOC FETCH LOOP TO: </td><td $TDR>$MAX_LOD_SUBJECT_DOCFETCH</td><td> subjects</td></tr>";
+	$LIMITSSTAT .= "<tr><td title='LIMIT expansion loop (in LOD DOC FETCH) to maximum $MAX_LOD_SUBJECT_DOCFETCH of the gathered RDF STORE subjects'>Limit RDF DOC FETCH LOOP TO: </td><td $TDR>$MAX_LOD_SUBJECT_DOCFETCH</td><td> subjects</td></tr>";
+	$LIMITSSTAT .= "<tr><td title='LIMIT add loop (in LOD DOC ADD) to maximum $MAX_LOD_DOC_ADD of the gathered RDF STORE subjects'>Limit RDF DOC ADD LOOP TO: </td><td $TDR>$MAX_LOD_DOC_ADD</td><td> added documents</td></tr>";
 	$LIMITSSTAT .= "</table>";
 }
 
@@ -212,6 +226,9 @@ if ($result->RDFenhancement)
 $PAGEWIDTH="400px";
 $SRCLINK="$SRCLINKBASE/select_src.php?nl=0&u=$USER_ID&showuser=$USER_ID";
 $STATLINK="rdf_exec_stat.php?sid=$sid&u=$USER_ID";
+
+
+if (!$list3pls) $RDFLOG=''; // CANCEL LOG IF JUST BATCH
 
 ##########################################
 # The following is filled by the programs:
@@ -255,6 +272,7 @@ print<<<EOP
 			</tr>
 			<tr>
 				<td colspan="2">
+				RDFize:<input type='checkbox' name='rdfize' $checked_rdfize title='For programs only ;-)'>&nbsp;&nbsp;&nbsp;
 				List widget results:<input type='checkbox' name='listwr' $checked_listwr>&nbsp;&nbsp;&nbsp;
 				RDFize & display triples:<input type='checkbox' name='list3pls' $checked_list3pls>&nbsp;&nbsp;&nbsp;
 				graphviz search graph:<input type='checkbox' name='viz3search' $checked_viz3search title='Visualize search subgraph for $search_term' >&nbsp;&nbsp;&nbsp;
