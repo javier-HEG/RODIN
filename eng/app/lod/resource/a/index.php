@@ -13,19 +13,26 @@ $filename="u/arcUtilities.php"; $maxretries=10;
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
  
-//Include RodinRDFResult
+//Include RodinRDFResult - obsolete
 $filename="u/RodinResult/RodinRDFResult.php"; $maxretries=10;
 #######################################
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
  
-$filename="u/FRIdbUtilities.php"; $maxretries=10;
+//Include RDFprocessor
+$filename="u/RDFprocessor.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+ 
+ $filename="u/FRIdbUtilities.php"; $maxretries=10;
 #######################################
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 
 $uid=$_GET['token'];
-$PAGETITLE="RODIN w3s triples page";
+$seeonly=$_GET['seeonly'];
+$PAGETITLE="dbRODIN LoD annotation browser ($RODINSEGMENT)";
 $PAGETITLE_BIG=strtoupper($PAGETITLE)." FOR ENTITY $uid";
 ?>
 
@@ -39,11 +46,9 @@ $PAGETITLE_BIG=strtoupper($PAGETITLE)." FOR ENTITY $uid";
 	<body class='triplepage_rodin_a'>
 <?php
 
-	
-
 
 if ($uid)
-	print_triplespage($uid,$PAGETITLE,'rodin_a');
+	display_interactive_lod_entity_triples($uid,$PAGETITLE,'rodin_a',$seeonly);
 
 
 

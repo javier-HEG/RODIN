@@ -44,19 +44,39 @@ foreach($computation_records as $computation_record)
 	
 	if (strstr($msg,'log_rdf_parameters'))
 		$log_rdf_parameters = $msg;
-	else if (strstr($msg,'get_related_subjects_expansions_using_thesauri'))
+				
+	else if (strstr($msg,'rdfMetaControl'))
+	{
+		$rdfMetaControl[]=$computation_record;
+	}
+	else if (strstr($msg,'get_subjects_expansions_using_thesauri'))
 	{
 		$subjects_expansions_using_thesauri[]=$computation_record;
 	}
-	else if (strstr($msg,'rdfLODfetchDocumentsOnSubjects'))
+	else if (strstr($msg,'lod_subJ_doc_fetch'))
 	{
-		$rdfLODfetchDocumentsOnSubjects[]=$computation_record;
+		$lod_subJ_doc_fetch[]=$computation_record;
 	}
-	else if (strstr($msg,'RDF Start using'))
+	else if (strstr($msg,'CACHING') || strstr($msg,'GETCACHE'))
+	{
+		$caching[]=$computation_record;
+	}
+	
+	else if (strstr($msg,'IMPORT TRIPLES'))
+	{
+		$triples_import[]=$computation_record;
+	}
+	
+	else if (strstr($msg,'detectLanguageAndLog'))
+	{
+		$detectLanguageAndLog[]=$computation_record;
+	}
+	
+	else if (strstr($msg,'RDF Start'))
 	{
 		$rdf_start_r=$computation_record;
 	}
-	else if (strstr($msg,'RDF End using'))
+	else if (strstr($msg,'RDF End'))
 	{
 		$rdf_end_r=$computation_record;
 	}
@@ -84,7 +104,7 @@ foreach($subjects_expansions_using_thesauri as $record)
 		{
 			$src_parameters=$subexp_src_single_stat['src_parameters']=$record;
 		}
-		else if (strstr($record['msg'],'CALLING subexp SRC'))
+		else if (strstr($record['msg'],'CALLING subexp SRC') || strstr($record['msg'],'CALLING queryexp SRC'))
 		{
 			$subexp_src_single_stat['calling_subexp_src']=$record;
 		}
@@ -122,13 +142,13 @@ foreach($subjects_expansions_using_thesauri as $record)
 
 #######################################################
 #
-# ANALYSE rdfLODfetchDocumentsOnSubjects
+# ANALYSE lod_subJ_doc_fetch
 #
 #######################################################
 //print "<br>subjects_expansions_using_thesauri:<br>";
 $lodfetch_src_single_stat = array();
-if (count($rdfLODfetchDocumentsOnSubjects)>0)
-foreach($rdfLODfetchDocumentsOnSubjects as $record)
+if (count($lod_subJ_doc_fetch)>0)
+foreach($lod_subJ_doc_fetch as $record)
 {
 	//print "<br>lodfetch 1 record: ".$record['msg'];
 	
@@ -157,11 +177,11 @@ foreach($rdfLODfetchDocumentsOnSubjects as $record)
 	{
 		$lodfetch_src_single_stat['end_rerank']=$record;
 	}
-	else if (strstr($record['msg'],'START remove_unused_src_triples_on_service_and_search'))
+	else if (strstr($record['msg'],'START remove_srcuse'))
 	{
 		$lodfetch_src_single_stat['start_rdfremove']=$record;
 	}	
-	else if (strstr($record['msg'],'END remove_unused_src_triples_on_service_and_search'))
+	else if (strstr($record['msg'],'END remove_srcuse'))
 	{
 		$lodfetch_src_single_stat['end_rdfremove']=$record;
 	}
@@ -206,7 +226,187 @@ foreach($rdfLODfetchDocumentsOnSubjects as $record)
 		// print "<br>PUTTING RECORD: ";var_dump($lodfetch_src_single_stat);
 		// $lodfetch_src_single_stat=array();
 	}
-} // rdfLODfetchDocumentsOnSubjects
+} // lod_subJ_doc_fetch
+
+
+
+
+
+#######################################################
+#
+# ANALYSE rdfMetaControl
+#
+#######################################################
+//print "<br>subjects_expansions_using_thesauri:<br>";
+$rdfMetaControl_stats=array();
+$rdfMetaControl_single_stat = array();
+if (count($rdfMetaControl)>0)
+foreach($rdfMetaControl as $record)
+{
+	//print "<br>".$record['msg'];
+	
+	//$$starting=$src_parameters=$used_persisted_data='';
+	//if (!$subexp_cycle)
+	{
+		if (strstr($record['msg'],'START remove_unused_src_triples_on_service_and_search'))
+		{
+			$rdfMetaControl_single_stat['start_remove_rdf_meta']=$record;
+		}
+		else if (strstr($record['msg'],'END remove_unused_src_triples_on_service_and_search'))
+		{
+			$rdfMetaControl_single_stat['end_remove_rdf_meta']=$record;
+			$rdfMetaControl_stats[]=$rdfMetaControl_single_stat;
+			$rdfMetaControl_single_stat = array();
+			//Add data to obj
+		}
+		else
+		if (strstr($record['msg'],'START rdfannotate_add_src_use'))
+		{
+			$rdfMetaControl_single_stat['start_annotate_rdf_meta']=$record;
+		}
+		else if (strstr($record['msg'],'END rdfannotate_add_src_use'))
+		{
+			$rdfMetaControl_single_stat['end_annotate_rdf_meta']=$record;
+			$rdfMetaControl_stats[]=$rdfMetaControl_single_stat;
+			$rdfMetaControl_single_stat = array();
+			//Add data to obj
+		}
+		else
+		if (strstr($record['msg'],'START remove_unused_result_triples_on_search'))
+		{
+			$rdfMetaControl_single_stat['start_remove_rdf_meta_search']=$record;
+		}
+		else if (strstr($record['msg'],'END remove_unused_result_triples_on_search'))
+		{
+			$rdfMetaControl_single_stat['end_remove_rdf_meta_search']=$record;
+			$rdfMetaControl_stats[]=$rdfMetaControl_single_stat;
+			$rdfMetaControl_single_stat = array();
+			//Add data to obj
+		}
+	}
+} // subjects_expansions_using_thesauri
+
+
+
+
+
+
+
+
+
+#######################################################
+#
+# ANALYSE $caching
+#
+#######################################################
+//print "<br>caching:<br>";
+$caching_stats=array();
+$caching_single_stat = array();
+if (count($caching)>0)
+foreach($caching as $record)
+{
+	//print "<br>".$record['msg'];
+	
+	//$$starting=$src_parameters=$used_persisted_data='';
+	//if (!$subexp_cycle)
+	{
+		if (strstr($record['msg'],'START CACHING'))
+		{
+			$caching_single_stat['start_caching']=$record;
+		}
+		else if (strstr($record['msg'],'END CACHING'))
+		{
+			$caching_single_stat['end_caching']=$record;
+			$caching_stats[]=$caching_single_stat;
+			$caching_single_stat = array();
+			//Add data to obj
+		}
+		else if (strstr($record['msg'],'START GETCACHE'))
+		{
+			$caching_single_stat['start_getcache']=$record;
+		}
+		else if (strstr($record['msg'],'END GETCACHE'))
+		{
+			$caching_single_stat['end_getcache']=$record;
+			$caching_stats[]=$caching_single_stat;
+			$caching_single_stat = array();
+			//Add data to obj
+		}
+		
+	}
+} // $caching
+
+
+
+
+
+#######################################################
+#
+# ANALYSE $detectLanguageAndLog
+#
+#######################################################
+$detectLanguageAndLog_stats=array();
+$detectLanguageAndLog_single_stat = array();
+if (count($detectLanguageAndLog)>0)
+foreach($detectLanguageAndLog as $record)
+{
+	//print "<br>".$record['msg'];
+	
+	//$$starting=$src_parameters=$used_persisted_data='';
+	//if (!$subexp_cycle)
+	{
+		if (strstr($record['msg'],'ask'))
+		{
+			$detectLanguageAndLog_single_stat['start_langdect']=$record;
+		}
+		else if (strstr($record['msg'],'exit'))
+		{
+			$detectLanguageAndLog_single_stat['end_langdect']=$record;
+			$detectLanguageAndLog_stats[]=$detectLanguageAndLog_single_stat;
+			$detectLanguageAndLog_single_stat = array();
+			//Add data to obj
+		}
+	}
+} // $caching
+
+
+
+
+
+#######################################################
+#
+# ANALYSE $triples_import
+#
+#######################################################
+//print "<br>caching:<br>";
+$triples_import_stats=array();
+$triples_import_single_stat = array();
+if (count($triples_import)>0)
+foreach($triples_import as $record)
+{
+	//print "<br>".$record['msg'];
+	
+	//$$starting=$src_parameters=$used_persisted_data='';
+	//if (!$subexp_cycle)
+	{
+		if (strstr($record['msg'],'START IMPORT TRIPLES'))
+		{
+			$triples_import_single_stat['start_import']=$record;
+		}
+		else if (strstr($record['msg'],'END IMPORT TRIPLES'))
+		{
+			$triples_import_single_stat['end_import']=$record;
+			$triples_import_stats[]=$triples_import_single_stat;
+			$triples_import_single_stat = array();
+			//Add data to obj
+		}
+		
+	}
+} // $triples_import
+
+
+
+
 
 
 
@@ -485,11 +685,372 @@ if (!$duration_unsuccesful_lodfetch_remote_calls) $duration_unsuccesful_lodfetch
 
 
 
+
+
+
+#######################################################
+#
+# PRETTY PRINTING $rdfMetaControl
+#
+#######################################################
+
+
+//print "<hr>rdfMetaControl";
+if (count($rdfMetaControl_stats) > 0)
+foreach($rdfMetaControl_stats as $rdfMetaControl_stat)
+{
+	//print "<br><br>rdfMetaControl_stat:<br>"; var_dump($rdfMetaControl_stat);
+	if ($rdfMetaControl_stat)
+	{
+		if (($start_remove_r = $rdfMetaControl_stat['start_remove_rdf_meta']))
+		{
+			$end_remove_r	= $rdfMetaControl_stat['end_remove_rdf_meta'];
+			
+			//Compute duration:
+			list($rdf_remove_secs,
+				 	 $rdf_remove_str) = get_timestamp_diff_logger($end_remove_r,$start_remove_r);
+		
+			$rdf_removing_calls++;
+			$all_duration_rdf_removing+=$rdf_remove_secs;
+		}
+		
+		
+		if (($start_ann_r	= $rdfMetaControl_stat['start_annotate_rdf_meta']))
+		{
+			$end_ann_r		= $rdfMetaControl_stat['end_annotate_rdf_meta'];
+		
+			//Compute duration:
+			list($rdf_ann_secs,
+				 	 $rdf_ann_str) = get_timestamp_diff_logger($end_ann_r,$start_ann_r);
+		
+			$rdf_annotating_calls++;
+			$all_duration_rdf_annotating+=$rdf_ann_secs;
+		}
+		
+		if (($start_rdf_remove_metasearch_r	= $rdfMetaControl_stat['start_remove_rdf_meta_search']))
+		{
+			$end_rdf_remove_metasearch_r	= $rdfMetaControl_stat['end_remove_rdf_meta_search'];
+		
+			//Compute duration:
+			list($rdf_rdf_remove_metasearch_secs,
+				 	 $rdf_rdf_remove_metasearch_str) = get_timestamp_diff_logger($end_rdf_remove_metasearch_r,$start_rdf_remove_metasearch_r);
+		
+			$rdf_remove_metasearch_calls++;
+			$all_duration_rdf_remove_metasearch+=$rdf_rdf_remove_metasearch_secs;
+		}
+		
+		
+		
+	}
+} //$rdfMetaControl
+
+//Make zero to avoid null
+
+
+if (!$rdf_removing_calls) $rdf_removing_calls=0;
+if (!$rdf_annotating_calls) $rdf_annotating_calls=0;
+if (!$rdf_remove_metasearch_calls) $rdf_remove_metasearch_calls=0;
+
+if (!$all_duration_rdf_removing) $all_duration_rdf_removing=0; 
+		$all_duration_rdf_removing_percent = tell_percent_of($all_duration_rdf_removing,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_rdf_annotating) $all_duration_rdf_annotating=0; 
+		$all_duration_rdf_annotating_percent = tell_percent_of($all_duration_rdf_annotating,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_rdf_remove_metasearch) $all_duration_rdf_remove_metasearch=0; 
+		$all_duration_rdf_remove_metasearch_percent = tell_percent_of($all_duration_rdf_remove_metasearch,$rdfization_duration_secs,$cumulate=false);
+
+# end PRETTY PRINTING $rdfMetaControl_stats
+#
+#######################################################
+
+
+
+
+
+
+
+
+#######################################################
+#
+# PRETTY PRINTING $caching_stats
+#
+#######################################################
+
+
+//print "<hr>caching";
+if (count($caching_stats) > 0)
+foreach($caching_stats as $caching_stat)
+{
+	//print "<br><br>caching_stat:<br>"; var_dump($caching_stat);
+	if ($caching_stat)
+	{
+		if (($start_caching_r = $caching_stat['start_caching']))
+		{
+			$end_caching_r	= $caching_stat['end_caching'];
+			
+			//Compute duration:
+			list($caching_secs,
+				 	 $caching_str) = get_timestamp_diff_logger($end_caching_r,$start_caching_r);
+		
+			$caching_calls++;
+			$all_duration_caching+=$caching_secs;
+			
+			// DB or SOLR?
+			if (strstr($start_caching_r['msg'],'solr'))
+			{
+				$solr_caching_calls++;
+				$all_duration_solr_caching+=$caching_secs;
+			} // solr
+			else 
+			if (strstr($start_caching_r['msg'],'mysql'))
+			{
+				$mysql_caching_calls++;
+				$all_duration_mysql_caching+=$caching_secs;
+			} // mysql
+			
+			//WHICH method?
+			if (strstr($start_caching_r['msg'],'cache_response'))
+			{
+				$cache_response_caching_calls++;
+				$all_duration_cache_response_caching+=$caching_secs;
+			} // cache_response
+			else if (strstr($start_caching_r['msg'],'cache_src_response'))
+			{
+				$cache_src_response_caching_calls++;
+				$all_duration_cache_src_response_caching+=$caching_secs;
+			} // cache_src_response
+			
+		} // start_caching
+		
+		
+		if (($start_getcache_r	= $caching_stat['start_getcache']))
+		{
+			$end_getcache_r		= $caching_stat['end_getcache'];
+		
+			//Compute duration:
+			list($getcache_secs,
+				 	 $getcache_str) = get_timestamp_diff_logger($end_getcache_r,$start_getcache_r);
+		
+			$getcache_calls++;
+			$all_duration_getcache+=$getcache_secs;
+			
+			// DB or SOLR?
+			if (strstr($start_getcache_r['msg'],'solr'))
+			{
+				$solr_getcache_calls++;
+				$all_duration_solr_getcache+=$getcache_secs;
+			} // solr
+			else 
+			if (strstr($start_getcache_r['msg'],'mysql'))
+			{
+				$mysql_getcache_calls++;
+				$all_duration_mysql_getcache+=$getcache_secs;
+			} // mysql
+			
+			//WHICH method?
+			if (strstr($start_getcache_r['msg'],'get_cached_response'))
+			{
+				$cache_response_getcache_calls++;
+				$all_duration_cache_response_getcache+=$getcache_secs;
+			} // cache_response
+			else if (strstr($start_getcache_r['msg'],'get_cached_src_response'))
+			{
+				$cache_src_response_getcache_calls++;
+				$all_duration_cache_src_response_getcache+=$getcache_secs;
+			} // cache_src_response
+			
+		} // start_getcache
+		
+	}
+} //$rdfMetaControl
+
+//Make zero to avoid null
+
+
+if (!$caching_calls) $caching_calls=0;
+if (!$solr_caching_calls) $solr_caching_calls=0;
+if (!$mysql_caching_calls) $mysql_caching_calls=0;
+if (!$cache_response_caching_calls) $cache_response_caching_calls=0;
+if (!$cache_src_response_caching_calls) $cache_src_response_caching_calls=0;
+
+if (!$getcache_calls) $getcache_calls=0;
+if (!$solr_getcache_calls) $solr_getcache_calls=0;
+if (!$mysql_getcache_calls) $mysql_getcache_calls=0;
+if (!$cache_response_getcache_calls) $cache_response_getcache_calls=0;
+if (!$cache_src_response_getcache_calls) $cache_src_response_getcache_calls=0;
+
+if (!$all_duration_caching) $all_duration_caching=0; 
+		$all_duration_caching_percent = tell_percent_of($all_duration_caching,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_solr_caching) $all_duration_solr_caching=0; 
+		$all_duration_solr_caching_percent = tell_percent_of($all_duration_solr_caching,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_mysql_caching) $all_duration_mysql_caching=0; 
+		$all_duration_mysql_caching_percent = tell_percent_of($all_duration_mysql_caching,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_cache_response_caching) $all_duration_cache_response_caching=0; 
+		$all_duration_cache_response_caching_percent = tell_percent_of($all_duration_cache_response_caching,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_cache_src_response_caching) $all_duration_cache_src_response_caching=0; 
+		$all_duration_cache_src_response_caching_percent = tell_percent_of($all_duration_cache_src_response_caching,$rdfization_duration_secs,$cumulate=false);
+
+if (!$all_duration_getcache) $all_duration_getcache=0; 
+		$all_duration_getcache_percent = tell_percent_of($all_duration_getcache,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_solr_getcache) $all_duration_solr_getcache=0; 
+		$all_duration_solr_getcache_percent = tell_percent_of($all_duration_solr_getcache,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_mysql_getcache) $all_duration_mysql_getcache=0; 
+		$all_duration_mysql_getcache_percent = tell_percent_of($all_duration_mysql_getcache,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_mysql_getcache) $all_duration_mysql_getcache=0; 
+		$all_duration_mysql_getcache_percent = tell_percent_of($all_duration_mysql_getcache,$rdfization_duration_secs,$cumulate=false);
+if (!$all_duration_cache_src_response_getcache) $all_duration_cache_src_response_getcache=0; 
+		$all_duration_cache_src_response_getcache_percent = tell_percent_of($all_duration_cache_src_response_getcache,$rdfization_duration_secs,$cumulate=false);
+
+# end PRETTY PRINTING $caching_stats
+#
+#######################################################
+
+
+
+
+
+
+
+
+#######################################################
+#
+# PRETTY PRINTING $triples_import_stats
+#
+#######################################################
+
+
+//print "<hr>rdfMetaControl";
+if (count($triples_import_stats) > 0)
+foreach($triples_import_stats as $triples_import_stat)
+{
+	//print "<br><br>triples_import_stats:<br>"; var_dump($triples_import_stats);
+	if ($triples_import_stat)
+	{
+		if (($start_triplesimport_r = $triples_import_stat['start_import']))
+		{
+			$end_triplesimport_r	= $triples_import_stat['end_import'];
+			
+			//Compute duration:
+			list($rdf_triplesimport_secs,
+				 	 $rdf_triplesimport_str) = get_timestamp_diff_logger($end_triplesimport_r,$start_triplesimport_r);
+		
+			$rdf_triplesimport_calls++;
+			$all_duration_rdf_triplesimport+=$rdf_triplesimport_secs;
+		}
+		
+		
+	}
+} //$triples_import_stat
+
+//Make zero to avoid null
+
+
+if (!$rdf_triplesimport_calls) $rdf_triplesimport_calls=0;
+if (!$all_duration_rdf_triplesimport) $all_duration_rdf_triplesimport=0; 
+		$all_duration_rdf_triplesimport_percent = tell_percent_of($all_duration_rdf_triplesimport,$rdfization_duration_secs,$cumulate=false);
+
+# end PRETTY PRINTING $rdfMetaControl_stats
+#
+#######################################################
+
+
+
+
+#######################################################
+#
+# PRETTY PRINTING $detectLanguageAndLog_stats
+#
+#######################################################
+
+
+//print "<hr>detectLanguageAndLog_stats";
+if (count($detectLanguageAndLog_stats) > 0)
+foreach($detectLanguageAndLog_stats as $detectLanguageAndLog_stat)
+{
+	//print "<br><br>detectLanguageAndLog_stats:<br>"; var_dump($detectLanguageAndLog_stat);
+	if ($detectLanguageAndLog_stat)
+	{
+		if (($start_r = $detectLanguageAndLog_stat['start_langdect']))
+		{
+			$end_r	= $detectLanguageAndLog_stat['end_langdect'];
+			//Compute durations:
+			list($lang_dect_secs,
+				 	 $lang_dect_str) = get_timestamp_diff_logger($end_r,$start_r);
+
+			
+			$lang='';
+			$lang_is_strange=false;
+			if (preg_match("/exit\((.*)\)/",$end_r['msg'],$match))
+			{
+				$lang=$match[1];
+				$lang_is_strange = ($lang=='un');
+			} 
+						
+			if ($lang)
+			//SUCCESSFULL
+			{
+				$lang_dect_successfull_calls++;
+				$all_duration_successfull_lang_dect+=$lang_dect_secs;
+				
+				if ($lang_is_strange)
+				{
+					$lang_dect_successfull_but_strange_calls++;
+					$all_duration_successfull_but_strange_lang_dect+=$lang_dect_secs;
+				}
+			}
+			else {
+				$lang_dect_unsuccessfull_calls++;
+				$all_duration_unsuccessfull_lang_dect+=$lang_dect_secs;
+			} // UNSUCCESSFULF
+			
+		
+			$lang_dect_calls++;
+			$all_duration_lang_dect+=$lang_dect_secs;
+		}
+		
+		
+	}
+} //$triples_import_stat
+
+//Make zero to avoid null
+
+
+if (!$lang_dect_calls) $lang_dect_calls=0;
+if (!$all_duration_lang_dect) $all_duration_lang_dect=0; 
+		$all_duration_lang_dect_percent = tell_percent_of($all_duration_lang_dect,$rdfization_duration_secs,$cumulate=false);
+
+if (!$lang_dect_successfull_calls) $lang_dect_successfull_calls=0;
+if (!$all_duration_successfull_lang_dect) $all_duration_successfull_lang_dect=0; 
+		$all_duration_successfull_lang_dect_percent = tell_percent_of($all_duration_successfull_lang_dect,$rdfization_duration_secs,$cumulate=false);
+
+if (!$lang_dect_successfull_but_strange_calls) $lang_dect_successfull_but_strange_calls=0;
+if (!$all_duration_successfull_but_strange_lang_dect) $all_duration_successfull_but_strange_lang_dect=0; 
+		$all_duration_successfull_but_strange_lang_dect_percent = tell_percent_of($all_duration_successfull_but_strange_lang_dect,$rdfization_duration_secs,$cumulate=false);
+
+if (!$lang_dect_unsuccessfull_calls) $lang_dect_unsuccessfull_calls=0;
+if (!$all_duration_unsuccessfull_lang_dect) $all_duration_unsuccessfull_lang_dect=0; 
+		$all_duration_unsuccessfull_lang_dect_percent = tell_percent_of($all_duration_unsuccessfull_lang_dect,$rdfization_duration_secs,$cumulate=false);
+
+
+# end PRETTY PRINTING $detectLanguageAndLog_stats
+#
+#######################################################
+
+
+
 $CONTROLPARAMS = get_CONTROLPARAMS($log_rdf_parameters);
 $SAVEDOPT=" class='rdfsavedstat' ";
 $CALLEDOPT=" class='rdfcalledstat' ";
 $HOMOOPT =" class='rdfhomogstat' ";
 $PERCENTSTYLE = " class='percentstat' ";
+
+$CACHECLASS = " class='cachestat' ";
+$SOLRTCCLASS = " class='solrstat' ";
+$MYSQLCLASS = " class='mysqlstat' ";
+$WRESASS = " class='rdfremovestat' ";
+$LDECTTCCLASS = " class='langdect' ";
+$LDECTTOKCCLASS = " class='langdectok' ";
+$LDECTTNOKCCLASS = " class='langdectnok' ";
+
 
 print <<<EOP
 	<table>
@@ -709,6 +1270,28 @@ print <<<EOP
 		</tr>
 EOP;
 }
+print <<<EOP
+		<tr>
+			<td colspan=3><hr></td>
+		</tr>
+EOP;
+if ($rdf_triplesimport_calls)
+{
+print <<<EOP
+		<tr>	
+			<td align=right $HOMOOPT>$rdf_triplesimport_calls ARC TRIPLES IMPORT CALLS:&nbsp;&nbsp;
+			</td>
+			<td $HOMOOPT>$all_duration_rdf_triplesimport secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_rdf_triplesimport_percent
+			</td>
+		</tr>
+EOP;
+}
+
+
+
 
 if ($all_duration_rdfremove_duration_secs)
 {
@@ -741,7 +1324,291 @@ print <<<EOP
 EOP;
 }
 
+if ($rdf_remove_metasearch_calls)
+{
+print <<<EOP
+		<tr>	
+			<td align=right $WRESASS> $rdf_remove_metasearch_calls RDF metasearch removing calls:&nbsp;&nbsp;
+			</td>
+			<td $WRESASS> $all_duration_rdf_remove_metasearch secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_rdf_remove_metasearch_percent
+			</td>
+		</tr>
+EOP;
+}
 
+if ($rdf_removing_calls)
+{
+print <<<EOP
+		<tr>	
+			<td align=right $WRESASS> $rdf_removing_calls RDF removing calls:&nbsp;&nbsp;
+			</td>
+			<td $WRESASS> $all_duration_rdf_removing secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_rdf_removing_percent
+			</td>
+		</tr>
+EOP;
+}
+
+
+if ($rdf_annotating_calls)
+{
+print <<<EOP
+		<tr>	
+			<td align=right $WRESASS> $rdf_annotating_calls RDF annotating calls:&nbsp;&nbsp;
+			</td>
+			<td $WRESASS>$all_duration_rdf_annotating secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_rdf_annotating_percent 
+			</td>
+		</tr>
+EOP;
+}
+print <<<EOP
+		<tr>
+			<td colspan=3><hr></td>
+		</tr>
+EOP;
+
+#########################################
+#
+# CACHING
+#
+
+if ($caching_calls)
+{
+print <<<EOP
+		<tr>	
+			<td align=right $CACHECLASS> $caching_calls CACHING calls:&nbsp;&nbsp;
+			</td>
+			<td $CACHECLASS>$all_duration_caching secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_caching_percent 
+			</td>
+		</tr>
+EOP;
+	
+	if($solr_caching_calls)
+		print <<<EOP
+		<tr>	
+			<td align=right $SOLRTCCLASS> $solr_caching_calls SOLR CACHING calls:&nbsp;&nbsp;
+			</td>
+			<td $SOLRTCCLASS>$all_duration_solr_caching secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_solr_caching_percent 
+			</td>
+		</tr>
+EOP;
+	if($mysql_caching_calls)
+		print <<<EOP
+		<tr>	
+			<td align=right $MYSQLCLASS> $mysql_caching_calls DB CACHING calls:&nbsp;&nbsp;
+			</td>
+			<td $MYSQLCLASS>$all_duration_mysql_caching secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_mysql_caching_percent 
+			</td>
+		</tr>
+EOP;
+
+	if($cache_response_caching_calls)
+		print <<<EOP
+		<tr>	
+			<td align=right $CACHECLASS> $cache_response_caching_calls cache_response() CACHING calls:&nbsp;&nbsp;
+			</td>
+			<td $CACHECLASS>$all_duration_cache_response_caching secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_cache_response_caching_percent 
+			</td>
+		</tr>
+EOP;
+	if($cache_src_response_caching_calls)
+		print <<<EOP
+		<tr>	
+			<td align=right $CACHECLASS> $cache_src_response_caching_calls cache_src_response() CACHING calls:&nbsp;&nbsp;
+			</td>
+			<td $CACHECLASS>$all_duration_cache_src_response_caching secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_cache_src_response_caching_percent 
+			</td>
+		</tr>
+EOP;
+	$need_cache_ending_line=1;
+} // $caching_calls
+
+
+
+if ($getcache_calls)
+{
+print <<<EOP
+		<tr>	
+			<td align=right $CACHECLASS> $getcache_calls GETCACHE calls:&nbsp;&nbsp;
+			</td>
+			<td $CACHECLASS>$all_duration_getcache secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_getcache_percent 
+			</td>
+		</tr>
+EOP;
+	
+	if($solr_getcache_calls)
+		print <<<EOP
+		<tr>	
+			<td align=right $SOLRTCCLASS> $solr_getcache_calls SOLR GETCACHE calls:&nbsp;&nbsp;
+			</td>
+			<td $SOLRTCCLASS>$all_duration_solr_getcache secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_solr_getcache_percent 
+			</td>
+		</tr>
+EOP;
+	if($mysql_getcache_calls)
+		print <<<EOP
+		<tr>	
+			<td align=right $MYSQLCLASS> $mysql_getcache_calls DB GETCACHE calls:&nbsp;&nbsp;
+			</td>
+			<td $MYSQLCLASS>$all_duration_mysql_getcache secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_mysql_getcache_percent 
+			</td>
+		</tr>
+EOP;
+
+	if($cache_response_getcache_calls)
+		print <<<EOP
+		<tr>	
+			<td align=right $CACHECLASS> $cache_response_getcache_calls cache_response() GETCACHE calls:&nbsp;&nbsp;
+			</td>
+			<td $CACHECLASS>$all_duration_mysql_getcache secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_mysql_getcache_caching_percent 
+			</td>
+		</tr>
+EOP;
+	if($cache_src_response_getcache_calls)
+		print <<<EOP
+		<tr>	
+			<td align=right $CACHECLASS> $cache_src_response_getcache_calls cache_src_response() GETCACHE calls:&nbsp;&nbsp;
+			</td>
+			<td $CACHECLASS>$all_duration_cache_src_response_getcache secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_cache_src_response_getcache_percent 
+			</td>
+		</tr>
+EOP;
+	$need_cache_ending_line=1;
+
+} // $getcache_calls
+
+
+
+#########################################
+#
+# LANGUAGE DETECTION
+#
+$TITLE_LDECT_SID="Click to show good language detection calls relative to this search";
+$TITLE_LDECT="Click to show good language detection calls registered up to now";
+
+if ($lang_dect_calls)
+{
+	print <<<EOP
+			<tr>
+				<td colspan=3><hr></td>
+			</tr>
+EOP;
+
+	print <<<EOP
+		<tr>	
+			<td align=right $LDECTTCCLASS> $lang_dect_calls LANGUAGE DETECTION calls:&nbsp;&nbsp;
+			</td>
+			<td $LDECTTCCLASS>$all_duration_lang_dect secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_lang_dect_percent 
+			</td>
+		</tr>
+EOP;
+
+if ($lang_dect_successfull_calls)
+{
+	$SHOW_GOOD_CALLS_SID_URL=$LANGUAGEDETECTORLOGURL."?what=good&sid=$sid";
+	$SHOW_GOOD_CALLS_URL=$LANGUAGEDETECTORLOGURL."?what=good&sid=";
+	$HREF1="<a href='$SHOW_GOOD_CALLS_SID_URL' target='_blank' title='$TITLE_LDECT_SID'>sid</a>";
+	$HREF2="<a href='$SHOW_GOOD_CALLS_URL' target='_blank' title='$TITLE_LDECT'>all</a>";
+	print <<<EOP
+		<tr>	
+			<td align=right $LDECTTOKCCLASS> $lang_dect_successfull_calls SUCCESSULL LANGUAGE DETECTION calls: $HREF1 $HREF2:&nbsp;&nbsp;
+			</td>
+			<td $LDECTTOKCCLASS>$all_duration_successfull_lang_dect secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_successfull_lang_dect_percent 
+			</td>
+		</tr>
+EOP;
+}
+if($lang_dect_successfull_but_strange_calls)
+{
+	$SHOW_STRANGE_CALLS_SID_URL=$LANGUAGEDETECTORLOGURL."?what=strange&sid=$sid";
+	$SHOW_STRANGE_CALLS_URL=$LANGUAGEDETECTORLOGURL."?what=strange&sid=";
+	$HREF1="<a href='$SHOW_GOOD_CALLS_SID_URL' target='_blank' title='$TITLE_LDECT_SID'>sid</a>";
+	$HREF2="<a href='$SHOW_GOOD_CALLS_URL' target='_blank' title='$TITLE_LDECT'>all</a>";
+	print <<<EOP
+		<tr>	
+			<td align=right $LDECTTOKCCLASS> $lang_dect_successfull_but_strange_calls SUCCESSULL <b>STRANGE</b> LANGUAGE DETECTION calls $HREF1 $HREF2:&nbsp;&nbsp;
+			</td>
+			<td $LDECTTOKCCLASS>$all_duration_successfull_but_strange_lang_dect secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_successfull_but_strange_lang_dect_percent 
+			</td>
+		</tr>
+EOP;
+}
+if($lang_dect_unsuccessfull_calls)
+if($lang_dect_successfull_but_strange_calls)
+{
+	$SHOW_BAD_CALLS_SID_URL=$LANGUAGEDETECTORLOGURL."?what=bad&sid=$sid";
+	$SHOW_BAD_CALLS_URL=$LANGUAGEDETECTORLOGURL."?what=bad&sid=";
+	$HREF1="<a href='$SHOW_GOOD_CALLS_SID_URL' target='_blank' title='$TITLE_LDECT_SID'>sid</a>";
+	$HREF2="<a href='$SHOW_GOOD_CALLS_URL' target='_blank' title='$TITLE_LDECT'>all</a>";
+	print <<<EOP
+		<tr>	
+			<td align=right $LDECTTNOKCCLASS> $lang_dect_unsuccessfull_calls UNSUCCESSULL LANGUAGE DETECTION calls $HREF1 $HREF2:&nbsp;&nbsp;
+			</td>
+			<td $LDECTTNOKCCLASS>$all_duration_unsuccessfull_lang_dect secs
+			</td>
+			<td $PERCENTSTYLE>
+				$all_duration_unsuccessfull_lang_dect_percent 
+			</td>
+		</tr>
+EOP;
+}
+}
+
+
+if ($need_cache_ending_line)
+print <<<EOP
+		<tr>
+			<td colspan=3><hr></td>
+		</tr>
+	</table>
+EOP;
 
 #####################################################
 #####################################################
@@ -776,7 +1643,6 @@ function scan_src_params(&$logger_record)
 
 function get_CONTROLPARAMS($log_rdf_parameters)
 {
-
 	//tests:
 	if ($log_rdf_parameters)
 	{

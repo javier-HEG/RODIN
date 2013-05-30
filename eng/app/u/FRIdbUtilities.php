@@ -1,5 +1,12 @@
 <?php
-require_once("FRIutilities.php");
+
+$filename="$RODINSEGMENT/app/u/FRIutilities.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+{
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+}
+#######################################
 
 class RODIN_DB {
 	private $DB_HOST;
@@ -38,14 +45,12 @@ class RODIN_DB {
 				$this->DB_PWORD =	$RODINDB_PASSWD;
 				break;
 		}
-
 		$errors="";
 		if ($CAN_ACCESS_ADMIN_VAR) {
 			try {
 
-				#print "<br> trying to connect($DB): {$this->DB_DB} {$this->DB_HOST},{$this->DB_UNAME},{$this->DB_PWORD}";
-
-				$DBconn = mysql_connect($this->DB_HOST,$this->DB_UNAME,$this->DB_PWORD) or $errors = $errors . "Could not connect to database.\n";
+				
+				$DBconn = @mysql_connect($this->DB_HOST,$this->DB_UNAME,$this->DB_PWORD) or $errors = $errors . "Could not connect to database.\n";
 				@mysql_select_db($this->DB_DB) or $errors = $errors . "Unable to select database $DB_DB\n";
 				$this->DBconn=$DBconn;
 			}
@@ -1795,6 +1800,9 @@ EOQ;
 function dblogger($timestamp_prog,$segment,$userid,$username,$sid,$action,$info,$msg)
 {
 	$DEBUG=0;
+	global $RODINDB_HOST;
+	if ($RODINDB_HOST) // in some cases is is not set
+	{ 
 	$msg = addslashes($msg);
 	
 	if (!$userid) $userid=-1;
@@ -1809,17 +1817,22 @@ EOQ;
 
 	$DB = new RODIN_DB('rodin');
 	$DBconn=$DB->DBconn;
-
-	$urset = mysql_query($DBQUERY);
-	$affected=mysql_affected_rows($DBconn);
-	if ($affected < 0)
+	if (!$DBconn)
+		print "<br>dblogger(): No Database connected";
+	else 
 	{
-		fontprint("<br>dblogger: Problem (affected=$affected) inserting into 'logger' ...<br>(($DBQUERY)))",'red');
+		$urset = mysql_query($DBQUERY);
+		$affected=mysql_affected_rows($DBconn);
+		if ($affected < 0)
+		{
+			fontprint("<br>dblogger: Problem (affected=$affected) inserting into 'logger' ...<br>(($DBQUERY)))",'red');
+		}
+		else {
+			if ($DEBUG)
+				fontprint("<br>dblogger SUCCESS inserting ... <br>(($DBQUERY)))",'green');
+		}
 	}
-	else {
-		if ($DEBUG)
-			fontprint("<br>dblogger SUCCESS inserting ... <br>(($DBQUERY)))",'green');
-	}
+	} // $RODINDB_HOST
 } // dblogger
 
 
@@ -2383,6 +2396,15 @@ function get_active_LOD_expansion_sources($USER_ID)
 	return initialize_SRC_MODULES( $USER_ID , ' AND UsedForLODRdfExpansion=1 ');
 }
 		
+function get_active_SRC_autocomplete_sources($USER_ID)
+{
+	//print "<br>get_active_SRC_autocomplete_sources for user id $USER_ID:";
+	$SRCM= initialize_SRC_MODULES( $USER_ID , ' AND UsedForAutocomplete=1 ');
+	//var_dump($SRCM);
+	return $SRCM;
+}
+
+
 
 /**
  * in case $CONDITION is set, it must be something like
@@ -3126,6 +3148,15 @@ function check_rodin_installation($PROT,$HOST,$PORT,$RODINROOT,$RODINSEGMENT)
 	$rodinuserid=$POSH_user_info['id'];
 	$rodinuser=$POSH_user_info['long_name'];
 
-
+	class debugUtils {
+	    public static function callStack($stacktrace) {
+	        print "<br>".str_repeat("=", 50) ."\n";
+	        $i = 1;
+	        foreach($stacktrace as $node) {
+	            print "<br>$i. ".basename($node['file']) .":" .$node['function'] ."(" .$node['line'].")\n";
+	            $i++;
+	        }
+	    } 
+	}
 
 ?>

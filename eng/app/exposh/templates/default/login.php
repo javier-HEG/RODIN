@@ -23,7 +23,7 @@
 		$ALIGN_PIC = "right center";
 	//from /posh/portal:
 	include_once("../../app/root.php");
-	include_once("../../app/u/FRIdbUtilities.php");
+	include_once("../../../$RODINSEGMENT/app/u/FRIdbUtilities.php");
 	
 	// Destroy the session if no user is logged in
 	// in order to prevent use of cookies mixed
@@ -44,7 +44,6 @@
 	#$BG_IMAGE= "$RODINIMAGES/rodin_bg_{$RODINSEGMENT}.png";
 	//print "<br>RODINSEGMENT=$RODINSEGMENT";
 	$BG_IMAGE= get_RODINIMAGE($RODINSEGMENT);
-	
 
 ?>
 <style>

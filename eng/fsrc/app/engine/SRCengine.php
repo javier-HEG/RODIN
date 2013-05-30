@@ -28,7 +28,7 @@ abstract class SRCengine implements SRCEngineInterface {
   public  $currentclassname;
   private $term_separator;
 	private $verbose;
-	private $SRCDEBUG;
+	private $srcdebug;
 	private $wordbinding;
 	private $maxresults;
 	private $preprocessFunctionName;
@@ -37,7 +37,7 @@ abstract class SRCengine implements SRCEngineInterface {
 	private $store;
 	private $dbpedia_remote_store;
 	private $sparql_limit_results;
-	
+	public static $maxsuggestions = 500; // on autocomplete each SRC
 	
 	function SRCengine() 
 	#########################
@@ -46,6 +46,7 @@ abstract class SRCengine implements SRCEngineInterface {
 		global $SPARQL_LIMIT_RESULTS;
 		global $VERBOSE;
 		global $SRCDEBUG;
+		global $SOLRCLIENT;
 		$this->term_separator = $TERM_SEPARATOR;
 		$this->verbose = $VERBOSE;
 		$this->srcdebug = $SRCDEBUG;
@@ -58,6 +59,9 @@ abstract class SRCengine implements SRCEngineInterface {
 		$this->zbwdbpedia_store = NULL;
 		$this->sparql_limit_results=$SPARQL_LIMIT_RESULTS;
     $this->currentclassname='SRCengine';
+		
+		$SOLRCLIENT=null; // very important on repeated internal calls (using the same)
+		//print "<br>cons SRCengine executed";
 	} //constructor 
 
 	
@@ -197,10 +201,18 @@ abstract class SRCengine implements SRCEngineInterface {
    * and caches the response (see root.php for cache expiry times)
    * It returns the response with a tag 'age_in_seconds' to inform
    * the user on the age of the data set.
+	 * 
+	 * 
+	 * 
 	 * @param 
 	 */
-	public function webRefine($sid, $qb64, $vb64, $w, $lang, $m, $sortrank='standard', $maxdur, $c, $cid, $action, $reqClassName) {
-
+	public function webRefine($sid, $qb64, $vb64, $w, $lang, $m, $sortrank='standard', $maxdur/*USED?*/, $c, $cid, $action, $reqClassName, $mode='web') 
+	{
+		if ($mode=='direct') $action='preall'; // forced
+		$SHOULD_CACHE =( !strstr($mode,'autocomplete')
+									&& !strstr($mode,'direct')
+									); // cache only if not SOLR tecnology and never on autocomplete
+		
     $q=base64_decode($qb64);
     $v=base64_decode($vb64);
     $this->maxresults=$m; // fix it in object for every computation
@@ -208,15 +220,17 @@ abstract class SRCengine implements SRCEngineInterface {
     
     $cache_id="$reqClassName-$action-$lang-$q/$v";
     //Logger::logAction(25, array('from'=>'WebRefine','msg'=>'Started with cacheid:'.$cache_id));
-    list($xmlCached_src_content,
-            $creationtimestamp,
-            $age_in_sec,
-            $max_age_in_sec, // this is always set!! even if no data
-            $expiring_in_sec) = get_cached_src_response($cache_id);
+    if ($SHOULD_CACHE)
+		    list($xmlCached_src_content,
+		            $creationtimestamp,
+		            $age_in_sec,
+		            $max_age_in_sec, // this is always set!! even if no data
+		            $expiring_in_sec) = get_cached_src_response($cache_id);
      
     
-    if (! $this->src_cached_content_quality_control($xmlCached_src_content))
-    { // ask service and rebuild cache
+    if (! $SHOULD_CACHE 
+    ||  ! $this->src_cached_content_quality_control($xmlCached_src_content))
+		{ // ask service and rebuild cache
        
       $timestamp=date("d.m.Y H:i:s");
       $timestamp0=time();
@@ -251,39 +265,46 @@ abstract class SRCengine implements SRCEngineInterface {
 					
           if ($this->refine_skos_solr_available()) {
               
-              list($RESULTS_B,$RESULTS_N,$RESULTS_R) 
+              list($RESULTS_S,$RESULTS_B,$RESULTS_N,$RESULTS_R) 
                       = $this->refine_skos_solr( $preprocessed, 
                                                  ($q), 
                                                  $this->maxresults, 
                                                  $lang,
-                                                 $sortrank );
+                                                 $sortrank,
+                                                 $mode );
           } 
           else if ($this->refine_skosxl_solr_available()) {
               
-              list($RESULTS_B,$RESULTS_N,$RESULTS_R) 
+              list($RESULTS_S,$RESULTS_B,$RESULTS_N,$RESULTS_R) 
                       = $this->refine_skosxl_solr( $preprocessed, 
-                                                 ($q), 
-                                                 $this->maxresults, 
-                                                 $lang,
-                                                 $sortrank );
+	                                                 ($q), 
+	                                                 $this->maxresults, 
+	                                                 $lang,
+	                                                 $sortrank,
+	                                                 $mode );
           } 
           else if ($this->refine_gnd_solr_available()) {
               
-              list($RESULTS_B,$RESULTS_N,$RESULTS_R) 
-                      = $this->refine_gnd_solr( $preprocessed, 
-                                                 ($q), 
-                                                 $this->maxresults, 
-                                                 $lang,
-                                                 $sortrank );
+              list($RESULTS_S,$RESULTS_B,$RESULTS_N,$RESULTS_R) 
+                      = $this->refine_gnd_solr( 	$preprocessed, 
+	                                                ($q), 
+	                                                $this->maxresults, 
+	                                                $lang,
+	                                                $sortrank,
+	                                                $mode );
           } 
           else
           {
-            $RESULTS_B = $this->refine('broader', $preprocessed, ($q), $this->maxresults, $lang, $sortrank);
-            $RESULTS_N = $this->refine('narrower', $preprocessed, ($q), $this->maxresults, $lang, $sortrank);
-            $RESULTS_R = $this->refine('related', $preprocessed, ($q), $this->maxresults, $lang, $sortrank);
+          	$RESULTS_S = new SRCEngineResult(null,null,null.null);
+            $RESULTS_B = $this->refine('broader', $preprocessed, ($q), $this->maxresults, $lang, $sortrank, $mode);
+            $RESULTS_N = $this->refine('narrower', $preprocessed, ($q), $this->maxresults, $lang, $sortrank, $mode);
+            $RESULTS_R = $this->refine('related', $preprocessed, ($q), $this->maxresults, $lang, $sortrank, $mode);
           }
           
 					if ($this->verbose) {
+						print "<hr>mode: $mode";
+						print "<hr>SUGGESTIONS: <br>"; var_dump($RESULTS_S);
+						print "<hr>";
 						print "<hr>BROADERS: <br>"; var_dump($RESULTS_B);
 						print "<hr>";
 						print "<hr>NARROWERS: <br>"; var_dump($RESULTS_N);
@@ -337,9 +358,13 @@ SRV;
         $explanation=$RESULTS_R->explanation;
       }
       
-      
-      
-      $xml_src_content = <<<EOF
+      //In case of autocomplete we need 4 vectors
+      //the succestions themselves, and in case of a match
+      //even the SKOS neighbours
+
+			if ($SHOULD_CACHE) //Linearize and cache
+			{
+	      $xml_src_content =<<< EOF
 <refine>
 <timestamp>$timestamp</timestamp>
 <timestamp0>$timestamp0</timestamp0>
@@ -361,26 +386,33 @@ SRV;
 <action>$action</action>
 </refine>
 EOF;
-      cache_src_response($cache_id,$xml_src_content);
-    } 
+				$SRC_RESULT=$xml_src_content;
+		    cache_src_response($cache_id,$xml_src_content);
+			}
+			else // Just give back the result object
+			{
+				$SRC_RESULT = new SRCEngineSKOSResult ($RESULTS_S, $RESULTS_B,$RESULTS_N,$RESULTS_R);
+			}
+    } // quality control of cache nok
     else 
-    {
+    {// quality control of cache ok
       //Write age_in_sec into supplied data set:
      $xmlCached_src_content= xml_inject($xmlCached_src_content, 'age_in_sec', $age_in_sec);
      $xmlCached_src_content= xml_inject($xmlCached_src_content, 'max_age_in_sec', $max_age_in_sec);
      $xmlCached_src_content= xml_inject($xmlCached_src_content, 'expiring_in_sec', $expiring_in_sec);
      
      $xml_src_content = $xmlCached_src_content;
+		 $SRC_RESULT = $xml_src_content;
     }
     if($this->srcdebug)
-      $xml_src_content = htmlentities($xml_src_content);
-		
+		{
+			$SRC_RESULT = htmlentities(print_r($SRC_RESULT));
+		}
     
     //LOG SRC TIME HERE:
     //Logger::logAction(25, array('from'=>'STWengine3->WebRefine','msg'=>'Delivered'));
 
-    
-    return $xml_src_content;			
+    return $SRC_RESULT;			
 	}
 	
 	/**
@@ -647,7 +679,7 @@ EOF;
 	protected abstract function validateTermInOntology($term, $lang);
 	
 	
-	private function refine($action, $text, $q, $m, $lang, $sortrank='standard')
+	private function refine($action, $text, $q, $m, $lang, $sortrank='standard',$mode='web')
 	##################################
 	# 
 	# Refines all relevant token in text using $this->refineFunctionName
@@ -739,7 +771,7 @@ EOF;
         if ($sortrank=='standard')
         {
           arsort($CANDIDATES); // sortiere nach Values - top value first
-					$CANDIDATES=array_splice($CANDIDATES, $m); // behalte die ersten $m insgesamt
+					array_splice($CANDIDATES, $m); // behalte die ersten $m insgesamt
         }
           
 				$refined_terms=''; //reset
@@ -851,8 +883,43 @@ EOF;
     return $ok; // debug
   }
  
- 
- 
+  /**
+	 * Returns array of suggestions
+	 * @param &$SOLRCLIENT 
+	 * @param $labelkind - skos_prefLabel_de or skos_prefLabel_en or ...
+	 */
+	 
+	//collect_labels($SOLRCLIENT,'skos_prefLabel_de',$term,$this->STW_SUGGESTION_FIELDS)
+	protected function collect_labels_for_autocomplete(&$SOLRCLIENT,$maxsuggestions,$labelkind,$term,&$SUGGESTION_FIELDS)
+	{
+		$DEBUG=0;
+		if ($DEBUG) 
+		{ print "<br>collect_labels_for_autocomplete SOLRCLIENT: ";var_dump($SOLRCLIENT);}
+		
+		if (!$maxsuggestions) $maxsuggestions=10; // default
+		$labels=array();
+		$query = $SOLRCLIENT->createSelect();
+		$query->createFilterQuery($labelkind)->setQuery("$labelkind:$term*");
+		$query->setStart(0)->setRows($maxsuggestions);
+		$query->setFields($SUGGESTION_FIELDS);
+		$resultset = $SOLRCLIENT->select($query);
+		$noofresults=$resultset->getNumFound();
+		if ($noofresults)
+		{
+			foreach ($resultset as $document) 
+	    { $d++;
+			
+			if ($DEBUG) { print "<br>SOLR DOC: "; var_dump($document);}
+			
+	     	$labels4onedoc = $document{$labelkind}[0];
+				//print "<br><br>$d document: label=".$labels4onedoc;
+	 			$labels[]=$labels4onedoc;
+	  					
+	     } // foreach $document AS $fieldname => $value
+		} // $noofresults
+		//foreach($labels as $l) print "<br> $l";
+		return $labels;
+	} //collect_labels_for_autocomplete
  
 } // class SRCengine
 
@@ -885,17 +952,19 @@ class SRCEngineResult {
  */
 class SRCEngineSKOSResult {
 	public $ok;
+	public $suggested;
 	public $broader;
 	public $narrower;
 	public $related;
 	public $explanation;
 	
-	function SRCEngineSKOSResult(&$broader, &$narrower, &$related, $ok = true) {
+	function SRCEngineSKOSResult(&$suggested, &$broader, &$narrower, &$related, $ok = true) 
+	{
 		$this->ok = $ok;
+		$this->suggested=$suggested;
 		$this->broader = $broader;
 		$this->narrower = $narrower;
 		$this->related = $related;
-        
 	}	
 }
 

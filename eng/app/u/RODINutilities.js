@@ -216,6 +216,49 @@ function format3pos(num)
 		}
 	} // fri_redirect
 
+
+
+
+
+	function open_rdfize(url,tabname)
+	{
+		
+		var params= typeof(SID) == 'undefined'
+							?  ''
+							: 'sid='+SID
+							;
+							 	
+		var realurl=url+'&'+params;
+		
+		//alert('open_rdfize: '+realurl);
+		window.open(realurl,tabname);
+		
+		return false;
+	} //open_rdfize
+	
+	
+	/**
+	 * Returns the last sid if given ot token
+	 */
+	function open_lod_browser(url,tabname)
+	{
+		
+		var params= typeof(SID) == 'undefined'
+							?  'token=search*'
+							 +'&seeonly=resultdoc'
+							 : 'token=search_'+SID.replace(/\./g,'_')
+							;
+							 	
+		var realurl=url+'?'+params;
+		
+		//alert('open_lod_browser: '+realurl);
+		window.open(realurl,tabname);
+		
+		return false;
+	} //getLastSidOr
+	
+	
+	
 	/**
 	 * Called by the Meta-Search button on the interface, its responsible
 	 * for launching the onto-facets-search and the meta-search in parallel.
@@ -241,17 +284,10 @@ function format3pos(num)
 		LANGUAGE_OF_RESULT_OK = true;
 
 		/*Hide Autocomplete brute force*/
-
-		(function(jQuery){
-			var options = {
-				serviceUrl : '',
-				delimiter: ', ',
-				deferRequestBy: 500
-			};
-			jQuery('#rodinsearch_s').autocomplete(options).hide();
-		})(jQuery);
-
-
+		var autocomplete= document.getElementById(AUTOCOMPLETECONTAINER_ID);
+		if (autocomplete)
+			autocomplete.style.display='none';
+		
 		var languageDetectorUrl = '<?php print "../../app/u/LanguageDetector.php"; ?>';
 		languageDetectorUrl += '?text=' + search;
 
@@ -538,7 +574,7 @@ function format3pos(num)
 				+'\n'+'pclass='+pclass);
 		
 		var searchtxt = '';
-		
+		var setversion=SETVERSION;
 		if (cloud) {/* take from cloud! widget? */
 			searchtxt = search;
 			if (maxresults == -1)
@@ -582,7 +618,7 @@ function format3pos(num)
 		var m = parent.document.getElementById('rodinsearch_m');
 		m.value = maxresults; 
 	
-		// 1. Compute SID
+		// 1. Compute SID - global var!
 		SID = compute_ajax_sid(usr);
 
 		// Save SID
@@ -670,6 +706,8 @@ function format3pos(num)
 				qs.set('_h',_h);
 				qs.set('_x',iframe.id);
 				qs.set('user_id',parent.$p.app.user.id);
+				qs.set('setversion',setversion);
+
 
 				if (parent.NOSRC)
 					qs.set('nosrc','1');
@@ -681,7 +719,7 @@ function format3pos(num)
 				
 				var server = '<?php print $WEBROOT; ?>';
 				var newUrl = server + parseUri(iframe.src).path + '?' + qs.toString();
-				
+				//alert(newUrl);
 				iframe.src = newUrl; // Automatically reloads the iFrame!
 			}
 		}
@@ -1977,6 +2015,35 @@ if (response!=null) {
 				//Blank the oo-results inside the av
 				$p.app.widgets.reblankAggregatedView();
 			}
+		}
+	}
+	
+	
+	function signal_rdfizing()
+	{
+		//alert('signal_rdfizing');
+		var tabId = tab[$p.app.tabs.sel].id;
+		var aggview_id="aggregated_view_module_"+tabId;
+		var aggview = document.getElementById(aggview_id);
+		if (aggview)
+		{
+			aggview.style.backgroundColor = '<?php print $RDFIZING_AGGVIEW_BGCOLOR ?>';
+			aggview.setAttribute('title', 'Please wait until RDFization finished');
+		}
+	}
+
+
+	
+	function signal_rdfizing_done()
+	{
+		//alert('signal_rdfizing_done');
+		var tabId = tab[$p.app.tabs.sel].id;
+		var aggview_id="aggregated_view_module_"+tabId;
+		var aggview = document.getElementById(aggview_id);
+		if (aggview)
+		{
+			aggview.style.backgroundColor = 'white';
+			aggview.setAttribute('title', '');
 		}
 	}
 	
@@ -3517,6 +3584,7 @@ function open_ns(ns)
 	ns = ns.replace('\\','');
 	//alert('open_ns: '+ns);
 	window.open(ns,'_blank');
+	return true;
 }
 
 

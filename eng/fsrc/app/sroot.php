@@ -8,10 +8,12 @@
 # 18.1.2010
 #
 
+date_default_timezone_set('Europe/Zurich');
 
 	// Import root.php
-	// print "<br>SEARCHING app/root.php from ".getcwd();
-	$filename="app/root.php";
+	//print "<br>xxl: sroot.php: SEARCHING app/root.php from ".getcwd();
+	
+	$filename=$RODINSEGMENT?"$RODINSEGMENT/app/root.php":"app/root.php";
 	#######################################
 	$max=10;
 	for ($x=1,$updir='';$x<=$max;$x++,$updir.="../") {
@@ -20,9 +22,9 @@
 //			print "<br>[sroot.php] - - Root file $updir$filename exists.";
 //			print "<br>[sroot.php] Trying to include root.php";
 			include_once("$updir$filename"); $rootincluded=true;
-//      print "<br>root.php: RODINSEGMENT: $RODINSEGMENT";
-//      print "<br>root.php: RODIN: $RODIN";
-//			print "<br>[sroot.php] root.php was included.";
+      // print "<br>root.php: RODINSEGMENT: $RODINSEGMENT";
+      // print "<br>root.php: RODIN: $RODIN";
+			// print "<br>[sroot.php] $updir$filename was included.";
 			break;
 		}
 	}
@@ -105,7 +107,9 @@
 	$DERIPIPE_RELATED		=getA('DERIPIPE_RELATED');
 	$DERIPIPE_BROADER		=getA('DERIPIPE_BROADER');
 	$DERIPIPE_NARROWER	=getA('DERIPIPE_NARROWER');
-
+	
+	//$WANT_DBPEDIA_SUGGESTIONS=true;
+	$WANT_SRC_SUGGESTIONS=true;
 
 	
 
@@ -190,4 +194,9 @@
               'owl'=> 'http://www.w3.org/2002/07/owl#' ,
              'rdfs'=> 'http://www.w3.org/2000/01/rdf-schema#' 
 );
+
+
+
+
+
 ?>

@@ -1,5 +1,15 @@
 <?php
 
+
+/**
+ * STOPWORDS
+ * 
+ * Author: Fabio Ricci, fabio.ricci@ggaweb.ch
+ * For HEG
+ * 
+ * SEE also http://www.ranks.nl/resources/stopwords.html
+ */
+
 //Include FSRC functions inclusive sroot.php
 $filename="/fsrc/app/u/FRIutilities.php"; $maxretries=10;
 #######################################
@@ -9,8 +19,9 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 $filename="/fsrc/app/u/FRIdbUtilities.php"; $maxretries=10;
 #######################################
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+{
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
-
+}
 
 $getStopwords = $_GET['getStopwords'];
 $add_stopword = $_GET['add_stopword'];
@@ -98,7 +109,7 @@ function get_stopwords_from_db($lang='') {
 		$resultset = mysql_query($query, $DBconn);
 
 		while ($row = mysql_fetch_array($resultset)) {
-			$stopWords[] = strtolower($row["word"]);
+			$stopWords[] = utf8_encode(strtolower($row["word"]));
 		}
 		
 		$DB->close();

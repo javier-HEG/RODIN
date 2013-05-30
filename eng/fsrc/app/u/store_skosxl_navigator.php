@@ -75,7 +75,7 @@ $GND_URL_DATA_MODEL     ="http://www.dnb.de/EN/Service/DigitaleDienste/LinkedDat
 
 
 
-$ALLTRIPLES_URL="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_show_all_triples.php";
+$ALLTRIPLES_URL="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/lod_sparql_endpoint.php";
 $STORE_TRIPLES_RAMEAU    ="$ALLTRIPLES_URL?limit=1000&storename=bnf_rameau";
 $STORE_TRIPLES_STW       ="$ALLTRIPLES_URL?limit=1000&storename=zbw_stw";
 $STORE_TRIPLES_SOZ       ="$ALLTRIPLES_URL?limit=1000&storename=gesis_thesoz";

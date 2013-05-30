@@ -41,8 +41,19 @@ class GNDengineSOLR extends GNDengine
     $this->solr_collection = 'dnb_gnd';
 		$this->setWordbinding('GND');
 
-    $this->maxROWSinSOLR_eachEntity = 10; // 10 rows each entity in GND SOLR
+    $this->maxROWSinSOLR_eachEntity = 20; // 10 rows each entity in GND SOLR
     $this->namespaces= get_namespaces_from_DB();
+
+		$this->GND_SUGGESTION_FIELDS = array(
+                                    'id',
+                                    'score',
+                                    'skos_prefLabel_fr',
+                                    'skos_prefLabel_en',
+                                    'skos_prefLabel_de',
+                                    'skos_prefLabel_es',
+                                    'skos_prefLabel_it',
+                                	);
+
 
 	} //GNDengineSOLR constructor 
 	
@@ -81,7 +92,7 @@ class GNDengineSOLR extends GNDengine
 	 * $param $lang The output language
 	 * $param $sortrank (still fixed to 'standard') defines how results should be ranked
 	 */
-	protected function refine_gnd_solr($text, $q, $m, $lang, $sortrank='standard')
+	protected function refine_gnd_solr($text, $q, $m, $lang, $sortrank='standard',$mode='web')
 	{	
 	 	global $TERM_SEPARATOR;
 		
@@ -94,7 +105,7 @@ class GNDengineSOLR extends GNDengine
       // call SLOR GND engine for each term in $text using the default solr dismax query handler
       if (trim($text))
       {
-        $GND_SKOSResult = $this->refine_gnd_solr_method( trim($text),$m,$lang );
+        $GND_SKOSResult = $this->refine_gnd_solr_method( trim($text),$m,$lang,$mode );
         list($broader_terms,  $broader_descriptors,   $B_ROOTPATHS)= $GND_SKOSResult->broader;
         list($narrower_terms, $narrower_descriptors,  $N_ROOTPATHS)= $GND_SKOSResult->narrower;
         list($related_terms,  $related_descriptors,   $R_ROOTPATHS)= $GND_SKOSResult->related;
@@ -142,7 +153,8 @@ class GNDengineSOLR extends GNDengine
 		} // ok
     
     
-		return array( new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
+		return array( $GND_SKOSResult->suggested,
+									new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
                   new SRCEngineResult(trim($narrower_refined_terms),trim($narrower_refined_terms_raw), $N_ROOTPATHS),
                   new SRCEngineResult(trim($related_refined_terms), trim($related_refined_terms_raw),  $R_ROOTPATHS) );
 	} // refine_gnd_solr
@@ -158,7 +170,7 @@ class GNDengineSOLR extends GNDengine
 	 * @param $m the limitation to the max numbers of results
 	 * @param $lang the output language
 	 */ 
-  protected function refine_gnd_solr_method($term,$m,$lang)
+  protected function refine_gnd_solr_method($term,$m,$lang,$mode)
 	############################################################
   # Find Terme related to $action 
 	{ 
@@ -174,7 +186,7 @@ class GNDengineSOLR extends GNDengine
 		
 		if ($descriptor) # Request was made on a node (descriptor) exactely
 		{
-       $GND_SKOSResult  =  $this->get_loc_skos_nodes_SOLR(null,$descriptor,$m,$lang);
+       $GND_SKOSResult  =  $this->get_loc_skos_nodes_SOLR(null,$descriptor,$m,$lang,$mode);
 		} # node
 		###########################################
 		else # Request is on text
@@ -182,7 +194,7 @@ class GNDengineSOLR extends GNDengine
       $term= $this->formatAsInThesaurus($term);
 			// ----- Search for Labels in GND SOLR  ------
 
-      $GND_SKOSResult  = $this->get_gnd_nodes_SOLR($term,null,$m,$lang);
+      $GND_SKOSResult  = $this->get_gnd_nodes_SOLR($term,null,$m,$lang,$mode);
       /* in $GND_SKOSResult ar all results for each node */
       
 		}  //text	
@@ -463,7 +475,7 @@ class GNDengineSOLR extends GNDengine
  * @param $m 
  * @param $lang  
  */
-private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
+private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 {
   if (!$term && !$descriptor)
     print "System error: get_gnd_nodes_SOLR called with neither a term nor a descriptor!";
@@ -478,6 +490,27 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     {
       $SOLRCLIENT->getPlugin('postbigrequest');
 
+			$suggestions = array();
+			if ($mode=='autocomplete')
+			{
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_de',$term,$this->GND_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_en',$term,$this->GND_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_fr',$term,$this->GND_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_es',$term,$this->GND_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_it',$term,$this->GND_SUGGESTION_FIELDS);
+			} // autocomplete
+
+
+
+
       // get a select query instance
       $query = $SOLRCLIENT->createSelect();
       
@@ -487,7 +520,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
          $query->setQuery(($term));
 
       // set start and rows param (comparable to SQL limit) using fluent interface
-      $query->setStart(0)->setRows(3 * $m * ($this->maxROWSinSOLR_eachEntity)); // we need enaugh data ...
+      //$query->setStart(0)->setRows(3 * $m * ($this->maxROWSinSOLR_eachEntity)); // we need enaugh data ...
 
       // set fields to fetch (this overrides the default setting 'all fields')
       //$query->setFields($this->GND_SKOS_FIELDS);
@@ -514,17 +547,28 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
       { print "<br><br>SEVERE ERROR - EMPTY collection ? SOLR running and reachable? '<b>".$this->solr_collection."</b>' please inform your ontology administrator !!!";
         exit;
       }
+			
+			if ($this->getSrcDebug())
+			{
+				foreach ($resultset as $document) $docs++;
+				
+				print "<br>Got $docs documents from SOLR ($term)";
+			}
+			
       foreach ($resultset as $document) 
-      {   $d++;
+      {
+      	  $d++;
           if ($this->getVerbose())
           {
-            print "<br>Reading $d. document for query ... '$term' (or '$descriptor')";
+            print "<hr>Reading $d. document for query ... '$term' (or '$descriptor')";
           }
 					
 	          $PREFLABELS_DE=$PREFLABELS_EN=$PREFLABELS_EN=$PREFLABELS_FR=$PREFLABELS_IT=$PREFLABELS_ES=array();
 	        // the documents are also iterable, to get all fields
 	          foreach($document AS $fieldname => $value)
 	          {
+	          	 	if ($this->getVerbose())
+									print "<br>$fieldname => $value";
 	              // this converts multivalue fields to a comma-separated string
 	              if(!is_array($value)) $value = array($value);
 	              //Filter out SKOS Elements
@@ -583,9 +627,9 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
       print "SYSTEM ERROR: NO ACCESS TO SOLR COLLECTION: ".$this->solr_collection;
 		
 		//Limit found descriptors to exactely to $m
-    $BROADER_DESC=array_splice($BROADER_DESC,$m);
-		$NARROWER_DESC=array_splice($NARROWER_DESC,$m);
-		$RELATED_DESC=array_splice($RELATED_DESC,$m);
+    array_splice($BROADER_DESC,$m);
+		array_splice($NARROWER_DESC,$m);
+		array_splice($RELATED_DESC,$m);
 		
 		
     // Processing... resolving descriptors... all at once
@@ -594,10 +638,10 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
           $NARROWER_LABELS,
           $RELATED_LABELS) 
               = $this->resolve_skos_loc_descriptors(	$BROADER_DESC,
-		                                                    $NARROWER_DESC,
-		                                                    $RELATED_DESC,
-		                                                    $m,
-		                                                    $lang );
+	                                                    $NARROWER_DESC,
+	                                                    $RELATED_DESC,
+	                                                    $m,
+	                                                    $lang );
     // do something with return_document...:
 
   }
@@ -623,20 +667,25 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
 
     } 
   
-    
-    //Compute each ID the path
-    $LOCALrootPATH = $this->walk_loc_root_path($ID0,$lang,$recursion=0);
-    if ($this->getSrcDebug())
-    {
-      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
-    }
-    Logger::logAction(25, array('from'=>'GNDengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
-
+    if ($mode=='web')
+		{
+	    //Compute each ID the path
+	    $LOCALrootPATH = $this->walk_loc_root_path($ID0,$lang,$recursion=0);
+	    if ($this->getSrcDebug())
+	    {
+	      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
+	    }
+			
+			$LRP_B= $this->rootpaths($LOCALrootPATH,$BROADER_LABELS);
+			$LRP_N= $this->rootpaths($LOCALrootPATH,$NARROWER_LABELS);
+			$LRP_R= $this->rootpaths($LOCALrootPATH,$RELATED_LABELS);
+	    Logger::logAction(25, array('from'=>'GNDengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
+		}
     //Compute all other paths by using $LOCALrootPATH adding the current label.
     
-   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'bnf') ,$this->rootpaths($LOCALrootPATH,$BROADER_LABELS)); 
-   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'bnf'),$this->rootpaths($LOCALrootPATH,$NARROWER_LABELS)); 
-   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'bnf') ,$this->rootpaths($LOCALrootPATH,$RELATED_LABELS)); 
+   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'bnf') , $LRP_B); 
+   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'bnf'), $LRP_N); 
+   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'bnf') , $LRP_R); 
   
     if ($this->getSrcDebug())
     {
@@ -647,7 +696,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
   
   
   
-	return new SRCEngineSKOSResult ( $B, $N, $R );
+	return new SRCEngineSKOSResult ( $suggestions, $B, $N, $R );
 } // get_loc_skos_nodes_SOLR
 
 
@@ -710,6 +759,24 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
     if (($SOLRCLIENT = init_SOLRCLIENT($this->solr_collection,'solr_index_skos_namespaces system error init SOLRCLIENT')))
     {
       $SOLRCLIENT->getPlugin('postbigrequest');
+
+			$suggestions = array();
+			if ($mode=='autocomplete')
+			{
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_de',$term,$this->GND_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_en',$term,$this->GND_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_fr',$term,$this->GND_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_es',$term,$this->GND_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_it',$term,$this->GND_SUGGESTION_FIELDS);
+			} // autocomplete
 
       // get a select query instance
       $query = $SOLRCLIENT->createSelect();
@@ -839,8 +906,8 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang)
  */
   private function walk_loc_root_path($descriptor,$lang='fr',$recursion=0)
   {
-  	if (trim($descriptor)=='')
-		{
+		if (trim($descriptor)=='' 
+		|| (!strstr('x'.$descriptor,'gnd')))		{
 			return '';
 		}
 		

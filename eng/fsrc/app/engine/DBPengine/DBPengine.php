@@ -21,7 +21,7 @@ $filename="fsrc/app/u/FRIutilities.php"; $maxretries=10;
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) { include_once("$updir$filename");break;}
 	
-$filename="../../../../../../app/u/FRIutilities.php"; $maxretries=10;
+$filename="../../../../../$DORINSEGMENT/app/u/FRIutilities.php"; $maxretries=10;
 #######################################
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) { include_once("$updir$filename");break;}
@@ -113,7 +113,7 @@ abstract class DBPengine extends SRCengine
 	
 	
 	
-	protected function preprocess_refine($terms,$wordbinding='DBP',$lang='en')
+	protected function preprocess_refine($terms,$wordbinding='DBP',$lang='en',$mode='web')
 	{
 		global $DEFAULT_MAX_REFINE_RESULTS;
 		

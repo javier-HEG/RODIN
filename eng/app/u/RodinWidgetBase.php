@@ -1,5 +1,6 @@
 <?php
 // Load the session used by posh
+
 session_name('myhomepage');
 session_start();
 	if (!isset($_SESSION['lang'])) {
@@ -10,9 +11,7 @@ session_start();
 	
 	require_once("FRIdbUtilities.php");
 	include_once "$DOCROOT/$RODINUTILITIES_GEN_URL/simplehtmldom/simple_html_dom.php";
-	
-	
-	
+		
 	$CACHE_EXTENSION='rodin'; //used by apache mod_rewrite to cache .php ext.
 
 	// CONSTANTS FOR WIDGETS INTERFACE
@@ -90,6 +89,7 @@ session_start();
 	$RDW_REQUEST['n'] = $DEFAULTRODINSKIN;
 	$RDW_REQUEST['m'] = 10;
 	$RDW_REQUEST['q'] = 0;
+	$RDW_REQUEST['setversion'] = '';
 
 	$RDW_REQUEST['textZoomRender'] = is_a_value($_REQUEST['textZoomRender']) ? $_REQUEST['textZoomRender'] : 'token';
 	$render = $RDW_REQUEST['textZoomRender'];
@@ -273,7 +273,13 @@ EOD;
 				$value=$_GET['qe'];
 				//print "<br>YES: qe=$value";
 			}			
-	
+			else	
+			if ($name=='setversion') // special case
+			{
+				$value=$_GET['setversion'];
+				//print "<br>YES: qe=$value";
+			}	
+			
 			if (!$hide_it)
 			$STR .= 	"{$name}={$value}"; // set only the translated name!
 			
@@ -411,6 +417,9 @@ EOD;
 		global $RODINSKIN;
     global $RODINU;
     global $RODINSEGMENT;
+		global $WEBROOT;
+		global $RODINROOT;
+		global $RODINW;
 		
 		$ADDITIONALINCLUDES = "\n$EXTRAINCLUDE_GOOGLE_LANGUAGE_LOAD";
 		
@@ -491,7 +500,7 @@ EOP;
 		// in RODINutilities.js
 	</script>
 	<!-- JB: Links to all results displayed in widget -->
-	<script type="text/javascript" src="/rodin/$RODINSEGMENT/app/u/RodinResult/RodinResultSet.js" > </script>
+	<script type="text/javascript" src="$RODINW/app/u/RodinResult/RodinResultSet.js" > </script>
 	<script type="text/javascript">
 		var widgetResultSet = new RodinResultSet();
 	</script>

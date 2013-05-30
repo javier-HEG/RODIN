@@ -1,11 +1,12 @@
 <?php
+
 $filenamex="app/root.php";
 #######################################
 $max=10;
 //print "<br>FRIutilities: try to require $filenamex at cwd=".getcwd()."<br>";
 for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 { 
-	//print "<br>try to require $updir$filenamex";
+	//print "<br>xxl FRIutilities try to require $updir$filenamex";
 	if (file_exists("$updir$filenamex")) 
 	{
 		//print "<br>REQUIRE $updir$filenamex";
@@ -35,9 +36,14 @@ for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 $filename="fsrc/app/u/stopwords.php"; $maxretries=10;
 #######################################
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
-{
-	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
-}
+{if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}}
+
+
+$filename="tests/Logger.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+{if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}}
+
 
 
 	$FONTRED = "<font style=\"color:red;\">";
@@ -445,6 +451,12 @@ function fontprint($txt,$txtcolor="black",$fontsize="12pt",$fontart="arial")
 }
 
 
+function tell($x)
+{
+	print '<br>'.$x;
+}
+
+
 function htmlprint($txt,$txtcolor="black",$fontsize="12pt",$fontart="arial")
 {
 	#return "<font style='color:$txtcolor; font:$fontart;font-size:$fontsize;'>$txt</font>";
@@ -827,12 +839,264 @@ function get_file_content($url, $verbose=false) {
 		return null;
 	} else {
 		try {
+			//Split URL into 2 parts
+				$get = array();
+			if (preg_match("/(.*)?(.*)/",$url,$match))
+			{
+				$url=$match[1];
+				$get_str=$match[2];
+				if ($get_str)  $get = array($get_str);
+			}
+			
 			return parametrizable_curl($url);
 		} catch (Exception $e) {
 			inform_bad_external_web($e);
 		}
 	}
 }
+
+
+
+/**
+ * 
+ */
+function get_remote_autocomplete(	$src_name,
+																	$autocomplete_uri,
+																	$lang,
+																	$query,
+																	$src_parameters,
+																	$max_retrieval_results,
+																	$max_displayed_results,
+																	&$suggestions,
+																	&$suggestions_data,
+																	&$descriptions,
+																	&$suggestion_properties )
+{
+	$DEBUG=0;
+	global $RODINSEGMENT;
+	//include_once '../../fsrc/app/engine/SRCengineInterface.php';
+	$filenamex="$RODINSEGMENT/fsrc/app/engine/SRCengineInterface.php";
+	#######################################
+	$max=10;
+	//print "<br>FRIutilities: try to require $filenamex at cwd=".getcwd()."<br>";
+	for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
+	{ 
+		if($DEBUG) print "<br>xxl FRIutilities get_remote_autocomplete try to require $updir$filenamex";
+		if (file_exists("$updir$filenamex")) 
+		{
+			if($DEBUG) print "<br>REQUIRE $updir$filenamex";
+			require_once("$updir$filenamex"); break;
+		}
+	}
+	
+	//include_once '../../fsrc/app/engine/SRCengine.php';
+	$filenamex="$RODINSEGMENT/fsrc/app/engine/SRCengine.php";
+	#######################################
+	$max=10;
+	//print "<br>FRIutilities: try to require $filenamex at cwd=".getcwd()."<br>";
+	for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
+	{ 
+		if($DEBUG) print "<br>xxl FRIutilities get_remote_autocomplete try to require $updir$filenamex";
+		if (file_exists("$updir$filenamex")) 
+		{
+			if($DEBUG) print "<br>REQUIRE $updir$filenamex";
+			require_once("$updir$filenamex"); break;
+		}
+	}
+	
+	
+	$DEBUG=0;
+	global $USER_ID;
+	if ($DEBUG) print "<hr><b>get_remote_autocomplete():</b>";
+	
+	$AGESRCRESPONCE = 24000*7; // 7 days
+	switch(strtolower($src_name))
+	{
+		case 'dbpedia':
+			/*PLEASE SEE src_parameters for DBPedia ... MaxHits=n */
+			//in src_parametes: "MaxHits=n"
+			//get (cached???) autocomplete
+			$completeurl=$autocomplete_uri.'&'.$src_parameters.'&QueryString='.$query;
+			//print "<br>call $completeurl";
+			$cacheid='autocomplete_for_user_id-'.$USER_ID.'-'.$max_displayed_results.'/'.$max_retrieval_results.'-'.($src_parameters.'&QueryString='.$query);
+			if(0)
+			list( $xml,
+            $CREATION_TIMESTAMP,
+            $age_in_sec,
+            $max_age_in_sec,
+            $expiring_in_sec) = get_cached_src_response($cacheid,$AGESRCRESPONCE);
+					
+			if ($DEBUG)
+			{	
+					print "<br>age_in_sec: $age_in_sec";
+					print "<br>max_age_in_sec: $max_age_in_sec";
+					print "<br>expiring_in_sec: $expiring_in_sec";
+			}	//print "<br>xml: (".$xml.")";
+			if (!strstr($xml,'xml') || $age_in_sec > $max_age_in_sec)
+			{
+				if ($DEBUG) print "<hr><b>opening ($completeurl)</b>";
+				$xml = parametrizable_curl($completeurl, array(), array(CURLOPT_HTTPHEADER => array('Accept:application/xml')));
+				if ($DEBUG) print "<hr><b>result: (".htmlentities($xml).")</b>";
+				cache_src_response($cacheid,$xml);
+			}
+			
+			$sdom = str_get_html($xml); //simplehtml
+			$RESULTS = $sdom->find('Result');
+			$countentities=count($RESULTS);
+			$max=min($max_displayed_results,$countentities); // extract only what is in
+			$further = $countentities - $max_displayed_results;
+			
+		
+			if ($further==1)
+				$seemoretext="... See 1 available further $skosprop item to '$query' from $src_name";
+			else if ($further>1)
+				$seemoretext="... See $further further $skosprop items to '$query' from $src_name";
+			
+			//Load at mose $max_results to be displayed
+			//add the rest as hidden
+			for($i=0;$i<$max;$i++)
+			{
+				$RESULT = $RESULTS[$i];
+				$label = $RESULT->find('Label',0);
+				$desc = $RESULT->find('Description',0);
+				$suggestions[]="<span class='srcname'>$src_name:</span> ".$label->innertext.' ('.$desc->innertext.')';
+				$descriptions[]=trim($desc->innertext);
+				$suggestions_data[]=trim($label->innertext);
+				$suggestion_properties[]="src=$src_name;p=sugg;show=true";
+			}// for
+			
+			if ($further > 0)
+			{
+				$suggestions_data[]="Click here to see further $further suggestions from $src_name";
+				$suggestions[]="<a href='#' class='seemore' onclick='t(\"$src_name\",\"sugg\");return false;'>$seemoretext</a>";
+				$descriptions[]='';
+				$suggestion_properties[]="src=$src_name;p=seemore;show=true";
+								
+				for($i=$max;$i<$countentities;$i++)
+				{
+					$RESULT = $RESULTS[$i];
+					$label = $RESULT->find('Label',0);
+					$desc = $RESULT->find('Description',0);
+					$suggestions[]="<span class='srcname'>$src_name:</span> ".$label->innertext.' ('.$desc->innertext.')';
+					$descriptions[]=trim($desc->innertext);
+					$suggestions_data[]=trim($label->innertext);
+					$suggestion_properties[]="src=$src_name;p=sugg;show=false";
+				}// for
+			} // $further
+			
+			break;
+	}	// switch
+	//return array($suggestions,$suggestions_data,$descriptions,$suggestion_properties);	
+} // get_remote_autocomplete
+
+
+
+/**
+ * Mounts and calls SRC DIRECTLY
+ * saving time with respect to http call
+ * 
+ */
+function get_from_src_directly( $sid,
+																$max_results,
+																$lang,
+																$servicename,
+																$q, // query term
+
+																$src_name,
+																$mode,
+																$DISKenginePATH,
+																$basic_path_sroot,
+																$basic_path_SRCengineInterface,
+																$basic_path_SRCengine,
+																$CLASS,
+																$pathClass,
+																$pathSuperClass,
+																$AuthUser,
+																$AuthPasswd  )
+{
+	
+	$DEBUG=0;
+	global $SOLRCLIENT;
+	
+	
+	if ($DEBUG) 
+	{
+		print "<hr>CALLING $servicename $src_name on query=($q)";
+		print "<br>using: <br>";
+		tell( "sid: $sid" );
+		tell( "max_subjects: $max_results" );
+		tell( "lang: $lang" );
+		tell( "servicename: $servicename");
+		tell( "q: $q" );
+		tell( "src_name: $src_name" );
+		tell( "DISKenginePATH: $DISKenginePATH" );
+		tell( "basic_path_sroot: $basic_path_sroot" );
+		tell( "basic_path_SRCengineInterface: $basic_path_SRCengineInterface" );
+		tell( "basic_path_SRCengine: $basic_path_SRCengine" );
+		tell( "CLASS: $CLASS" );
+		tell( "pathClass: $pathClass" );
+		tell( "pathSuperClass: $pathSuperClass" );
+	}
+	//include - link elements
+	if ($DEBUG) tell("<br>CD DISKenginePATH $DISKenginePATH");
+	$cwd=getcwd();
+	if (!chdir($DISKenginePATH)) fontprint("Problem chdir $DISKenginePATH from $cwd" , 'red');
+	
+	if ($DEBUG) tell("Requiring basic_path_sroot $basic_path_sroot");
+	require_once($basic_path_sroot);
+	
+	if ($DEBUG) tell("Requiring basic_path_SRCengineInterface $basic_path_SRCengineInterface");
+	require_once($basic_path_SRCengineInterface);
+
+	if ($DEBUG) tell("Requiring basic_path_SRCengine $basic_path_SRCengine");
+	require_once($basic_path_SRCengine);
+
+	if ($DEBUG) tell("Requiring$pathSuperClass $pathSuperClass");
+	include_once($pathSuperClass);
+
+	if ($DEBUG) tell("Requiring pathClass $pathClass");
+	include_once($pathClass);
+	
+	// CHECK THE RIGHT CLASS IS LOADED
+	
+	if ($DEBUG) tell("INSTANTIATING CLASS $CLASS:<br>");
+	$SRC = new $CLASS();
+	
+	if ($DEBUG) tell("");
+	
+	if ($DEBUG) var_dump($SRC);
+	
+	if ($DEBUG) tell("<br>USING SRC $src_name with q=($q) and mode=$mode");
+	
+	// CALL THE SRC SERVICE
+	
+	//$SOLRCLIENT = null; // avoid reuse
+	
+	$CONTENT= $SRC->webRefine(	$sid,
+															$qb64=base64_encode($q),
+															$vb64='',
+															$w='0',
+															$lang,
+															$max_results,
+															$sortrank='standard',
+															$maxdur=15,
+															$c='',
+															$cid='',
+															$action='preall',
+															$CLASS,
+															$mode );
+
+	
+	if ($DEBUG) tell("<br>OUTPUT:<br>");
+	if ($DEBUG) tell(str_replace("\n","<br>",htmlentities(print_r($CONTENT))));
+	
+	if (!chdir($cwd)) fontprint("Problem re-chdir $cwd" , 'red');
+	
+	return $CONTENT;
+} // get_from_src_directly
+
+
+
 
 
 /*
@@ -915,7 +1179,11 @@ function get_cached_widget_response($url)
 //----- from fsrc
 function get_cached_src_response($cache_id,$max_age_in_sec=-1)
 {
-   global $RESULTS_STORE_METHOD;
+  global $RESULTS_STORE_METHOD;
+	global $sid;
+	 
+	 Logger::logAction(27, array('from'=>'get_cached_src_response','msg'=>"START GETCACHE $RESULTS_STORE_METHOD"),$sid);
+	 
     switch($RESULTS_STORE_METHOD)
     {
       case 'mysql': 
@@ -924,7 +1192,8 @@ function get_cached_src_response($cache_id,$max_age_in_sec=-1)
       case 'solr':
             $cached_src_response = get_cached_src_response_SOLR($cache_id,$max_age_in_sec);
     }
-    return $cached_src_response;
+	 Logger::logAction(27, array('from'=>'get_cached_src_response','msg'=>"END GETCACHE $RESULTS_STORE_METHOD"),$sid);
+   return $cached_src_response;
 } // get_cache_response
 
 
@@ -945,10 +1214,12 @@ function get_cached_src_response_SOLR($cache_id, $max_age_in_sec=-1)
 {
   global $SOLR_RODIN_CONFIG;
   global $RODINSEGMENT;
+	global $USER, $USER_ID;
 	if (!$USER)
-		  $USER = $_REQUEST['user'];
-	if (!$USER) 
-			$USER = 'nb'; // nobody
+	  $USER = $_REQUEST['user'];
+	if (!$USER) $USER = $USER_ID;
+	if (!$USER)
+	  $USER = 'nb';
  
   $CACHED_CONTENT='';
   
@@ -975,15 +1246,16 @@ function get_cached_src_response_SOLR($cache_id, $max_age_in_sec=-1)
    //Query in the last $rodin_cache_expiry_hour for $url ...
   
   $TIME_RANGE=getTimeRangeExpression($src_cache_expiry_hours);
-  
+  $coded_cache_id=base64_encode($cache_id);
+	
   $solr_select= "http://$solr_host:$solr_port$solr_path".'select?'
-           ."&q=user:$USER%20seg:$RODINSEGMENT%20timestamp:$TIME_RANGE%20".base64_encode($cache_id)
+           ."&q=user:$USER%20seg:$RODINSEGMENT%20timestamp:$TIME_RANGE%20".$coded_cache_id
            ."&fl=cached,timestamp,idsource"
            ."&rows=1"
            ."&omitHeader=true"
            ;
   
-   //print "SOLR select: <a href='$solr_select' target='_blank'>solr zu url</a>";
+   //print "<br>SOLR select: <a href='$solr_select' target='_blank'>$solr_select</a>";
    if ($need_src_log)
        fwrite($log, "\n$now get url: $solr_select");
 
@@ -1043,6 +1315,10 @@ function cache_src_response($cache_id,$xml_src_content)
 // Cache response using either database or solr
 {
   global $RESULTS_STORE_METHOD;
+  global $sid;
+	
+  Logger::logAction(27, array('from'=>'cache_src_response','msg'=>"START CACHING $RESULTS_STORE_METHOD"),$sid);
+  
   switch($RESULTS_STORE_METHOD)
   {
     case 'mysql': 
@@ -1051,6 +1327,7 @@ function cache_src_response($cache_id,$xml_src_content)
     case 'solr':
           cache_src_response_SOLR($cache_id,$xml_src_content);
   }
+  Logger::logAction(27, array('from'=>'cache_src_response','msg'=>"END CACHING $RESULTS_STORE_METHOD"),$sid);
 }  
 
 
@@ -1079,8 +1356,10 @@ function cache_src_response_SOLR($cache_id,$xml_src_content)
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
   global $RODINSEGMENT;
+	global $USER_ID, $USER;
 	if (!$USER)
 	  $USER = $_REQUEST['user'];
+	if (!$USER) $USER = $USER_ID;
 	if (!$USER)
 	  $USER = 'nb';
 	
@@ -1128,15 +1407,21 @@ function cache_response($url,$datasource_response)
 // Cache response using either database or solr
 {
   global $RESULTS_STORE_METHOD;
+	global $sid;
+	
+	Logger::logAction(27, array('from'=>'cache_response','msg'=>"START CACHING $RESULTS_STORE_METHOD"),$sid);
 		
-    switch($RESULTS_STORE_METHOD)
-    {
-      case 'mysql': 
-            cache_response_DB($url,$datasource_response);
-            break;
-      case 'solr':
-            cache_response_SOLR($url,$datasource_response);
-    }
+  switch($RESULTS_STORE_METHOD)
+  {
+    case 'mysql': 
+          cache_response_DB($url,$datasource_response);
+          break;
+    case 'solr':
+          cache_response_SOLR($url,$datasource_response);
+  }
+
+	Logger::logAction(27, array('from'=>'cache_response','msg'=>"END CACHING $RESULTS_STORE_METHOD"),$sid);
+
 }  
 
 
@@ -1149,15 +1434,9 @@ function cache_response_DB($url,&$datasource_response)
 
 function get_cached_response($url)
 {
-	   global $RESULTS_STORE_METHOD;
-//	$milliseconds = number_format( round(microtime(true) * 1000), 0, '.', "'");
-			
-//		if (Logger::LOGGER_ACTIVATED) {
-//                    $info=array();
-//                    $info['name'] = "ENTRY: $milliseconds get_cached_response using $RESULTS_STORE_METHOD ";
-//                    $info['msg'] = 'url= '.$url;
-//                    Logger::logAction($action=25, $info);
-//		}
+	global $RESULTS_STORE_METHOD;
+	global $sid;
+	Logger::logAction(27, array('from'=>'get_cached_response','msg'=>"START GETCACHE $RESULTS_STORE_METHOD"),$sid);
 	
     switch($RESULTS_STORE_METHOD)
     {
@@ -1167,6 +1446,8 @@ function get_cached_response($url)
       case 'solr':
             $cached_datasource_response = get_cached_response_SOLR($url);
     }
+	
+	Logger::logAction(27, array('from'=>'get_cached_response','msg'=>"END GETCACHE $RESULTS_STORE_METHOD"),$sid);
 		
 //		$milliseconds = number_format( round(microtime(true) * 1000), 0, '.', "'");
 //		if (Logger::LOGGER_ACTIVATED) {
@@ -1313,6 +1594,212 @@ function cache_response_SOLR($cacheid,$response)
 }
 
 
+/**
+ * ranks a generic numbered (array) list of subject labels
+ * returns a ranked vector
+ * 
+ * Author: Fabio Ricci, fabio.ricci@ggaweb.ch for HEG (Geneva,CH)
+ * 
+ * @param $referencetext - the text to be taken as reference
+ * @param $subject_list - array of subject labels to be ranked
+ * @param $sid - search identifier (a kind of secondary key)
+ * @param $user_id - a number of the user id performing operations
+ * @param $minimumrank - a rank value to be added to each ranking
+ */
+function rank_vectors_vsm($referencetext, $subject_list, $sid, $user_id, $minimumrank)
+{
+	$DEBUG=0;
+	global $RDFLOG;
+  require_once("../u/SOLRinterface/solr_interface.php");
+	$collection=RDFprocessor::$submlt_collection;
+	
+	$count_subjects = count($subject_list);
+	
+	//Delete all possible previous subjects having $sid* :	
+	solr_delete_documents($collection,"id:$sid*");
+
+	//Upload each RESULT subject to SOLR
+	foreach($subject_list as $k=>$subjecttext)
+	{
+		if ($subjecttext)
+		{
+			if ($DEBUG) print "<br>$k=>$subjecttext";
+			upload_text_to_SOLR(	$ID="$sid.$k.$subjecttext",
+														$k,
+														$subjecttext,
+														$collection,
+														$sid,
+														$user_id	);
+		}
+	}
+
+	//The following is the mlt id
+	$mltID="$sid.ref";
+	//UPLOAD reference text to SOLR
+	upload_text_to_SOLR(	$mltID,
+												-1,
+												$referencetext,
+												$collection,
+												$sid,
+												$user_id	);
+
+	// QUERY MLT NOW
+
+	// http://localhost:8885/solr/subject_ranking/mlt?q=id:20130520.234610.578.2-0-519a99a43da47&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1&fq=wdatasource:/rodin/eng/app/w/RDW_swissbib.rodin&wt=xml&fl=score,*
+	$ranked_subjects = get_solr_mlt(	$mltID, 
+																		$sid, 
+																		$user_id, 
+																		$subject_list,
+																		$collection,
+																		$minimumrank		);
+	
+	return $ranked_subjects;
+} // rank_vectors_vsm
+
+
+
+
+function upload_text_to_SOLR($id,$k,$text,$collection,$sid,$user_id)
+{
+	$DEBUG=0;
+  global $SOLR_RODIN_CONFIG;
+  global $SOLARIUMDIR;
+  global $RODINSEGMENT;
+  //$solr_user=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
+  $solr_host=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['host'];
+  $solr_port=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['port'];
+  $solr_path=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['path'];
+  $solr_core=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['core'];
+  $solr_timeout=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['timeout'];
+  // store in SOLR for the last stored response using $url
+  if ($DEBUG)
+	{
+	  print "<hr><b>upload_text_to_SOLR</b>($id,$k,$text,$collection,$sid,$user_id)"; 
+		print "<br>solr_host=$solr_host"; 
+		print "<br>solr_port=$solr_port"; 
+		print "<br>solr_path=$solr_path"; 
+		print "<br>solr_core=$solr_core"; 
+	}
+   if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
+   {
+      // create a new document for the data
+      $doc = new Solarium_Document_ReadWrite();
+			if ($doc)
+			
+			{
+		    $doc->id  		 	 = $id;
+	      $doc->body  		 = $text;
+	      $doc->k      		 = $k;
+	      $doc->seg        = $RODINSEGMENT;
+	      $doc->sid        = $sid;
+	      $doc->user       = $user_id;
+	
+	      #do NOT reverse index this cached data in body
+	      $documents= array($doc);
+				
+				//print "<hr>SOLR client: "; var_dump($client);
+				//print "<hr>SOLR doc: "; var_dump($documents);
+				
+	      solr_synch_update($sid='',$solr_path,$client,$documents,false,false);
+			}     
+    }
+    else {
+      print "cache_response_SOLR system error init SOLR client";
+    }
+} // upload_text_to_SOLR
+
+
+
+
+
+/**
+ * Returns ranked lists using $subject_list
+ * @param $minimumrank - a rank value to be added to each ranking
+ * 
+ */
+function get_solr_mlt($mltID, $sid, $user_id, &$subject_list, $collection, $minimumrank)
+{
+	$DEBUG=0;
+	global $RDFLOG;
+  global $SOLR_RODIN_CONFIG;
+  global $SOLARIUMDIR;
+  global $RODINSEGMENT;
+	$ranked_subjects=array();
+	$count_subjects=count($subject_list);
+	
+	if (!$count_subjects) $count_subjects=10;
+	
+	if (!$mltID)
+		fontprint("<br>get_solr_mlt: error - no param mltID provided!!! ");
+	
+  $solr_host=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['host'];
+  $solr_port=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['port'];
+  $solr_path=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['path'];
+  $solr_core=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['core'];
+  $solr_timeout=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['timeout'];
+
+	if ($DEBUG)
+	{
+		print "<hr><b>get_solr_mlt</b>({$mltID}, $sid, $user_id, $count_subjects, $submlt_collection)";
+		
+	  //$solr_user=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
+		print "<br>solr_host=$solr_host"; 
+		print "<br>solr_port=$solr_port"; 
+		print "<br>solr_path=$solr_path"; 
+		print "<br>solr_core=$solr_core"; 
+	}
+  if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
+  {
+  	$query = $client->createMoreLikeThis();
+		if ($DEBUG) print "<br>calling (id:$mltID)";
+		$query->setQuery('id:'.$mltID);
+		$query->setMltFields('body');
+		//$query->setMinimumDocumentFrequency(1);
+		$query->setMinimumTermFrequency(1);
+		$query->setMinimumWordLength(2);
+		$query->setMinimumDocumentFrequency(1);
+		$query->createFilterQuery('sid')->setQuery("sid:$sid seg:$RODINSEGMENT user:$user_id");
+		//$query->setInterestingTerms('none');  // Must be one of: none, list, details
+		$query->setMatchInclude(false);
+		$query->setStart(0)->setRows($count_subjects); // wee need one row ...
+		
+		// this executes the query and returns the result
+		$resultset = $client->select($query);
+		$count_results=$resultset->getNumFound();
+		if ($DEBUG) echo '<hr>Number of MLT matches found: '.$resultset->getNumFound().'<hr/>';
+		foreach ($resultset as $document) 
+		{
+		  foreach($document AS $fieldname => $value)
+		  {
+		  	if(is_array($value)) $value = implode(', ', $value);
+				
+				switch($fieldname)
+				{
+					case 'k': 		$k=$value; break;
+					case 'body': 	$body=$value; break;
+					case 'score': 	$score=$value + $minimumrank; break;
+				} // switch
+		  } // int foreach
+			$sorted_ranked_subjects{$body} = array($score,$k);
+		} // ext foreach
+	} // $client
+	
+	
+	//sort the ranked subject (highest top)
+	if (count($eff_ranked_subjects) < $count_subjects)
+	{
+		foreach($subject_list as $k=>$label)
+		{
+			if (! $sorted_ranked_subjects{$label})
+						$sorted_ranked_subjects{$label}=array($minimumrank,$k);
+		}
+	} // need to add remaining subjects because off (not scored)
+	
+	
+	
+	return $sorted_ranked_subjects;// label->rank
+} // get_solr_mlt
+		
 
 
 
@@ -1327,11 +1814,11 @@ function good_response($datasource_response)
 
 
 #$supplied= timstamp with microseconds = "1365801457_721488"
-function compute_age($timestamp_data)
+function compute_rdf_age($timestamp_data)
 {
 	global $RDFLOG;
 	$DEBUG=0;
-	$timestamp_now=timestamp_fortripleannotation();
+	list($timestamp_now,$_) = timestamp_for_rdf_annotation();
 	list($ts_sec,$ts_msec)=preg_split('[_]',$timestamp_data);
 	list($now_sec,$now_msec)=preg_split('[_]',$timestamp_now);
 
@@ -1340,10 +1827,10 @@ function compute_age($timestamp_data)
 
 	$age=$now - $ts;
 	
-	if ($DEBUG) $RDFLOG.="<br>compute_age: $now($timestamp_now) - $ts($timestamp_data) = $age";
+	if ($DEBUG) $RDFLOG.="<br><b>compute_age</b>: $now($timestamp_now) - $ts($timestamp_data) = $age";
 	
 	return $age;
-} // compute_age
+} // compute_rdf_age
 
 
 
@@ -1388,7 +1875,7 @@ function filesystempermissionanalyse($path)
 
 function get_timestamp_diff_logger(&$last_record,&$first_record)
 {
-	
+	$debug=0;
 	$timestamp_microsec_start=$first_record['timestamp_prog'] ;
 	$timestamp_microsec_end=$last_record['timestamp_prog'];
 	
@@ -1396,7 +1883,7 @@ function get_timestamp_diff_logger(&$last_record,&$first_record)
 	
 	if ($interval_microsecs < 0)
 	{
-		fontprint("<br>ERROR diff $timestamp_microsec_end ?? $timestamp_microsec_start ",'red');
+		fontprint("<br>get_timestamp_diff_logger() ERROR negative diff $interval_microsecs = $timestamp_microsec_end - $timestamp_microsec_start ",'red');
 		print "<br>start:<br>"; var_dump($timestamp_microsec_start); print "<br>End:<br>";var_dump(&$last_record);
 		
 		$interval_microsecs=0;
@@ -1404,12 +1891,13 @@ function get_timestamp_diff_logger(&$last_record,&$first_record)
 	
 	if($debug)
 	{
-	print "<br>get_timestamp_diff_logger ($timestamp_microsec_end - $timestamp_microsec_start) = $interval_microsecs";
+	print "<br><b>get_timestamp_diff_logger</b> ($timestamp_microsec_end - $timestamp_microsec_start) = $interval_microsecs";
 	print "<br>first_record: "; var_dump($first_record);
 	}
 	$interval_str  = "$interval_microsecs secs";
 	return array($interval_microsecs,$interval_str);
 }
+
 
 
 
@@ -1911,7 +2399,6 @@ EOS;
  */
 function perform_server_actions_after_last_widget_rendering()
 {
-	include_once("../tests/Logger.php");
 	//Read the content of var 'go' 
 	//execute (only once) this code 
 	//only when 'go' is set
@@ -1919,18 +2406,21 @@ function perform_server_actions_after_last_widget_rendering()
 	
 	$go=$_GET['go'];
 	$rdfize=($go=='');
-	global $RODINROOT,$RODINSEGMENT;
+	global $PROT,$HOST,$RODINROOT,$RODINSEGMENT;
 	global $USER_ID;
 	$username = $_SESSION['longname']; 
 	global $sid, $datasource;
+	global $setversion;
 	
-	if ($rdfize)
+	if ($rdfize && intval($setversion) >'2012')
 	{
-	$RDFIZING="http://localhost$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php"
+		
+	$RDFIZING="$PROT://localhost$RODINROOT/$RODINSEGMENT/app/u/rdfize.php"
 							."?user_id=$USER_ID"
 							."&username=".str_replace(" ","%20",$username)
 							."&sid=$sid"
 							."&rdfize=on"
+							."&reqhost=$HOST"
 						;
 
 	$QUERYSTRING=$_SERVER['QUERY_STRING'];
@@ -1940,7 +2430,8 @@ function perform_server_actions_after_last_widget_rendering()
 	
 	$SCRIPT =<<<EOS
 	 <script type='text/javascript'>
-	 alert('$RDFIZING')
+	 //alert('$RDFIZING')
+	 parent.signal_rdfizing_done();
 	 </script>
 EOS;
 
@@ -1977,8 +2468,12 @@ function make_uncache_javascript_code($txt)
    * informing about the state of meta search
    * and start filtering highlighting
    */
+   if(intval($setversion) >'2012')
+   $EVTL_SIGNAL="parent.signal_rdfizing();";
+   
 	$UNCACHE =<<<EOS
 	 <script type='text/javascript'>
+	 	$EVTL_SIGNAL
 	  parent.show_widgets_content_in_aggregated_view();
 	 	parent.adapt_widgetsareas_on_openclose_widgetmenu();
 	 	parent.FRIdarkProtectionUncache('$txt');
@@ -2025,15 +2520,18 @@ function sxml_get_secondtagname($sxml)
 	function get_RODINIMAGE($RODINSEG)
 	{
 		global $RODINIMAGES,$RODINIMAGESWEB;
+		 if ($_SERVER["SERVER_ADMIN"] == "webdms@ggaweb.ch")
+		 $addon='_anubis';
 		
-		$BG_IMAGE_DISK= "$RODINIMAGES/rodin_bg_{$RODINSEG}.png";
+		$BG_IMAGE_DISK= "$RODINIMAGES/rodin_bg_{$RODINSEG}$addon.png";
 		
 		if (!file_exists($BG_IMAGE_DISK))
 		{
-			print "<br> not exists: $BG_IMAGE";
+			//print "<br> not exists: $BG_IMAGE_DISK";
 			$RODINSEG='eng';
 		}
-		$BG_IMAGE= $RODINIMAGESWEB."/rodin_bg_{$RODINSEG}.png";
+			
+		$BG_IMAGE= $RODINIMAGESWEB."/rodin_bg_{$RODINSEG}$addon.png";
 		
 		//print "<br> returning image $BG_IMAGE";
 		return $BG_IMAGE;
@@ -2117,15 +2615,19 @@ function html_printable_xml($txt)
  * @param array $get the parameters sent to the service.
  * @param array $options additional CURL options.
  */
-function parametrizable_curl($url, array $get = array(), array $options = array(CURLOPT_HTTPHEADER => array('Accept:text/xml'))) {
+function parametrizable_curl($url, 
+														array $get = array(), 
+														array $options = array(CURLOPT_HTTPHEADER => array('Accept:text/xml'))) {
 	global $PROXY_NAME, $PROXY_PORT, $PROXY_AUTH_USERNAME, $PROXY_AUTH_PASSWD;
 	global $CALLING_TIMEOUT_SEC, $WEBROOT;
 	
+	$DEBUG=0;
+	
 	$defaults = array(
-		CURLOPT_HTTPHEADER => false, // e.g. array('Accept:text/xml')
+		CURLOPT_HTTPHEADER => FALSE, // array('Accept:text/xml'),
 		CURLOPT_RETURNTRANSFER => TRUE,
-		CURLOPT_TIMEOUT => $CALLING_TIMEOUT_SEC
-		
+		CURLOPT_TIMEOUT => $CALLING_TIMEOUT_SEC,
+		CURLOPT_SSL_VERIFYPEER => false // accept any ssl certificate
 		// Options for POST queries
 		// CURLOPT_POST => true,
 		// CURLOPT_POSTFIELDS => "user=1&service=2"
@@ -2141,31 +2643,36 @@ function parametrizable_curl($url, array $get = array(), array $options = array(
   $result = open_direct_php($path,$qsparams,$options);
   else // use curl 
   {
+  	
     // Use the proxy configuration only if the URL is remote (not local)
     // and we're not running it directly on the server
-    $urlIsRemote = stripos($url, $WEBROOT) === false;
+    $urlIsRemote = (stripos($url, $WEBROOT) === false);
 
     if ($PROXY_NAME != '' && $urlIsRemote) {
-      $defaults[CURLOPT_HTTPPROXYTUNNEL] = "TRUE";
+      $defaults[CURLOPT_HTTPPROXYTUNNEL] = 1;
       $defaults[CURLOPT_PROXYTYPE] = "CURLPROXY_HTTP";
       $defaults[CURLOPT_PROXY] = "$PROXY_NAME:$PROXY_PORT";
       $defaults[CURLOPT_PROXYUSERPWD] = "$PROXY_AUTH_USERNAME:$PROXY_AUTH_PASSWD";
-			
-			
 			//$defaults[] = "Accept-Charset: utf-8;"; 
-			
     }
 
+	
     $finalOptions = $options + $defaults;
 
     if (count($get) > 0) {
       $url .= (strpos($url, '?') === FALSE ? '?' : '') . http_build_query($get);
     }
 
+		if ($DEBUG)
+		{
+			print "\n<br>Calling ($url) with following options:";
+			foreach($finalOptions as $k=>$op) {if (is_array($op)) $op=implode(',',$op); print "\n<br>$k=>$op";}
+		}
+
     $ch = curl_init($url);
     curl_setopt_array($ch, $finalOptions);
 
-    $result = @curl_exec($ch);
+    $result = curl_exec($ch);
 
   //	if( ! $result = curl_exec($ch)) {
   //		trigger_error(curl_error($ch));
@@ -2719,6 +3226,38 @@ function getApplLang()
 {
 	return $_SESSION['lang']!=''?$_SESSION['lang']:'en';
 }
+
+
+
+
+
+
+/**
+ * returns vector of subjects in accordance with punctuation
+ * separate every term with a comma or around "or" or "and"
+ */
+function getTermVector($term)
+{
+	if (strstr($term,','))
+	{
+		$tmp_vector=explode($term,',');
+	} 
+	else 	if (strstr($term,' or '))
+	{
+		$tmp_vector=explode($term,' or ');
+	} 
+	else 	if (strstr($term,' and '))
+	{
+		$tmp_vector=explode($term,' and ');
+	} 
+	else $tmp_vector=array($term);
+	
+	foreach($tmp_vector as $t)
+		$vector[]=trim($t); // clean it a bit
+	
+	return $vector; 
+} // getTermVector
+
 
 
 

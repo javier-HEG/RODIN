@@ -28,6 +28,7 @@ class STWengineSOLR extends STWengine
 {
 	protected $maxROWSinSOLR_eachEntity;
   protected $STW_SKOS_FIELDS;
+	protected $STW_SUGGESTION_FIELDS;
   protected $zbw_stw_namespaces;
   protected $solr_collection;
   
@@ -60,11 +61,17 @@ class STWengineSOLR extends STWengine
                                     'skos_related'
                                 );
     
-    
+    $this->STW_SUGGESTION_FIELDS=array(
+                                    'id',
+                                    'score',
+                                    'skos_prefLabel_de',
+                                    'skos_prefLabel_en',
+                                );
     $this->zbw_stw_namespaces= get_namespaces_from_DB();
 
 		//print "<br> STWengine2<hr>"; var_dump($this->get_zbwdbpedia_store());print "<hr>";
-
+		//print "<br>cons STWengineSOLR executed";
+		
 	} //STWengine1 
 	
 	
@@ -89,7 +96,7 @@ class STWengineSOLR extends STWengine
   /*
    * ENTRY POINT for computation of SKOS nodes around "$text"
    */
-	public function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard')
+	public function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard',$mode='web')
 	##################################
 	# 
 	# Refines all relevant token in text using $this->refineFunctionName
@@ -112,7 +119,7 @@ class STWengineSOLR extends STWengine
       // call SLOR STW engine for each term in $text using the default solr dismax query handler
       if (trim($text))
       {
-        $STW_SKOSResult = $this->refine_skos_solr_method( trim($text),$m,$lang );
+        $STW_SKOSResult = $this->refine_skos_solr_method( trim($text),$m,$lang, $mode );
         list($broader_terms,  $broader_descriptors,   $B_ROOTPATHS)= $STW_SKOSResult->broader;
         list($narrower_terms, $narrower_descriptors,  $N_ROOTPATHS)= $STW_SKOSResult->narrower;
         list($related_terms,  $related_descriptors,   $R_ROOTPATHS)= $STW_SKOSResult->related;
@@ -160,7 +167,8 @@ class STWengineSOLR extends STWengine
 		} // ok
     
     
-		return array( new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
+		return array( $STW_SKOSResult->suggested,
+									new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
                   new SRCEngineResult(trim($narrower_refined_terms),trim($narrower_refined_terms_raw), $N_ROOTPATHS),
                   new SRCEngineResult(trim($related_refined_terms), trim($related_refined_terms_raw),  $R_ROOTPATHS) );
 	} // refine_skos_solr
@@ -169,7 +177,7 @@ class STWengineSOLR extends STWengine
   
   
   
-  public function refine_skos_solr_method($term,$m,$lang)
+  public function refine_skos_solr_method($term,$m,$lang,$mode)
 	############################################################
   # Find Terme related to $action 
 	{ 
@@ -185,7 +193,7 @@ class STWengineSOLR extends STWengine
 		
 		if ($descriptor) # Request was made on a node (descriptor) exactely
 		{
-     $STW_SKOSResult  =  $this->get_stw_skos_nodes_SOLR(null,$descriptor,$m,$lang);
+     $STW_SKOSResult  =  $this->get_stw_skos_nodes_SOLR(null,$descriptor,$m,$lang,$mode);
 		} # node
 		###########################################
 		else # Request is on text
@@ -193,7 +201,7 @@ class STWengineSOLR extends STWengine
       $term= $this->formatAsInThesaurus($term);
 			// ----- Search for Labels in STW SOLR  ------
 
-      $STW_SKOSResult  = $this->get_stw_skos_nodes_SOLR($term,null,$m,$lang);
+      $STW_SKOSResult  = $this->get_stw_skos_nodes_SOLR($term,null,$m,$lang,$mode);
       /* in $STW_SKOSResult ar all results for each node */
       
 		}  //text	
@@ -233,9 +241,11 @@ class STWengineSOLR extends STWengine
 		} // text
     
     
+    
+    
 		return $STW_SKOSResult; // Information block for every skos relation
 	
-	} // 
+	} // refine_skos_solr_method
   
   
   
@@ -477,11 +487,19 @@ class STWengineSOLR extends STWengine
   
   
 
-/*
+/**
  * Returns an STW SKOS NODE corresponding to a SOLR search for '$term'
+ * if mode==web: execute also a walk in the ontology upwards to the root in order to provide a context.
+ * if mode is else, no walk is performed (and hence the computation is faster)
+ * @param $term - the search term (might be incomplete or with wildcards)
+ * @param $descriptor - if $term is empty, provide here a descriptor (faster) to get data
+ * @param $m - maximum number of results (attention, suggestions follow another limit) 
+ * @param $lang - abbreviation of the language to be searched
+ * @param $mode - defines what to be computed (describes the call intention)
  */
-private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang)
-{  
+private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
+{
+	$suggestions=array();  
   if (!$term && !$descriptor)
     print "System error: get_stw_skos_nodes_SOLR called with neither a term nor a descriptor!";
   else
@@ -494,6 +512,26 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang)
     if (($SOLRCLIENT = init_SOLRCLIENT($this->solr_collection,'solr_index_skos_namespaces system error init SOLRCLIENT')))
     {
       $SOLRCLIENT->getPlugin('postbigrequest');
+
+			#####################################################
+			#
+			# AUTOCOMPLETE: Just a search with maximal 10 results back
+			# 							without SKOS Famliy
+			#		            perform this besides the normal computation
+			#
+			if ($mode=='autocomplete')
+			{
+				
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_de',$term,$this->STW_SUGGESTION_FIELDS);
+				
+				//No suggestions for german? try english:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_en',$term,$this->STW_SUGGESTION_FIELDS);
+				 // get a select query instance
+        
+			} // autocomplete
+			######################################################
+			
 
       // get a select query instance
       $query = $SOLRCLIENT->createSelect();
@@ -594,9 +632,9 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang)
     // Processing... resolving descriptors... all at once
 
     //Limit found descriptors to exactely to $m
-    $BROADER_DESC=array_splice($BROADER_DESC,$m);
-		$NARROWER_DESC=array_splice($NARROWER_DESC,$m);
-		$RELATED_DESC=array_splice($RELATED_DESC,$m);
+    array_splice($BROADER_DESC,$m);
+		array_splice($NARROWER_DESC,$m);
+		array_splice($RELATED_DESC,$m);
 		
   	if ($this->getSrcDebug())
   	{
@@ -643,22 +681,30 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang)
   
     
     //Compute each ID the path
-    if (trim($ID0)<>null)
- 		   $LOCALrootPATH = $this->walk_stw_root_path($ID0,$lang,$recursion=0);
-    if ($this->getSrcDebug())
-    {
-      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
-    }
-    Logger::logAction(25, array('from'=>'STWengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
-
+    if ($mode=='web') // standard way, if other mode: no walk
+		{
+	    if (trim($ID0)<>null)
+	 		   $LOCALrootPATH = $this->walk_stw_root_path($ID0,$lang,$recursion=0);
+	    if ($this->getSrcDebug())
+	    {
+	      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
+	    }
+			$LRP_B= $this->rootpaths($LOCALrootPATH,$BROADER_LABELS);
+			$LRP_N= $this->rootpaths($LOCALrootPATH,$NARROWER_LABELS);
+			$this->rootpaths($LOCALrootPATH,$RELATED_LABELS);
+	    Logger::logAction(25, array('from'=>'STWengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
+		}
     //Compute all other paths by using $LOCALrootPATH adding the current label.
     
-   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'stw') ,$this->rootpaths($LOCALrootPATH,$BROADER_LABELS)); 
-   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'stw'),$this->rootpaths($LOCALrootPATH,$NARROWER_LABELS)); 
-   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'stw') ,$this->rootpaths($LOCALrootPATH,$RELATED_LABELS)); 
+   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'stw') ,$LRP_B); 
+   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'stw'),$LRP_N); 
+   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'stw') ,$LRP_R); 
   
-	return new SRCEngineSKOSResult ( $B, $N, $R );
-} // get_stw_node_SOLR
+  
+  
+  
+	return new SRCEngineSKOSResult ( $suggestions, $B, $N, $R );
+} // get_stw_skos_nodes_SOLR
 
 
 

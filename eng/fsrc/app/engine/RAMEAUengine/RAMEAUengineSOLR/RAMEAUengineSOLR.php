@@ -32,6 +32,8 @@ class RAMEAUengineSOLR extends RAMEAUengine
   protected $solr_collection;
 	protected $namespaces;
   
+	protected $RAMEAU_SUGGESTION_FIELDS=null;
+	 
 	function __construct() 
 	#########################
 	{
@@ -44,7 +46,21 @@ class RAMEAUengineSOLR extends RAMEAUengine
 
     $this->maxROWSinSOLR_eachEntity = 10; // 10 rows each entity in RAMEAU SOLR
     $this->namespaces= get_namespaces_from_DB();
-
+		
+		
+		$this->RAMEAU_SUGGESTION_FIELDS=array(
+                                    'id',
+                                    'score',
+                                    'skos_prefLabel_fr',
+                                    'skos_prefLabel_en',
+                                    'skos_prefLabel_de',
+                                    'skos_prefLabel_es',
+                                    'skos_prefLabel_it',
+                                );
+   
+		
+		//print "<br>cons RAMEAUengineSOLR executed";
+    
 	} //RAMEAUengineSOLR constructor 
 	
 	
@@ -77,7 +93,7 @@ class RAMEAUengineSOLR extends RAMEAUengine
 	 *
 	 * returns an OBJ containing ranked broader/narrower/related results and the labels of the node(s) found
 	 */
-	public function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard')
+	public function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard',$mode='web')
 	{	
 	 	global $TERM_SEPARATOR;
 
@@ -97,7 +113,7 @@ class RAMEAUengineSOLR extends RAMEAUengine
       // call SLOR RAMEAU engine for each term in $text using the default solr dismax query handler
       if (trim($text))
       {
-        $RAMEAU_SKOSResult = $this->refine_skos_solr_method( trim($text),$m,$lang );
+        $RAMEAU_SKOSResult = $this->refine_skos_solr_method( trim($text),$m,$lang,$mode );
         list($broader_terms,  $broader_descriptors,   $B_ROOTPATHS)= $RAMEAU_SKOSResult->broader;
         list($narrower_terms, $narrower_descriptors,  $N_ROOTPATHS)= $RAMEAU_SKOSResult->narrower;
         list($related_terms,  $related_descriptors,   $R_ROOTPATHS)= $RAMEAU_SKOSResult->related;
@@ -145,7 +161,8 @@ class RAMEAUengineSOLR extends RAMEAUengine
 		} // ok
     
     
-		return array( new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
+		return array( $RAMEAU_SKOSResult->suggested,
+									new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
                   new SRCEngineResult(trim($narrower_refined_terms),trim($narrower_refined_terms_raw), $N_ROOTPATHS),
                   new SRCEngineResult(trim($related_refined_terms), trim($related_refined_terms_raw),  $R_ROOTPATHS) );
 	} // refine_skos_solr
@@ -154,7 +171,7 @@ class RAMEAUengineSOLR extends RAMEAUengine
   
   
   
-  public function refine_skos_solr_method($term,$m,$lang)
+  public function refine_skos_solr_method($term,$m,$lang,$mode)
 	############################################################
   # Find Terme related to $action 
 	{ 
@@ -170,7 +187,7 @@ class RAMEAUengineSOLR extends RAMEAUengine
 		
 		if ($descriptor) # Request was made on a node (descriptor) exactely
 		{
-       $RAMEAU_SKOSResult  =  $this->get_rameau_skos_nodes_SOLR(null,$descriptor,$m,$lang);
+       $RAMEAU_SKOSResult  =  $this->get_skos_rameau_nodes_SOLR(null,$descriptor,$m,$lang,$mode);
 		} # node
 		###########################################
 		else # Request is on text
@@ -178,9 +195,8 @@ class RAMEAUengineSOLR extends RAMEAUengine
       $term= $this->formatAsInThesaurus($term);
 			// ----- Search for Labels in RAMEAU SOLR  ------
 
-      $RAMEAU_SKOSResult  = $this->get_skos_rameau_nodes_SOLR($term,null,$m,$lang);
+      $RAMEAU_SKOSResult  = $this->get_skos_rameau_nodes_SOLR($term,null,$m,$lang,$mode);
       /* in $RAMEAU_SKOSResult ar all results for each node */
-      
 		}  //text	
     // 
     // 
@@ -220,7 +236,7 @@ class RAMEAUengineSOLR extends RAMEAUengine
     
 		return $RAMEAU_SKOSResult; // Information block for every skos relation
 	
-	} // 
+	} // refine_skos_solr_method
   
   
   
@@ -454,7 +470,7 @@ class RAMEAUengineSOLR extends RAMEAUengine
 /*
  * Returns an RAMEAU SKOS NODE corresponding to a SOLR search for '$term'
  */
-private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
+private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 {
   if (!$term && !$descriptor)
     print "System error: get_rameau_skos_nodes_SOLR called with neither a term nor a descriptor!";
@@ -464,10 +480,31 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
 		{
       print "<br>RAMEAUengineSOLR->get_rameau_skos_nodes_SOLR($term,$descriptor,$m,$lang) ...";
     }
-    
+		
     if (($SOLRCLIENT = init_SOLRCLIENT($this->solr_collection,'solr_index_skos_namespaces system error init SOLRCLIENT')))
     {
       $SOLRCLIENT->getPlugin('postbigrequest');
+
+			$suggestions = array();
+			if ($mode=='autocomplete')
+			{
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_fr',$term,$this->RAMEAU_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_en',$term,$this->RAMEAU_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_de',$term,$this->RAMEAU_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_es',$term,$this->RAMEAU_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_it',$term,$this->RAMEAU_SUGGESTION_FIELDS);
+				 // get a select query instance
+        
+			} // autocomplete
+
 
       // get a select query instance
       $query = $SOLRCLIENT->createSelect();
@@ -478,8 +515,8 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
          $query->setQuery(($term));
 
       // set start and rows param (comparable to SQL limit) using fluent interface
-      $query->setStart(0)->setRows(3 * $m * ($this->maxROWSinSOLR_eachEntity)); // we need enaugh data ...
-
+      $query->setStart(0)->setRows($numrows= (3 * $m * ($this->maxROWSinSOLR_eachEntity))); // we need enaugh data ...
+      
       // set fields to fetch (this overrides the default setting 'all fields')
       //$query->setFields($this->RAMEAU_SKOS_FIELDS);
 
@@ -501,6 +538,7 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
       $d=0;
       
       $noofresults=$resultset->getNumFound();
+			
       if (solr_collection_empty($this->solr_collection))
       { print "<br><br>SEVERE ERROR - EMPTY collection ? SOLR running and reachable? '<b>".$this->solr_collection."</b>' please inform your ontology administrator !!!";
         exit;
@@ -511,7 +549,6 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
           {
             print "<br>Reading $d. document for query ... '$term' (or '$descriptor')";
           }
-					
 	          $PREFLABELS_DE=$PREFLABELS_EN=$PREFLABELS_EN=$PREFLABELS_FR=$PREFLABELS_IT=$PREFLABELS_ES=array();
 	        // the documents are also iterable, to get all fields
 	          foreach($document AS $fieldname => $value)
@@ -575,9 +612,9 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
 		
 		
 		//Limit found descriptors to exactely to $m
-    $BROADER_DESC=array_splice($BROADER_DESC,$m);
-		$NARROWER_DESC=array_splice($NARROWER_DESC,$m);
-		$RELATED_DESC=array_splice($RELATED_DESC,$m);
+    array_splice($BROADER_DESC,$m);
+		array_splice($NARROWER_DESC,$m);
+		array_splice($RELATED_DESC,$m);
 		
     // Processing... resolving descriptors... all at once
     list ($BROADER_LABELS,
@@ -590,6 +627,8 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
 		                                                    $lang );
     // do something with return_document...:
 
+		
+			
   }
 
   $ID0= $returndocument   [0][0][0];
@@ -613,20 +652,25 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
 
     } 
   
-    
-    //Compute each ID the path
-    $LOCALrootPATH = $this->walk_rameau_root_path($ID0,$lang,$recursion=0);
-    if ($this->getSrcDebug())
-    {
-      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
-    }
-    Logger::logAction(25, array('from'=>'RAMEAUengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
-
+    if ($mode=='web')
+		{
+	    //Compute each ID the path
+	    $LOCALrootPATH = $this->walk_rameau_root_path($ID0,$lang,$recursion=0);
+	    if ($this->getSrcDebug())
+	    {
+	      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
+	    }
+			
+			$LRP_B= $this->rootpaths($LOCALrootPATH,$BROADER_LABELS);
+			$LRP_N= $this->rootpaths($LOCALrootPATH,$NARROWER_LABELS);
+			$LRP_R= $this->rootpaths($LOCALrootPATH,$RELATED_LABELS);
+	    Logger::logAction(25, array('from'=>'RAMEAUengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
+		}
     //Compute all other paths by using $LOCALrootPATH adding the current label.
     
-   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'bnf') ,$this->rootpaths($LOCALrootPATH,$BROADER_LABELS)); 
-   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'bnf'),$this->rootpaths($LOCALrootPATH,$NARROWER_LABELS)); 
-   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'bnf') ,$this->rootpaths($LOCALrootPATH,$RELATED_LABELS)); 
+   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'bnf') , $LRP_B); 
+   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'bnf'), $LRP_N); 
+   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'bnf') , $LRP_R); 
   
     if ($this->getSrcDebug())
     {
@@ -637,7 +681,7 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
   
   
   
-	return new SRCEngineSKOSResult ( $B, $N, $R );
+	return new SRCEngineSKOSResult ( $suggestions, $B, $N, $R );
 } // get_rameau_rameau_nodes_SOLR
 
 
@@ -707,14 +751,18 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
       /* Create a disjunction with each of &$BROADER_DESC,&$NARROWER_DESC,&$RELATED_DESC :*/
       foreach($descriptors as $descriptor)
       {
-        //Add only different descriptors:
-        if (!$already_using_descriptor{$descriptor})
-        {
-          $already_using_descriptor{$descriptor} = true;
-          $disjunction.=$disjunction?' OR ':'';
-          $disjunction.="id:$descriptor";
-        }
-      }
+      	$testdesc='x'.$descriptor;
+	      if (strstr($testdesc,'ark:')) // sometime jerk is coming .. better be sure
+				{
+	        //Add only different descriptors:
+	        if (!$already_using_descriptor{$descriptor})
+	        {
+	          $already_using_descriptor{$descriptor} = true;
+	          $disjunction.=$disjunction?' OR ':'';
+	          $disjunction.="id:$descriptor";
+	        }
+	      }
+			}
 			$disjunction = str_replace("ark:","ark\\:",$disjunction);
 
       //Query all entities with id in $descriptors
@@ -829,7 +877,8 @@ private function get_skos_rameau_nodes_SOLR($term,$descriptor,$m,$lang)
  */
   private function walk_rameau_root_path($descriptor,$lang='fr',$recursion=0)
   {
-  	if (trim($descriptor)=='')
+  	if (trim($descriptor)=='' 
+  	||	(!strstr($descriptor,'bnf_ark')))
 		{
 			return '';
 		}

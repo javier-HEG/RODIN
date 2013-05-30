@@ -26,6 +26,7 @@ class SOZengineSOLR extends SOZengine
 {
 	protected $maxROWSinSOLR_eachEntity;
   protected $SOZ_SKOSXL_FIELDS;
+	protected $SOZ_SUGGESTION_FIELDS;
   protected $gesis_thesoz_namespaces;
   protected $solr_collection;
   
@@ -42,6 +43,16 @@ class SOZengineSOLR extends SOZengine
     $this->solr_collection = 'gesis_thesoz';
     $this->maxROWSinSOLR_eachEntity = 10; // 10 rows each entity in SOZ SOLR
     $this->gesis_thesoz_namespaces= get_namespaces_from_DB();
+		
+		$this->SOZ_SUGGESTION_FIELDS=array(
+                                    'id',
+                                    'score',
+                                    'skosxl_prefLabel_de',
+                                    'skosxl_prefLabel_en',
+                                );
+    
+				
+		//print "<br>cons SOZengineSOLR executed";
 		
 	} //__construct 
 	
@@ -67,7 +78,7 @@ class SOZengineSOLR extends SOZengine
   /*
    * ENTRY POINT for computation of SKOSXL nodes around "$text"
    */
-	public function refine_skosxl_solr($text, $q, $m, $lang, $sortrank='standard')
+	public function refine_skosxl_solr($text, $q, $m, $lang, $sortrank='standard',$mode='web')
 	##################################
 	# 
 	# Refines all relevant token in text using $this->refineFunctionName
@@ -90,7 +101,7 @@ class SOZengineSOLR extends SOZengine
       // call SOLR SOZ engine for each term in $text using the default solr dismax query handler
       if (trim($text))
       {
-        $SOZ_SKOSResult = $this->refine_skosxl_solr_method( trim($text),$m,$lang );
+        $SOZ_SKOSResult = $this->refine_skosxl_solr_method( trim($text),$m,$lang, $mode );
         list($broader_terms,  $broader_descriptors,   $B_ROOTPATHS)= $SOZ_SKOSResult->broader;
         list($narrower_terms, $narrower_descriptors,  $N_ROOTPATHS)= $SOZ_SKOSResult->narrower;
         list($related_terms,  $related_descriptors,   $R_ROOTPATHS)= $SOZ_SKOSResult->related;
@@ -138,7 +149,8 @@ class SOZengineSOLR extends SOZengine
 		} // ok
     
     
-		return array( new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
+		return array( $SOZ_SKOSResult->suggested,
+									new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
                   new SRCEngineResult(trim($narrower_refined_terms),trim($narrower_refined_terms_raw), $N_ROOTPATHS),
                   new SRCEngineResult(trim($related_refined_terms), trim($related_refined_terms_raw),  $R_ROOTPATHS) );
 	} // refine_skos_solr
@@ -146,7 +158,7 @@ class SOZengineSOLR extends SOZengine
   
   
   
-   protected function refine_skosxl_solr_method($term,$m,$lang)
+   protected function refine_skosxl_solr_method($term,$m,$lang,$mode)
 	############################################################
   # Find Terme related to $action 
 	{ 
@@ -162,7 +174,7 @@ class SOZengineSOLR extends SOZengine
 		
 		if ($descriptor) # Request was made on a node (descriptor) exactely
 		{
-     $SOZ_SKOSXLResult  =  $this->get_soz_skosxl_nodes_SOLR(null,$descriptor,$m,$lang);
+     $SOZ_SKOSXLResult  =  $this->get_soz_skosxl_nodes_SOLR(null,$descriptor,$m,$lang,$mode);
 		} # node
 		###########################################
 		else # Request is on text
@@ -170,7 +182,7 @@ class SOZengineSOLR extends SOZengine
       $term= $this->formatAsInThesaurus($term);
 			// ----- Search for Labels in STW SOLR  ------
       
-      $SOZ_SKOSXLResult  = $this->get_soz_skosxl_nodes_SOLR($term,null,$m,$lang);
+      $SOZ_SKOSXLResult  = $this->get_soz_skosxl_nodes_SOLR($term,null,$m,$lang,$mode);
       /* in $SOZ_SKOSXLResult ar all results for each node */
       
 		}  //text	
@@ -433,9 +445,9 @@ class SOZengineSOLR extends SOZengine
   
 
 /*
- * Returns an STW SKOS NODE corresponding to a SOLR search for '$term'
+ * Returns an SOZ SKOS NODE corresponding to a SOLR search for '$term'
  */
-private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang)
+private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 {  
   
   if (!$term && !$descriptor)
@@ -451,6 +463,19 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang)
     if (($SOLRCLIENT = init_SOLRCLIENT($this->solr_collection,'solr_index_skos_namespaces system error init SOLRCLIENT')))
     {
       $SOLRCLIENT->getPlugin('postbigrequest');
+
+
+			if ($mode=='autocomplete')
+			{
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skosxl_prefLabel_de',$term,$this->SOZ_SUGGESTION_FIELDS);
+				
+				//No suggestions for german? try english:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skosxl_prefLabel_en',$term,$this->SOZ_SUGGESTION_FIELDS);
+				 // get a select query instance
+			} // autocomplete
+
+
 
       // get a select query instance
       $query = $SOLRCLIENT->createSelect();
@@ -551,9 +576,9 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang)
     }
 
     //Limit found descriptors to exactely to $m
-    $BROADER_DESC=array_splice($BROADER_DESC,$m);
-		$NARROWER_DESC=array_splice($NARROWER_DESC,$m);
-		$RELATED_DESC=array_splice($RELATED_DESC,$m);
+    array_splice($BROADER_DESC,$m);
+		array_splice($NARROWER_DESC,$m);
+		array_splice($RELATED_DESC,$m);
 
     // Processing... resolving descriptors... all at once
 
@@ -590,22 +615,27 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang)
 
     } 
   
-    
-    //Compute each ID the path
-    $LOCALrootPATH = $this->walk_soz_root_path($ID0,$lang,$recursion=0);
-    if ($this->getSrcDebug())
-    {
-      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
-    }
-    Logger::logAction(25, array('from'=>'SOZengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
-
+    if ($mode=='web')
+		{
+	    //Compute each ID the path
+	    $LOCALrootPATH = $this->walk_soz_root_path($ID0,$lang,$recursion=0);
+	    if ($this->getSrcDebug())
+	    {
+	      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
+	    }
+			$LFP_B= $this->rootpaths($LOCALrootPATH,$BROADER_LABELS);
+			$LFP_N= $this->rootpaths($LOCALrootPATH,$NARROWER_LABELS);
+			$LFP_R= $this->rootpaths($LOCALrootPATH,$RELATED_LABELS);
+			
+	    Logger::logAction(25, array('from'=>'SOZengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
+			}
     //Compute all other paths by using $LOCALrootPATH adding the current label.
     
-   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'stw') ,$this->rootpaths($LOCALrootPATH,$BROADER_LABELS)); 
-   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'stw'),$this->rootpaths($LOCALrootPATH,$NARROWER_LABELS)); 
-   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'stw') ,$this->rootpaths($LOCALrootPATH,$RELATED_LABELS)); 
+   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'stw') , $LFP_B); 
+   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'stw'), $LFP_N); 
+   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'stw') , $LFP_R); 
   
-	return new SRCEngineSKOSResult ( $B, $N, $R );
+	return new SRCEngineSKOSResult ( $suggestions, $B, $N, $R );
 } // get_stw_node_SOLR
 
 

@@ -3242,13 +3242,15 @@ $p.ajax={
 				}
 				else
 				{
-					if (v_vars==indef 
-                        || $p.string.getVar(v_vars,"auth")=="") {
-                            l_feed=pfolder+posh["xmltun"]+"?ptyp="+v_type+"&url="+v_url;
+					if (v_vars==indef || $p.string.getVar(v_vars,"auth")=="") 
+					{
+	          l_feed=v_url;
+              //FRI//    l_feed=pfolder+posh["xmltun"]+"?ptyp="+v_type+"&url="+v_url;
 					}
 					else
 					{
-						l_feed=pfolder+posh["xmltunauth"]+"?ptyp="+v_type+"&auth="+$p.string.getVar(v_vars,"auth")+"&url="+v_url;
+						 l_feed=v_url;
+						//FRI //l_feed=pfolder+posh["xmltunauth"]+"?ptyp="+v_type+"&auth="+$p.string.getVar(v_vars,"auth")+"&url="+v_url;
 					}
 				}
 			}
@@ -4396,7 +4398,7 @@ $p.app={
 		Function: logout
         
                                 $p.app.logout 
-                                
+                                Fabio Ricci - adapted to recall real server instead of __LOCALHOST on logout
                                 logout from Portaneo application
 	*/
 	logout: function()
@@ -4418,10 +4420,14 @@ $p.app={
             
             $p.ajax.call('../../app/tests/LoggerResponder.php?action=1', {'type':'load'});
             
-            var localfolder = __LOCALFOLDER;
-            localfolder = localfolder.replace(/http:/,window.location.protocol);
+            var path = window.location.pathname;
+            path = path.substr(1,path.lastIndexOf("/"))
+            var localfolder = window.location.protocol+'//'+window.location.host + '/' + path;
+            var linkToOpen = localfolder+posh["scr_authentif"]+"?act=logout";
             
-            var linkToOpen = localfolder+"portal/"+posh["scr_authentif"]+"?act=logout";
+            //var localfolder = __LOCALHOST
+            //localfolder = localfolder.replace(/http:/,window.location.protocol);
+           // var linkToOpen = localfolder+"portal/"+posh["scr_authentif"]+"?act=logout";
             
             setTimeout("$p.url.openLink('" + linkToOpen + "');", 10);
 		}
@@ -13793,11 +13799,14 @@ $p.app.widgets={
 		// Check if the term sent is a ZBW URI
 		if (uri.indexOf("http://zbw") >= 0) {
 			visualizationIFrame.setAttribute("src", "../../../gen/u/rodin_survista/stw/index.php?r=" + uri + "&ul=" + term + "&rodinsegment="+ escape(rodinsegment) + "&l=" + lang + "&l10n=" + __lang);
-		} else {
+		} 
+		else 
 			// Check if the term sent is a DBPedia skos:Concept URI
-			if (uri.indexOf("http://dbpedia.org/resource/Category:") >= 0) {
+		if (uri.indexOf("http://dbpedia.org/resource/Category:") >= 0) {
 				visualizationIFrame.setAttribute("src", "../../../gen/u/rodin_survista/dbpedia/index.php?r=" + uri + "&rodinsegment="+ escape(rodinsegment) + "&l=" + lang + "&l10n=" + __lang);
-			}
+		}
+		else {
+			alert('SRC system error - no token recognised to be visualized');
 		}
 	},
 	/*

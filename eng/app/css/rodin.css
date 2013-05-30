@@ -16,6 +16,25 @@
   z-index:-1;
 }
 
+#dbrodinlogo {
+  position:relative;
+	top:5px;
+  height:20px;
+}
+
+#rdfizelogo {
+  position:relative;
+	top:0px;
+	top:5px;
+  height:20px;
+}
+
+#linksdiv {
+	position:relative;
+	top:-27px;
+	left:775px;
+	width:45px;
+}
 
 div#crashwarning {
   
@@ -53,10 +72,11 @@ a.admicontact
 
 div#rodinmetasearch {
 	/* Same as div#breadcrumbs in rodinBoard.css */
-    width: 800px;
+    width: 820px;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 4px;
+    overflow: hidden;
 }
 
 div#rodinmetasearch input#rodinsearch_s {
@@ -241,6 +261,16 @@ td.rdfcalledstat
 	color:red;
 }
 
+td.langdect {
+	color:red;
+}
+
+td.langdectok {
+	color:green;
+}
+td.langdectnok {
+	color:red;
+}
 
 td.rdfhomogstat {
 	color:#002166;
@@ -273,6 +303,15 @@ div#divLOGGING {
 	display:block;
 	background-color:#eee;
 	overflow:auto
+}
+
+
+span.triple {
+	color:#9a9;
+}
+
+span.numofobjects {
+	color:gray;
 }
 
 div.tripletable
@@ -358,6 +397,7 @@ table#triplepageframe tbody tr td span.triplepage
 	font-size:small;	
 }
 
+span.lodsparqlendpointtitle, 
 table#triplepageframe tbody tr td span.triplepagei
 {
 	color:gray;

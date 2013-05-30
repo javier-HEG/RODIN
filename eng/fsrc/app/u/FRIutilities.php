@@ -1,6 +1,11 @@
 <?php
 include_once("stopwords.php");
 
+
+$filename="app/root.php";
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	{if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}}
+
 $filename="gen/u/simplehtmldom/simple_html_dom.php";
 #######################################
 $max=10;

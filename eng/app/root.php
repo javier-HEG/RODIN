@@ -25,7 +25,7 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'];
 #############################################
 # 20130312FRI - The following is used during 
 # development of the rdf lab
-$WANT_RFLAB=true;
+$WANT_RFLAB=false;
 #
 #############################################
 
@@ -89,20 +89,22 @@ $USER = $_SESSION["user_id"];
 if (!$USER) $USER=$_REQUEST["pid"];
 
 $PROT = ($_SERVER['HTTPS']=='on') ? 'https' : 'http';
-$HOST = $_SERVER["SERVER_NAME"];
-$PORT = $_SERVER['SERVER_PORT'];
+#$HOST = $_SERVER["SERVER_NAME"];
+#$PORT = $_SERVER['SERVER_PORT'];
+
+list($HOST,$PORT) = explode(':',$_SERVER['HTTP_HOST']);
 
 $WEBROOT = "$PROT://$HOST";
 $WEBROOT = (intval($PORT) == 80 || intval($PORT) == 0) ? $WEBROOT : "$WEBROOT:$PORT";
 
-$availableSegmentsRE = "eng|heg|st|p|d|x|f";
+$availableSegmentsRE = "eng|heg|st|p|d|x|xxl";
 $thisScriptPath = $_SERVER['SCRIPT_NAME'];
 $thisScriptDirname = dirname($thisScriptPath);
 
 if ($rodinsegment) // Trick to make the visualization work
 	$RODINSEGMENT =	$rodinsegment;
 else
-if (preg_match("/install_rodin.php/",$thisScriptPath)) {
+if ($thisScriptPath<>'' && preg_match("/install_rodin.php/",$thisScriptPath)) {
 	$CAN_ACCESS_ADMIN_VAR = false;
 	$RODINSEGMENT =	'eng';
 } else
@@ -161,7 +163,9 @@ else {
 }
 
 $RODIN = "$DOCROOT$RODINROOT/$RODINSEGMENT";
+$RODINW = "$WEBROOT$RODINROOT/$RODINSEGMENT";
 $RODINU = "$RODINROOT/$RODINSEGMENT/app/u";
+$RODINRDFSTORENAME='rdfopt_'.$RODINSEGMENT;
 
 //print "<br>root.php: RODINSEGMENT: $RODINSEGMENT";
 //print "<br>root.php: RODIN: $RODIN";
@@ -169,9 +173,11 @@ $RODINU = "$RODINROOT/$RODINSEGMENT/app/u";
 $STOPWORD_SERVER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/stopwords.php";
 $TAGCLOUDRESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/TagCloudResponder.php";
 $AUTOCOMPLETERESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/AutoCompleteResponder.php";
+$LINK2RODINSPARQLENDPOINT = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/lod_sparql_endpoint.php";
 $RDFSEMEXPLABURL = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php";
+$LANGUAGEDETECTORLOGURL = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/tests/langdetecionexaminer.php";
 $RDFIZEURL = "$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/rdfize.php";
-$RDFSEMEXP_STOREEXPLORER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_show_all_triples.php?limit=5&storename=rodin_rdf";
+$RDFSEMEXP_STOREEXPLORER = "$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/lod_sparql_endpoint.php?limit=5&storename=$RODINRDFSTORENAME";
 $RODIN_PROFILING_LINK ="$WEBROOT$RODINROOT/usabilityLogFile.txt";
 $RODIN_PROFILING_PATH ="$DOCROOT$RODINROOT/usabilityLogFile.txt";
 
@@ -219,10 +225,10 @@ $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';
 $RODINLOGO=$POSHIMGWEBROOT . '/logo_portal.gif';
 #############################################
 
-$W3SLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php";
+$lodLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php";
 
 $WANT_RDF_ANNOTATION=true; 
-$WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=false;
+$WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=			0    	;
 
 $MANTIS_REPORTISSUE=str_replace(" ","+",
 										"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=Please describe the subject of your issue here"
@@ -257,12 +263,24 @@ $AUTH_SELF_TYPE = getA('AUTH_SELF_TYPE');
 # Database access administrator parameters
 # - Please make sure the DBs & users exist!
 #
-$RODINDB_HOST = $RODINPOSHDB_HOST = $_SERVER["HTTP_HOST"];
+$RODINDB_HOST = $RODINPOSHDB_HOST = 'localhost';
 
 $RODINDB_DBNAME = getA('RODINDB_DBNAME');
 $RODINDB_USERNAME = getA('RODINDB_USERNAME');
 $RODINDB_PASSWD = getA('RODINDB_PASSWD');
 
+if(0)
+{
+print "<br>RODINDB_HOST:$RODINDB_HOST";
+print "<br>RODINDB_DBNAME:$RODINDB_DBNAME";
+print "<br>RODINDB_USERNAME:$RODINDB_USERNAME";
+print "<br>RODINDB_PASSWD:$RODINDB_PASSWD";
+
+print "<br>WEBROOT:$WEBROOT";
+print "<hr>ENV:<br>"; var_dump($_ENV);
+print "<hr>SERVER:<br>"; var_dump($_SERVER);
+
+}
 $RODINPOSHDB_DBNAME = getA('RODINPOSHDB_DBNAME');
 $RODINPOSHDB_USERNAME = getA('RODINPOSHDB_USERNAME');
 $RODINPOSHDB_PASSWD = getA('RODINPOSHDB_PASSWD');
@@ -304,7 +322,7 @@ $DBPEDIATIMEOUT_MSEC = $FSRC_CURL_TIMEOUT_SEC * 1000 - 200;
 
 $INTERNET_CHECK_TIMEOUT = 2;
 
-$CALLING_TIMEOUT_SEC = 15;
+$CALLING_TIMEOUT_SEC = 5;
 $WIDGET_SEARCH_MAX = 15000; //msek = 15sec
 $SRC_SEARCH_MAX = 15000; //msek = 15sec
 
@@ -355,7 +373,6 @@ $SRC_MAXRESULTS = 15;
 		
 		'arcUtilities' => "$DOCROOT$RODINROOT/$RODINSEGMENT/app/u/arcUtilities.php",
 	);
-	
 	
 	
 	
@@ -566,6 +583,13 @@ $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['path']='/solr/solariumtes
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['timeout']=5;
 
+$SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['path']='/solr/subject_ranking/';
+$SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['timeout']=5;
+
 
 $SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
 #############################################
@@ -595,13 +619,14 @@ function getA($name)
 #
 {
 	global $CAN_ACCESS_ADMIN_VAR;
-
-	if ($CAN_ACCESS_ADMIN_VAR)
+	global $thisScriptPath;
+	
+	if ($CAN_ACCESS_ADMIN_VAR) 
 	{
 		if ($val = $_SESSION[$name])
 			 ;
 		else
-		{
+		{			
 			if ($val = getRodinAdminFromDB($name,'rootparam'))
 				$_SESSION[$name]=$val;
 		}
@@ -642,8 +667,8 @@ function getWK($name)
 
 
 #this block should come inside and outside the folloqing function
-	$RODINROOTstr					= substr($RODINROOT,1,strlen($RODINROOT));
-	$RODINADMIN_HOST			= $_SERVER["HTTP_HOST"];
+	$RODINROOTstr					= str_replace("-/","",substr($RODINROOT,1,strlen($RODINROOT)));
+	$RODINADMIN_HOST			= 'localhost';
 	$ADMINDBBASENAME			= limitusernamelength($RODINROOTstr."_root_");
 	$RODINADMIN_DBNAME 		= limitusernamelength($RODINROOTstr."_root_".$RODINSEGMENT);
 	$RODINADMIN_USERNAME 	= limitusernamelength($RODINROOTstr."_root_".$RODINSEGMENT);
@@ -656,8 +681,8 @@ function getRodinAdminFromDB($name,$purpose)
 	global $verbose, $RODINROOT, $RODINSEGMENT;
 	global $ADMINDBBASENAME, $RODINADMIN_HOST, $RODINADMIN_DBNAME, $RODINADMIN_USERNAME, $RODINADMIN_USERPASS;
 	//PLEASE ADAPT ALSO IN install_rodin.php AND in u/maintain_widgetkey.php
-	$RODINROOTstr					= substr($RODINROOT,1,strlen($RODINROOT));
-	$RODINADMIN_HOST			= $_SERVER["HTTP_HOST"];
+	$RODINROOTstr					= str_replace("-/","",substr($RODINROOT,1,strlen($RODINROOT)));
+	$RODINADMIN_HOST			= 'localhost';
 	$ADMINDBBASENAME			= limitusernamelength($RODINROOTstr."_root_");
 	$RODINADMIN_DBNAME 		= limitusernamelength($RODINROOTstr."_root_".$RODINSEGMENT);
 	$RODINADMIN_USERNAME 	= limitusernamelength($RODINROOTstr."_root_".$RODINSEGMENT);
@@ -666,6 +691,7 @@ function getRodinAdminFromDB($name,$purpose)
 	//Passwd=rodin-sync User=rodin-sync
 	$GETQUERY="SELECT * FROM administration WHERE active=1 AND name = '$name' AND purpose = '$purpose';";
 	//print "<br>$GETQUERY";
+
 	try {
 		$TRIES=0;
 		while ($TRIES++ < $MAX_DB_RETRIES

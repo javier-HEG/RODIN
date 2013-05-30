@@ -1,1745 +1,269 @@
 
 
-03.02.2013 11:22:12.414912 ENTER SYNCH (,dnb_gnd)
+20.05.2013 22:33:35.094074 ENTER SYNCH (,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
---------------
-id: gnd_5959-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 5959-6
-gnd2_oldAuthorityNumber: (DE-588b)5959-6
-gnd2_preferredNameForTheCorporateBody_en: NATO / Aerospace Medical Panel
-gnd2_succeedingCorporateBody: gnd_5348835-0
-gnd2_variantNameForTheCorporateBody_un: NATO / Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_un: Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_en: Aerospace Medical Panel <NATO>
-gnd2_variantNameForTheCorporateBody_en: AMP
-gnd2_variantNameForTheCorporateBody_en: NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_378-5
-body: NATO / Aerospace Medical Panel  NATO / Aerospace Medicine Panel Aerospace Medical Panel <NATO> AMP NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel  
---------------
-id: gnd_6012-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-AT
-gnd2_gndIdentifier: 6012-4
-gnd2_oldAuthorityNumber: (DE-588b)6012-4
-gnd2_oldAuthorityNumber: (DE-588)4031929-5
-gnd2_oldAuthorityNumber: (DE-588b)4031929-5
-gnd2_oldAuthorityNumber: (DE-588c)4031929-5
-gnd2_placeOfBusiness: gnd_4043271-3
-gnd2_preferredNameForTheCorporateBody_de: Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_en: KPÖ
-gnd2_variantNameForTheCorporateBody_en: KPDÖ
-gnd2_variantNameForTheCorporateBody_en: KPA
-gnd2_variantNameForTheCorporateBody_de: Communist International / Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_de: Kommunistische Partei Deutschösterreichs
-gnd2_variantNameForTheCorporateBody_de: Communist International / Sektion Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_un: Kommunističeskaja Partija Avstrii
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_4948-7
-gnd2_broaderTermInstantial: gnd_4044737-6
-gnd2_dateOfEstablishment: 1945
-gnd2_dateOfEstablishment: 1918
-gnd2_dateOfTermination: 1933
-gnd2_definition: 1918 gegr. als KPDÖ, 1920 Änderung in KPÖ; Verbot 1933,Mai; 1945 Wiedergründung
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#8.2b
-gnd2_homepage: http://www.kpoe.at
-gnd2_spatialAreaOfActivity: gnd_4043271-3
-body: Kommunistische Partei Österreichs KPÖ Communist International / Kommunistische Partei Österreichs Kommunistische Partei Deutschösterreichs KPDÖ KPA Communist International / Sektion Kommunistische Partei Österreichs Kommunističeskaja Partija Avstrii         
+body: galilean economy time jesus
+seg: eng
+sid: 20130520.204557.547.2
+user: 2
+k: 0
 
 --------------
-03.02.2013 11:22:12.416080 SYNCHED (,dnb_gnd)
-03.02.2013 11:22:12.515273 UPDATED (,dnb_gnd)
-03.02.2013 11:22:12.515309 EXIT SYNCH (,dnb_gnd)
+20.05.2013 22:33:35.094966 SYNCHED (,/solr/subject_ranking/)
 
-03.02.2013 11:22:51.172603 ENTER SYNCH (,dnb_gnd)
+20.05.2013 22:34:41.960933 ENTER SYNCH (,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
---------------
-id: gnd_5959-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 5959-6
-gnd2_oldAuthorityNumber: (DE-588b)5959-6
-gnd2_preferredNameForTheCorporateBody_en: NATO / Aerospace Medical Panel
-gnd2_succeedingCorporateBody: gnd_5348835-0
-gnd2_variantNameForTheCorporateBody_un: NATO / Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_un: Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_en: Aerospace Medical Panel <NATO>
-gnd2_variantNameForTheCorporateBody_en: AMP
-gnd2_variantNameForTheCorporateBody_en: NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_378-5
-body: NATO / Aerospace Medical Panel  NATO / Aerospace Medicine Panel Aerospace Medical Panel <NATO> AMP NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel  
---------------
-id: gnd_6012-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-AT
-gnd2_gndIdentifier: 6012-4
-gnd2_oldAuthorityNumber: (DE-588b)6012-4
-gnd2_oldAuthorityNumber: (DE-588)4031929-5
-gnd2_oldAuthorityNumber: (DE-588b)4031929-5
-gnd2_oldAuthorityNumber: (DE-588c)4031929-5
-gnd2_placeOfBusiness: gnd_4043271-3
-gnd2_preferredNameForTheCorporateBody_de: Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_en: KPÖ
-gnd2_variantNameForTheCorporateBody_en: KPDÖ
-gnd2_variantNameForTheCorporateBody_en: KPA
-gnd2_variantNameForTheCorporateBody_de: Communist International / Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_de: Kommunistische Partei Deutschösterreichs
-gnd2_variantNameForTheCorporateBody_de: Communist International / Sektion Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_un: Kommunističeskaja Partija Avstrii
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_4948-7
-gnd2_broaderTermInstantial: gnd_4044737-6
-gnd2_dateOfEstablishment: 1945
-gnd2_dateOfEstablishment: 1918
-gnd2_dateOfTermination: 1933
-gnd2_definition: 1918 gegr. als KPDÖ, 1920 Änderung in KPÖ; Verbot 1933,Mai; 1945 Wiedergründung
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#8.2b
-gnd2_homepage: http://www.kpoe.at
-gnd2_spatialAreaOfActivity: gnd_4043271-3
-body: Kommunistische Partei Österreichs KPÖ Communist International / Kommunistische Partei Österreichs Kommunistische Partei Deutschösterreichs KPDÖ KPA Communist International / Sektion Kommunistische Partei Österreichs Kommunističeskaja Partija Avstrii         
+id: galilean economy time jesus.20130520.204557.547.2
+body: galilean economy time jesus
+seg: eng
+sid: 20130520.204557.547.2
+user: 2
+k: 0
 
 --------------
-03.02.2013 11:22:51.173736 SYNCHED (,dnb_gnd)
-03.02.2013 11:22:51.227459 UPDATED (,dnb_gnd)
-03.02.2013 11:22:51.227488 EXIT SYNCH (,dnb_gnd)
+20.05.2013 22:34:41.962038 SYNCHED (,/solr/subject_ranking/)
 
-03.02.2013 11:33:56.883762 ENTER SYNCH (,dnb_gnd)
+20.05.2013 22:38:11.846327 ENTER SYNCH (20130520.204557.547.2,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
---------------
-id: gnd_5959-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 5959-6
-gnd2_oldAuthorityNumber: (DE-588b)5959-6
-gnd2_preferredNameForTheCorporateBody_en: NATO / Aerospace Medical Panel
-gnd2_succeedingCorporateBody: gnd_5348835-0
-gnd2_variantNameForTheCorporateBody_un: NATO / Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_un: Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_en: Aerospace Medical Panel <NATO>
-gnd2_variantNameForTheCorporateBody_en: AMP
-gnd2_variantNameForTheCorporateBody_en: NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_378-5
-body: NATO / Aerospace Medical Panel  NATO / Aerospace Medicine Panel Aerospace Medical Panel <NATO> AMP NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel  
---------------
-id: gnd_6012-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-AT
-gnd2_gndIdentifier: 6012-4
-gnd2_oldAuthorityNumber: (DE-588b)6012-4
-gnd2_oldAuthorityNumber: (DE-588)4031929-5
-gnd2_oldAuthorityNumber: (DE-588b)4031929-5
-gnd2_oldAuthorityNumber: (DE-588c)4031929-5
-gnd2_placeOfBusiness: gnd_4043271-3
-gnd2_preferredNameForTheCorporateBody_de: Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_en: KPÖ
-gnd2_variantNameForTheCorporateBody_en: KPDÖ
-gnd2_variantNameForTheCorporateBody_en: KPA
-gnd2_variantNameForTheCorporateBody_de: Communist International / Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_de: Kommunistische Partei Deutschösterreichs
-gnd2_variantNameForTheCorporateBody_de: Communist International / Sektion Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_un: Kommunističeskaja Partija Avstrii
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_4948-7
-gnd2_broaderTermInstantial: gnd_4044737-6
-gnd2_dateOfEstablishment: 1945
-gnd2_dateOfEstablishment: 1918
-gnd2_dateOfTermination: 1933
-gnd2_definition: 1918 gegr. als KPDÖ, 1920 Änderung in KPÖ; Verbot 1933,Mai; 1945 Wiedergründung
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#8.2b
-gnd2_homepage: http://www.kpoe.at
-gnd2_spatialAreaOfActivity: gnd_4043271-3
-body: Kommunistische Partei Österreichs KPÖ Communist International / Kommunistische Partei Österreichs Kommunistische Partei Deutschösterreichs KPDÖ KPA Communist International / Sektion Kommunistische Partei Österreichs Kommunističeskaja Partija Avstrii         
+body: galilean economy time jesus
+seg: eng
+sid: 20130520.204557.547.2
+user: 2
+k: 0
 
 --------------
-03.02.2013 11:33:56.884980 SYNCHED (,dnb_gnd)
-03.02.2013 11:33:56.930637 UPDATED (,dnb_gnd)
-03.02.2013 11:33:56.930679 EXIT SYNCH (,dnb_gnd)
+20.05.2013 22:38:11.847327 SYNCHED (20130520.204557.547.2,/solr/subject_ranking/)
 
-03.02.2013 11:35:14.093467 ENTER SYNCH (,dnb_gnd)
+20.05.2013 22:40:32.749662 ENTER SYNCH (20130520.204557.547.2,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
---------------
-id: gnd_5959-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 5959-6
-gnd2_oldAuthorityNumber: (DE-588b)5959-6
-gnd2_preferredNameForTheCorporateBody_en: NATO / Aerospace Medical Panel
-gnd2_succeedingCorporateBody: gnd_5348835-0
-gnd2_variantNameForTheCorporateBody_un: NATO / Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_un: Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_en: Aerospace Medical Panel <NATO>
-gnd2_variantNameForTheCorporateBody_en: AMP
-gnd2_variantNameForTheCorporateBody_en: NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_378-5
-body: NATO / Aerospace Medical Panel  NATO / Aerospace Medicine Panel Aerospace Medical Panel <NATO> AMP NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel  
---------------
-id: gnd_6012-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-AT
-gnd2_gndIdentifier: 6012-4
-gnd2_oldAuthorityNumber: (DE-588b)6012-4
-gnd2_oldAuthorityNumber: (DE-588)4031929-5
-gnd2_oldAuthorityNumber: (DE-588b)4031929-5
-gnd2_oldAuthorityNumber: (DE-588c)4031929-5
-gnd2_placeOfBusiness: gnd_4043271-3
-gnd2_preferredNameForTheCorporateBody_de: Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_en: KPÖ
-gnd2_variantNameForTheCorporateBody_en: KPDÖ
-gnd2_variantNameForTheCorporateBody_en: KPA
-gnd2_variantNameForTheCorporateBody_de: Communist International / Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_de: Kommunistische Partei Deutschösterreichs
-gnd2_variantNameForTheCorporateBody_de: Communist International / Sektion Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_un: Kommunističeskaja Partija Avstrii
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_4948-7
-gnd2_broaderTermInstantial: gnd_4044737-6
-gnd2_dateOfEstablishment: 1945
-gnd2_dateOfEstablishment: 1918
-gnd2_dateOfTermination: 1933
-gnd2_definition: 1918 gegr. als KPDÖ, 1920 Änderung in KPÖ; Verbot 1933,Mai; 1945 Wiedergründung
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#8.2b
-gnd2_homepage: http://www.kpoe.at
-gnd2_spatialAreaOfActivity: gnd_4043271-3
-body: Kommunistische Partei Österreichs KPÖ Communist International / Kommunistische Partei Österreichs Kommunistische Partei Deutschösterreichs KPDÖ KPA Communist International / Sektion Kommunistische Partei Österreichs Kommunističeskaja Partija Avstrii         
+body: galilean economy time jesus
+seg: eng
+sid: 20130520.204557.547.2
+user: 2
+k: 0
 
 --------------
-03.02.2013 11:35:14.094609 SYNCHED (,dnb_gnd)
-03.02.2013 11:35:14.139912 UPDATED (,dnb_gnd)
-03.02.2013 11:35:14.139945 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 11:57:23.662554 ENTER SYNCH (,dnb_gnd)
+20.05.2013 22:44:01.845180 ENTER SYNCH (20130520.204557.547.2,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
+body: galilean economy time jesus
+seg: eng
+sid: 20130520.204557.547.2
+user: 2
+k: 0
 
 --------------
-03.02.2013 11:57:23.663392 SYNCHED (,dnb_gnd)
-03.02.2013 11:57:23.701013 UPDATED (,dnb_gnd)
-03.02.2013 11:57:23.701041 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 11:57:45.597610 ENTER SYNCH (,dnb_gnd)
+20.05.2013 22:53:27.902177 ENTER SYNCH (20130520.204557.547.2,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
+body: galilean economy time jesus
+seg: eng
+sid: 20130520.204557.547.2
+user: 2
+k: 0
 
 --------------
-03.02.2013 11:57:45.598467 SYNCHED (,dnb_gnd)
-03.02.2013 11:57:45.629935 UPDATED (,dnb_gnd)
-03.02.2013 11:57:45.629964 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 12:44:30.481170 ENTER SYNCH (,dnb_gnd)
+20.05.2013 22:58:06.766224 ENTER SYNCH (20130520.225755.891.2,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija (Rom)
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy (Rom)
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts (Rom)
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy (Rom)
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts (Rom)
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences (Rom)
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija (Rom)  Lithuanian Catholic Academy (Rom) L. K. Mokslo  Akademija (Rom)  Académie Lituanienne Catholique des Sciences (Rom) Catholic Academy of Sciences and Arts (Rom)  LKM Akademija (Rom) Lithuanian Catholic Academy of Sciences and Arts (Rom)
+body: galilean economy time jesus
+k: 0
+seg: eng
+sid: 20130520.225755.891.2
+user: 2
 
 --------------
-03.02.2013 12:44:30.482137 SYNCHED (,dnb_gnd)
-03.02.2013 12:44:30.507836 UPDATED (,dnb_gnd)
-03.02.2013 12:44:30.507879 EXIT SYNCH (,dnb_gnd)
+20.05.2013 22:58:06.767087 SYNCHED (20130520.225755.891.2,/solr/subject_ranking/)
 
-03.02.2013 12:46:08.575509 ENTER SYNCH (,dnb_gnd)
+20.05.2013 23:01:16.646673 ENTER SYNCH (20130520.225755.891.2,/solr/cached_rodin_widget_response/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection cached_rodin_widget_response:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
+body: galilean economy time jesus
+k: 0
+seg: eng
+sid: 20130520.225755.891.2
+user: 2
 
 --------------
-03.02.2013 12:46:08.576310 SYNCHED (,dnb_gnd)
-03.02.2013 12:46:08.597104 UPDATED (,dnb_gnd)
-03.02.2013 12:46:08.597144 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 12:46:13.073740 ENTER SYNCH (,dnb_gnd)
+20.05.2013 23:05:37.428680 ENTER SYNCH (20130520.225755.891.2,/solr/cached_rodin_widget_response/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection cached_rodin_widget_response:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
+body: galilean economy time jesus
+k: 0
+seg: eng
+sid: 20130520.225755.891.2
+user: 2
 
 --------------
-03.02.2013 12:46:13.074657 SYNCHED (,dnb_gnd)
-03.02.2013 12:46:13.094055 UPDATED (,dnb_gnd)
-03.02.2013 12:46:13.094083 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 12:46:23.814800 ENTER SYNCH (,dnb_gnd)
+20.05.2013 23:08:15.193157 ENTER SYNCH (20130520.225755.891.2,/solr/cached_rodin_widget_response/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection cached_rodin_widget_response:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija (Rom)
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy (Rom)
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts (Rom)
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy (Rom)
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts (Rom)
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences (Rom)
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija (Rom)  Lithuanian Catholic Academy (Rom) L. K. Mokslo  Akademija (Rom)  Académie Lituanienne Catholique des Sciences (Rom) Catholic Academy of Sciences and Arts (Rom)  LKM Akademija (Rom) Lithuanian Catholic Academy of Sciences and Arts (Rom)
+body: galilean economy time jesus
+k: 0
+seg: eng
+sid: 20130520.225755.891.2
+user: 2
 
 --------------
-03.02.2013 12:46:23.815776 SYNCHED (,dnb_gnd)
-03.02.2013 12:46:23.837233 UPDATED (,dnb_gnd)
-03.02.2013 12:46:23.837267 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 12:46:33.192800 ENTER SYNCH (,dnb_gnd)
+20.05.2013 23:09:52.054016 ENTER SYNCH (20130520.225755.891.2,/solr/cached_rodin_widget_response/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection cached_rodin_widget_response:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
+body: galilean economy time jesus
+k: 0
+seg: eng
+sid: 20130520.225755.891.2
+user: 2
 
 --------------
-03.02.2013 12:46:33.193584 SYNCHED (,dnb_gnd)
-03.02.2013 12:46:33.214534 UPDATED (,dnb_gnd)
-03.02.2013 12:46:33.214572 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 12:47:44.216325 ENTER SYNCH (,dnb_gnd)
+20.05.2013 23:10:53.880982 ENTER SYNCH (20130520.225755.891.2,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy <Rom>
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts <Rom>
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija <Rom>
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences <Rom>
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija <Rom>  Lithuanian Catholic Academy <Rom> L. K. Mokslo  Akademija <Rom>  Académie Lituanienne Catholique des Sciences <Rom> Catholic Academy of Sciences and Arts <Rom>  LKM Akademija <Rom> Lithuanian Catholic Academy of Sciences and Arts <Rom>
+body: galilean economy time jesus
+k: 0
+seg: eng
+sid: 20130520.225755.891.2
+user: 2
 
 --------------
-03.02.2013 12:47:44.217225 SYNCHED (,dnb_gnd)
-03.02.2013 12:47:44.239118 UPDATED (,dnb_gnd)
-03.02.2013 12:47:44.239157 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 12:48:43.492806 ENTER SYNCH (,dnb_gnd)
+20.05.2013 23:12:34.989359 ENTER SYNCH (20130520.225755.891.2,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija (Rom)
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy (Rom)
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts (Rom)
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy (Rom)
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts (Rom)
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences (Rom)
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija (Rom)  Lithuanian Catholic Academy (Rom) L. K. Mokslo  Akademija (Rom)  Académie Lituanienne Catholique des Sciences (Rom) Catholic Academy of Sciences and Arts (Rom)  LKM Akademija (Rom) Lithuanian Catholic Academy of Sciences and Arts (Rom)
+body: galilean economy time jesus
+k: 0
+seg: eng
+sid: 20130520.225755.891.2
+user: 2
 
 --------------
-03.02.2013 12:48:43.493639 SYNCHED (,dnb_gnd)
-03.02.2013 12:48:43.512022 UPDATED (,dnb_gnd)
-03.02.2013 12:48:43.512051 EXIT SYNCH (,dnb_gnd)
 
-03.02.2013 12:49:30.737588 ENTER SYNCH (,dnb_gnd)
+20.05.2013 23:13:11.228418 ENTER SYNCH (20130520.225755.891.2,/solr/subject_ranking/)
 --------------
-DOCUMENTS (sid,body or cached info) into collection dnb_gnd:
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
 --------------
 --------------
-id: gnd_2141-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-LT
-gnd2_gndIdentifier: 2141-6
-gnd2_oldAuthorityNumber: (DE-588b)2141-6
-gnd2_placeOfBusiness: gnd_4050471-2
-gnd2_precedingCorporateBody: gnd_10071168-6
-gnd2_preferredNameForTheCorporateBody_un: Lietuviu̜ Kataliku̜ Mokslo Akademija (Rom)
-gnd2_succeedingCorporateBody: gnd_10014361-1
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy (Rom)
-gnd2_variantNameForTheCorporateBody_en: L. K. Mokslo  Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy of Sciences and Arts (Rom)
-gnd2_variantNameForTheCorporateBody_en: Catholic Academy (Rom)
-gnd2_variantNameForTheCorporateBody_en: LKM Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_en: Lithuanian Catholic Academy of Sciences and Arts (Rom)
-gnd2_variantNameForTheCorporateBody_un: Kataliku̜ Mokslo Akademija (Rom)
-gnd2_variantNameForTheCorporateBody_fr: Académie Lituanienne Catholique des Sciences (Rom)
-body: Lietuviu̜ Kataliku̜ Mokslo Akademija (Rom)  Lithuanian Catholic Academy (Rom) L. K. Mokslo  Akademija (Rom)  Académie Lituanienne Catholique des Sciences (Rom) Catholic Academy of Sciences and Arts (Rom)  LKM Akademija (Rom) Lithuanian Catholic Academy of Sciences and Arts (Rom)
---------------
-id: gnd_5959-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 5959-6
-gnd2_oldAuthorityNumber: (DE-588b)5959-6
-gnd2_preferredNameForTheCorporateBody_en: NATO / Aerospace Medical Panel
-gnd2_succeedingCorporateBody: gnd_5348835-0
-gnd2_variantNameForTheCorporateBody_un: NATO / Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_un: Aerospace Medicine Panel
-gnd2_variantNameForTheCorporateBody_en: Aerospace Medical Panel (NATO)
-gnd2_variantNameForTheCorporateBody_en: AMP
-gnd2_variantNameForTheCorporateBody_en: NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_378-5
-body: NATO / Aerospace Medical Panel  NATO / Aerospace Medicine Panel Aerospace Medical Panel (NATO) AMP NATO / Advisory Group for Aerospace Research and Development / Aerospace Medical Panel  
---------------
-id: gnd_6012-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-AT
-gnd2_gndIdentifier: 6012-4
-gnd2_oldAuthorityNumber: (DE-588b)6012-4
-gnd2_oldAuthorityNumber: (DE-588)4031929-5
-gnd2_oldAuthorityNumber: (DE-588b)4031929-5
-gnd2_oldAuthorityNumber: (DE-588c)4031929-5
-gnd2_placeOfBusiness: gnd_4043271-3
-gnd2_preferredNameForTheCorporateBody_de: Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_en: KPÖ
-gnd2_variantNameForTheCorporateBody_en: KPDÖ
-gnd2_variantNameForTheCorporateBody_en: KPA
-gnd2_variantNameForTheCorporateBody_de: Communist International / Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_de: Kommunistische Partei Deutschösterreichs
-gnd2_variantNameForTheCorporateBody_de: Communist International / Sektion Kommunistische Partei Österreichs
-gnd2_variantNameForTheCorporateBody_un: Kommunističeskaja Partija Avstrii
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_4948-7
-gnd2_broaderTermInstantial: gnd_4044737-6
-gnd2_dateOfEstablishment: 1945
-gnd2_dateOfEstablishment: 1918
-gnd2_dateOfTermination: 1933
-gnd2_definition: 1918 gegr. als KPDÖ, 1920 Änderung in KPÖ; Verbot 1933,Mai; 1945 Wiedergründung
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#8.2b
-gnd2_homepage: http://www.kpoe.at
-gnd2_spatialAreaOfActivity: gnd_4043271-3
-body: Kommunistische Partei Österreichs KPÖ Communist International / Kommunistische Partei Österreichs Kommunistische Partei Deutschösterreichs KPDÖ KPA Communist International / Sektion Kommunistische Partei Österreichs Kommunističeskaja Partija Avstrii         
---------------
-id: gnd_1369-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-DE
-gnd2_gndIdentifier: 1369-9
-gnd2_oldAuthorityNumber: (DE-588b)1369-9
-gnd2_preferredNameForTheCorporateBody_de: Gesellschaft für Nephrologie
-gnd2_succeedingCorporateBody: gnd_6527475-1
-gnd2_variantNameForTheCorporateBody_en: Society of Nephrology
-gnd2_variantNameForTheCorporateBody_en: GfN
-body: Gesellschaft für Nephrologie  Society of Nephrology GfN
---------------
-id: gnd_1658-5
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 1658-5
-gnd2_oldAuthorityNumber: (DE-588b)16291087-3
-gnd2_oldAuthorityNumber: (DE-588b)1658-5
-gnd2_placeOfBusiness: gnd_4039497-9
-gnd2_preferredNameForTheCorporateBody_en: University of Minnesota (Minneapolis Minn.)
-gnd2_variantNameForTheCorporateBody_en: U of M
-gnd2_variantNameForTheCorporateBody_en: UM
-gnd2_dateOfEstablishment: 1851
-gnd2_homepage: http://www.umn.edu
-body: University of Minnesota (Minneapolis Minn.) U of M UM  
---------------
-id: gnd_1014-5
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1014-5
-gnd2_oldAuthorityNumber: (DE-588b)1014-5
-gnd2_preferredNameForTheCorporateBody_en: International Association for Earthquake Engineering / British National Section
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_1013-3
-body: International Association for Earthquake Engineering / British National Section 
---------------
-id: gnd_5313-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 5313-2
-gnd2_oldAuthorityNumber: (DE-588b)5313-2
-gnd2_preferredNameForTheCorporateBody_en: American Society for Experimental Pathology
-gnd2_variantNameForTheCorporateBody_en: Society for Experimental Pathology (United States)
-gnd2_dateOfEstablishment: 1913
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Society for Experimental Pathology Society for Experimental Pathology (United States)  
---------------
-id: gnd_1718-8
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-CA
-gnd2_gndIdentifier: 1718-8
-gnd2_oldAuthorityNumber: (DE-588b)1718-8
-gnd2_placeOfBusiness: gnd_4060459-7
-gnd2_preferredNameForTheCorporateBody_en: Institute of Public Administration of Canada (Toronto)
-gnd2_variantNameForTheCorporateBody_en: IPAC
-gnd2_variantNameForTheCorporateBody_en: IAPC
-gnd2_variantNameForTheCorporateBody_fr: Institut d'Administration Publique du Canada (Toronto)
-body: Institute of Public Administration of Canada (Toronto) IPAC Institut d'Administration Publique du Canada (Toronto) IAPC
---------------
-id: gnd_1256-7
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1256-7
-gnd2_oldAuthorityNumber: (DE-588b)1256-7
-gnd2_precedingCorporateBody: gnd_13511-2
-gnd2_preferredNameForTheCorporateBody_en: European Society for Opinion and Marketing Research
-gnd2_variantNameForTheCorporateBody_en: ESOMAR
-gnd2_variantNameForTheCorporateBody_un: Asociación Europea para la Investigación de Mercados y de Opinion
-gnd2_variantNameForTheCorporateBody_fr: Association Européenne pour les Études d'Opinions et de Marketing
-gnd2_variantNameForTheCorporateBody_de: Europäische Gesellschaft für Meinungs- und Marketing-Forschung
-body: European Society for Opinion and Marketing Research ESOMAR Asociación Europea para la Investigación de Mercados y de Opinion Association Européenne pour les Études d'Opinions et de Marketing Europäische Gesellschaft für Meinungs- und Marketing-Forschung
---------------
-id: gnd_3053-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 3053-3
-gnd2_oldAuthorityNumber: (DE-588b)3053-3
-gnd2_preferredNameForTheCorporateBody_en: Technical Association of the Lithographic Industry
-gnd2_succeedingCorporateBody: gnd_3052-1
-body: Technical Association of the Lithographic Industry 
---------------
-id: gnd_1193-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1193-9
-gnd2_oldAuthorityNumber: (DE-588b)1193-9
-gnd2_preferredNameForTheCorporateBody_en: Association for Research on Periodontal Diseases
-gnd2_variantNameForTheCorporateBody_fr: Association Internationale pour les Recherches sur la Paradentose
-gnd2_variantNameForTheCorporateBody_fr: Association pour les Recherches sur les Paradontopathies
-gnd2_variantNameForTheCorporateBody_fr: Association pour les Recherches sur les Paradentopathies
-gnd2_variantNameForTheCorporateBody_fr: Association Internationale pour les Recherches sur les Paradentopathies
-gnd2_variantNameForTheCorporateBody_un: Asociación para la Investigación sobre las Paradontopatías
-gnd2_variantNameForTheCorporateBody_de: Gesellschaft zur Erforschung der Paradontopathien
-gnd2_variantNameForTheCorporateBody_en: ARPA Internationale
-gnd2_variantNameForTheCorporateBody_en: ARPA
-gnd2_dateOfEstablishment: 1932
-body: Association for Research on Periodontal Diseases Association Internationale pour les Recherches sur la Paradentose Association pour les Recherches sur les Paradontopathies Association pour les Recherches sur les Paradentopathies Asociación para la Investigación sobre las Paradontopatías Gesellschaft zur Erforschung der Paradontopathien ARPA Internationale  Association Internationale pour les Recherches sur les Paradentopathies 
---------------
-id: gnd_1446-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1446-1
-gnd2_oldAuthorityNumber: (DE-588b)1446-1
-gnd2_preferredNameForTheCorporateBody_en: International Civil Aviation Organization / Visual Aids Panel
-gnd2_variantNameForTheCorporateBody_en: Visual Aids Panel
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_877-1
-body: International Civil Aviation Organization / Visual Aids Panel  
---------------
-id: gnd_3326-1
-rdf_type: gnd2_CorporateBody
-gnd2_gndIdentifier: 3326-1
-gnd2_oldAuthorityNumber: (DE-588b)3326-1
-gnd2_preferredNameForTheCorporateBody_en: Far East Regional Conference on Animal Production and Health
-gnd2_variantNameForTheCorporateBody_en: FAO Far East Regional Conference on Animal Production and Health
-body: Far East Regional Conference on Animal Production and Health FAO Far East Regional Conference on Animal Production and Health
---------------
-id: gnd_5529-3
-rdf_type: gnd2_CorporateBody
-gnd2_gndIdentifier: 5529-3
-gnd2_oldAuthorityNumber: (DE-588b)5529-3
-gnd2_preferredNameForTheCorporateBody_en: Society for the Study of Reproduction
-gnd2_variantNameForTheCorporateBody_en: SSR
-body: Society for the Study of Reproduction SSR
---------------
-id: gnd_5837-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 5837-3
-gnd2_oldAuthorityNumber: (DE-588b)5837-3
-gnd2_precedingCorporateBody: gnd_19011-1
-gnd2_preferredNameForTheCorporateBody_en: American Society for Engineering Education
-gnd2_variantNameForTheCorporateBody_en: ASEE
-gnd2_variantNameForTheCorporateBody_en: American Society of Engineering Education
-gnd2_variantNameForTheCorporateBody_en: Society for Engineering Education (United States)
-gnd2_variantNameForTheCorporateBody_en: Society of Engineering Education (United States)
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Society for Engineering Education ASEE American Society of Engineering Education Society for Engineering Education (United States) Society of Engineering Education (United States) 
---------------
-id: gnd_1435-7
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XB-JP
-gnd2_gndIdentifier: 1435-7
-gnd2_oldAuthorityNumber: (DE-588b)1435-7
-gnd2_preferredNameForTheCorporateBody_de: Nihon-nō-Shinkei-Geka-Gakkai
-gnd2_variantNameForTheCorporateBody_un: Nō-Shinkei-Geka-Gakkai (Japan)
-gnd2_variantNameForTheCorporateBody_en: Japanese Society of Neurosurgery
-gnd2_variantNameForTheCorporateBody_en: Japan Neurosurgical Society
-gnd2_variantNameForTheCorporateBody_en: Neurosurgical Society (Japan)
-gnd2_variantNameForTheCorporateBody_en: Society of Neurosurgery (Japan)
-gnd2_spatialAreaOfActivity: gnd_4028495-5
-body: Nihon-nō-Shinkei-Geka-Gakkai Nō-Shinkei-Geka-Gakkai (Japan) Japanese Society of Neurosurgery Japan Neurosurgical Society Neurosurgical Society (Japan) Society of Neurosurgery (Japan) 
---------------
-id: gnd_7248-5
-rdf_type: gnd2_CorporateBody
-gnd2_gndIdentifier: 7248-5
-gnd2_oldAuthorityNumber: (DE-588b)7248-5
-gnd2_preferredNameForTheCorporateBody_en: Surgical Research Society of Australasia
-body: Surgical Research Society of Australasia
---------------
-id: gnd_2717-0
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-AT
-gnd2_gndIdentifier: 2717-0
-gnd2_oldAuthorityNumber: (DE-588b)2717-0
-gnd2_preferredNameForTheCorporateBody_de: Österreichische Gesellschaft für Reine und Angewandte Biophysik
-gnd2_variantNameForTheCorporateBody_de: Gesellschaft für Reine und Angewandte Biophysik (Österreich)
-gnd2_spatialAreaOfActivity: gnd_4043271-3
-body: Österreichische Gesellschaft für Reine und Angewandte Biophysik Gesellschaft für Reine und Angewandte Biophysik (Österreich) 
---------------
-id: gnd_2398-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-PL
-gnd2_gndIdentifier: 2398-X
-gnd2_oldAuthorityNumber: (DE-588b)2398-X
-gnd2_preferredNameForTheCorporateBody_un: Polskie Towarzystwo Dermatologiczne / Sekcja Wenerologiczna
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_2397-8
-body: Polskie Towarzystwo Dermatologiczne / Sekcja Wenerologiczna 
---------------
-id: gnd_7149-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-DE
-gnd2_gndIdentifier: 7149-3
-gnd2_oldAuthorityNumber: (DE-588b)7149-3
-gnd2_precedingCorporateBody: gnd_17101-3
-gnd2_preferredNameForTheCorporateBody_de: Vereinigung der Großkesselbetreiber
-gnd2_succeedingCorporateBody: gnd_2002742-4
-gnd2_variantNameForTheCorporateBody_en: VGB
-gnd2_variantNameForTheCorporateBody_de: Vereinigung der Großkesselbetreiber e.V.
-body: Vereinigung der Großkesselbetreiber  VGB Vereinigung der Großkesselbetreiber e.V.
---------------
-id: gnd_6353-8
-rdf_type: gnd2_CorporateBody
-gnd2_gndIdentifier: 6353-8
-gnd2_oldAuthorityNumber: (DE-588b)6353-8
-gnd2_preferredNameForTheCorporateBody_en: Building Owners and Managers Association International
-body: Building Owners and Managers Association International
---------------
-id: gnd_1731-0
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-GB
-gnd2_gndIdentifier: 1731-0
-gnd2_oldAuthorityNumber: (DE-588b)1731-0
-gnd2_preferredNameForTheCorporateBody_en: Institution of Mechanical Engineers
-gnd2_variantNameForTheCorporateBody_en: IMechE
-gnd2_variantNameForTheCorporateBody_en: IME
-gnd2_variantNameForTheCorporateBody_un: Instn Mech Engrs
-gnd2_dateOfEstablishment: 1847
-gnd2_definition: Sitz: London
-body: Institution of Mechanical Engineers IMechE Instn Mech Engrs IME  
---------------
-id: gnd_4314-X
-rdf_type: gnd2_CorporateBody
-gnd2_gndIdentifier: 4314-X
-gnd2_oldAuthorityNumber: (DE-588b)4314-X
-gnd2_preferredNameForTheCorporateBody_en: International Civil Aviation Organization / Panel on Holding Procedures
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_877-1
-body: International Civil Aviation Organization / Panel on Holding Procedures 
---------------
-id: gnd_1165-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 1165-4
-gnd2_oldAuthorityNumber: (DE-588b)1165-4
-gnd2_preferredNameForTheCorporateBody_en: American Water Resources Association
-gnd2_variantNameForTheCorporateBody_en: AWRA
-gnd2_variantNameForTheCorporateBody_en: Water Resources Association (United States)
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Water Resources Association AWRA Water Resources Association (United States) 
---------------
-id: gnd_1056-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1056-X
-gnd2_oldAuthorityNumber: (DE-588b)1056-X
-gnd2_preferredNameForTheCorporateBody_en: International Civil Aviation Organization / Communications Division
-gnd2_variantNameForTheCorporateBody_en: International Civil Aviation Organization / COM Division
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_877-1
-body: International Civil Aviation Organization / Communications Division International Civil Aviation Organization / COM Division 
---------------
-id: gnd_4361-8
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 4361-8
-gnd2_oldAuthorityNumber: (DE-588b)4361-8
-gnd2_preferredNameForTheCorporateBody_en: International Institute of Iberoamerican Literature
-gnd2_variantNameForTheCorporateBody_un: Instituto Internacional de Literatura Iberoamericana
-gnd2_variantNameForTheCorporateBody_en: IILI
-gnd2_variantNameForTheCorporateBody_de: Internationales Institut der Iberoamerikanischen Literatur
-gnd2_variantNameForTheCorporateBody_fr: Institut International de Littérature Ibéro-Américaine
-body: International Institute of Iberoamerican Literature Instituto Internacional de Literatura Iberoamericana IILI Internationales Institut der Iberoamerikanischen Literatur Institut International de Littérature Ibéro-Américaine
---------------
-id: gnd_6798-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-NL
-gnd2_gndIdentifier: 6798-2
-gnd2_oldAuthorityNumber: (DE-588b)6798-2
-gnd2_preferredNameForTheCorporateBody_un: Nederlandse Vacuumvereniging
-gnd2_variantNameForTheCorporateBody_un: Vacuumvereniging (Niederlande)
-gnd2_variantNameForTheCorporateBody_en: NEVAC
-gnd2_variantNameForTheCorporateBody_en: Netherlands Vacuum Society
-gnd2_variantNameForTheCorporateBody_en: Vacuum Society (Niederlande)
-gnd2_spatialAreaOfActivity: gnd_4042203-3
-body: Nederlandse Vacuumvereniging Vacuumvereniging (Niederlande) NEVAC Netherlands Vacuum Society Vacuum Society (Niederlande) 
---------------
-id: gnd_513-7
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 513-7
-gnd2_oldAuthorityNumber: (DE-588)4384453-4
-gnd2_oldAuthorityNumber: (DE-588c)4384453-4
-gnd2_oldAuthorityNumber: (DE-588b)513-7
-gnd2_oldAuthorityNumber: (DE-588b)4384453-4
-gnd2_placeOfBusiness: gnd_4042011-5
-gnd2_preferredNameForTheCorporateBody_en: American Institute of Chemical Engineers
-gnd2_variantNameForTheCorporateBody_en: AIChE
-gnd2_variantNameForTheCorporateBody_en: Institute of Chemical Engineers (United States)
-gnd2_dateOfEstablishment: 1908
-gnd2_definition: Gegr. 1908
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#31.10
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Institute of Chemical Engineers AIChE Institute of Chemical Engineers (United States)    
---------------
-id: gnd_2287-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 2287-1
-gnd2_oldAuthorityNumber: (DE-588b)2287-1
-gnd2_placeOfBusiness: gnd_4064682-8
-gnd2_preferredNameForTheCorporateBody_en: National Academy of Engineering (Washington DC)
-gnd2_variantNameForTheCorporateBody_en: Academy of Engineering (Washington DC)
-gnd2_variantNameForTheCorporateBody_en: National Academies / Academy of Engineering
-gnd2_variantNameForTheCorporateBody_en: National Academies / National Academy of Engineering
-gnd2_variantNameForTheCorporateBody_en: NAE
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_10078378-8
-gnd2_dateOfEstablishment: 1964
-gnd2_definition: "The NAE is the portal for all engineering activities at the National Academies, which along with the NAE include the National Academy of Sciences, the Institute of Medicine, and the National Research Council."
-gnd2_homepage: http://www.nae.edu
-body: National Academy of Engineering (Washington DC)  National Academies / Academy of Engineering National Academies / National Academy of Engineering NAE    
---------------
-id: gnd_916-7
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 916-7
-gnd2_oldAuthorityNumber: (DE-588c)7624010-1
-gnd2_oldAuthorityNumber: (DE-588b)916-7
-gnd2_oldAuthorityNumber: (DE-588b)7624010-1
-gnd2_oldAuthorityNumber: (DE-588)7624010-1
-gnd2_preferredNameForTheCorporateBody_en: American Association of Law Libraries
-gnd2_variantNameForTheCorporateBody_en: AALL
-gnd2_variantNameForTheCorporateBody_en: Association of Law Libraries (United States)
-gnd2_broaderTermInstantial: gnd_4145281-1
-gnd2_dateOfEstablishment: 1906
-gnd2_definition: Gegr. 1906
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#6.7
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#7.1a
-gnd2_spatialAreaOfActivity: gnd_4078704-7
-gnd2_spatialAreaOfActivity: gnd_110322-2
-gnd2_topic: gnd_4276164-5
-body: American Association of Law Libraries AALL Association of Law Libraries (United States)        
---------------
-id: gnd_1237-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-GB
-gnd2_gndIdentifier: 1237-3
-gnd2_oldAuthorityNumber: (DE-588b)1237-3
-gnd2_preferredNameForTheCorporateBody_en: Association of Special Libraries and Information Bureaux
-gnd2_succeedingCorporateBody: gnd_2005249-2
-gnd2_variantNameForTheCorporateBody_en: Aslib
-gnd2_dateOfEstablishment: 1924
-gnd2_dateOfTermination: 1947
-gnd2_definition: Sitz: London
-body: Association of Special Libraries and Information Bureaux  Aslib   
---------------
-id: gnd_5978-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 5978-X
-gnd2_oldAuthorityNumber: (DE-588b)5978-X
-gnd2_preferredNameForTheCorporateBody_en: American Geophysical Union / Pacific Northwest Region
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_1010512-8
-body: American Geophysical Union / Pacific Northwest Region 
---------------
-id: gnd_6665-5
-rdf_type: gnd2_CorporateBody
-gnd2_gndIdentifier: 6665-5
-gnd2_oldAuthorityNumber: (DE-588b)6665-5
-gnd2_preferredNameForTheCorporateBody_en: Study Group on Mechanisms of Language Development
-body: Study Group on Mechanisms of Language Development
---------------
-id: gnd_6647-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XB-JP
-gnd2_gndIdentifier: 6647-3
-gnd2_oldAuthorityNumber: (DE-588b)6647-3
-gnd2_placeOfBusiness: gnd_1603295-0
-gnd2_preferredNameForTheCorporateBody_un: Hiroshima-Daigaku
-gnd2_variantNameForTheCorporateBody_un: Hiroshima University
-gnd2_variantNameForTheCorporateBody_un: Daigaku (Higashi-Hiroshima)
-gnd2_variantNameForTheCorporateBody_un: University (Higashi-Hiroshima)
-gnd2_variantNameForTheCorporateBody_un: Hirosima University
-gnd2_homepage: http://www.hiroshima-u.ac.jp
-body: Hiroshima-Daigaku Hiroshima University Daigaku (Higashi-Hiroshima) University (Higashi-Hiroshima) Hirosima University 
---------------
-id: gnd_1836-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 1836-3
-gnd2_oldAuthorityNumber: (DE-588b)1836-3
-gnd2_preferredNameForTheCorporateBody_en: Instrument Society of America / Measurement and Control Instrumentation Division
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_1835-1
-body: Instrument Society of America / Measurement and Control Instrumentation Division 
---------------
-id: gnd_6960-7
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-MX
-gnd2_gndIdentifier: 6960-7
-gnd2_oldAuthorityNumber: (DE-588b)6960-7
-gnd2_preferredNameForTheCorporateBody_en: International Microstructural Analysis Society
-body: International Microstructural Analysis Society
---------------
-id: gnd_1431-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XB-JP
-gnd2_gndIdentifier: 1431-X
-gnd2_oldAuthorityNumber: (DE-588b)1431-X
-gnd2_preferredNameForTheCorporateBody_de: Nihon-Nōha-Gakkai
-gnd2_variantNameForTheCorporateBody_un: Nōha-Gakkai (Japan)
-gnd2_variantNameForTheCorporateBody_en: EEG Society (Japan)
-gnd2_variantNameForTheCorporateBody_en: Japan EEG Society
-gnd2_spatialAreaOfActivity: gnd_4028495-5
-body: Nihon-Nōha-Gakkai Nōha-Gakkai (Japan) EEG Society (Japan) Japan EEG Society 
---------------
-id: gnd_859-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 859-X
-gnd2_oldAuthorityNumber: (DE-588b)859-X
-gnd2_preferredNameForTheCorporateBody_en: American Society of Cytology
-gnd2_succeedingCorporateBody: gnd_5161910-6
-gnd2_variantNameForTheCorporateBody_en: Society of Cytology (United States)
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Society of Cytology  Society of Cytology (United States) 
---------------
-id: gnd_1248-8
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-IT
-gnd2_gndIdentifier: 1248-8
-gnd2_oldAuthorityNumber: (DE-588b)1248-8
-gnd2_preferredNameForTheCorporateBody_un: Associazione Italiana per il Calcolo Automatico
-gnd2_succeedingCorporateBody: gnd_5066820-1
-gnd2_variantNameForTheCorporateBody_en: AICA
-body: Associazione Italiana per il Calcolo Automatico  AICA
---------------
-id: gnd_2530-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-CA
-gnd2_gndIdentifier: 2530-6
-gnd2_oldAuthorityNumber: (DE-588b)2530-6
-gnd2_preferredNameForTheCorporateBody_en: Quebec Psychiatric Association
-gnd2_variantNameForTheCorporateBody_fr: Psychiatric Association (Québec Province)
-gnd2_variantNameForTheCorporateBody_fr: Association des Psychiatres du Québec
-gnd2_spatialAreaOfActivity: gnd_16273-5
-body: Quebec Psychiatric Association Psychiatric Association (Québec Province) Association des Psychiatres du Québec 
---------------
-id: gnd_3419-8
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 3419-8
-gnd2_oldAuthorityNumber: (DE-588b)3419-8
-gnd2_preferredNameForTheCorporateBody_en: Society of Vacuum Coaters
-gnd2_variantNameForTheCorporateBody_en: SVC
-body: Society of Vacuum Coaters SVC
---------------
-id: gnd_6555-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-FR
-gnd2_gndIdentifier: 6555-9
-gnd2_oldAuthorityNumber: (DE-588b)6555-9
-gnd2_precedingCorporateBody: gnd_25186-0
-gnd2_preferredNameForTheCorporateBody_fr: Société Française d'Archéologie
-gnd2_variantNameForTheCorporateBody_fr: Société Française d'Archéologie pour la Conservation et la Description des Monuments
-gnd2_variantNameForTheCorporateBody_fr: Société Française d'Archéologie pour la Conservation des Monuments Historiques
-gnd2_variantNameForTheCorporateBody_fr: Société Française d'Archéologie pour la Description et la Conservation des Monuments
-gnd2_variantNameForTheCorporateBody_fr: Société Archéologique de France
-gnd2_variantNameForTheCorporateBody_fr: Société Française d'Archéologique
-body: Société Française d'Archéologie Société Française d'Archéologie pour la Conservation et la Description des Monuments Société Française d'Archéologie pour la Conservation des Monuments Historiques Société Française d'Archéologie pour la Description et la Conservation des Monuments Société Archéologique de France Société Française d'Archéologique
---------------
-id: gnd_4269-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XE-AU
-gnd2_gndIdentifier: 4269-9
-gnd2_oldAuthorityNumber: (DE-588b)4269-9
-gnd2_preferredNameForTheCorporateBody_en: Australian Society of Dairy Technology / New South Wales Division
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_4268-7
-body: Australian Society of Dairy Technology / New South Wales Division 
---------------
-id: gnd_1883-1
-rdf_type: gnd2_CorporateBody
-gnd2_gndIdentifier: 1883-1
-gnd2_oldAuthorityNumber: (DE-588b)1883-1
-gnd2_preferredNameForTheCorporateBody_fr: Konferencija po Ėlektronnoj Technike
-body: Konferencija po Ėlektronnoj Technike
---------------
-id: gnd_2218-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 2218-4
-gnd2_oldAuthorityNumber: (DE-588b)2218-4
-gnd2_preferredNameForTheCorporateBody_en: Metallurgical Society (United States) / Blast Furnace Coke Oven and Raw Materials Committee
-gnd2_variantNameForTheCorporateBody_en: Blast Furnace Coke Oven and Raw Materials Committee
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_2217-2
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: Metallurgical Society (United States) / Blast Furnace Coke Oven and Raw Materials Committee   
---------------
-id: gnd_7165-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 7165-1
-gnd2_oldAuthorityNumber: (DE-588b)7165-1
-gnd2_preferredNameForTheCorporateBody_en: American Society of Lubrication Engineers
-gnd2_succeedingCorporateBody: gnd_91531-2
-gnd2_variantNameForTheCorporateBody_en: Society of Lubrication Engineers (United States)
-gnd2_variantNameForTheCorporateBody_en: ASLE
-gnd2_dateOfTermination: 1987
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Society of Lubrication Engineers  Society of Lubrication Engineers (United States) ASLE  
---------------
-id: gnd_3015-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XC-LY
-gnd2_gndIdentifier: 3015-6
-gnd2_oldAuthorityNumber: (DE-588b)3015-6
-gnd2_preferredNameForTheCorporateBody_en: Petroleum Exploration Society of Libya
-body: Petroleum Exploration Society of Libya
---------------
-id: gnd_2490-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-GB
-gnd2_gndIdentifier: 2490-9
-gnd2_oldAuthorityNumber: (DE-588b)2490-9
-gnd2_precedingCorporateBody: gnd_5008536-0
-gnd2_preferredNameForTheCorporateBody_en: National Society for Clean Air
-gnd2_succeedingCorporateBody: gnd_5132210-9
-gnd2_variantNameForTheCorporateBody_en: Society for Clean Air
-body: National Society for Clean Air  
---------------
-id: gnd_2396-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-PL
-gnd2_gndIdentifier: 2396-6
-gnd2_oldAuthorityNumber: (DE-588b)2396-6
-gnd2_preferredNameForTheCorporateBody_en: Polskie Towarzystwo Anatomopatologów
-gnd2_variantNameForTheCorporateBody_un: Towarzystwo Anatomopatologów (Polen)
-gnd2_dateOfEstablishment: 1958
-gnd2_spatialAreaOfActivity: gnd_4046496-9
-body: Polskie Towarzystwo Anatomopatologów Towarzystwo Anatomopatologów (Polen)  
---------------
-id: gnd_1368-7
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-DDDE
-gnd2_gndIdentifier: 1368-7
-gnd2_oldAuthorityNumber: (DE-588b)1368-7
-gnd2_preferredNameForTheCorporateBody_de: Gesellschaft für Klinische Chemie und Laboratoriumsdiagnostik der DDR
-body: Gesellschaft für Klinische Chemie und Laboratoriumsdiagnostik der DDR
---------------
-id: gnd_1299-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1299-3
-gnd2_oldAuthorityNumber: (DE-588b)1299-3
-gnd2_preferredNameForTheCorporateBody_en: Federation of European Biochemical Societies
-gnd2_variantNameForTheCorporateBody_de: Vereinigung der Europäischen Biochemischen Gesellschaften
-gnd2_variantNameForTheCorporateBody_en: FEBS
-gnd2_variantNameForTheCorporateBody_en: FEBO
-gnd2_variantNameForTheCorporateBody_un: Federacija Evropejskich Biochimiěskich Obščestv
-gnd2_variantNameForTheCorporateBody_fr: Fédération des Associations Européennes de Biochimie
-body: Federation of European Biochemical Societies Vereinigung der Europäischen Biochemischen Gesellschaften FEBS Federacija Evropejskich Biochimiěskich Obščestv Fédération des Associations Européennes de Biochimie FEBO
---------------
-id: gnd_3657-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 3657-2
-gnd2_oldAuthorityNumber: (DE-588b)3657-2
-gnd2_placeOfBusiness: gnd_4009921-0
-gnd2_preferredNameForTheCorporateBody_en: Super Market Institute (Chicago Ill.)
-gnd2_succeedingCorporateBody: gnd_74302-1
-gnd2_variantNameForTheCorporateBody_en: SMI
-gnd2_dateOfEstablishment: 1937
-body: Super Market Institute (Chicago Ill.)  SMI 
---------------
-id: gnd_943-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 943-X
-gnd2_oldAuthorityNumber: (DE-588b)943-X
-gnd2_preferredNameForTheCorporateBody_en: American Institute of Planners
-gnd2_succeedingCorporateBody: gnd_118198-1
-gnd2_variantNameForTheCorporateBody_en: Institute of Planners (United States)
-gnd2_variantNameForTheCorporateBody_en: AIP
-gnd2_dateOfEstablishment: 1917
-gnd2_dateOfTermination: 1978
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Institute of Planners  Institute of Planners (United States) AIP   
---------------
-id: gnd_3407-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 3407-1
-gnd2_oldAuthorityNumber: (DE-588b)3407-1
-gnd2_preferredNameForTheCorporateBody_en: Society for Nondestructive Testing / Infrared Techniques for Electronics Committee
-gnd2_variantNameForTheCorporateBody_en: Infrared Techniques for Electronics Committee
-gnd2_variantNameForTheCorporateBody_en: ITEL
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_3408-3
-body: Society for Nondestructive Testing / Infrared Techniques for Electronics Committee  ITEL 
---------------
-id: gnd_3172-0
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-IT
-gnd2_gndIdentifier: 3172-0
-gnd2_oldAuthorityNumber: (DE-588b)3172-0
-gnd2_preferredNameForTheCorporateBody_un: Società Italiana di Dermatologia e Sifilografia
-body: Società Italiana di Dermatologia e Sifilografia
---------------
-id: gnd_1229-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-FR
-gnd2_gndIdentifier: 1229-4
-gnd2_oldAuthorityNumber: (DE-588b)1229-4
-gnd2_precedingCorporateBody: gnd_35421-1
-gnd2_preferredNameForTheCorporateBody_fr: Association Française pour la Sauvegarde de l'Enfance et de l'Adolescence
-gnd2_variantNameForTheCorporateBody_en: AFSEA
-body: Association Française pour la Sauvegarde de l'Enfance et de l'Adolescence AFSEA
---------------
-id: gnd_5551-7
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 5551-7
-gnd2_oldAuthorityNumber: (DE-588)4463816-4
-gnd2_oldAuthorityNumber: (DE-588c)4463816-4
-gnd2_oldAuthorityNumber: (DE-588b)5551-7
-gnd2_oldAuthorityNumber: (DE-588b)4463816-4
-gnd2_preferredNameForTheCorporateBody_en: Southern Sociological Society
-gnd2_definition: Soziolog. Ges. in USA
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#9.2a
-body: Southern Sociological Society  
---------------
-id: gnd_1396-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1396-1
-gnd2_oldAuthorityNumber: (DE-588b)1396-1
-gnd2_preferredNameForTheCorporateBody_un: Grupo Universitario Latinoamericano de Estudio para la Reforma y Perfeccionamiento de la Educación
-gnd2_variantNameForTheCorporateBody_en: GULERPE
-body: Grupo Universitario Latinoamericano de Estudio para la Reforma y Perfeccionamiento de la Educación GULERPE
---------------
-id: gnd_2664-5
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 2664-5
-gnd2_oldAuthorityNumber: (DE-588b)2664-5
-gnd2_preferredNameForTheCorporateBody_en: New York State Bar Association / Section on Antitrust Law
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_2663-3
-body: New York State Bar Association / Section on Antitrust Law 
---------------
-id: gnd_5979-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 5979-1
-gnd2_oldAuthorityNumber: (DE-588b)5979-1
-gnd2_preferredNameForTheCorporateBody_en: Radiological Society of North America
-gnd2_variantNameForTheCorporateBody_en: RSNA
-body: Radiological Society of North America RSNA
---------------
-id: gnd_3473-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-GB
-gnd2_gndIdentifier: 3473-3
-gnd2_oldAuthorityNumber: (DE-588)4404256-5
-gnd2_oldAuthorityNumber: (DE-588b)4404256-5
-gnd2_oldAuthorityNumber: (DE-588b)3473-3
-gnd2_oldAuthorityNumber: (DE-588c)4404256-5
-gnd2_oldAuthorityNumber: (DE-588b)3066599-1
-gnd2_placeOfBusiness: gnd_4022153-2
-gnd2_preferredNameForTheCorporateBody_en: Trades Union Congress
-gnd2_variantNameForTheCorporateBody_en: TUC
-gnd2_broaderTermInstantial: gnd_4020872-2
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#9.4b
-gnd2_spatialAreaOfActivity: gnd_4022153-2
-body: Trades Union Congress TUC   
---------------
-id: gnd_3412-5
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 3412-5
-gnd2_oldAuthorityNumber: (DE-588b)3412-5
-gnd2_preferredNameForTheCorporateBody_en: Society of Plastics Engineers / Connecticut Section
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_3411-3
-body: Society of Plastics Engineers / Connecticut Section 
---------------
-id: gnd_2841-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 2841-1
-gnd2_oldAuthorityNumber: (DE-588b)2841-1
-gnd2_preferredNameForTheCorporateBody_en: Rosemount Aeronautical Laboratories
-gnd2_variantNameForTheCorporateBody_en: Aeronautical Laboratories (Rosemount Calif.)
-body: Rosemount Aeronautical Laboratories Aeronautical Laboratories (Rosemount Calif.)
---------------
-id: gnd_1671-8
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-CH
-gnd2_gndIdentifier: 1671-8
-gnd2_oldAuthorityNumber: (DE-588b)1671-8
-gnd2_placeOfBusiness: gnd_4020137-5
-gnd2_preferredNameForTheCorporateBody_fr: Institut d'Etudes Sociales (Genf)
-gnd2_variantNameForTheCorporateBody_en: IES
-body: Institut d'Etudes Sociales (Genf) IES
---------------
-id: gnd_3399-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-GB
-gnd2_gndIdentifier: 3399-6
-gnd2_oldAuthorityNumber: (DE-588b)3399-6
-gnd2_preferredNameForTheCorporateBody_en: Society for Experimental Biology
-gnd2_variantNameForTheCorporateBody_en: Society of Experimental Biologists
-gnd2_variantNameForTheCorporateBody_en: SEB
-gnd2_variantNameForTheCorporateBody_en: Society of Experimental Biology
-gnd2_dateOfEstablishment: 1924
-body: Society for Experimental Biology Society of Experimental Biologists SEB Society of Experimental Biology 
---------------
-id: gnd_7079-8
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 7079-8
-gnd2_oldAuthorityNumber: (DE-588b)7079-8
-gnd2_precedingCorporateBody: gnd_41932-1
-gnd2_preferredNameForTheCorporateBody_en: American Society for Microbiology
-gnd2_variantNameForTheCorporateBody_en: American Society of Microbiologists
-gnd2_variantNameForTheCorporateBody_en: Society for Microbiology (United States)
-gnd2_variantNameForTheCorporateBody_en: ASM
-gnd2_variantNameForTheCorporateBody_en: Society of Microbiologists (United States)
-gnd2_variantNameForTheCorporateBody_fr: Société Américaine de Microbiologie
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Society for Microbiology American Society of Microbiologists Société Américaine de Microbiologie Society for Microbiology (United States) ASM Society of Microbiologists (United States) 
---------------
-id: gnd_2753-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XC-ZA
-gnd2_gndIdentifier: 2753-4
-gnd2_oldAuthorityNumber: (DE-588b)2753-4
-gnd2_preferredNameForTheCorporateBody_en: Old Testament Society of South Africa
-gnd2_variantNameForTheCorporateBody_en: OTSSA
-gnd2_variantNameForTheCorporateBody_en: OTWSA
-gnd2_variantNameForTheCorporateBody_un: Ou-Testamentiese Werkgemeenskap in Suid-Afrika
-gnd2_variantNameForTheCorporateBody_un: Ou Testamentiese Werkgemeenskap in Suid-Afrika
-gnd2_definition: Sitz: Pretoria
-body: Old Testament Society of South Africa OTSSA Ou-Testamentiese Werkgemeenskap in Suid-Afrika OTWSA Ou Testamentiese Werkgemeenskap in Suid-Afrika 
---------------
-id: gnd_1124-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1124-1
-gnd2_oldAuthorityNumber: (DE-588b)1124-1
-gnd2_preferredNameForTheCorporateBody_en: European Federation of Corrugated Board Manufacturers
-gnd2_variantNameForTheCorporateBody_en: FEFCO
-gnd2_variantNameForTheCorporateBody_en: European Federation of Manufacturers of Corrugated Board
-gnd2_variantNameForTheCorporateBody_en: Federation of Corrugated Board Manufacturers
-gnd2_variantNameForTheCorporateBody_de: Europäische Föderation der Wellpappenfabrikanten
-gnd2_variantNameForTheCorporateBody_de: Verband der Wellpappenfabrikanten
-gnd2_variantNameForTheCorporateBody_de: Europäischer Verband der Wellpappenfabrikanten
-gnd2_variantNameForTheCorporateBody_un: Federazione Europea dei Fabbricanti di Cartone Ondulato
-gnd2_variantNameForTheCorporateBody_un: Federación Europea de Fabricantes de Cartón Ondulato
-gnd2_variantNameForTheCorporateBody_fr: Fédération Européenne des Fabricants de Carton Ondulé
-gnd2_dateOfEstablishment: 1952
-body: European Federation of Corrugated Board Manufacturers FEFCO Europäische Föderation der Wellpappenfabrikanten European Federation of Manufacturers of Corrugated Board Verband der Wellpappenfabrikanten  Federazione Europea dei Fabbricanti di Cartone Ondulato Federación Europea de Fabricantes de Cartón Ondulato Fédération Européenne des Fabricants de Carton Ondulé Europäischer Verband der Wellpappenfabrikanten 
---------------
-id: gnd_4291-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-SUHH
-gnd2_geographicAreaCode: gndgac_XA-RU
-gnd2_gndIdentifier: 4291-2
-gnd2_oldAuthorityNumber: (DE-588b)4291-2
-gnd2_placeOfBusiness: gnd_4074987-3
-gnd2_precedingCorporateBody: gnd_139449-6
-gnd2_preferredNameForTheCorporateBody_en: Moskovskij Ėnergetičeskij Institut
-gnd2_variantNameForTheCorporateBody_de: Instituto Energetico (Moskau)
-gnd2_variantNameForTheCorporateBody_de: Ordena Lenina i Ordena Oktjabrskoj Revoljucii Ėnergetičeskij Institut (Moskau)
-gnd2_variantNameForTheCorporateBody_de: Ordena Lenina Ėnergetičeskij Institut (Moskau)
-gnd2_variantNameForTheCorporateBody_de: Ėnergetičeskij Institut (Moskau)
-gnd2_variantNameForTheCorporateBody_un: Moskovskij Ordena Lenina i Ordena Oktjabrskoj Revoljucii Ėnergetičeskij Institut
-gnd2_variantNameForTheCorporateBody_en: MĖI
-gnd2_variantNameForTheCorporateBody_en: Moskovskij Ordena Lenina Ėnergetičeskij Institut
-gnd2_variantNameForTheCorporateBody_en: Moskovskij Ėnergetičeskij Institut (Techničeskij Universitet)
-body: Moskovskij Ėnergetičeskij Institut Instituto Energetico (Moskau) Ordena Lenina i Ordena Oktjabrskoj Revoljucii Ėnergetičeskij Institut (Moskau) Moskovskij Ordena Lenina i Ordena Oktjabrskoj Revoljucii Ėnergetičeskij Institut Ordena Lenina Ėnergetičeskij Institut (Moskau) MĖI Moskovskij Ordena Lenina Ėnergetičeskij Institut  Moskovskij Ėnergetičeskij Institut (Techničeskij Universitet)
---------------
-id: gnd_1805-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 1805-3
-gnd2_oldAuthorityNumber: (DE-588b)1805-3
-gnd2_placeOfBusiness: gnd_500576-0
-gnd2_preferredNameForTheCorporateBody_en: Colorado School of Mines (Golden Colo.)
-gnd2_variantNameForTheCorporateBody_en: School of Mines (Golden Colo.)
-gnd2_dateOfEstablishment: 1874
-body: Colorado School of Mines (Golden Colo.)  
---------------
-id: gnd_5680-7
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-FR
-gnd2_gndIdentifier: 5680-7
-gnd2_oldAuthorityNumber: (DE-588b)5680-7
-gnd2_placeOfBusiness: gnd_4044660-8
-gnd2_preferredNameForTheCorporateBody_fr: École Supérieure d'Électricité (Paris)
-gnd2_variantNameForTheCorporateBody_en: ESE
-body: École Supérieure d'Électricité (Paris) ESE
---------------
-id: gnd_1686-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-GB
-gnd2_gndIdentifier: 1686-X
-gnd2_oldAuthorityNumber: (DE-588b)1686-X
-gnd2_placeOfBusiness: gnd_4074335-4
-gnd2_precedingCorporateBody: gnd_115665-2
-gnd2_preferredNameForTheCorporateBody_en: Royal Institute of Chemistry (London)
-gnd2_succeedingCorporateBody: gnd_1081648-3
-gnd2_variantNameForTheCorporateBody_en: RIC
-gnd2_variantNameForTheCorporateBody_en: Institute of Chemistry (London)
-gnd2_dateOfEstablishment: 1949
-gnd2_dateOfTermination: 1979
-body: Royal Institute of Chemistry (London)  RIC   
---------------
-id: gnd_6605-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-GB
-gnd2_gndIdentifier: 6605-9
-gnd2_oldAuthorityNumber: (DE-588b)6605-9
-gnd2_preferredNameForTheCorporateBody_un: Atlas Computer Laboratory (Chilton Berkshire)
-gnd2_variantNameForTheCorporateBody_en: Science Research Council (Großbritannien) / Atlas Computer Laboratory
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_6707-6
-gnd2_spatialAreaOfActivity: gnd_4022153-2
-body: Atlas Computer Laboratory (Chilton Berkshire) Science Research Council (Großbritannien) / Atlas Computer Laboratory  
---------------
-id: gnd_4171-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 4171-3
-gnd2_oldAuthorityNumber: (DE-588b)4171-3
-gnd2_preferredNameForTheCorporateBody_en: Wayne State Fund Research Recognition Award
-body: Wayne State Fund Research Recognition Award
---------------
-id: gnd_1861-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-SUHH
-gnd2_gndIdentifier: 1861-2
-gnd2_oldAuthorityNumber: (DE-588b)1861-2
-gnd2_preferredNameForTheCorporateBody_un: Kommunističeskaja Partija Ukrainy / Krymskij Oblastnoj Komitet
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_1010867-1
-body: Kommunističeskaja Partija Ukrainy / Krymskij Oblastnoj Komitet 
---------------
-id: gnd_3415-0
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 3415-0
-gnd2_oldAuthorityNumber: (DE-588b)3415-0
-gnd2_preferredNameForTheCorporateBody_en: Society of Professional Well Log Analysts
-gnd2_succeedingCorporateBody: gnd_6037480-9
-gnd2_variantNameForTheCorporateBody_en: SPWLA
-gnd2_dateOfEstablishment: 1959
-body: Society of Professional Well Log Analysts  SPWLA 
---------------
-id: gnd_6398-8
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-SUHH
-gnd2_gndIdentifier: 6398-8
-gnd2_oldAuthorityNumber: (DE-588b)6398-8
-gnd2_placeOfBusiness: gnd_111852-3
-gnd2_preferredNameForTheCorporateBody_de: Kommunarskij Gornometallurgičeskij Institut
-gnd2_variantNameForTheCorporateBody_de: Gornometallurgičeskij Institut (Kommunarsk)
-body: Kommunarskij Gornometallurgičeskij Institut Gornometallurgičeskij Institut (Kommunarsk)
---------------
-id: gnd_5320-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 5320-X
-gnd2_oldAuthorityNumber: (DE-588b)5320-X
-gnd2_preferredNameForTheCorporateBody_en: Institute of Electrical and Electronics Engineers / Communication Technology Group
-gnd2_variantNameForTheCorporateBody_en: Institute of Electrical and Electronics Engineers / Comtech
-gnd2_variantNameForTheCorporateBody_en: Communication Technology Group
-gnd2_variantNameForTheCorporateBody_de: IEEEComtech
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_1692-5
-body: Institute of Electrical and Electronics Engineers / Communication Technology Group Institute of Electrical and Electronics Engineers / Comtech  IEEEComtech 
---------------
-id: gnd_4210-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 4210-9
-gnd2_oldAuthorityNumber: (DE-588b)4210-9
-gnd2_precedingCorporateBody: gnd_54694-X
-gnd2_preferredNameForTheCorporateBody_en: Food and Agriculture Organization / Working Party on Rural Sociological Problems in Europe
-gnd2_variantNameForTheCorporateBody_en: Food and Agriculture Organization / European Commission on Agriculture / Working Party on Rural Sociological Problems in Europe
-gnd2_variantNameForTheCorporateBody_en: Working Party on Rural Sociological Problems in Europe
-gnd2_variantNameForTheCorporateBody_en: Food and Agriculture Organization / European Commission on Agriculture / Grupo de Trabajo de Problemas de Sociología Rural en Europa
-gnd2_variantNameForTheCorporateBody_en: Food and Agriculture Organization / Grupo de Trabajo de Problemas de Sociología Rural en Europa
-gnd2_variantNameForTheCorporateBody_de: Food and Agriculture Organization / Arbeitsgruppe für Ländliche Sozialprobleme in Europa
-gnd2_variantNameForTheCorporateBody_de: Food and Agriculture Organization / European Commission on Agriculture / Arbeitsgruppe für Ländliche Sozialprobleme in Europa
-gnd2_variantNameForTheCorporateBody_de: Arbeitsgruppe für Ländliche Sozialprobleme in Europa
-gnd2_variantNameForTheCorporateBody_un: Grupo de Trabajo de Problemas de Sociología Rural en Europa
-gnd2_variantNameForTheCorporateBody_fr: Food and Agriculture Organization / Groupe de Travail des Problèmes de Sociologie Rurale en Europe
-gnd2_variantNameForTheCorporateBody_fr: Food and Agriculture Organization / European Commission on Agriculture / Groupe de Travail des Problèmes de Sociologie Rurale en Europe
-gnd2_variantNameForTheCorporateBody_fr: Groupe de Travail des Problèmes de Sociologie Rurale en Europe
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_1007993-2
-body: Food and Agriculture Organization / Working Party on Rural Sociological Problems in Europe Food and Agriculture Organization / European Commission on Agriculture / Working Party on Rural Sociological Problems in Europe  Food and Agriculture Organization / Arbeitsgruppe für Ländliche Sozialprobleme in Europa Grupo de Trabajo de Problemas de Sociología Rural en Europa Food and Agriculture Organization / European Commission on Agriculture / Grupo de Trabajo de Problemas de Sociología Rural en Europa Food and Agriculture Organization / Groupe de Travail des Problèmes de Sociologie Rurale en Europe Food and Agriculture Organization / European Commission on Agriculture / Groupe de Travail des Problèmes de Sociologie Rurale en Europe Food and Agriculture Organization / Grupo de Trabajo de Problemas de Sociología Rural en Europa Food and Agriculture Organization / European Commission on Agriculture / Arbeitsgruppe für Ländliche Sozialprobleme in Europa   
---------------
-id: gnd_1019-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1019-4
-gnd2_oldAuthorityNumber: (DE-588b)1019-4
-gnd2_precedingCorporateBody: gnd_90465-X
-gnd2_preferredNameForTheCorporateBody_en: International Association for Hydraulic Research
-gnd2_succeedingCorporateBody: gnd_16031531-1
-gnd2_variantNameForTheCorporateBody_fr: Association Internationale des Recherches Hydrauliques
-gnd2_variantNameForTheCorporateBody_un: Asociación Internacional de Investigaciones Hidráulicas
-gnd2_variantNameForTheCorporateBody_de: Internationaler Verband für Wasserbauliches Versuchswesen (International Association for Hydraulic Research)
-gnd2_variantNameForTheCorporateBody_en: IAHR
-gnd2_variantNameForTheCorporateBody_en: AIRH
-gnd2_variantNameForTheCorporateBody_en: Association for Hydraulic Research
-body: International Association for Hydraulic Research  Association Internationale des Recherches Hydrauliques Asociación Internacional de Investigaciones Hidráulicas Internationaler Verband für Wasserbauliches Versuchswesen (International Association for Hydraulic Research) IAHR AIRH 
---------------
-id: gnd_6323-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-GB
-gnd2_gndIdentifier: 6323-X
-gnd2_oldAuthorityNumber: (DE-588b)6323-X
-gnd2_preferredNameForTheCorporateBody_en: Operational Research Society / Critical Path Analysis Study Group
-gnd2_variantNameForTheCorporateBody_en: Critical Path Analysis Study Group
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_6324-1
-body: Operational Research Society / Critical Path Analysis Study Group  
---------------
-id: gnd_5495-1
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 5495-1
-gnd2_oldAuthorityNumber: (DE-588b)5495-1
-gnd2_preferredNameForTheCorporateBody_en: National Mastitis Council
-gnd2_variantNameForTheCorporateBody_en: Mastitis Council
-gnd2_variantNameForTheCorporateBody_en: NMC
-body: National Mastitis Council  NMC
---------------
-id: gnd_4310-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 4310-2
-gnd2_oldAuthorityNumber: (DE-588b)4310-2
-gnd2_preferredNameForTheCorporateBody_en: Food and Agriculture Organization / Near East Commission on Agricultural Planning
-gnd2_variantNameForTheCorporateBody_en: Near East Commission on Agricultural Planning
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_2010460-1
-body: Food and Agriculture Organization / Near East Commission on Agricultural Planning  
---------------
-id: gnd_2504-5
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-SUHH
-gnd2_gndIdentifier: 2504-5
-gnd2_oldAuthorityNumber: (DE-588b)2504-5
-gnd2_placeOfBusiness: gnd_4074987-3
-gnd2_preferredNameForTheCorporateBody_de: Počvennyj Institut (Moskau)
-body: Počvennyj Institut (Moskau)
---------------
-id: gnd_1030-3
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1030-3
-gnd2_oldAuthorityNumber: (DE-588b)1030-3
-gnd2_preferredNameForTheCorporateBody_en: International Association of Veterinary Food Hygienists
-gnd2_succeedingCorporateBody: gnd_1031-5
-gnd2_variantNameForTheCorporateBody_en: Association of Veterinary Food Hygienists (International Association of Veterinary Food Hygienists)
-body: International Association of Veterinary Food Hygienists  Association of Veterinary Food Hygienists (International Association of Veterinary Food Hygienists)
---------------
-id: gnd_1388-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 1388-2
-gnd2_oldAuthorityNumber: (DE-588b)1388-2
-gnd2_placeOfBusiness: gnd_4009921-0
-gnd2_preferredNameForTheCorporateBody_en: Graduate Library School (Chicago Ill.)
-gnd2_variantNameForTheCorporateBody_en: University (Chicago Ill.) / Graduate Library School
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_1389-4
-body: Graduate Library School (Chicago Ill.) University (Chicago Ill.) / Graduate Library School 
---------------
-id: gnd_7001-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 7001-4
-gnd2_oldAuthorityNumber: (DE-588b)7001-4
-gnd2_preferredNameForTheCorporateBody_en: Radiation Research Society
-body: Radiation Research Society
---------------
-id: gnd_1746-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XP
-gnd2_gndIdentifier: 1746-2
-gnd2_oldAuthorityNumber: (DE-588b)10348256-8
-gnd2_oldAuthorityNumber: (DE-588b)1746-2
-gnd2_oldAuthorityNumber: (DE-588b)16155720-X
-gnd2_preferredNameForTheCorporateBody_en: International Federation of Automatic Control
-gnd2_variantNameForTheCorporateBody_fr: Fédération Internationale d'Automatique
-gnd2_variantNameForTheCorporateBody_fr: Fédération Internationale de la Commande Automatique
-gnd2_variantNameForTheCorporateBody_fr: Fédération Internationale pour la Commande Automatique
-gnd2_variantNameForTheCorporateBody_en: International Federation on Automatic Control
-gnd2_variantNameForTheCorporateBody_en: IFAC
-gnd2_variantNameForTheCorporateBody_en: International Federation for Automatic Control
-gnd2_variantNameForTheCorporateBody_en: IFAK
-gnd2_variantNameForTheCorporateBody_de: Internationaler Verband für Selbsttätige Regelung und Steuerung
-gnd2_variantNameForTheCorporateBody_de: Internationaler Verband für Automatische Regelung
-gnd2_variantNameForTheCorporateBody_de: Internationale Föderation für Automatische Lenkung
-gnd2_variantNameForTheCorporateBody_un: Meždunarodnaja Federacija po Avtomatičeskomu Upravleniju
-gnd2_dateOfEstablishment: 1957
-gnd2_definition: Sitz: Düsseldorf
-body: International Federation of Automatic Control Fédération Internationale d'Automatique Fédération Internationale de la Commande Automatique International Federation on Automatic Control Internationaler Verband für Selbsttätige Regelung und Steuerung IFAC Meždunarodnaja Federacija po Avtomatičeskomu Upravleniju Internationaler Verband für Automatische Regelung Fédération Internationale pour la Commande Automatique Internationale Föderation für Automatische Lenkung International Federation for Automatic Control IFAK  
---------------
-id: gnd_951-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 951-9
-gnd2_oldAuthorityNumber: (DE-588b)951-9
-gnd2_preferredNameForTheCorporateBody_en: American Ophthalmological Society
-gnd2_variantNameForTheCorporateBody_en: Ophthalmological Society (United States)
-gnd2_variantNameForTheCorporateBody_en: AOS
-gnd2_dateOfEstablishment: 1864
-gnd2_homepage: http://www.aosonline.org
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Ophthalmological Society Ophthalmological Society (United States) AOS   
---------------
-id: gnd_6977-2
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 6977-2
-gnd2_oldAuthorityNumber: (DE-588b)6977-2
-gnd2_precedingCorporateBody: gnd_5092526-X
-gnd2_preferredNameForTheCorporateBody_en: Meteoritical Society
-gnd2_variantNameForTheCorporateBody_en: MetSoc
-gnd2_variantNameForTheCorporateBody_en: MS
-gnd2_dateOfEstablishment: 1947
-body: Meteoritical Society MetSoc MS 
---------------
-id: gnd_949-0
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 949-0
-gnd2_oldAuthorityNumber: (DE-588b)949-0
-gnd2_preferredNameForTheCorporateBody_en: American Musicological Society
-gnd2_variantNameForTheCorporateBody_en: AMS
-gnd2_variantNameForTheCorporateBody_en: Musicological Society (United States)
-gnd2_dateOfEstablishment: 1934
-gnd2_homepage: http://www.ams-net.org
-gnd2_spatialAreaOfActivity: gnd_110322-2
-body: American Musicological Society AMS Musicological Society (United States)   
---------------
-id: gnd_342-6
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 342-6
-gnd2_oldAuthorityNumber: (DE-588b)342-6
-gnd2_oldAuthorityNumber: (DE-588b)6047176-1
-gnd2_precedingCorporateBody: gnd_35299-8
-gnd2_preferredNameForTheCorporateBody_en: Electrochemical Society
-gnd2_variantNameForTheCorporateBody_en: ECS
-gnd2_dateOfEstablishment: 1902
-gnd2_homepage: http://www.electrochem.org
-body: Electrochemical Society ECS  
---------------
-id: gnd_6533-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-DE
-gnd2_gndIdentifier: 6533-X
-gnd2_oldAuthorityNumber: (DE-588b)6533-X
-gnd2_preferredNameForTheCorporateBody_de: Gemeinde Gottes
-body: Gemeinde Gottes
---------------
-id: gnd_1389-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 1389-4
-gnd2_oldAuthorityNumber: (DE-588b)1389-4
-gnd2_oldAuthorityNumber: (DE-588b)16290753-9
-gnd2_placeOfBusiness: gnd_4009921-0
-gnd2_preferredNameForTheCorporateBody_en: University (Chicago Ill.)
-gnd2_variantNameForTheCorporateBody_de: Universität Chicago Ill.
-gnd2_variantNameForTheCorporateBody_en: Universidad (Chicago Ill.)
-gnd2_dateOfEstablishment: 1857
-gnd2_homepage: http://www.uchicago.edu
-body: University (Chicago Ill.) Universität Chicago Ill. Universidad (Chicago Ill.)  
---------------
-id: gnd_6561-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-DE
-gnd2_gndIdentifier: 6561-4
-gnd2_oldAuthorityNumber: (DE-588b)6561-4
-gnd2_precedingCorporateBody: gnd_66303-7
-gnd2_preferredNameForTheCorporateBody_de: Verband Badischer Gartenbaubetriebe
-body: Verband Badischer Gartenbaubetriebe
---------------
-id: gnd_6314-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 6314-9
-gnd2_oldAuthorityNumber: (DE-588b)6314-9
-gnd2_preferredNameForTheCorporateBody_en: Association of Life Insurance Medical Directors of America
-gnd2_variantNameForTheCorporateBody_en: ALIMDA
-body: Association of Life Insurance Medical Directors of America ALIMDA
---------------
-id: gnd_1042-X
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 1042-X
-gnd2_oldAuthorityNumber: (DE-588b)1042-X
-gnd2_placeOfBusiness: gnd_110618-1
-gnd2_precedingCorporateBody: gnd_276509-3
-gnd2_preferredNameForTheCorporateBody_en: International Business Machines Corporation (Armonk NY)
-gnd2_variantNameForTheCorporateBody_en: IBM
-gnd2_dateOfEstablishment: 1923
-gnd2_gndSubjectCategory: http://d-nb.info/vocab/gnd-sc#10.12b
-body: International Business Machines Corporation (Armonk NY) IBM  
---------------
-id: gnd_6281-9
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XD-US
-gnd2_gndIdentifier: 6281-9
-gnd2_oldAuthorityNumber: (DE-588b)6281-9
-gnd2_preferredNameForTheCorporateBody_en: Power Engineering Society
-gnd2_succeedingCorporateBody: gnd_6076716-9
-gnd2_variantNameForTheCorporateBody_en: IEEE Power Engineering Society
-gnd2_variantNameForTheCorporateBody_en: Institute of Electrical and Electronics Engineers / Power Engineering Society
-gnd2_variantNameForTheCorporateBody_en: PES
-gnd2_hierarchicalSuperiorOfTheCorporateBody: gnd_1692-5
-body: Power Engineering Society  IEEE Power Engineering Society Institute of Electrical and Electronics Engineers / Power Engineering Society PES 
---------------
-id: gnd_2884-8
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XA-CH
-gnd2_gndIdentifier: 2884-8
-gnd2_oldAuthorityNumber: (DE-588b)2884-8
-gnd2_preferredNameForTheCorporateBody_de: Schweizerische Allergie-Gesellschaft
-gnd2_succeedingCorporateBody: gnd_2091091-5
-gnd2_variantNameForTheCorporateBody_fr: Société suisse d'allergie
-gnd2_variantNameForTheCorporateBody_de: Allergie-Gesellschaft (Schweiz)
-gnd2_spatialAreaOfActivity: gnd_4053881-3
-body: Schweizerische Allergie-Gesellschaft  Société suisse d'allergie Allergie-Gesellschaft (Schweiz) 
---------------
-id: gnd_1439-4
-rdf_type: gnd2_CorporateBody
-gnd2_geographicAreaCode: gndgac_XB-JP
-gnd2_gndIdentifier: 1439-4
-gnd2_oldAuthorityNumber: (DE-588b)1439-4
-gnd2_preferredNameForTheCorporateBody_de: Nihon-Naika-Gakkai
-gnd2_variantNameForTheCorporateBody_en: Japanese Society of Internal Medicine
-gnd2_variantNameForTheCorporateBody_en: Society of Internal Medicine (Japan)
-gnd2_variantNameForTheCorporateBody_un: Naika-Gakkai (Japan)
-gnd2_variantNameForTheCorporateBody_un: Nippon-Naika-Gakkai
-gnd2_variantNameForTheCorporateBody_de: Gesellschaft für Innere Medizin (Japan)
-gnd2_variantNameForTheCorporateBody_de: Japanische Gesellschaft für Innere Medizin
-gnd2_dateOfEstablishment: 1903, Apr.
-gnd2_spatialAreaOfActivity: gnd_4028495-5
-body: Nihon-Naika-Gakkai Japanese Society of Internal Medicine Society of Internal Medicine (Japan) Naika-Gakkai (Japan) Gesellschaft für Innere Medizin (Japan) Japanische Gesellschaft für Innere Medizin Nippon-Naika-Gakkai  
+body: galilean economy time jesus
+k: 0
+seg: eng
+sid: 20130520.225755.891.2
+user: 2
 
 --------------
-03.02.2013 12:49:30.745039 SYNCHED (,dnb_gnd)
-03.02.2013 12:49:30.925713 UPDATED (,dnb_gnd)
-03.02.2013 12:49:30.925743 EXIT SYNCH (,dnb_gnd)
+
+20.05.2013 23:16:30.175731 ENTER SYNCH (23423243.234.2,/solr/subject_ranking/)
+--------------
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
+--------------
+--------------
+body: asbjaksdbaksjdbalksdjb as dl baslkdj ba
+k: 1
+seg: eng
+sid: 23423243.234.2
+user: 2
+
+--------------
+20.05.2013 23:16:30.176593 SYNCHED (23423243.234.2,/solr/subject_ranking/)
+
+20.05.2013 23:17:04.962381 ENTER SYNCH (23423243.234.2,/solr/solariumtests/)
+--------------
+DOCUMENTS (sid,body or cached info) into collection solariumtests:
+--------------
+--------------
+body: asbjaksdbaksjdbalksdjb as dl baslkdj ba
+k: 1
+seg: eng
+sid: 23423243.234.2
+user: 2
+
+--------------
+
+20.05.2013 23:20:06.076746 ENTER SYNCH (23423243.234.2,/solr/subject_ranking/)
+--------------
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
+--------------
+--------------
+body: asbjaksdbaksjdbalksdjb as dl baslkdj ba
+k: 1
+seg: eng
+sid: 23423243.234.2
+user: 2
+
+--------------
+
+20.05.2013 23:21:14.719135 ENTER SYNCH (23423243.234.2,/solr/subject_ranking/)
+--------------
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
+--------------
+--------------
+body: asbjaksdbaksjdbalksdjb as dl baslkdj ba
+k: 1
+seg: eng
+sid: 23423243.234.2
+user: 2
+
+--------------
+
+20.05.2013 23:21:37.486744 ENTER SYNCH (23423243.234.2,/solr/subject_ranking/)
+--------------
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
+--------------
+--------------
+id: asbjaksdbaksjdbalksdjb as dl baslkdj ba.23423243.234.2
+body: asbjaksdbaksjdbalksdjb as dl baslkdj ba
+k: 1
+seg: eng
+sid: 23423243.234.2
+user: 2
+
+--------------
+
+20.05.2013 23:22:19.499797 ENTER SYNCH (23423243.234.2,/solr/subject_ranking/)
+--------------
+DOCUMENTS (sid,body or cached info) into collection subject_ranking:
+--------------
+--------------
+id: asbjaksdbaksjdbalksdjb as dl baslkdj ba.23423243.234.2
+body: asbjaksdbaksjdbalksdjb as dl baslkdj ba
+k: 1
+seg: eng
+sid: 23423243.234.2
+user: 2
+
+--------------

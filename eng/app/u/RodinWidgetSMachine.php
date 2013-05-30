@@ -174,6 +174,7 @@ function RDW_DISPLAYSEARCHCONTROLS_EPI()
 	global $SHOWING;
 	global $FRAMENAME;
 	global $render;
+	global $setversion;
 	
 	global $RDW_REQUEST;
 	foreach ($RDW_REQUEST as $querystringparam => $defaultvalue)
@@ -590,6 +591,7 @@ EOT;
 		\n<input type="hidden" name="go" value="$govalue" />
 		\n<input type="hidden" name="p" value="$p" />
 		\n<input type="hidden" name="app_id" value="$APP_ID" />
+		\n<input type="hidden" name="setversion" value="$setversion" />
 EOT;
 
 	print $T;
@@ -635,6 +637,7 @@ function RDW_COLLECTRESULTS_EPI()
 	global $widgetresultdivid;
 	global $_w, $_h;
   global $sid;
+  global $setversion;
 
 	// Include global parameters with exactly the same names
 	// as the RDW_REQUEST parameters

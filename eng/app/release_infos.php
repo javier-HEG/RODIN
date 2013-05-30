@@ -1,5 +1,8 @@
 
-<?php include_once("root.php");
+<?php 
+
+include_once("root.php");
+include_once("u/arcUtilities.php");
  $NOW=date("d.m.Y_H:i:s");
 
  $MANTIS ="<a href=\"http://195.176.237.62/mantis/\" target=_blank>mantis</a>";
@@ -19,7 +22,7 @@
 <br />Please report any issue using <?php echo $MANTIS ?> 
 <br />
 <br />
-<br /><b>RODIN Release 2.5</b>
+<br /><b>RODIN Release 2.8</b>
 <br />===================
 <br />SOLR integration for results
 <br />Aggregated view for results
@@ -31,6 +34,8 @@
 <br />New SKOS ontology source LOC integrated per Dec 30th 2013
 <br />New NON-SKOS ontology source GND integrated per Jan 25th 2013
 <br />RDF LAB with LOD input from Europeana on single results
+<br />SRC driven AutoComplete with SKOS and description information
+<br />RDFization of results, docs importing, ranking of all documents.
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  
@@ -51,17 +56,19 @@ Please report any bug issue to <?php echo $MANTIS ?>
     $SRC_CONTROL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/select_src.php";
     $SRC_PEVAL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/SOLR_SKOS_partial_evaluator/";
     $SRC_STORE_SKOS_NAVIGATOR_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_skosxl_navigator.php?storename=bnf_rameau";
-    $SRC_STORE_SPARQL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_show_all_triples.php?limit=5&storename=bnf_rameau";
+    $SRC_STORE_SPARQL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/lod_sparql_endpoint.php?limit=5&storename=bnf_rameau";
     $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/";
     $SRC_U_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u";
+		$DBRODINLODBROWSER="$WEBROOT$RODINROOT/$RODINSEGMENT/app/lod/resource/a/?token=search*&seeonly=resultdoc";
     
-		print "<br><a href='$W3SLABHOMEPAGEURL' target='blank'>RODIN W3S RDF expansion LAB</a>";
+    print "<br><a href='$DBRODINLODBROWSER' target='blank'>dbRODIN LoD browser</a>";
+    print "<br><a href='$SRC_STORE_SPARQL_LINK' target='blank'>dbRODIN LoD SPARQL endpoint</a>";
+		print "<br><a href='$lodLABHOMEPAGEURL' target='blank'>RODIN lod RDF expansion LAB</a>";
     if ($RODINSEGMENT=='x') print "<br><a href='$SRC_U_LINK' target='blank'>SRC METHODS</a>";
     print "<br><a href='$SRC_CONTROL_LINK' target='blank'>SRC MANAGEMENT FOR CURRENT SEGMENT</a>";
     if ($RODINSEGMENT=='x') print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR SOLR</a>";
     print "<br><a href='$SRC_STORE_SKOS_NAVIGATOR_LINK' target='blank'>STORE SKOS NAVIGATOR</a>";
-    print "<br><a href='$SRC_STORE_SPARQL_LINK' target='blank'>STORE SPARQL ENGINE</a>";
-  }
+      }
 ?>
 <!--p>
 <b>Integration with SRC - Details</b>

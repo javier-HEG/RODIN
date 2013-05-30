@@ -93,6 +93,8 @@ class file
 	function warning($id)
 	{
 		echo "File issue (error ".$id.")";
+		debug_print_backtrace();
+		
 		exit();
 	}
 }

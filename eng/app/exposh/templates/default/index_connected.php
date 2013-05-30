@@ -32,6 +32,9 @@
 			}
 		}
 	}
+	
+	$setversion=$_GET['setversion'];
+	if (!$setversion) $setversion=2013;
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head> 
@@ -76,7 +79,8 @@
 	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.7.1.min.js'></script>
 	<script type="text/javascript" src='../../../gen/u/idletimer/jquery.idle-timer.js'></script>
 	<script type="text/javascript" src='<?php print $RODINU; ?>/contextmenu/jquery.contextMenu.js'></script>
-	<script type="text/javascript" src="../../../gen/u/autocomplete/jquery.autocomplete-min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../../gen/u/autocomplete/styles.css" />
+	<script type="text/javascript" src="../../../gen/u/autocomplete/jquery.autocomplete.js"></script>
 	<script type="text/javascript">
 		jQuery.noConflict();
 	</script>
@@ -199,10 +203,20 @@ EOAM;
 	$SOLR_LOGO='';
   if ($RESULTS_STORE_METHOD=='solr')
   {
-  	if ($RODINSEGMENT<>'p')
+  	if ($RODINSEGMENT=='eng')
  			$SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
   }
 
+  $DBRODIN_LOGO="<img id='dbrodinlogo' src='$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png' title=''/>";
+	$OPENDBRODINLODBROWSER="open_lod_browser('$WEBROOT$RODINROOT/$RODINSEGMENT/app/lod/resource/a/','_blank');return false;";
+  $DBRODIN_HREF="<a href='' onclick=\"javascript: $OPENDBRODINLODBROWSER\" target='_blank' title='Click to open dbRODIN LoD browser (on your last search) in a new tab'>$DBRODIN_LOGO</a>";
+  
+  $RDFIZE_LOGO="<img id='rdfizelogo' src='$RODINUTILITIES_GEN_URL/images/white.PNG' title=''/>";
+ 	$LABPARAMS="?listwr=on&user_id=".$_SESSION['user_id']."&username=".$_SESSION['username'];  
+	$OPENRDFIZELAB="open_rdfize('$RDFIZEURL$LABPARAMS','_blank');return false;";
+  $RDFIZE_HREF= "<a href='#' onclick=\"javascript: $OPENRDFIZELAB\" target='_blank' title='Click to open RDFIZE LAB (new efficient prototype)  (on your last search) in a new TAB'>$RDFIZE_LOGO</a>";
+	
+	
   list($message,$test_rodin_komponenten_ok,$noofproblems) = rodin_service_diagnostics();
   if ($test_rodin_komponenten_ok)
   {
@@ -237,8 +251,10 @@ EOP;
 	<input id="metasearchrodinbutton" type="button"
 		name="rodingensearchbutton" title="" value=""
 		onclick="javascript: <?php print $launchMetaSearchCode; ?>" />
-	<!--img id="rodinSearchHelpButton" src="<?php print "$RODINUTILITIES_GEN_URL/images/help.png"; ?>" title="Help coming soon" /-->	
-</div>
+		<div id='linksdiv'>
+			<?php print $DBRODIN_HREF ?><?php print $RDFIZE_HREF ?>
+		</div>
+ </div>
 
 <div id="breadcrumbs" class="breadCrumbsHidden">
 		<div id="breadcrumbs_title" onclick="bc_clear_breadscrumbs();"
@@ -359,6 +375,8 @@ EOP;
 				var options = {
 					serviceUrl : '<?php print $AUTOCOMPLETERESPONDER ?>',
 					delimiter: ', ',
+					user_id: '<?php print  $_SESSION['user_id'] ?>',
+					setversion: '<?php print  $setversion ?>',
 					deferRequestBy: 500
 				};
 				jQuery('#rodinsearch_s').autocomplete(options);
@@ -492,6 +510,7 @@ EOP;
 
 </div>
 	<script type="text/javascript">
+   	SETVERSION='<?php print $setversion ?>';
     if (! DIAGNOSTIC_OK)
     {
       var d = $("crashwarning");

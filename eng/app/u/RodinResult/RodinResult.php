@@ -17,7 +17,8 @@ class BasicRodinResult {
 	private $authors;
 	private $date;
 	private $is_rdfized; //triples from this result were generated and inserted into store
-	public  $RDFenhancement; 
+	private $subjects; //subjects calculated/added to this object
+	public  $RDFenhancement; //USED?
 	protected $id; // SOLR ID or DB RECORD ID
 	protected $sid;
 	
@@ -360,11 +361,12 @@ class BasicRodinResult {
 	public function htmlHeader($resultIdentifier, $resultCounter, $sid, $aggView=false) {
 		global $widgetresultdivid;
 		global $datasource;
+		global $WEBROOT,$RODINROOT;
 
 		$html = $resultCounter . '<br />';
 		
 		if ($this->getUrlPage() != '') {
-			$html .= '<img src="/rodin/gen/u/images/link_go.png" title="' . lg('titleOpenResult') . '" onclick="window.open(\'' . $this->getUrlPage() . '\',\'_blank\');" /><br />';
+			$html .= '<img src="'."$WEBROOT$RODINROOT".'/gen/u/images/link_go.png" title="' . lg('titleOpenResult') . '" onclick="window.open(\'' . $this->getUrlPage() . '\',\'_blank\');" /><br />';
 		}
 		
 		$html .= $this->htmlHeaderZenFilter($sid, $resultIdentifier) . '<br />';
@@ -513,6 +515,16 @@ class BasicRodinResult {
 	}
 	
 	
+	public function setSubjects(&$subjects)
+	{
+		$this->subjects=$subjects;
+	}
+	
+	public function getSubjects()
+	{
+		return $this->subjects;
+	}
+
 	public function setCacheTimeStamp($timestamp) {
 		$this->wdsctimestamp = $timestamp;
 	}
@@ -570,12 +582,18 @@ class BasicRodinResult {
 	}
 	
 	public function setDate($date = '') {
-		if ($date == '')
-			$tempDate = new DateTime();
-		else 
-			$tempDate = new DateTime($date);
-
-		$this->date = $tempDate->format('d.m.Y');
+		try {
+					if ($date == '')
+						$tempDate = new DateTime();
+					else 
+						$tempDate = new DateTime($date);
+					$this->date = $tempDate->format('d.m.Y');
+		}
+		catch (Exception $e)
+		{
+			print "<br>ERROR in RodinResult->setDate($date)";
+			$this->date = null;
+		}
 	}
 	
 	public function getDate() {

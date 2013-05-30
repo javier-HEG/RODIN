@@ -43,6 +43,7 @@ abstract class SOZengine extends SRCengine
     $this->currentclassname='SOZengine';
 
 		//print "<br> STWengine<hr>"; var_dump($this);print "<hr>";
+		//print "<br>cons SOZengine executed";
 	
 	} //constructor 
 	
@@ -69,7 +70,7 @@ abstract class SOZengine extends SRCengine
 	/**
 	 * @see SRCengine.preprocess_refine() for details.
 	 */
-	protected function preprocess_refine($terms, $wordbinding='STW', $lang='en') {
+	protected function preprocess_refine($terms, $wordbinding='STW', $lang='en', $mode='web') {
 		if ($this->getSrcDebug()) {
 			print "<br>STWengine->preprocess_refine($terms, $wordbinding, $lang);";
 		}

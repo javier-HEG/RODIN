@@ -155,8 +155,8 @@ function fb_addToFacetBoardValidatedTerms(src_service_id, base64codedterms, base
 				ranked_preterms_raw[i] = '';
 			}
 		}
-		
-		for (var i = 0; i < ranked_preterms.length; i++) {
+		//FRI run from 1 to n (avoid labeling under SRC Name)
+		for (var i = 1; i < ranked_preterms.length; i++) {
 			var termTableRow = generate_ontofacet(ranked_preterms[i], Base64.decode(ranked_preterms_raw[i]), null, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment);
 			table.append(termTableRow);
 		}
@@ -215,6 +215,7 @@ function fb_add_to_facetboard(src_service_id, cached, action, base64codedterms, 
 			fb_table.ranked_terms = ranked_term;
 			fb_table.ranked_roots = ranked_root;
 			fb_table.ranked_terms_raw = ranked_term_raw;
+			
 			fb_render_terms(fb_general_itemcount, fb_counterobj, fb_table, action);
 		}
 	}	
@@ -321,7 +322,6 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, lang, rodinsegmen
 
 	termLink.innerHTML = term;
 	tempTableCell.appendChild(termLink);
-
 	tableRow.appendChild(tempTableCell);
 	
 	// A new TD for buttons

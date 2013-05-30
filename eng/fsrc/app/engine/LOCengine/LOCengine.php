@@ -83,7 +83,7 @@ abstract class LOCengine extends SRCengine
 	/**
 	 * @see SRCengine.preprocess_refine() for details.
 	 */
-	protected function preprocess_refine($terms, $wordbinding='LOC', $lang='en') {
+	protected function preprocess_refine($terms, $wordbinding='LOC', $lang='en', $mode='web') {
 		if ($this->getSrcDebug()) {
 			print "<br>LOCengine->preprocess_refine($terms, $wordbinding, $lang);";
 		}

@@ -3,6 +3,9 @@
  * Logger class, implemented so that user actions can be recorded
  * at least partially.
  */
+ 
+ 
+ 				
 class Logger {
 	const LOGGER_ACTIVATED = true;
 	const LOG_INTO_DB = true;
@@ -59,11 +62,17 @@ class Logger {
 		}
 	}
 	
-  public static function logAction($action, $info = null, $sid= null) 
+  public static function logAction($action, $info = null, $sid = null) 
   {
 	  	if (Logger::LOGGER_ACTIVATED) {
-				$server_root = $_SERVER['DOCUMENT_ROOT'];
-				$filename = $server_root . "/rodin/usabilityLogFile.txt";
+				
+				$scr_filename= $_SERVER['SCRIPT_FILENAME'];
+				// $server_root = $_SERVER['DOCUMENT_ROOT'];
+				// $filename = $server_root . "/rodin/usabilityLogFile.txt";
+				//$basedir=path_ix(path_ix($scr_filename,'dirname'),'dirname');
+				$basedir=substr($basedir,0,strrpos($basedir,'/'));
+				$basedir=substr($basedir,0,strrpos($basedir,'/'));
+				$filename = $basedir . "/usabilityLogFile.txt";
 				
 				$segment = substr($_SESSION['RODINDB_DBNAME'], 6);
 				$segment = $segment != '' ? $segment : '?';
@@ -79,20 +88,36 @@ class Logger {
 				$msg = Logger::makeActionString($action, $info);
 				$logLine =  $timestamp . ';' . $segment . ';' . $userId . ';' . $userName . ';' . $msg;		
 				
-		    $h=fopen($filename, "a");
-				fwrite($h, $logLine . "\n");
-				fclose($h);
+		    if (($h=@fopen($filename, "a")))
+				{
+					fwrite($h, $logLine . "\n");
+					fclose($h);
+				}
 				
 				if (Logger::LOG_INTO_DB)
-				{ 
+				{
+					global $RODINDB_DBNAME;
 					if (!function_exists('dblogger'))
-						include_once("../../../../../../app/u/FRIdbUtilities.php");
+					{
+						//print "<br<LOAD app/u/FRIdbUtilities.php ....";
+  					$filename="app/u/FRIdbUtilities.php"; $maxretries=10;
+						#######################################
+						for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+						{if (file_exists("$updir$filename")) {require_once("$updir$filename");break;}}
+					}
 					
-					dblogger($timestamp_msec,$segment,$userId,$userName,$sid,$action,$info, $msg);
+					if (function_exists('dblogger'))
+					{
+						//print "dblogger exists! ";
+						dblogger($timestamp_msec,$segment,$userId,$userName,$sid,$action,$info, $msg);
+					}
 				} // 
 	  	}
 			return $timestamp;
-    }
+			
+			
+			
+	  }
     
     private static function makeActionString($action, $info = null, $delimiter = ';') {
     	$infoString = '(no info)';

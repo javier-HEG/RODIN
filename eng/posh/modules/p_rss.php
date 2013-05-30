@@ -16,7 +16,7 @@
 <UserPref name="rssurl" display_name="lblRss" datatype="string" default_value="" />
 <UserPref name="auth" display_name="." datatype="hidden" default_value="" />
 <?php
-	if (isset($_POST["rssurl"]))
+	if (isset($_POST["rssurl"]) && 0)
 	{
 		require('../includes/config.inc.php');
 		require('../tools/rssparser/rss_fetch.inc');

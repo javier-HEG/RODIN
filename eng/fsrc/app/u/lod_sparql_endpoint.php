@@ -1,12 +1,3 @@
-<html>
-<head>
-	<title>
-		LOCAL STORE SPARQL Explorer
-	</title>
-	<link rel="stylesheet" type="text/css" href="../../../app/css/rodin.css.php?" />
-</head>
-<body>
-
 <?php
 
 //siehe http://arc.semsol.org/docs/v2/getting_started
@@ -15,46 +6,90 @@ include("../sroot.php");
 include("FRIutilities.php");
 include_once("../../../fsrc/gen/u/arc/ARC2.php");
 
+$PAGETITLE= "dbRODIN LoD SPARQL endpoint ($RODINSEGMENT)"; 
+?>
+<html>
+<head>
+	<title>
+		<?php print $PAGETITLE ?>
+	</title>
+	<link rel="stylesheet" type="text/css" href="../../../app/css/rodin.css.php?" />
+	<script type='text/javascript' src='../../../app/u/RODINutilities.js.php?skin=<?php print $RODINSKIN;?>'></script>
+</head>
+<body>
+
+<?php
+$filename="app/tests/Logger.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+{if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}}
+
+$filename="app/u/FRIdbUtilities.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+{if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}}
+
 $limit = $_GET['limit']; if (!$limit) $limit=0;
 $token = $_GET['token']; 
 $QUERY = $_GET['QUERY']; 
 $verb = $_GET['verb']; 
-$storename = $_GET['storename']; 
-if (!$storename)
- {
-  print "You have to provide a name for your store ... ;-) with limit= and or a token to be matched";
-  exit; 
-}
-
 $LOCALARCCONFIG = $ARCCONFIG;
 $LOCALARCCONFIG{'store_name'} = $storename;
 
 $path_arcUtilities = $LOCALARCCONFIG{'arcUtilities'}	;
 include_once($path_arcUtilities);
 
-$store = ARC2::getStore($LOCALARCCONFIG);
-if (!$store->isSetUp()) {
-  $store->setUp();
-}
-
 
 $thislink	=$_SERVER['PHP_SELF'];
 
-print "<h2> RODIN ARC LOCAL STORE<br>SPARQL EXPLORER 
-<a href='mailto:fabio.ricci@ggaweb.ch?subject=RODIN ARC LOCAL STORE SPARQL EXPLORER' style='color:ccc;text-decoration:snone' title=''Send an issue to the developer> send issue </a></h2>";
+include_once "../../../app/u/RDFprocessor.php";
+
+$requesting_host=$_SERVER['SERVER_NAME'];
+$RDFobj = new RDFprocessor($sid,$USER_ID=-1,$requesting_host);
+$RDFC=get_class($RDFobj);
+$NAMESPACES=RDFprocessor::$NAMESPACES;
+//Fill namespaces into config
+$LOCALARCCONFIG{'ns'}=$NAMESPACES;
+$store=$RDFobj->store;
+$storename=$RDFobj->storename;
+$PAGETITLE=str_replace("($RODINSEGMENT)","<span title='$storename'>($RODINSEGMENT)</span>",$PAGETITLE);
+
+
+
 if ($token)
 print "<h3> Matching $token</h3>";
 if ($verb)
 print "<h3> Predicate $verb</h3>";
 
-
 print <<<EOP
-<table>
+<table border=0>
+		<tr height="5">
+			<td align='left' valign='top'>
+				<span class='lodsparqlendpointtitle'>$PAGETITLE</span>
+			</td><td/>
+			<td align='right' valign='top'>
+				<span class='$TRIPLEPAGECLASS'>$URL_MANTIS</span>
+				<div id='headerlogo'>
+					<table>
+					<tr>
+					<td>
+						<!--a href='$lodLABHOMEPAGEURL' title="Click to go back to RODIN's lod LAB homepage"-->
+							<img src='$RODINLOGO' width='80'>
+						</a>
+					</td>
+					</tr>
+						<td>
+						</td>
+					</tr>
+					</table>
+				</div>
+			</td>
+		</tr>
 <form name='a' >
-	<tr><td>Your SPARQL query for storename <b>$storename</b> &nbsp;&nbsp;
+	<tr><td colspan=3>Select RODIN LoD data with your SPARQL query &nbsp;&nbsp;
 	<span style="color:gray"> (Special function: PREFIX EXPRS + SUBTREE(ns:entity_id,n) displays a subgraphtree of depth n)</span>:</tr>
-	<tr><td><textarea rows='20' cols='100' name='QUERY'>$QUERY</textarea></tr>
-	<tr><td><input type=submit style='width:100%' value='Submit'></tr>
+	<tr><td colspan=3><textarea rows='20' cols='100' name='QUERY'>$QUERY</textarea></tr>
+	<tr><td colspan=3><input type=submit style='width:100%' value='Submit'></tr>
 	<input type=hidden name=storename value='$storename'>
 </form>
 </table>
@@ -62,18 +97,8 @@ EOP;
 
 
 
-include_once "../../../app/u/RodinResult/RodinRDFResult.php";
-
-
-$RDFobj = new RodinRDFResult($nix,null,null,-1,null);
-$RDFC=get_class($RDFobj);
-$NAMESPACES=$RDFC::$NAMESPACES;
-//Fill namespaces into config
-$LOCALARCCONFIG{'ns'}=$NAMESPACES;
-
-
 //Show triples
-$triples = exec_print_sparql_xyz($limit,$token,$verb,$QUERY);
+list($ITEMKIND,$triples) = exec_print_sparql_xyz($limit,$token,$verb,$QUERY);
 
 
 #Get namespaces from RDF class
@@ -91,6 +116,8 @@ print "<br>";
 
 #GRAPHVIZ Instantiation:
 
+if ($ITEMKIND=='TRIPLES')
+{
 $viz = ARC2::getComponent('TriplesVisualizerPlugin', $LOCALARCCONFIG);
 
 /* display an svg image 
@@ -101,7 +128,7 @@ echo '<embed type="image/svg+xml" src="data:image/svg+xml;base64,' . $svg . '"/>
 /* display a png image */
 $png = $viz->draw($triples, 'png', 'base64');
 print '<img src="data:image/png;base64,' . $png . '"/>';
-
+}
 /* generate a dot file */
 //$dot_src = $viz->dot($triples);
 
@@ -115,7 +142,12 @@ function exec_print_sparql_xyz($limit,$token='',$verb='',$QUERY='')
 	global $store;
 	global $storename;
 	global $NAMESPACES;
+	global $PROT;
 	
+	global $RODINUTILITIES_GEN_URL;
+	$IMG3P_ICON = "$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png";
+	$IMG3P="<img src='$IMG3P_ICON' width='15'>";
+	$ownnamespacename='rodin';
 	$triplesinstore= count_ARC_triples($store);
 	$triplesinstore=number_format($triplesinstore, 0, '.', "'");
 	if ($token<>'')
@@ -273,8 +305,15 @@ EOQ;
 
 	}
 
-	if ($debug)
-	print "<br>>Your Query: <br>".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
+	$DEBUG=0;
+
+	if ($DEBUG)
+	{
+		print "<br>>Your Query in store '$storename': <br>".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
+
+		if(1)
+		{print "<br>STORE: <br><br>"; var_dump($store); print "<br>";} 
+	}
 
 	$selection_vars=get_sparql_selection_vars($QUERY);
 	//$selection_vars=array('x','z','p','g');
@@ -313,9 +352,9 @@ EOQ;
 				$EXPL="(single objects)";
 		}
 		print "$NRECORDS $ITEMS $EXPL selected from STORE <b>'$storename'</b> ($triplesinstore triples) "
-					 ."<span style='color:green'> - See also graph below, after displayed RECORDS</span>";
+					 ."<span style='color:green'> - See also graph below (if triples selected), after displayed RECORDS</span>";
 		;
-		print '<table bgcolor=gray border=1>';
+		print '<table bgcolor=gray border=1 cellspacing=0 cellpadding=1>';
     $i=-1;
 		
 		$r="<tr><td align='right'></td>";
@@ -325,6 +364,7 @@ EOQ;
 		}
 		$r."</tr>";
 		print $r;
+					
 			
 		foreach($rows as $row) {
       
@@ -334,8 +374,27 @@ EOQ;
 	 		$r="<tr><td align='right'>$i</td>";
  			foreach($selection_vars as $var)
 			{
-				$elem = separate_namespace($NAMESPACES,$row[$var],':',true);
-				$r.="<td>&nbsp;".$elem."</td>";
+				$LINK=$POINTERTRIPLEPAGE_ELEM='';
+				if ($DEBUG) print "<hr><b>prettyprintURI</b>";
+				$elem	= trim(prettyprintURI($row[$var],$NAMESPACES)) ;
+				if ($DEBUG) print "<hr><b>separate_namespace (false)</b>";
+				$elem_simple = separate_namespace($NAMESPACES,$row[$var],':',false);
+				$TPAGELINK_ELEM=	strstr($elem,$ownnamespacename)
+							?	correct_rodin_url(  $row[$var], $NAMESPACES  )
+							:'';
+				
+				if ($TPAGELINK_ELEM)
+				{
+						$TITLE_TPAGELINK="Click to open dbRODIN LoD browser on \"$elem_simple\" in new tab";
+						$LINK=<<<EOX
+							onclick="window.open('$TPAGELINK_ELEM','_blank')"
+							title='$TITLE_TPAGELINK'
+							style="cursor:pointer"
+EOX;
+						$POINTERTRIPLEPAGE_ELEM=	" $IMG3P ";
+				}
+				$r.="<td nowrap=nowrap $LINK>&nbsp;".$elem.$POINTERTRIPLEPAGE_ELEM."</td>";
+
 			}
   		$r."</tr>";
 			print $r;
@@ -344,7 +403,7 @@ EOQ;
 		print '</table>';
 
 	}
-	return $rows;
+	return array($ITEMS,$rows);
 }
 
 

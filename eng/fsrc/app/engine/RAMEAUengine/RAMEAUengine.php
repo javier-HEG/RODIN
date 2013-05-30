@@ -36,13 +36,13 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 abstract class RAMEAUengine extends SRCengine
 {
 
-	
 	function __construct() 
 	#########################
 	{
    	parent::__construct();
 		$this->setStores();
     $this->currentclassname='RAMEAUengine';
+		//print "<br>cons RAMEAUengine executed";
 	
 	} //constructor 
 	
@@ -79,7 +79,7 @@ abstract class RAMEAUengine extends SRCengine
 	/**
 	 * @see SRCengine.preprocess_refine() for details.
 	 */
-	protected function preprocess_refine($terms, $wordbinding='RAMEAU', $lang='fr') {
+	protected function preprocess_refine($terms, $wordbinding='RAMEAU', $lang='fr', $mode='web') {
 		if ($this->getSrcDebug()) {
 			print "<br>RAMEAUengine->preprocess_refine($terms, $wordbinding, $lang);";
 		}

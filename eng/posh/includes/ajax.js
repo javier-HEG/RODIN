@@ -4201,7 +4201,7 @@ $p.app={
 		Function: logout
         
                                 $p.app.logout 
-                                
+                                Fabio Ricci - adapted to recall real server instead of __LOCALHOST on logout
                                 logout from Portaneo application
 	*/
 	logout: function()
@@ -4219,9 +4219,17 @@ $p.app={
 		}
 		if (response == 1) {
             $p.app.deleteCookies(cookiesTab);
-            var localfolder = __LOCALFOLDER;
-            localfolder = localfolder.replace(/http:/,window.location.protocol);
-			$p.url.openLink(localfolder+"portal/"+posh["scr_authentif"]+"?act=logout");
+            
+            //FRI
+            var path = window.location.pathname.replace('admin','portal');
+            path = path.substr(1,path.lastIndexOf("/"))
+            var localfolder = window.location.protocol+'//'+window.location.host + '/' + path;
+            var linkToOpen = localfolder+posh["scr_authentif"]+"?act=logout";
+						$p.url.openLink(linkToOpen);
+            
+            // var localfolder = __LOCALFOLDER;
+            // localfolder = localfolder.replace(/http:/,window.location.protocol);
+						// $p.url.openLink(localfolder+"portal/"+posh["scr_authentif"]+"?act=logout");
 		}
 
 		$p.plugin.hook.launch('app.logout.end');

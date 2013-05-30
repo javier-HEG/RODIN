@@ -41,7 +41,7 @@ abstract class STWengine extends SRCengine
 		$this->setStores();
     $this->currentclassname='STWengine';
 
-		//print "<br> STWengine<hr>"; var_dump($this);print "<hr>";
+		//print "<br>cons STWengine executed";
 	
 	} //constructor 
 	
@@ -88,7 +88,7 @@ abstract class STWengine extends SRCengine
 	/**
 	 * @see SRCengine.preprocess_refine() for details.
 	 */
-	protected function preprocess_refine($terms, $wordbinding='STW', $lang='en') {
+	protected function preprocess_refine($terms, $wordbinding='STW', $lang='en', $mode='web') {
 		if ($this->getSrcDebug()) {
 			print "<br>STWengine->preprocess_refine($terms, $wordbinding, $lang);";
 		}

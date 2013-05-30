@@ -189,7 +189,8 @@ div.oo-result-header-lod {
 }
 
 
-div.oo-result-header img {
+div.oo-result-header img,
+div.oo-result-header-lod img {
 	cursor: pointer;
 }
 

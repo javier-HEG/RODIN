@@ -79,7 +79,7 @@ abstract class GNDengine extends SRCengine
 	/**
 	 * @see SRCengine.preprocess_refine() for details.
 	 */
-	protected function preprocess_refine($terms, $wordbinding='GND', $lang='de') {
+	protected function preprocess_refine($terms, $wordbinding='GND', $lang='de',$mode='web') {
 		if ($this->getSrcDebug()) {
 			print "<br>GNDengine->preprocess_refine($terms, $wordbinding, $lang);";
 		}

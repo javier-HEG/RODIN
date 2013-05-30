@@ -706,16 +706,14 @@ function prettyprintURI($URIexpr,&$namespaces)
   
   if ($left)
   {
-    $left= separate_namespace($namespaces,$left.$SEP,':');
-    $right= regognize_change_descriptor_link($left,$right);  
+    $left= trim(separate_namespace($namespaces,$left.$SEP,':'));
+    $right= trim(regognize_change_descriptor_link($left,$right));  
   }  
   
   //print "<br>prettyprintURI($URIexpr)=($left,$right,$literal)";
-// <span class='urigray'>$left</span><span class='uribold'>$right</span> <span class='uriliteral'>$literal</span>
+	// <span class='urigray'>$left</span><span class='uribold'>$right</span> <span class='uriliteral'>$literal</span>
 
-  return <<< EOR
- $left<span class='uribold'>$right</span> <span class='uriliteral'>$literal</span>
-EOR;
+  return "$left<span class='uribold'>$right</span><span class='uriliteral'>$literal</span>";
 }
 
 

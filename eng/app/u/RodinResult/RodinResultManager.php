@@ -1,15 +1,34 @@
 <?php
 
-require_once 'RodinArticleResult.php';
-require_once 'RodinBookResult.php';
-require_once 'RodinUrlResult.php';
-require_once 'RodinPictureResult.php';
+//FRI: More flexible way to load code indep from position
 
-if (basename(getcwd()) == 'RodinResult') {
-	require_once '../../u/FRIdbUtilities.php';
-} else {
-	require_once '../u/FRIdbUtilities.php';
-}
+$filename='u/RodinResult/RodinArticleResult.php'; $maxretries=10;
+####################################################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+$filename='u/RodinResult/RodinBookResult.php'; $maxretries=10;
+####################################################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+$filename='u/RodinResult/RodinUrlResult.php'; $maxretries=10;
+####################################################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+$filename='u/RodinResult/RodinPictureResult.php'; $maxretries=10;
+####################################################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+$filename='u/FRIdbUtilities.php'; $maxretries=10;
+####################################################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+
+
+
 
 /**
  * A class responsible for managing the results collected by the
@@ -395,7 +414,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			{require_once("$updir$filenamex"); break;}}
 		
     global $aggView;
-		global $WANT_RFLAB, $RDFSEMEXPLABURL; // DEBUG
+		global $WANT_RFLAB, $RDFSEMEXPLABURL, $RDFIZEURL ; // DEBUG
 		global $SOLR_RODIN_CONFIG;
 		global $RODINUTILITIES_GEN_URL;
     global $SOLR_MLT_MINSCORE;
@@ -456,7 +475,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
       $solr_sxml= simplexml_load_string($filecontent);
 			
       if ((!$aggView) &&
-      		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x' || $RODINSEGMENT=='st') 
+      		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x') 
               || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on p, x, st 
       {  
         $solr_real_url=get_solrbridge($solr_result_query_url);
@@ -473,9 +492,11 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
       		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x' || $RODINSEGMENT=='st') 
               || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on p, st 
       {
-      	$RDFSEMEXPLABURL.="?sid=$sid&datasource=$datasource&listwr=on&user_id=".$_SESSION['user_id']."&username=".$_SESSION['username'];  
-        print "&nbsp;<a href='$RDFSEMEXPLABURL' target='_blank' title='Click to open RDFLAB on these results in a new TAB'>rdflab $RDFLAB_LINK</a>";
-      	$needbr=true;
+      	$LABPARAMS="?sid=$sid&datasource=$datasource&listwr=on&user_id=".$_SESSION['user_id']."&username=".$_SESSION['username'];  
+      	$RDFIZEURL.=$LABPARAMS;
+      	$RDFSEMEXPLABURL.=$LABPARAMS;
+        print "&nbsp;<a href='$RDFIZEURL' target='_blank' title='Click to open RDFIZE (new efficient prototype) on these results in a new TAB'>rdfize $RDFLAB_LINK</a>";
+	     	$needbr=true;
 			}
 			if ($needbr) print "<br>";
       //print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
@@ -800,7 +821,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 																											&$subjects  )
 	{
 		
-		$debug=1;
+		$debug=0;
 		global $RDFLOG;
 		
 		if ($debug)
@@ -811,7 +832,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			."<br>date_created=($date_created)"
 			."<br>source_url=($source_url)"
 			."<br>identifier_url=($identifier_url)"
-			."<br>authors=["; foreach($authors as $kind=>$values) { $RDFLOG.="$kind: "; foreach($values as $a) $RDFLOG.="$a,"; }
+			."<br>authors=["; if (is_array($authors)&&count($authors)) foreach($authors as $kind=>$values) { $RDFLOG.="$kind: "; foreach($values as $a) $RDFLOG.="$a,"; }
 			$RDFLOG.="]<br>subjects=";foreach($subjects as $a) $RDFLOG.="$a,";
 			$RDFLOG.="]<br>";
 		}

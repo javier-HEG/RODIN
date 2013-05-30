@@ -224,7 +224,7 @@ function init_SOLRCLIENT($collection_name,$errortext_not_init)
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
   global $SOLRCLIENT;
-  
+	
   $resultNumber=0;
   #USE SOLR COLLECTION 'rodin_result':
   if (! $SOLRCLIENT)
@@ -242,6 +242,7 @@ function init_SOLRCLIENT($collection_name,$errortext_not_init)
     if ((! ($SOLRCLIENT=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout))))
     { print $errortext_not_init; } 
   } 
+
   return $SOLRCLIENT;
 }
 
@@ -382,6 +383,34 @@ function solr_collection_http_access($collection='rodin_search')
   
   return array('',true);
 } 
+
+
+
+
+
+/**
+ * Removes in $collection all docs matching $DELETEQUALIFICATION
+ * e.g.: $DELETEQUALIFICATION="id:$sid*"
+ */
+function 	solr_delete_documents($collection,$DELETEQUALIFICATION)
+{
+	$DEBUG=0;
+	if ($DEBUG) print "<br>solr_delete_documents($collection,$DELETEQUALIFICATION): ";
+	$solr_user= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
+  $solr_host= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['host']; //=$HOST;
+  $solr_port= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['port']; //=$SOLR_PORT;
+  $solr_path= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['path']; //='/solr/rodin_result/';
+  if (($client = init_SOLRCLIENT($collection,'solr_collection_empty system error solr_delete_documents')))
+  {
+  	$update = $client->createUpdate();
+		$update->addDeleteQuery($DELETEQUALIFICATION);
+		$update->addCommit();
+		$result = $client->update($update);
+		
+		if ($DEBUG) print "<br>STATUS: ".$result->getStatus();
+	}
+}
+
 
 
 

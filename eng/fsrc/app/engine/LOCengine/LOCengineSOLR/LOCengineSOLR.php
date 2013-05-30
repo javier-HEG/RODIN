@@ -31,6 +31,7 @@ class LOCengineSOLR extends LOCengine
 	protected $bnf_loc_namespaces;
   protected $solr_collection;
 	protected $namespaces;
+	protected $LOC_SUGGESTION_FIELDS;
   
 	function __construct() 
 	#########################
@@ -44,6 +45,17 @@ class LOCengineSOLR extends LOCengine
 
     $this->maxROWSinSOLR_eachEntity = 10; // 10 rows each entity in LOC SOLR
     $this->namespaces= get_namespaces_from_DB();
+
+		$this->LOC_SUGGESTION_FIELDS = array(
+                                    'id',
+                                    'score',
+                                    'skos_prefLabel_fr',
+                                    'skos_prefLabel_en',
+                                    'skos_prefLabel_de',
+                                    'skos_prefLabel_es',
+                                    'skos_prefLabel_it',
+                                	);
+
 
 	} //LOCengineSOLR constructor 
 	
@@ -74,7 +86,7 @@ class LOCengineSOLR extends LOCengine
 	 *
 	 * returns an OBJ containing ranked broader/narrower/related results and the labels of the node(s) found
 	 */
-	public function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard')
+	public function refine_skos_solr($text, $q, $m, $lang, $sortrank='standard',$mode='web')
 	{	
 	 	global $TERM_SEPARATOR;
 
@@ -94,7 +106,7 @@ class LOCengineSOLR extends LOCengine
       // call SLOR LOC engine for each term in $text using the default solr dismax query handler
       if (trim($text))
       {
-        $LOC_SKOSResult = $this->refine_skos_solr_method( trim($text),$m,$lang );
+        $LOC_SKOSResult = $this->refine_skos_solr_method( trim($text),$m,$lang,$mode );
         list($broader_terms,  $broader_descriptors,   $B_ROOTPATHS)= $LOC_SKOSResult->broader;
         list($narrower_terms, $narrower_descriptors,  $N_ROOTPATHS)= $LOC_SKOSResult->narrower;
         list($related_terms,  $related_descriptors,   $R_ROOTPATHS)= $LOC_SKOSResult->related;
@@ -142,7 +154,8 @@ class LOCengineSOLR extends LOCengine
 		} // ok
     
     
-		return array( new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
+		return array( $LOC_SKOSResult->suggested,
+									new SRCEngineResult(trim($broader_refined_terms), trim($broader_refined_terms_raw),  $B_ROOTPATHS),
                   new SRCEngineResult(trim($narrower_refined_terms),trim($narrower_refined_terms_raw), $N_ROOTPATHS),
                   new SRCEngineResult(trim($related_refined_terms), trim($related_refined_terms_raw),  $R_ROOTPATHS) );
 	} // refine_skos_solr
@@ -151,7 +164,7 @@ class LOCengineSOLR extends LOCengine
   
   
   
-  public function refine_skos_solr_method($term,$m,$lang)
+  public function refine_skos_solr_method($term,$m,$lang,$mode)
 	############################################################
   # Find Terme related to $action 
 	{ 
@@ -167,7 +180,7 @@ class LOCengineSOLR extends LOCengine
 		
 		if ($descriptor) # Request was made on a node (descriptor) exactely
 		{
-       $LOC_SKOSResult  =  $this->get_loc_skos_nodes_SOLR(null,$descriptor,$m,$lang);
+       $LOC_SKOSResult  =  $this->get_loc_skos_nodes_SOLR(null,$descriptor,$m,$lang,$mode);
 		} # node
 		###########################################
 		else # Request is on text
@@ -175,7 +188,7 @@ class LOCengineSOLR extends LOCengine
       $term= $this->formatAsInThesaurus($term);
 			// ----- Search for Labels in LOC SOLR  ------
 
-      $LOC_SKOSResult  = $this->get_skos_loc_nodes_SOLR($term,null,$m,$lang);
+      $LOC_SKOSResult  = $this->get_skos_loc_nodes_SOLR($term,null,$m,$lang,$mode);
       /* in $LOC_SKOSResult ar all results for each node */
       
 		}  //text	
@@ -190,27 +203,26 @@ class LOCengineSOLR extends LOCengine
       print "<br>refine_skos_solr_method RESULT SKOS ($term):";
       var_dump($LOC_SKOSResult); print "<br>";
 
-			if (count($BROADER_DESC))
-			{
-				print "<br>".count($BROADER_DESC)." broader terms found!";
-				for($i=0;$i<count($BROADER_DESC);$i++)
-        {
-          $desc=$BROADER_DESC[$i];
-          $label=$BROADER_LABELS[$i];
-						print "<br> broader --> <b>$label ($desc)</b>";
-				}
-        for($i=0;$i<count($NARROWER_DESC);$i++)
-        {
-          $desc=$NARROWER_DESC[$i];
-          $label=$NARROWER_LABELS[$i];
-						print "<br> narrower --> <b>$label ($desc)</b>";
-				}
-        for($i=0;$i<count($RELATED_DESC);$i++)
-        {
-          $desc=$RELATED_DESC[$i];
-          $label=$RELATED_LABELS[$i];
-						print "<br> related --> <b>$label ($desc)</b>";
-				}
+			print "<br>".count($BROADER_DESC)." broader terms found!!";
+			for($i=0;$i<count($BROADER_DESC);$i++)
+      {
+        $desc=$BROADER_DESC[$i];
+        $label=$BROADER_LABELS[$i];
+					print "<br> broader $desc --> <b>$label ($desc)</b>";
+			}
+			print "<br>".count($NARROWER_DESC)." narrower terms found!!";
+      for($i=0;$i<count($NARROWER_DESC);$i++)
+      {
+        $desc=$NARROWER_DESC[$i];
+        $label=$NARROWER_LABELS[$i];
+					print "<br> narrower $desc --> <b>$label ($desc)</b>";
+			}
+			print "<br>".count($RELATED_DESC)." related terms found!!";
+      for($i=0;$i<count($RELATED_DESC);$i++)
+      {
+        $desc=$RELATED_DESC[$i];
+        $label=$RELATED_LABELS[$i];
+					print "<br> related $desc --> <b>$label ($desc)</b>";
 			}
 		} // text
     
@@ -392,7 +404,7 @@ class LOCengineSOLR extends LOCengine
     if (($SOLRCLIENT = init_SOLRCLIENT($this->solr_collection,'solr_index_skos_namespaces system error init SOLRCLIENT')))
     {
       $SOLRCLIENT->getPlugin('postbigrequest');
-
+			
       // get a select query instance
       $query = $SOLRCLIENT->createSelect();
       
@@ -451,7 +463,7 @@ class LOCengineSOLR extends LOCengine
 /*
  * Returns an LOC SKOS NODE corresponding to a SOLR search for '$term'
  */
-private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
+private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 {
   if (!$term && !$descriptor)
     print "System error: get_loc_skos_nodes_SOLR called with neither a term nor a descriptor!";
@@ -465,6 +477,25 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
     if (($SOLRCLIENT = init_SOLRCLIENT($this->solr_collection,'solr_index_skos_namespaces system error init SOLRCLIENT')))
     {
       $SOLRCLIENT->getPlugin('postbigrequest');
+			
+			$suggestions = array();
+			if ($mode=='autocomplete')
+			{
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_en',$term,$this->LOC_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_fr',$term,$this->LOC_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_de',$term,$this->LOC_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_es',$term,$this->LOC_SUGGESTION_FIELDS);
+				//No suggestions for this language? try again in another language:
+				if (!count($suggestions))
+				$suggestions = $this->collect_labels_for_autocomplete($SOLRCLIENT,SRCengine::$maxsuggestions,'skos_prefLabel_it',$term,$this->LOC_SUGGESTION_FIELDS);
+			} // autocomplete
+      
 
       // get a select query instance
       $query = $SOLRCLIENT->createSelect();
@@ -569,11 +600,27 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
     else
       print "SYSTEM ERROR: NO ACCESS TO SOLR COLLECTION: ".$this->solr_collection;
     // Processing... resolving descriptors... all at once
-    
+    if ($this->getVerbose())
+		{
+				$c_b=count($BROADER_DESC);
+				$c_n=count($NARROWER_DESC);
+				$c_r=count($RELATED_DESC);
+        print "<br>SPLICE ($c_b,$c_n,$c_r) vectors to max $m elements...";
+		}
+		
     //Limit found descriptors to exactely to $m
-    $BROADER_DESC=array_splice($BROADER_DESC,$m);
-		$NARROWER_DESC=array_splice($NARROWER_DESC,$m);
-		$RELATED_DESC=array_splice($RELATED_DESC,$m);
+    array_splice($BROADER_DESC,$m);
+		array_splice($NARROWER_DESC,$m);
+		array_splice($RELATED_DESC,$m);
+		
+    if ($this->getVerbose())
+		{
+				$c_b=count($BROADER_DESC);
+				$c_n=count($NARROWER_DESC);
+				$c_r=count($RELATED_DESC);
+        print " obtaining ($c_b,$c_n,$c_r) ";			
+		}		
+		
     
     list ($BROADER_LABELS,
           $NARROWER_LABELS,
@@ -608,20 +655,25 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
 
     } 
   
-    
-    //Compute each ID the path
-    $LOCALrootPATH = $this->walk_loc_root_path($ID0,$lang,$recursion=0);
-    if ($this->getSrcDebug())
-    {
-      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
-    }
-    Logger::logAction(25, array('from'=>'LOCengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
-
+    if ($mode=='web')
+		{
+	    //Compute each ID the path
+	    $LOCALrootPATH = $this->walk_loc_root_path($ID0,$lang,$recursion=0);
+	    if ($this->getSrcDebug())
+	    {
+	      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
+	    }
+	    $LRP_B= $this->rootpaths($LOCALrootPATH,$BROADER_LABELS);
+			$LRP_N= $this->rootpaths($LOCALrootPATH,$NARROWER_LABELS);
+			$LRP_R= $this->rootpaths($LOCALrootPATH,$RELATED_LABELS);
+	    
+	    Logger::logAction(25, array('from'=>'LOCengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
+		}
     //Compute all other paths by using $LOCALrootPATH adding the current label.
     
-   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'bnf') ,$this->rootpaths($LOCALrootPATH,$BROADER_LABELS)); 
-   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'bnf'),$this->rootpaths($LOCALrootPATH,$NARROWER_LABELS)); 
-   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'bnf') ,$this->rootpaths($LOCALrootPATH,$RELATED_LABELS)); 
+   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'bnf') , $LRP_B); 
+   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'bnf'), $LRP_N); 
+   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'bnf') , $LRP_R); 
   
     if ($this->getSrcDebug())
     {
@@ -632,7 +684,7 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
   
   
   
-	return new SRCEngineSKOSResult ( $B, $N, $R );
+	return new SRCEngineSKOSResult ( $suggestions, $B, $N, $R );
 } // get_loc_skos_nodes_SOLR
 
 
@@ -689,6 +741,7 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
     
     //Pick up only the needed ones:
     $NEEDED_FIELD='skos_prefLabel_'.$lang;
+    $descriptor_label=array();
     
     $FIELDS=array('id',$NEEDED_FIELD);
     
@@ -699,52 +752,75 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
       // get a select query instance
       $query = $SOLRCLIENT->createSelect();
       
+			if ($this->getVerbose())
+			{
+				print "<br>Descriptors: <br>"; foreach($descriptors as $descriptor) print "$descriptor, ";
+			}
+			
       /* Create a disjunction with each of &$BROADER_DESC,&$NARROWER_DESC,&$RELATED_DESC :*/
       foreach($descriptors as $descriptor)
       {
-        //Add only different descriptors:
-        if (!$already_using_descriptor{$descriptor})
-        {
-          $already_using_descriptor{$descriptor} = true;
-          $disjunction.=$disjunction?' OR ':'';
-          $disjunction.="id:$descriptor";
-        }
+      	$test_desc='x'.$descriptor;
+      	if ($this->getVerbose())
+					print "<br>Test strstr(($test_desc),'locas_sh') : ".strstr($test_desc,'locas_sh');
+      	if (strstr($test_desc,'locas_sh')) // sometime jerk is coming .. better be sure
+				{
+	        //Add only different descriptors:
+	        if (!$already_using_descriptor{$descriptor}) // put it only once inside query
+	        {
+	          $already_using_descriptor{$descriptor} = true;
+	          $disjunction.=$disjunction?' OR ':'';
+	          $disjunction.="id:$descriptor";
+	        }
+				}
       }
 			$disjunction = str_replace("ark:","ark\\:",$disjunction);
 
-      //Query all entities with id in $descriptors
-      $query->createFilterQuery('id')->setQuery($disjunction);
+			if ($this->getVerbose())
+	    {
+	    	print "<br>query disjunction: ((($disjunction)))";
+			}
 
-      if ($this->getVerbose())
-      {
-        print "<br>resolve_skos_loc_descriptors query=($disjunction) ...";
-      }
-      
-      // set start and rows param (comparable to SQL limit) using fluent interface
-      $query->setStart(0)->setRows(2 * $descriptors_count); // retrieve max $m rows (altLabels and prefLabels)
 
-      // set fields to fetch (this overrides the default setting 'all fields')
-      $query->setFields($FIELDS);
-
-      // sort the results by id ascending
-      // $query->addSort('id', Solarium_Query_Select::SORT_ASC);
-
-      // this executes the query and returns the result
-      $resultset = $SOLRCLIENT->select($query);
-      $noofresults=$resultset->getNumFound();
-      $descriptor_label=array();
+			if ($disjunction)
+			{
+	      //Query all entities with id in $descriptors
+	      $query->createFilterQuery('id')->setQuery($disjunction);
+	
+	      if ($this->getVerbose())
+	      {
+	        print "<br>resolve_skos_loc_descriptors query=($disjunction) ...";
+	      }
+	      
+	      // set start and rows param (comparable to SQL limit) using fluent interface
+	      $query->setStart(0)->setRows(2 * $descriptors_count); // retrieve max $m rows (altLabels and prefLabels)
+	
+	      // set fields to fetch (this overrides the default setting 'all fields')
+	      $query->setFields($FIELDS);
+	
+	      // sort the results by id ascending
+	      // $query->addSort('id', Solarium_Query_Select::SORT_ASC);
+	
+	      // this executes the query and returns the result
+	      $resultset = $SOLRCLIENT->select($query);
+	      $noofresults=$resultset->getNumFound();
+			}
+			else
+			{
+	      $noofresults=0;
+			}
       
       if ($this->getVerbose())
       {
         print "<br>fieldquery: (($disjunction))";
         print "<br>FIELDS for language=$lang: <br>";
         var_dump($FIELDS);
-        print "<br>$noofresults results found for query: <br>";
+        print "<br>$noofresults results found for query. resultset: <br>";
         var_dump($resultset);
         print "<br>";
       }
       
-      
+      if ($resultset)
       foreach ($resultset as $document) 
       {
         foreach($document AS $fieldname => $value)
@@ -759,6 +835,7 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
           }  
         } // each fieldname
         $descriptor_label{$id}=cleanup_comma_in_descr_label($label); // right label to right id
+        
       } // foreach $document
     } // $SOLRCLIENT
     
@@ -822,9 +899,10 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
  * 
  * See also rootpaths() to pack information
  */
-  private function walk_loc_root_path($descriptor,$lang='fr',$recursion=0)
+  private function walk_loc_root_path($descriptor,$lang='en',$recursion=0)
   {
-  	if (trim($descriptor)=='')
+  	if (trim($descriptor)=='' 
+		|| (!strstr('x'.$descriptor,'loc')))
 		{
 			return '';
 		}
@@ -843,7 +921,7 @@ private function get_skos_loc_nodes_SOLR($term,$descriptor,$m,$lang)
     {
       print "<br>walk_loc_root_path($descriptor) superated MAXRECURSION=$MAXRECURSION";
       print "<br>PLEASE ANALYSE the case and enhance the MAXRECURSION value! ";
-      print "<br>Recursion PRUNED";
+      print "<br>Recursion PRUNED here";
       return '';
     }  
     
