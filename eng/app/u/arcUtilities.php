@@ -427,6 +427,7 @@ EOX;
 	{
 		$DEBUG=0;
 		global $RODINLOGO;
+		global $PROT;
 		global $URL_MANTIS;
 		global $lodLABHOMEPAGEURL;
 		global $RODINUTILITIES_GEN_URL;
@@ -1277,6 +1278,7 @@ EOR;
 	{
 		$DEBUG=0;
 		global $RDFLOG;
+		
 		$subject_arr = array();
 		if (!$cache_id) $cache_id="relatedsubjects.$src_name.$subject.$lang.$limit";
 		
@@ -1291,19 +1293,19 @@ select ?srelated
   ?s ?_ "$subject" .
   ?s dce:subject ?srelated .
 	FILTER(?srelated != "$subject") .
-} limit $limit		
+} limit $limit
 EOQ;
 
 		//print "<br> get_cached_related_subjects_from_sparql_endpoint cache_id=$cache_id";
 
 		if ($DEBUG)
-		$RDFLOG.= "<br>get_cached_related_subjects_from_sparql_endpoint:";
+		$RDFLOG.= "<br>get_cached_related_subjects_from_sparql_endpoint: cache_id=($cache_id";
 
 		$url_endpoint= $sds_sparql_endpoint
 								 	.'?query='.urlencode($sparqlquery)
 									.'&'.$sds_sparql_endpoint_params;
 		if ($DEBUG) {
-      	$RDFLOG.= "<br><br>USING SOLR CACHED SOURCE for subject expansion ".str_replace("\n","<br>",htmlentities(urldecode($url_endpoint)))."<br><br>";
+      	$RDFLOG.= "<br><br>USING SOLR CACHED SOURCE for subject expansion<br>".str_replace("\n","<br>",htmlentities(urldecode($url_endpoint)))."<br><br>";
      }
 		
 		//cache_src_response($cache_id,$xml_src_content)
@@ -1327,8 +1329,10 @@ EOQ;
       }
 			Logger::logAction(27, array('from'=>'get_cached_related_subjects_from_sparql_endpoint','msg'=>"Open $url_endpoint"),$sid);
 			
+			if ($DEBUG) $RDFLOG.="<br>Calling $url_endpoint";
 			$xml_content=get_file_content($url_endpoint);
-		
+			
+			if ($DEBUG) $RDFLOG.="<br>Getting: (((".htmlentities($xml_content)."))))";
 			cache_src_response($cache_id,$xml_content);
 			$xmlCached_content = $xml_content;
 		}
@@ -1339,6 +1343,7 @@ EOQ;
 			}
 		}
 
+		if ($DEBUG) $RDFLOG.="<br>NOW CHECKING VALID XML";
 		$valid_xml=true;
 		$xml_content_len=count($xmlCached_content);
 		if (datasource_error($xmlCached_content,$src_name))
@@ -1350,21 +1355,27 @@ EOQ;
 						."<br><br>Using url:"
 						."<br>$url_endpoint";
 			$valid_xml=false;
-	 		Logger::logAction(27, array('from'=>'get_cached_related_subjects_from_sparql_endpoint','msg'=>"Invalid XML retrieved ($xml_content_len bytes)"),$sid);
+	 		Logger::logAction(27, array('from'=>'get_cached_related_subjects_from_sparql_endpoint','msg'=>$msg="Invalid XML retrieved ($xml_content_len bytes)"),$sid);
+			if ($DEBUG) $RDFLOG.="<br>$msr";
 		}
 		
 		if ($valid_xml)
 		{
 			//scan/open $xmlCached_content for later use
-			//print "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
+			if ($DEBUG) $RDFLOG.="<br>VALID XML GOT FROM $src_name:"; //print "<br>XML GOT FROM $src_name:<br>".htmlentities($xmlCached_content);
 			$xml_content_len = strlen($xmlCached_content);
 			Logger::logAction(27, array('from'=>'get_cached_related_subjects_from_sparql_endpoint','msg'=>"Analyse content ($xml_content_len bytes)"),$sid);
 			
 			$sxmldom=simplexml_load_string($xmlCached_content,'SimpleXMLElement', LIBXML_NOCDATA);
-			//if (is_array($sxmldom->results))
+			
+			if ($DEBUG) 
 			{
-				//print "<br>ARRAY subext $src_name on '$subject': <br>";var_dump($sxmldom->results->result);
-				if (is_array($sxmldom->results->result) && count($sxmldom->results->result))
+				 print "<hr>ARRAY subext $src_name on '$subject': count=".count($sxmldom->results->result)."<br>";var_dump($sxmldom->results->result);
+				$RDFLOG.="<br> <hr>ARRAY subext $src_name on '$subject': count=".count($sxmldom->results->result)."<br> " .print_r($sxmldom->results->result);
+			}
+			
+			if ($sxmldom->results->result)
+			{
 				foreach($sxmldom->results->result as $_=>$result)
 				{
 					$rel_sub=trim($related_sub=$result->binding->literal."");
@@ -1375,8 +1386,8 @@ EOQ;
 						if ($DEBUG) $RDFLOG.="<br>CONSIDER nth related subject ($subject_candidate)";
 						insert_filtered_once($subject_candidate,$subject_arr,$lang);
 					}
-				}
-			}
+				} // foreach
+			} else {if ($DEBUG) $RDFLOG.="<br>NO RESULT CHILDREN PARSED IN XML";}
 			
 			if ($DEBUG)
 			{
@@ -1390,6 +1401,7 @@ EOQ;
 			
 			Logger::logAction(27, array('from'=>'get_cached_related_subjects_from_sparql_endpoint','msg'=>"Exit"),$sid);
 		} // valid xml
+		else {if ($DEBUG) $RDFLOG.="<br>INVALID XML - NO RESULTS DELIVERED";}
 		return $subject_arr;
 	}	// get_cached_related_subjects_from_sparql_endpoint
 		
@@ -1414,12 +1426,12 @@ EOQ;
 		$DEBUG=0;
 		global $sid; if(!$sid) fontprint('insert_filtered_once: sid not set globally','red');
 		
+		if ($DEBUG) $RDFLOG.="<br>insert_filtered_once($candidate):";
 		if (!discard_subject_word_candidate($candidate))
 		{
 			//The following is the same as on a triple subject but allows minus sign as trade d'union (natural language)
 			if (($subject=filter_as_subject($candidate,'/[0-9&!;\\\.\:_\[\]\(\)]+/')))
 			{
-				//print "==> FILTERED TO: $subject";
 				if ($DEBUG) $RDFLOG.="<br>insert_filtered_once() Considering subject '$subject' in language $lang";
 				
 				if (($langt=detectLanguageAndLog($subject,'insert_filtered_once',$sid))==$lang || ($tolerated_lang<>'' && $langt==$tolerated_lang))
@@ -2727,7 +2739,7 @@ EOQ;
 			$i++;
 			$src_name=$SRC['Name'];
 			$src_path=trim($SRC['Path_Refine']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
-			$sds_sparql_endpoint=trim($SRC['sparql_endpoint']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+			$src_sparql_endpoint=trim($SRC['sparql_endpoint']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
 			$src_sparql_endpoint_params=trim($SRC['sparql_endpoint_params']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
 						
 			//print "<br>src_path: ($src_path)";
@@ -2755,7 +2767,7 @@ EOQ;
 			$autocomplete_uri	=$SRC['autocomplete_uri'];
 
 			//Is this a classical SRC or nonSKOS a sparql endpoint ?
-			$IS_REMOTE_SPARQL_ENDPOINT=(($sds_sparql_endpoint<>'' || $autocomplete_uri<>'' ));
+			$IS_REMOTE_SPARQL_ENDPOINT=(($src_sparql_endpoint_params<>'' || $autocomplete_uri<>'' ));
 			
 			$basic_path_sroot=str_replace('//','/',$DISKfsrcPATH."/sroot.php");
 			$basic_path_SRCengine=str_replace('//','/',$DISKenginePATH.'/SRCengine.php');
@@ -2776,8 +2788,8 @@ EOQ;
 			
 			$INITIALISED_SRCs[]= array(	$src_name,
 																	$IS_REMOTE_SPARQL_ENDPOINT,
-																	$sds_sparql_endpoint,
-																	$sds_sparql_endpoint_params,
+																	$src_sparql_endpoint,
+																	$src_sparql_endpoint_params,
 																	$LOCAL_SRC,
 																	$DISKenginePATH,
 																	$basic_path_sroot,

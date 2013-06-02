@@ -531,6 +531,11 @@ function format3pos(num)
 		//alert('aftersearch_actions:  '+what);
 		unlock_ontosearch_dialog(what);
 
+		/*Hide Autocomplete brute force - to be sure ...*/
+		var autocomplete= document.getElementById(AUTOCOMPLETECONTAINER_ID);
+		if (autocomplete)
+			autocomplete.style.display='none';
+		
     //Force always the comp of onto highlights:
     ONTOTERMS_REDO_HIGHLIGHTING=true;
     mark_ontoterms_on_resultmatch();
@@ -752,6 +757,12 @@ function fri_rodin_do_onto_search_wrap(blankurl,variables) {
 	var lang = getLanguageForOntofacets();
 
 	eclog('fri_rodin_do_onto_search_wrap Start (terms=['+terms+'])');
+
+	/*Hide Autocomplete brute force - to be sure ...*/
+	var autocomplete= document.getElementById(AUTOCOMPLETECONTAINER_ID);
+	if (autocomplete)
+		autocomplete.style.display='none';
+
 
 	fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass);
 }

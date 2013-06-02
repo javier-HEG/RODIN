@@ -203,7 +203,7 @@ EOAM;
 	$SOLR_LOGO='';
   if ($RESULTS_STORE_METHOD=='solr')
   {
-  	if ($RODINSEGMENT=='eng')
+  	if ($RODINSEGMENT=='eng' && 0)
  			$SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
   }
 

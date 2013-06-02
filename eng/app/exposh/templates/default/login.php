@@ -114,57 +114,85 @@ body {
 <body>
 <div id="cache" style="position:absolute;left:0;top:0;z-index:8;display:none;"></div>
 
-<div class="noportal" id="noportal">
+<div p=0 class="noportal" id="noportal">
 
-<div width="100%">
-	<div align="center" style="padding-top:150px">
-		<div class="raised">
+<div p=1 width="100%">
+	<div p=2 align="center" style="padding-top:150px">
+		<div p=3 class="raised">
 			<b class="b1"></b><b class="b2"></b><b class="b3"></b><b class="b4"></b>
-			<div class="boxcontent">
-				<div id="loginbox">
-                
-					<div align="left" id="header" bgcolor="#ffffff">
+			<div p=4 class="boxcontent">
+				<div p=5 id="loginbox">
+					<div p=6 align="left" id="header" bgcolor="#ffffff">
 						<div id="no-logo" style="float: left;">
 							<a href="../portal/index.php">
 								<img src="../images/logo_portal.gif" style="width: 150px;" />
 							</a>
 						</div>
-					</div>
-                    <div id="loginscreen" style="padding-top: 10px">
-					 
-						<div style="float: left;width: 150px;">
-							<h2><?php echo lg("connection");?> ></h2>
-                            <div id="msg_conn">&nbsp;</div>
-                            <div id="passhlp">&nbsp;</div>
-                        </div>
-                       
+					</div p=6>
+          <div id="loginscreen" style="padding-top: 15px">
 						<div id="displayPart">
-<?php
-	if ($message!='') echo '<font color="#ff0000"><script type="text/javascript">document.write(lg("'.$message.'"));</script></font><br /><br />';
-?>
-							<form method="post" action="" onsubmit="return $p.app.connection.set(this,$p.app.pages.isPageExisting)">
-							<label><b><?php echo (__accountType=="mail"?lg("email"):lg("login"));?></b></label><br />
-							<input type="text" name="username" maxlength="64" style="width: 280px;" class="thinbox" /><br /><br />
-							<label><b><?php echo lg("password");?></b></label><br />
-							<?php launch_hook('display_login_form'); ?>
-							<input type="password" name="password" maxlength="16" style="width: 280px;" class="thinbox" /><br /><br />
-							<input type="checkbox" name="autoconn" /> <?php echo lg("automaticConnection");?><br /><br />
-							<input type="submit" class="btn" value="<?php echo lg("connection");?>" />
+						<?php
+							if ($message!='') echo '<font color="#ff0000"><script type="text/javascript">document.write(lg("'.$message.'"));</script></font><br><br>';
+						?>
+						<?php launch_hook('display_login_form'); ?>
+						<form method="post" action="" onsubmit="return $p.app.connection.set(this,$p.app.pages.isPageExisting)">
+							<table border=0 cellspacing=1 cellpadding=1>
+								<tr>
+									<td colspan=2>
+										<label style='font-size: x-large'><?php echo lg("connection");?> </label>
+									</td>
+								</tr>
+								<tr height=10>
+								<tr>
+									<td colspan=2>
+										<label><b><?php echo (__accountType=="mail"?lg("email"):lg("login"));?></b></label>
+									</td>
+								</tr>
+								<tr>
+									<td colspan=2>
+										<input tabindex=1 type="text" name="username" maxlength="64" style="width: 280px;" class="thinbox">
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label><b><?php echo lg("password");?></b></label>
+									</td>
+									<td align=right>
+										<label id='passhlplabel' style='font-size: x-small'></label>
+										<script type="text/javascript">
+											$p.print("passhlp",$p.app.connection.link2MissingPassword('passhlplabel'));
+										</script>
+									</td>
+								</tr>
+								<tr>
+									<td colspan=2>
+										<input tabindex=2 type="password" name="password" maxlength="16" style="width: 280px;" class="thinbox">
+									</td>
+								</tr>
+								<tr>
+									<td colspan=2>
+										<input type="checkbox" name="autoconn" /> <?php echo lg("automaticConnection");?>
+									</td>
+								</tr>
+								<tr height=15></tr>
+								<tr>
+									<td colspan=2>
+										<input tabindex=3 type="submit" class="btn" value="<?php echo lg("connection");?>" />
+									</td>
+								</tr>
+							</table>
 							</form>
 						</div>
-                    </div>
-				</div>
-			</div>
+          </div id=loginscreen>
+				</div p=5>
+			</div p=4>
 			<b class="b4b"></b><b class="b3b"></b><b class="b2b"></b><b class="b1b"></b>
-		</div>
-	</div>
-</div>
-
-</div>
+		</div p=3>
+	</div p=2>
+ </div p=1>
+</div p=0>
 <div style="display:none"><disconnected>1</disconnected></div>
 <div id="debug"></div>
-<script type="text/javascript">
-$p.print("passhlp",$p.app.connection.link2MissingPassword());
-</script>
+
 </body>
 </html>

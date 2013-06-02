@@ -1209,7 +1209,7 @@ print <<<EOP
 EOP;
 print <<<EOP
 		<tr>	
-			<td $CALLEDOPT>Duration $remote_lodfetch_calls REMOTE NEW SRC CALLs subexp:
+			<td $CALLEDOPT>Duration $remote_lodfetch_calls REMOTE NEW LOD CALLs docfetch:
 			</td>
 			<td $CALLEDOPT>$all_duration_lodfetch_remote secs
 			</td>

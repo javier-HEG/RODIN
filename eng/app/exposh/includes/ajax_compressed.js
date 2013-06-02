@@ -20597,11 +20597,17 @@ $p.app.connection={
        
         $p.print("specificMenu",l_s);
 	},
-    link2MissingPassword: function () {
-        var url = '<p><a class="w" id="ls_missingpass" onclick="return $p.app.connection.buildmissingPasswordForm();" href="'+posh["password_missing"]+'" target="_blank">'
+	  /* FRI mai 2013: changed the function to set innerHTML instead of bad positionable $p.print() */
+    link2MissingPassword: function (labelid) {
+        var passhlp = '<a class="w" id="ls_missingpass" onclick="return $p.app.connection.buildmissingPasswordForm();" href="'+posh["password_missing"]+'" target="_blank">'
                 +lg('lblMissingPassword')
-                +'</a></p>';
-        return url;
+                +'</a>';
+        var lab=document.getElementById(labelid);
+        if (lab) 
+        {
+        	lab.innerHTML=passhlp;
+        }
+        else alert('notfound: '+labelid);
     },
 	/*
 		Function: menu
@@ -20672,7 +20678,7 @@ $p.app.connection={
 			</script>\
 		</div>\
 		<div>\
-        <a href="#" id="help_screen_conn" onclick="return $p.app.connection.back(\'displayPart\');">back to the login screen</a>\
+        <a href="#" style="color:black" id="help_screen_conn" onclick="return $p.app.connection.back(\'displayPart\');">back to the login screen</a>\
 		</div>\
     ';
     

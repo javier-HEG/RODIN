@@ -1165,6 +1165,7 @@ class RDFprocessor {
 			$rank = $ranked_docs{$rdoc_uid};
 			// rank the result corresponding to this doc with $rank
 			$result->setRank($rank);
+			$ranked_docs_list{$rdoc_uid}=$rank;
 		} // foreach $ranked_docs
 		RodinResultManager::saveRodinResults($this->rodin_results, $this->sid, $datasource='', $timestamp='');
 				
@@ -1282,6 +1283,7 @@ class RDFprocessor {
 						RodinResultManager::saveRodinResults($allResults=array($R), $this->sid, $datasource='extern', $timestamp='');
 						$oldtitle=$title;
 						$added_documents++;
+						$ranked_docs_list{$docuid}=$rank;
 						
 						if ($added_documents >= $C::$rdfp_MAX_LOD_DOC_ADD)
 						{
@@ -1295,7 +1297,7 @@ class RDFprocessor {
 				$RDFLOG.=htmlprint("<br>Error adding external document ($docuid)",'red');
 		} // $ranked_docs_ext
 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END WRES ASSEMBLING"),$this->sid);
-		return $added_documents;		
+		return $ranked_docs_list;		
 
 	} // rerankadd_docs
 	
@@ -1402,7 +1404,13 @@ class RDFprocessor {
 	
 	
 	/**
-	 * 
+	 * Try to read subjects seeking for
+	 * - subjects
+	 * - keywords
+	 * - tags
+	 * inside the current result
+	 * If none found or too few found,
+	 * guess subjects from title
 	 */
 	public function extract_cleaned_datasource_subjects(&$result,$title)
 	{
@@ -1414,6 +1422,8 @@ class RDFprocessor {
 		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($result->getProperty('subjects'))),$this->searchtermlang);
 		if (!$datasource_subjects)
 		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($sss= $result->getProperty('keywords'))),$this->searchtermlang);
+		if (!$datasource_subjects)
+		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($sss= $result->getProperty('tags'))),$this->searchtermlang);
 		
 		if ($DEBUG || 1) 
 			$RDFLOG.="<br>USED (DETECTED) LANGUAGE for searchterm ({$this->searchterm}): ".$this->searchtermlang;
@@ -1628,11 +1638,32 @@ class RDFprocessor {
 		 */
 		public function getWork_uid($title,$date,$namespace_short='rodin')
 		{
+			$title=trim($title);
+			$date=trim($date);
+			$EVT_TITLE= $title ? RDFprocessor::adapt_name_for_uid($title): '';
+			$EVT_DATE= $date ? RDFprocessor::adapt_name_for_uid($date): '';
+			if ($EVT_TITLE && $EVT_DATE)
 				$wuid_short=
 						$namespace_short.':'
-							.RDFprocessor::adapt_name_for_uid($title).'_'
-							.RDFprocessor::adapt_name_for_uid($date);
-			return $wuid_short;
+							.$EVT_TITLE.'_'
+							.$EVT_DATE;
+							
+			else if ($EVT_TITLE)
+				$wuid_short=
+						$namespace_short.':'
+						.$EVT_TITLE;
+			
+			else if ($EVT_DATE)
+				$wuid_short=
+						$namespace_short.':'
+						.$EVT_DATE;
+			
+			else 
+				$wuid_short=
+						$namespace_short.':work_'
+						.uniqid();
+			
+	  	return $wuid_short;
 		} // getWork_uid
 	
 	
@@ -1640,7 +1671,7 @@ class RDFprocessor {
 	
 	public function get_result_uid(&$result)
 	{
-		$isbn= $this->extract_isbn($x=$result->getProperty('isbn')); 
+		$isbn= trim($this->extract_isbn($x=$result->getProperty('isbn'))); 
 		if ($isbn)
 				$work_uid=RDFprocessor::$ownnamespacename.':'.'isbn_'.$isbn;
 			else // in case no isbn be provided:
@@ -2554,7 +2585,7 @@ class RDFprocessor {
 		$REMOVE_EFFECTIVITY_TESTING =    0   ;
 		$FETCHDATAFROMSOURCE = 1;
 		$skos_subject_expansion = array();
-		$count_all_added_triples=0;
+		$count_all_added_triples=1;
 		if (is_array($subjects) && count($subjects))
 		{
 			$C = get_class($this);
@@ -2618,7 +2649,6 @@ class RDFprocessor {
 							$Servlet_Refine,
 							$src_parameters,
 							$autocomplete_uri ) = $INITIALISED_SRC;
-				
 				
 				//unset($SRCINSTANCE->refine_skosxl_solr);
 				//unset($SRCINSTANCE->refine_skos_solr);
@@ -2728,10 +2758,16 @@ class RDFprocessor {
 											Logger::logAction(27, array('from'=>'get_subjects_expansions_using_thesauri','msg'=>$msg="REQUESTING NEW DATA FROM (CACHED) RDF SPARQL SRC $src_name (age=$age_of_last_src_use > {$C::$rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"),$this->sid);
 											if ($DEBUG) $RDFLOG.=htmlprint("<br>$msg",'red');
 											# provide / update ann information
-											
+
+											if ($DEBUG) $RDFLOG.="<br>1 ABOUT TO CALL SRC $src_name on $s";
+																						
 											if (0) // dangerous ... 
-											$count_removed_triples =
-												$this->remove_srcuse($src_name,$ID,$cache_id,$ann_servicename,$s,$COUNTTRIPLES,$REMOVE_EFFECTIVITY_TESTING);
+											{$count_removed_triples =
+												$this->remove_srcuse($src_name,$ID,$cache_id,$ann_servicename,$s,$COUNTTRIPLES,$REMOVE_EFFECTIVITY_TESTING);}
+											
+											if ($DEBUG) $RDFLOG.="<br>1 ABOUT TO CALL SRC $src_name on $s";
+											
+												
 											list($srcuse_uid,$count_added_triples) =
 															$this->rdfannotate_add_src_use(	$src_name,
 																															$ann_servicename,
@@ -2742,6 +2778,9 @@ class RDFprocessor {
 																															$USER_ID,
 																															$s,
 																															$COUNTTRIPLES );
+																															
+											if ($DEBUG) $RDFLOG.="<br>2 ABOUT TO CALL SRC $src_name on $s";
+																															
 											if($FETCHDATAFROMSOURCE) // debug control
 											$expanded_subjects =
 													array($src_name,
@@ -2761,6 +2800,7 @@ class RDFprocessor {
 											
 											$count_results=count($related);
 											Logger::logAction(27, array('from'=>'get_subjects_expansions_using_thesauri','msg'=>$msg="EXIT NEW DATA ($count_results) FROM (CACHED) RDF SPARQL SRC $src_name (age=$age_of_last_src_use > {$C::$rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC} limit) on subject $s with max $max_subjects subjects"),$this->sid);
+											if ($DEBUG) $RDFLOG.=htmlprint("<br>$msg",'red');
 										} // CALL SRC
 										//Add-register ONLY if some results effectively came
 										if ($count_results)
@@ -2819,7 +2859,7 @@ class RDFprocessor {
 								if ($DEBUG) $RDFLOG.= "<br>CHECK $src_name on $s";
 								//print "<br>using subject for SRC subexp: ($s)";
 								//Incase some SRC had already answered for a subsuming subject ... break it there.
-								if ($MONITORCALLS) print "<br>monitor ".($monitorcall_stp++)." call stp? SRC $src_name on $s ($count_processed_subjects succesfully processed subjects)";
+								if ($MONITORCALLS) print "<br>monitor ".($monitorcall_stp++)." call (LOCAL_SRC=$LOCAL_SRC) stp? SRC $src_name on $s ($count_processed_subjects succesfully processed subjects)";
 								
 								list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($s,$processed_subjects);
 								if ($still_to_process)
@@ -2881,11 +2921,12 @@ class RDFprocessor {
 										Logger::logAction(27, array('from'=>'get_subjects_expansions_using_thesauri','msg'=>$msg="REQUESTING NEW DATA FROM RDF SRC $src_name (age=$age_of_last_src_use > {$C::$rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC} limit) on subject $s with $max_subjects subjects"),$this->sid);
 										if ($DEBUG) $RDFLOG.=htmlprint("<br>$msg",'red');
 										
-										if($GENERATE_TRIPLES)
+										if($FETCHDATAFROMSOURCE)
 										{
 											if($LOCAL_SRC)
 											{
-												$CONTENT = get_from_src_directly( 
+												if ($DEBUG) $RDFLOG.="<br>CALL SRC $src_name locally";
+ 												$CONTENT = get_from_src_directly( 
 																													$sid,
 																													$max_subjects,
 																													$lang,
@@ -2906,6 +2947,7 @@ class RDFprocessor {
 											}
 											else
 											{
+												if ($DEBUG) $RDFLOG.="<br>CALL SRC $src_name remotely";
 												$WEBSERVICE=$WEBROOT."$RODINROOT/$RODINSEGMENT/app/s/refine/index.php"
 												.'?'.'sid='.$sid
 												.'&'.'cid=0'
@@ -2923,12 +2965,12 @@ class RDFprocessor {
 						 				    $CONTENT=get_file_content($WEBSERVICE);
 											}
 										
-											//print "<br>CONTENT: ".htmlentities($CONTENT);
+											if ($DEBUG) $RDFLOG.="<br>CONTENT: ".print_r($CONTENT);
 											$expanded_subjects = 
 											list($src_name,$srcuse_uid,$src_fresh_data,$broader,$narrower,$related) = 
 														$this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$srcuse_uid,$s,$src_fresh_data=true,$WEBSERVICE);
 											
-											$count_results=count($broader)+count($narrower)+count($related);
+											$count_results=count($broader) + count($narrower) + count($related);
 											if ($DEBUG)
 											{
 												$RDFLOG.="<br>SCANNED RESULTS: ";
@@ -2958,7 +3000,9 @@ class RDFprocessor {
 		
 											} // DEBUG
 										} // $GENERATE_TRIPLES
+										if (!$count_results) $count_results=0; // we need a 0 not nix in the variable for Logger
 										Logger::logAction(27, array('from'=>'get_subjects_expansions_using_thesauri','msg'=>$msg="EXIT NEW DATA ($count_results) FROM RDF SRC $src_name (age=$age_of_last_src_use > {$C::$rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC} limit) on subject $s with $max_subjects subjects"),$this->sid);
+										if ($DEBUG) $RDFLOG.=htmlprint("<br>$msg",'red');
 									} // CALL SRC
 									
 									//Add-register ONLY if some results effectively came:

@@ -213,14 +213,14 @@ if ($sid<>'')
 						if (1) tell_skos_subjects($skos_result_subjects_expansions, 'SKOS *result* subjects espansions');
 					}					
 
-					//Rerank from here already the subjects to be used:
+					//Rerank the RESULT subjects to be used:
 					$ranked_result_subjects = $rdfprocessor->rerank_subjects(	$search_subjects, 
-																																			$flattened_expanded_search_subject_list 
-																																				= flatten_sort_skos_obj_to_array($skos_search_subjects_expansions),
-																																			$result_subjects, //do not use all subjects, only the SKOS ones
-																																			$flattened_expanded_result_subject_list
-																																				= flatten_sort_skos_obj_to_array($skos_result_subjects_expansions),
-																																			$expanded_new_subjects = array()  );
+																																		$flattened_expanded_search_subject_list 
+																																			= flatten_sort_skos_obj_to_array($skos_search_subjects_expansions),
+																																		$result_subjects, //do not use all subjects, only the SKOS ones
+																																		$flattened_expanded_result_subject_list
+																																			= flatten_sort_skos_obj_to_array($skos_result_subjects_expansions),
+																																		$expanded_new_subjects = array()  );
 					if(1 && $list3pls)
 					{
 						$RDFLOG.= "<hr><b>Sorted PRE ranked (expanded) result subjects: </b>";
@@ -260,7 +260,7 @@ if ($sid<>'')
 								$RDFLOG.= "<br><br> ".count($expanded_old_subjects)." LOD EXPANDED OLD SUBJECTS: ";foreach($expanded_old_subjects as $label=>$suid) $RDFLOG.= "<br>$label=>$suid";
 						}
 						
-						
+						//Rerank again the extended RESULT subjects to be used:
 						$ranked_result_subjects = $rdfprocessor->rerank_subjects(	$search_subjects, 
 																																			$flattened_expanded_search_subject_list 
 																																				= flatten_sort_skos_obj_to_array($skos_search_subjects_expansions),
@@ -284,7 +284,19 @@ if ($sid<>'')
 								} // foreach
 						}
 																																
-						$added_docs = $rdfprocessor->rerankadd_docs($sid, $expandeddocs, $ranked_result_subjects);
+						$ranked_docs = $rdfprocessor->rerankadd_docs($sid, $expandeddocs, $ranked_result_subjects);
+						
+						if (1 && $list3pls)
+						{
+							$RDFLOG.= "<hr><b>Sorted ranked documents </b>";
+							if(is_array($ranked_docs) && count($ranked_docs))
+							{
+								arsort($ranked_docs); // sory by key
+								foreach($ranked_docs as $docuid=>$rank)
+									$RDFLOG.="<br>$rank: $docuid";
+							}
+						}
+						
 					} // LOD fetch done -> rerankadd_docs
 				} // subject expanded
 				

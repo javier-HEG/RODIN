@@ -126,7 +126,7 @@ function store_widget_results(&$DecodedSearchresults)
 # STORING EACH RESULT ALSO IN SOLR !!
 #
 {
-  require_once('RodinResult/RodinSOLRResult.php');
+  //require_once('RodinResult/RodinSOLRResult.php');
 	global $DBconn;
 	global $FONTRED;
 	$ERROR=false;
@@ -206,6 +206,7 @@ function store_widget_results(&$DecodedSearchresults)
           {
             fontprint ("ERROR STORING RESULT IN SOLR",'red');
           }
+
 					//print "<br />&nbsp;&nbsp;&nbsp; $attr is a $type with value $value and url $url and visible=$visible";
 				}
 			}
@@ -924,6 +925,9 @@ function rodin_service_diagnostics()
   $USERNAME = $_SESSION['longname'];
   $SERVER = $_SERVER['SERVER_NAME'];
 
+	$IS_HEGDMZ=(strstr($SERVER,'195.176.237.62'));
+	$IS_WEBDMS=(strstr($SERVER,'82.192.234.100'));
+
   $icon="<img src=\"$RODINIMAGESURL/icon_working.gif\"></img>&nbsp;";
   $prefix="<table border=0>"
      ."<tr><td>$icon</td><td><b>RODIN</b> diagnostics self check at <b>$now</b> user \"<b>$USERNAME</b>\" (<b>$USER</b>)"
@@ -999,9 +1003,10 @@ function rodin_service_diagnostics()
           ."<tr><td/><td>Please retry later or contact one of the following persons: </td></tr>"
           ."<tr><td/><td><table>"
           .$EVTL_CENTRE_INFO
-          ."<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:eliane.blumer@hesge.ch?subject=$subject\">Eliane Blumer</a></td><td> tel. +41-22-3881850 </td></tr>"
-          ."<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:javier.belmonte@hesge.ch?subject=$subject\">Javier Belmonte</a></td><td> tel. +41-22-3881796 </td></tr>"
-          ."<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:fabio.ricci@ggaweb.ch?subject=$subject\">Fabio Ricci</a></td><td> tel. +41-76-5281961 </td></tr>"
+          .($IS_HEGDMZ?"<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:eliane.blumer@hesge.ch?subject=$subject\">Eliane Blumer</a></td><td> tel. +41-22-3881850 </td></tr>":'')
+          .($IS_HEGDMZ?"<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:javier.belmonte@hesge.ch?subject=$subject\">Javier Belmonte</a></td><td> tel. +41-22-3881796 </td></tr>":'')
+          .($IS_HEGDMZ?"<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:fabio.ricci@ggaweb.ch?subject=$subject\">Fabio Ricci</a></td><td> tel. +41-76-5281961 </td></tr>":'')
+          .($IS_WEBDMS?"<tr><td><a class=\"admicontact\" title=\"$title_contact\" href=\"mailto:webdms@ggaweb.ch?subject=$subject\">WebDMS GmbH - Fabio Ricci</a></td><td> tel. +41-76-5281961 </td></tr>":'')
             ."</table></td></tr>"
           ."<tr><td/><td>or <a class=\"admicontact\" target=\"blank\" title=\"$title_mantis\" href=\"$WEBROOT/mantis/bug_report_advanced_page.php?summary=$subject\">issue a mantis task</a></td></tr>"
           ."<tr height=15/>"
@@ -2440,10 +2445,13 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 			{
 			while ($REC = mysql_fetch_assoc($resultset))
 			{
+				
+				
 				$noOfSRC++;
 				$Name				=$REC['Name'];
 				$ID					=$REC['ID'];
-								/*
+
+				/*
 				$AuthUser		=$REC['AuthUser'];
 				$AuthPasswd	=$REC['AuthPasswd'];
 				$Protocol		=$REC['Protocol'];
@@ -2467,7 +2475,7 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 				*/
 
 				$SRC_REFINE_INTERFACE_SPECS[$ID]=$Name;
-			}
+			} // while
 			$AJAX.="fri_initialize_src();
 ";
 			}
