@@ -8,7 +8,7 @@
 include("../sroot.php");
 require_once "../../../app/tests/Logger.php";
 
-$PATH2U="../../gen/u";
+$PATH2U="../../../gen/u";
 include_once("$PATH2U/arc/ARC2.php");
 include_once("FRIutilities.php");
 

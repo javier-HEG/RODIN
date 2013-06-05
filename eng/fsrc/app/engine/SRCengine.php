@@ -744,7 +744,7 @@ EOF;
 							if (count($descriptors))
 								$TERMS_RAW{$term}=$descriptors{$term}; 
 							
-							if ($this->srcdebug) print "<br>PROCESSING ($term)";
+							if ($this->srcdebug) print "<br>PROCESSING ($term) - TERM RAW (".$TERMS_RAW{$term}.")";
 							$patternterm=str_replace('/','\/',$term);
 							if (
                   // !preg_match("/$patternterm/",$refined_terms) // FRI - refined_terms seems to be unused
@@ -796,7 +796,10 @@ EOF;
 								$refined_terms.=$nextterm;
 							// construct a sequence of base64coded terms separated by $TERM_SEPARATOR
 							if ($refined_terms_raw) $refined_terms_raw.="$TERM_SEPARATOR\n"; 
-								$refined_terms_raw.=base64_encode($TERMS_RAW{$term});							
+							{
+								if ($this->srcdebug) print "<br>Assembling TERMS_RAW: ".$TERMS_RAW{$term};
+								$refined_terms_raw.=base64_encode($TERMS_RAW{$term});
+							}							
 						}
 						//-----------------------------------------------
 						else if ( $this->getWordbinding() == 'RAMEAU'

@@ -33,7 +33,7 @@ else
 
 include("../sroot.php");
 //print "qua: ".getcwd();
-include_once("../../gen/u/arc/ARC2.php");
+include_once("../../../gen/u/arc/ARC2.php");
 
 include_once("../../../app/u/FRIutilities.php");
 include_once("FRIutilities.php");

@@ -225,7 +225,7 @@ $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';
 $RODINLOGO=$POSHIMGWEBROOT . '/logo_portal.gif';
 #############################################
 
-$lodLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/tests/rdflab.php";
+$lodLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/u/rdfize.php?listwr=on";
 
 $WANT_RDF_ANNOTATION=true; 
 $WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=			0    	;
@@ -330,14 +330,6 @@ $SRC_SEARCH_MAX = 15000; //msek = 15sec
 
 $EPSILON=0.0000000001;
 
-########################################################################
-# Enabling use of local ARC2 copy of DBPedia
-#
-$USE_LOCAL_DBPEDIA = true;
-$LOCAL_DBPEDIA_DB_NAME = 'rodinarc_local';
-$LOCAL_DBPEDIA_ARC_NAME = 'test';
-########################################################################
-
 $LANGUAGE_DETECTOR="$WEBROOT$RODINROOT/$RODINSEGMENT/app/u/LanguageDetector.php";
 $LANGUAGE_DETECTION="$DOCROOT$RODINROOT/$RODINSEGMENT/app/u/LanguageDetection.php";
 
@@ -375,9 +367,6 @@ $SRC_MAXRESULTS = 15;
 	);
 	
 	
-	
-	
-	
 	#SRC DB
 	$SRCDB_DBNAME				=getA('SRCDB_DBNAME');
 	$SRCDB_USERNAME			=getA('SRCDB_USERNAME');
@@ -385,6 +374,14 @@ $SRC_MAXRESULTS = 15;
 	$SRCDB_DBHOST				=getA('SRCDB_DBHOST');
 
 	
+########################################################################
+# Enabling use of local ARC2 copy of DBPedia
+#
+$USE_LOCAL_DBPEDIA = true;
+$LOCAL_DBPEDIA_DB_NAME = $SRCDB_DBNAME;
+$LOCAL_DBPEDIA_ARC_NAME = 'dbpedialocal'; //This database was called so and it stay this way
+########################################################################
+
 
 
 #######################################
@@ -575,7 +572,7 @@ $SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['dnb_gnd']['adapteroptions']['timeout']=5;
 $SOLR_RODIN_CONFIG['dnb_gnd']['rodin']['cache_expiring_time_hour']=24*7; //1 week
 
-
+# SOLR for collection solariumtests:
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['user']='rodin';
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['host']='localhost';
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['port']=$SOLR_PORT;
@@ -583,12 +580,21 @@ $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['path']='/solr/solariumtes
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['solariumtests']['adapteroptions']['timeout']=5;
 
+# SOLR for collection subject_ranking:
 $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['user']='rodin';
 $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['host']='localhost';
 $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['port']=$SOLR_PORT;
 $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['path']='/solr/subject_ranking/';
 $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['timeout']=5;
+
+# SOLR (general) for ARC collection(s):
+$SOLR_RODIN_CONFIG['arc']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['arc']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['arc']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['arc']['adapteroptions']['path']='/solr/arc/'; // should be overwritten
+$SOLR_RODIN_CONFIG['arc']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['arc']['adapteroptions']['timeout']=5;
 
 
 $SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";

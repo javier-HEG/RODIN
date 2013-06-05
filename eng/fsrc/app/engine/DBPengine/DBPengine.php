@@ -39,7 +39,7 @@ abstract class DBPengine extends SRCengine
 	#########################
 	{
 		parent::__construct();
-		$this->setStores();
+		//$this->setStores();
 		$this->setWordbinding('DBP');
     $this->currentclassname='DBPengine';
 
@@ -55,6 +55,7 @@ abstract class DBPengine extends SRCengine
 		global $DBPEDIA_PREFIX;
 		global $DBPEDIA_SPARQL_ENDPOINT;
 		
+		/* // not used - own implementation instead
 		$localArcConfig = $ARCCONFIG;
 		$localArcConfig['store_name'] = 'dbpedia';
 		$this->set_dbpedia_store(ARC2::getStore($localArcConfig));
@@ -66,6 +67,7 @@ abstract class DBPengine extends SRCengine
 		$remoteArcConfig = $ARCCONFIG;
 		$remoteArcConfig['remote_store_endpoint'] = $DBPEDIA_SPARQL_ENDPOINT;
 		$this->set_dbpedia_remote_store(ARC2::getRemoteStore($remoteArcConfig));
+		*/
 	}
 	
 	

@@ -12,7 +12,7 @@ include_once("u/arcUtilities.php");
  $US_LINK = "<a href='mailto:fabio.ricci@ggaweb.ch?subject=RODIN_SMOKE_TEST_ON_{$NOW}_SEGMENT???'>us</a>";
  ?>
 
-<a href="http://campus.hesge.ch/id_bilingue/projekte/rodin/index_de.htm" target=_blank>RODIN</a>
+<a href="http://campus.hesge.ch/id_bilingue/projekte/rodin/index_fr.asp" target=_blank>RODIN</a>
 <br />
 <br /><b>DEVELOPMENT / RELEASE INFOS </b>
 <br />
@@ -50,10 +50,12 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br>on a <a href='<?php print $RODINSMOKETEST_DIR_URL?>' target='blank' title='Click to switch to a download area "smoketest" containing rodin test documents to fill and send'>SMOKE or DEEP RODIN Test</a>
 </p>
 <?php 
+
+	$ADMIN_USING=strstr($_SESSION['RODINADMINEMAILADDR'],'fabio') || strstr($_SESSION['RODINADMINEMAILADDR'],'rodinuser');
   //if ($RODINSEGMENT<>'p')
   {
   	print "<b><i>USEFUL LINKS:</i></b>";
-    $SRC_CONTROL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/select_src.php";
+    $SRC_CONTROL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/select_src.php?".($ADMIN_USING?'u=2':'');
     $SRC_PEVAL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/SOLR_SKOS_partial_evaluator/";
     $SRC_STORE_SKOS_NAVIGATOR_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/store_skosxl_navigator.php?storename=bnf_rameau";
     $SRC_STORE_SPARQL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/lod_sparql_endpoint.php?limit=5&storename=bnf_rameau";
@@ -64,11 +66,9 @@ Please report any bug issue to <?php echo $MANTIS ?>
     print "<br><a href='$DBRODINLODBROWSER' target='blank'>dbRODIN LoD browser</a>";
     print "<br><a href='$SRC_STORE_SPARQL_LINK' target='blank'>dbRODIN LoD SPARQL endpoint</a>";
 		print "<br><a href='$lodLABHOMEPAGEURL' target='blank'>RODIN lod RDF expansion LAB</a>";
-    if ($RODINSEGMENT=='x') print "<br><a href='$SRC_U_LINK' target='blank'>SRC METHODS</a>";
     print "<br><a href='$SRC_CONTROL_LINK' target='blank'>SRC MANAGEMENT FOR CURRENT SEGMENT</a>";
-    if ($RODINSEGMENT=='x') print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR SOLR</a>";
-    print "<br><a href='$SRC_STORE_SKOS_NAVIGATOR_LINK' target='blank'>STORE SKOS NAVIGATOR</a>";
-      }
+    if ($ADMIN_USING) print "<br><a href='$SRC_PEVAL_LINK' target='blank'>SRC PARTIAL EVALUATOR FOR SOLR</a>";
+  }
 ?>
 <!--p>
 <b>Integration with SRC - Details</b>

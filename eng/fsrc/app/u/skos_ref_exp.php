@@ -8,7 +8,7 @@
 //siehe http://arc.semsol.org/docs/v2/getting_started
 
 include("../sroot.php");
-include_once("../../../fsrc/gen/u/arc/ARC2.php");
+include_once("../../../gen/u/arc/ARC2.php");
 
 
 

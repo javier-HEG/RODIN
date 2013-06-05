@@ -30,7 +30,6 @@ class LOCengineSPARQL extends LOCengine
 		$this->currentclassname='LOCengineSPARQL';
 		
 		$this->setWordbinding('LOC');
-		//print "<br> STWengine2<hr>"; var_dump($this->get_zbwdbpedia_store());print "<hr>";
 	} //STWengine1 
 	
 	

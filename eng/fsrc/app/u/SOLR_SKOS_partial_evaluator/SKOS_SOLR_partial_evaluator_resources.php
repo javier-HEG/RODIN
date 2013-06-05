@@ -484,7 +484,7 @@ function get_skos_desc_list($searchterm,&$store)
 EOQ;
 
 	$QUERY=utf8_encode($QUERY);
-	//print "<br><br>exec_sparql: ".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
+	print "<br><br>exec_sparql: ".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
 
 	$result=array();
 	if ($rows = $store->query($QUERY, 'rows')) 

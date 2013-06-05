@@ -1,19 +1,5 @@
 <?php
 
-$filenamex="u/SOLRinterface/solr_interface.php";
-#######################################
-$max=10;
-//print "<br>FRIutilities: try to require $filenamex at cwd=".getcwd()."<br>";
-for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
-{
-	//print "<br>try to require $updir$filenamex";
-	if (file_exists("$updir$filenamex"))
-	{
-		//print "<br>REQUIRE $updir$filenamex";
-		require_once("$updir$filenamex"); break;
-	}
-}
-
 require_once("$SOLR_INTERFACE_URI/solr_interface.php");
 
 $id=$_REQUEST['id'];

@@ -25,7 +25,7 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 
 //Include ARC2 LOCAL STORE INFOS
-$filename="fsrc/gen/u/arc/ARC2.php"; $maxretries=10;
+$filename="gen/u/arc/ARC2.php"; $maxretries=10;
 #######################################
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
@@ -59,12 +59,12 @@ class RDFprocessor {
 	public  $rodin_flattened_expanded_result_subjects = null;
 	public  $rodin_ranked_expanded_result_subjects = null;
 	public  $rodin_reference_subjects_text = null;
-	public 	$rodin_results = null;
-	public  $LOCALARCCONFIG		= null;
-	public  $one_work 				= null; // root node for triples page
-	public  $stopwords			 	= null;
-	public  $languages 				= null;
-	public 	$requesting_host	= null;
+	public 	$rodin_results 	= null;
+	public  $LOCALARCCONFIG	= null;
+	public  $one_work 			= null; // root node for triples page
+	public  $stopwords			= null;
+	public  $languages 			= null;
+	public 	$requesting_host= null;
 	
 	public  static $importGraph			  = null;
 	public  static $submlt_collection = 'subject_ranking'; //SOLR collection used for ranking
@@ -87,6 +87,7 @@ class RDFprocessor {
 	public  static $rdfp_THRESHOLD_DATASOURCE_MIN_SUBJECTS = 4; // 4 if less then n subjects, try to read subjetcs from RODIN result title
 	public  static $rdfp_TOLERATED_SRC_SOLR_DATA_AGE_SEC =604800; // 1 week RDF STORAGE tolerated data age before removing/recalling/refreshing data from remote source
 	public  static $rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC =604800; // 1 week = 604800 secs RDF STORAGE tolerated data age before removing/recalling/refreshing data from remote source
+	public  static $rdfp_USE_ARC_SOLR_BRIDGE = 'no'; // ARC triples are also indexed in solr
 	
 	private static $TERM_SEPARATOR    =',';
 	private static $DBPEDIA_BASE="http://dbpedia.org";
@@ -185,7 +186,7 @@ class RDFprocessor {
 		
 		if($this->requesting_host)
 		{
-			global $PROT;
+			global $PROT, $SOLR_RODIN_CONFIG;
 			//Make LOD SPACE dependent from accessing parameters PROTOCOL, HOST
 			$RODINHOST4LOD=$PROT.'_'.str_replace('.','_',$this->requesting_host);
 			$RODINRDFSTORENAME='lod_'.$RODINSEGMENT.'_'.$RODINHOST4LOD;
@@ -194,6 +195,14 @@ class RDFprocessor {
 			$this->LOCALARCCONFIG=$ARCCONFIG;
 	    $this->LOCALARCCONFIG{'store_name'}= $this->storename;
 	    $this->LOCALARCCONFIG{'ns'}=RDFprocessor::$NAMESPACES;
+	    $this->LOCALARCCONFIG{'segment'}=$RODINSEGMENT;
+	    $this->LOCALARCCONFIG{'use_arc_solr'}=(strtolower(RDFprocessor::$rdfp_USE_ARC_SOLR_BRIDGE)=='yes');
+	    $this->LOCALARCCONFIG{'solr_collection'}='arc_'.$this->storename;
+	    $this->LOCALARCCONFIG{'solr_host'}=$SOLR_RODIN_CONFIG['arc']['adapteroptions']['host'];
+	    $this->LOCALARCCONFIG{'solr_port'}=$SOLR_RODIN_CONFIG['arc']['adapteroptions']['port'];
+	    $this->LOCALARCCONFIG{'solr_path'}='/solr/'.$this->LOCALARCCONFIG{'solr_collection'}.'/';
+	    $this->LOCALARCCONFIG{'solr_core'}=$SOLR_RODIN_CONFIG['arc']['adapteroptions']['core'];
+	    $this->LOCALARCCONFIG{'solr_timeout'}=$SOLR_RODIN_CONFIG['arc']['adapteroptions']['timeout'];
 	    $this->store = ARC2::getStore($this->LOCALARCCONFIG);
 	    if (!$this->store->isSetUp()) {
 	       $this->store->setUp();
@@ -2480,6 +2489,7 @@ class RDFprocessor {
 		$LOGPARAMS['rdfp_MAX_SRC_SUBJECT_EXPANSION']					=$C::$rdfp_MAX_SRC_SUBJECT_EXPANSION;
 		$LOGPARAMS['rdfp_MAX_LOD_SUBJECT_DOCFETCH']						=$C::$rdfp_MAX_LOD_SUBJECT_DOCFETCH;
 		$LOGPARAMS['rdfp_MAX_LOD_DOC_ADD']										=$C::$rdfp_MAX_LOD_DOC_ADD;
+		$LOGPARAMS['rdfp_USE_ARC_SOLR_BRIDGE']								=$C::$rdfp_USE_ARC_SOLR_BRIDGE;
 		
 		foreach($LOGPARAMS as $key=>$value)
 					$LOGPARAMS_DB.=($LOGPARAMS_DB?';':'')."\$LOGPARAMS['$key']=$value";

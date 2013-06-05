@@ -48,13 +48,13 @@ echo json_encode(array(	'query' => $query,
 
 function get_javiers_dbpedia_suggestions($query)
 {
-	global $SRCDB_DBHOST, $ARCDB_USERNAME, $ARCDB_USERPASS, $LOCAL_DBPEDIA_DB_NAME;
-	$mySqlQuery = "SELECT val FROM test_s2val WHERE val LIKE 'http://dbpedia.org/resource/" . str_replace(' ', '_', $query) . "%' LIMIT 0, 30";
+	global $SRCDB_DBHOST, $SRCDB_USERNAME, $SRCDB_USERPASS, $LOCAL_DBPEDIA_DB_NAME;
+	$mySqlQuery = "SELECT val FROM dbpedialocal_s2val WHERE val LIKE 'http://dbpedia.org/resource/" . str_replace(' ', '_', $query) . "%' LIMIT 0, 30";
 	
 	$suggestions = array();
 	
 	try {
-		$conn = mysql_connect($SRCDB_DBHOST, $ARCDB_USERNAME, $ARCDB_USERPASS)
+		$conn = mysql_connect($SRCDB_DBHOST, $SRCDB_USERNAME, $SRCDB_USERPASS)
 			or die("unable to connect to msql server ($SRCDB_DBHOST, $ARCDB_USERNAME, $ARCDB_USERPASS): " . mysql_error());
 		mysql_select_db($LOCAL_DBPEDIA_DB_NAME, $conn)
 			or die("unable to select database 'db': " . mysql_error());

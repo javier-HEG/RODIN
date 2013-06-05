@@ -33,6 +33,7 @@ function solr_client_init($solr_host='',$solr_port='', $solr_path='', $solr_core
   else
   {
     global $config, $SOLARIUMDIR;
+    
     //SET solarium $config object (do not change structure: solarium specific!!
     $config['adapteroptions']['host']=$solr_host;
     $config['adapteroptions']['port']=$solr_port;
@@ -41,10 +42,12 @@ function solr_client_init($solr_host='',$solr_port='', $solr_path='', $solr_core
     $config['adapteroptions']['timeout']=$solr_timeout;
     include_once("$SOLARIUMDIR/Autoloader.php");
 
+		//print "<br>solr_client_init using "; var_dump($config);
+
     Solarium_Autoloader::register();
 
     // create a client instance
-    $client = new Solarium_Client();
+    $client = new Solarium_Client($config);
   }
   return $client;
 
@@ -221,10 +224,17 @@ function get_solrbridge($solr_query_url)
 $SOLRCLIENT=null;
 function init_SOLRCLIENT($collection_name,$errortext_not_init)
 {
+	$DEBUG=0;
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
   global $SOLRCLIENT;
 	
+	if ($DEBUG)
+	{ print "<br>init_SOLRCLIENT($collection_name,$errortext_not_init) ... <b>SOLRCLIENT</b>: <br>";
+  	var_dump($SOLRCLIENT);
+  }
+  
+  
   $resultNumber=0;
   #USE SOLR COLLECTION 'rodin_result':
   if (! $SOLRCLIENT)
@@ -242,6 +252,11 @@ function init_SOLRCLIENT($collection_name,$errortext_not_init)
     if ((! ($SOLRCLIENT=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout))))
     { print $errortext_not_init; } 
   } 
+	
+	if ($DEBUG)
+	{
+		print "<br><b>SOLRCLIENT delivered</b>: "; var_dump($SOLRCLIENT);
+	}
 
   return $SOLRCLIENT;
 }
@@ -396,10 +411,10 @@ function 	solr_delete_documents($collection,$DELETEQUALIFICATION)
 {
 	$DEBUG=0;
 	if ($DEBUG) print "<br>solr_delete_documents($collection,$DELETEQUALIFICATION): ";
-	$solr_user= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
-  $solr_host= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['host']; //=$HOST;
-  $solr_port= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['port']; //=$SOLR_PORT;
-  $solr_path= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['path']; //='/solr/rodin_result/';
+	// $solr_user= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
+  // $solr_host= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['host']; //=$HOST;
+  // $solr_port= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['port']; //=$SOLR_PORT;
+  // $solr_path= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['path']; //='/solr/rodin_result/';
   if (($client = init_SOLRCLIENT($collection,'solr_collection_empty system error solr_delete_documents')))
   {
   	$update = $client->createUpdate();

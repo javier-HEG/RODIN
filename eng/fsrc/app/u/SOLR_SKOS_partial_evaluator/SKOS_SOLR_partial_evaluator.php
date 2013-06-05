@@ -13,7 +13,7 @@
 //siehe http://arc.semsol.org/docs/v2/getting_started
 
 include("../../sroot.php");
-$PATH2U="../../../gen/u";
+$PATH2U="../../../../gen/u";
 include_once("$PATH2U/arc/ARC2.php");
 include_once("$DOCROOT$UPATH1/SOLRinterface/solr_interface.php");
 include_once("../FRIutilities.php");
