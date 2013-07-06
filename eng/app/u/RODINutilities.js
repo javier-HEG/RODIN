@@ -824,7 +824,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 		ONTOS_SYNCH=0; // SYNC INFRA -> dangerous if htere are other processes still running... 
 			
 		//LAUNCH THE SEMREF INTERFACE TO COMPUTE TERMS
-		//FOREACH SRC INTEFRACE ONE LAUNCH IN PARALLEL
+		//FOREACH SRC INTERFACE (TEMPORARILY USED) LAUNCH IN PARALLEL
 		
 		for(var k=0;k<parent.SRC_REFINE_INTERFACE.length;k++)
 		{
@@ -833,89 +833,93 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 			var service_id = parent.SRC_REFINE_INTERFACE[k]['id'];
 			var src_service_url = parent.SRC_REFINE_INTERFACE[k]['url'];
 			var	interface_initialized=parent.SRC_REFINE_INTERFACE[k]['initialized'];
-			
-			var now = new Date();
-			var msec =parent.format3pos(now.getMilliseconds());
-			var sid = compute_ajax_sid (pclass.app.user.id);
-			var cid = sid +'.'+msec +'.' + this_wid_uniq_id;
-			var newsid=sid; // keine Query
-	
-	
-			if (interface_initialized)
+			//Check temporarily used on callback
+			var temporarily_used = document.getElementById('tyn_'+service_id).checked;
+			if (temporarily_used)
 			{
-				var params='';
-				var url_bridge='<?php print "$SRC_INTERFACE_BASE_URL/refine/index.php"; ?>' 
-				var action = 'pre';
-				var funcname = 'parent.fri_rodin_start_ontosearch_context_skos';
-				var url 	 = url_bridge+params;
-				var url2show = src_service_url+params;
+				var now = new Date();
+				var msec =parent.format3pos(now.getMilliseconds());
+				var sid = compute_ajax_sid (pclass.app.user.id);
+				var cid = sid +'.'+msec +'.' + this_wid_uniq_id;
+				var newsid=sid; // keine Query
+		
+		
+				if (interface_initialized)
+				{
+					var params='';
+					var url_bridge='<?php print "$SRC_INTERFACE_BASE_URL/refine/index.php"; ?>' 
+					var action = 'pre';
+					var funcname = 'parent.fri_rodin_start_ontosearch_context_skos';
+					var url 	 = url_bridge+params;
+					var url2show = src_service_url+params;
+		
+					if (src_service_mode=='direct')
+					{
+						//alert('direct');
+						//------------------------- PREPROCESSING ----------------------
+						//Default: Instruct SRC to respond with a pre action and then r/n/b
+						action = 'preall';
+						funcname = parent.handle_received_src_data;
+						ONTOS_SYNCH+=1;
+					} // mode=='direct'
+					else 
+					if (src_service_mode=='segmented')
+					{
+						//alert('segmented');
+						//------------------------- DIRECT SRC CALL ----------------------
+						// action==preall -> instruct to preprocess and to compute r/b/n
+						// action=all -> instruct to compute r/b/n (no preprocess)
+						action = 'pre';
+						funcname = parent.fri_rodin_start_ontosearch_context_skos;
+					} // mode=='segmented'
 	
-				if (src_service_mode=='direct')
-				{
-					//alert('direct');
-					//------------------------- PREPROCESSING ----------------------
-					//Default: Instruct SRC to respond with a pre action and then r/n/b
-					action = 'preall';
-					funcname = parent.handle_received_src_data;
-					ONTOS_SYNCH+=1;
-				} // mode=='direct'
-				else 
-				if (src_service_mode=='segmented')
-				{
-					//alert('segmented');
-					//------------------------- DIRECT SRC CALL ----------------------
-					// action==preall -> instruct to preprocess and to compute r/b/n
-					// action=all -> instruct to compute r/b/n (no preprocess)
-					action = 'pre';
-					funcname = parent.fri_rodin_start_ontosearch_context_skos;
-				} // mode=='segmented'
-
-				var params=
-					'?action='+action
-					+'&sid='+sid
-					+'&cid='+cid+'.p'
-					+'&newsid='+newsid
-					+'&q='+Base64.encode(terms) /*needed for cache recognition*/
-					+'&v='+Base64.encode(gui_refinement_request['quickq']) /*the current one*/
-					+'&l='+lang
-          +'&m='+src_maxresults
-          +'&sortrank=standard'
-					+'&w='+gui_refinement_request['this_wid_uniq_id']
-					+'&maxdur='+gui_refinement_request['maxdur']
-					+'&c='+gui_refinement_request['c']
-					+'&service_id='+service_id
-		            +'&user='+pclass.app.user.id
-					;
-				url 	 = url_bridge+params;
-				
-				//CALL SRC
-				if (srccallverbosity) alert("CALL SRC (preprocessing) WITH: "+url2show);
-				//alert('fri_rodin_do_onto_search: pushing call PRE('+url+') with gui_refinement_request[quickq]='+gui_refinement_request['quickq'] + ' and callback fri_rodin_start_ontosearch_context_skos');
-
-				pclass.ajax.call( url,
-									{
-										'type':'load',
-										'callback':
-										 {
-											'function':funcname,
-											'variables':
+					var params=
+						'?action='+action
+						+'&sid='+sid
+						+'&cid='+cid+'.p'
+						+'&newsid='+newsid
+						+'&q='+Base64.encode(terms) /*needed for cache recognition*/
+						+'&v='+Base64.encode(gui_refinement_request['quickq']) /*the current one*/
+						+'&l='+lang
+	          +'&m='+src_maxresults
+	          +'&sortrank=standard'
+						+'&w='+gui_refinement_request['this_wid_uniq_id']
+						+'&maxdur='+gui_refinement_request['maxdur']
+						+'&c='+gui_refinement_request['c']
+						+'&service_id='+service_id
+			            +'&user='+pclass.app.user.id
+						;
+					url 	 = url_bridge+params;
+					
+					//CALL SRC
+					if (srccallverbosity) alert("CALL SRC (preprocessing) WITH: "+url2show);
+					//alert('fri_rodin_do_onto_search: pushing call PRE('+url+') with gui_refinement_request[quickq]='+gui_refinement_request['quickq'] + ' and callback fri_rodin_start_ontosearch_context_skos');
+	
+					pclass.ajax.call( url,
+										{
+											'type':'load',
+											'callback':
 											 {
-												'sid':sid,
-												'cid':cid,
-												'newsid':newsid,
-												'l':lang,
-												'service_id':service_id,
-												'src_service_name':src_service_name,
-												'src_service_url':src_service_url,
-												'this_wid_uniq_id':gui_refinement_request['this_wid_uniq_id'],
-												'calledfromoutsideiframe':calledfromoutsideiframe,
-												'pclass':pclass
+												'function':funcname,
+												'variables':
+												 {
+													'sid':sid,
+													'cid':cid,
+													'newsid':newsid,
+													'l':lang,
+													'service_id':service_id,
+													'src_service_name':src_service_name,
+													'src_service_url':src_service_url,
+													'this_wid_uniq_id':gui_refinement_request['this_wid_uniq_id'],
+													'calledfromoutsideiframe':calledfromoutsideiframe,
+													'pclass':pclass
+												 }
 											 }
-										 }
-									}
-				);	
-				
-			} // interface_initialized
+										}
+					);	
+					
+				} // interface_initialized
+			} // checked
 		} //foreach SRC Interface
 	} // NOSRC
 	return false;
@@ -1293,9 +1297,11 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 				var SRCitemNamenExpander2= document.getElementById("fb_itemname_expander2_"+interface_id);
 				var onclick=SRCitemNamenExpander.onclick; SRCitemNamenExpander.onclick='';
 				var onclick2=SRCitemNamenExpander2.onclick; SRCitemNamenExpander2.onclick='';
+				var onclicksimple=SRCitemNamenExpander.getAttribute('onclick');
+				var onclick2simple=SRCitemNamenExpander2.getAttribute('onclick');
 				var title=SRCitemNamenExpander.title; SRCitemNamenExpander.title=lg('lblSRCuninitialized');
 				var title2=SRCitemNamenExpander2.title; SRCitemNamenExpander2.title=lg('lblSRCuninitialized');
-				
+				var temporarily_used = document.getElementById('tyn_'+interface_id).checked;
 				//alert('call2 '+local_interface_url);
 				
 				/*CALL SRC START INTERFACE*/
@@ -1312,10 +1318,13 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 											'SRCitemNamenExpander2':SRCitemNamenExpander2,
 											'onclick':onclick,
 											'onclick2':onclick2,
+											'onclicksimple':onclicksimple,
+											'onclick2simple':onclick2simple,
 											'title':title,
 											'title2':title2,
 											'interface_name':interface_name,
-											'service_id':interface_id
+											'service_id':interface_id,
+											'temporarily_used':temporarily_used
 										 }
 									 }
 								}
@@ -1345,20 +1354,22 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 		//*************************
 		function react_to_response_to_fri_initialize_src(response,vars)
 		{
-		var user_id					=vars['user_id'];
+		var user_id						=vars['user_id'];
 		var SRCitemNamenExpander	=vars['SRCitemNamenExpander'];
 		var SRCitemNamenExpander2	=vars['SRCitemNamenExpander2'];
-		var onclick					=vars['onclick'];
-		var onclick2				=vars['onclick2'];
-		var title					=vars['title'];
-		var title2					=vars['title2'];
-		var interface_name			=vars['interface_name'];
+		var onclick						=vars['onclick'];
+		var onclick2					=vars['onclick2'];
+		var onclick1simple		=vars['onclicksimple'];
+		var onclick2simple		=vars['onclick2simple'];
+		var title							=vars['title'];
+		var title2						=vars['title2'];
+		var interface_name		=vars['interface_name'];
 		var service_id				=vars['service_id'];
-		var INTERFA 				= parent.SRC_REFINE_INTERFACE;
+		var temporarily_used	=vars['temporarily_used'];
+		var INTERFA 					= parent.SRC_REFINE_INTERFACE;
 		var errormessage			='';
-		var timeout					='';
-		var user					='';
-	
+		var timeout						='';
+		var user							='';
 		
 		if (response!=null)
 		{
@@ -1399,6 +1410,8 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 							var interf=SRC_REFINE_INTERFACE[k];
 							interf['initialized']=true;
 							/*alert('react_to_response_to_fri_initialize_src('+interface_name+','+service_id+' '+INTERFA.length+')');*/
+							
+							//alert(interface_name+': set used');
 							SRCitemNamenExpander.className='fb-expander';
 							SRCitemNamenExpander.onclick = onclick;
 							SRCitemNamenExpander.title = title;
@@ -1406,6 +1419,14 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 							SRCitemNamenExpander2.className='facetcontrol-td';
 							SRCitemNamenExpander2.onclick = onclick2;
 							SRCitemNamenExpander2.setAttribute('title',lg("ontodatasourceinitialized"));
+							
+							if (!temporarily_used)
+							{ //Deactivate the onto facets engine
+								//alert(interface_name+': set temporarily off');
+								var cbid="tyn_"+service_id;
+								var cbfb_onoff=document.getElementById(cbid);
+								fb_toggleonto_temponoff(cbfb_onoff,service_id,true)
+							}
 						}
 						/*else alert('user:'+user+' != user_id:'+user_id);*/
 					}
@@ -1414,7 +1435,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 		}
 	
 		return false;
-	} // react_to_fri_init_src
+	} // react_to_response_to_fri_initialize_src
 		
 	
 
@@ -2325,7 +2346,9 @@ if (response!=null) {
 	}
 	
 	
-	
+	/**
+	 * Returns an array with all OPENED widgets inside tab db_tab_id
+	 */
 	function getPertinentIframesInfos(db_tab_id)
 	{
 		//alert('getPertinentIframesInfos('+db_tab_id+')');
@@ -2365,10 +2388,11 @@ if (response!=null) {
 					}
 					//alert(name+': title='+title+', left,top,w,h='+left+','+top+','+width+','+height);
 	
-					
-					//add infos to array
-					//alert('push iframe,title,height:'+"\n"+iframe.name+','+title+','+height);
-					iframesinfo.push(new Array(iframe,title,height));
+					//analyze state of widget (restored or minimized)
+					if (stateOfPoshWidget(frame_tab_id,frame_mod_uniq)=='restored')
+						//add infos to array
+						//alert('push iframe,title,height:'+"\n"+iframe.name+','+title+','+height);
+						iframesinfo.push(new Array(iframe,title,height));
 				} // framemodulenum matches
 				//else alert('discard: title='+title+', framemodulenum='+framemodulenum);
 			}//for each iframe in POSH
@@ -2385,6 +2409,17 @@ if (response!=null) {
 
 		return iframesinfo;
 	} // getPertinentIframesInfos
+	
+	
+	
+	
+	function stateOfPoshWidget(frame_tab_id,rame_mod_uniq)
+	{
+		widget_icon_a = document.getElementById('module'+frame_tab_id+'_'+rame_mod_uniq+'_icon_a');
+		var widget_icon_a_title = widget_icon_a.title;
+		var ret= widget_icon_a_title=='Restore'?'minimized':'restored';
+		return ret;
+	}
 	
 	
 	

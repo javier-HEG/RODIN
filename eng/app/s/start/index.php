@@ -71,7 +71,7 @@ if (strstr($output, "Operation timed out")) {
 # Print out result
 ###################################
 if ($VERBOSE) {
-	print "<h2>Resultat</h2>";
+	print "<h2>Result:</h2>";
 	print "<p style=\"border: 1px solid gray;\">$output</p>";
 } else {
 	header("content-type: text/xml");

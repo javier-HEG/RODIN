@@ -201,9 +201,9 @@ EOF;
 			$DUPSETQUERY=<<<EOQ
 			INSERT INTO src_interface 
 			(POS,Name,forRODINuser,AuthUser,AuthPasswd,Protocol,Server,Port,Type,mode,Path_Start,Servlet_Start,Path_Refine,comment,sparql_endpoint,sparql_endpoint_params,Servlet_refine,src_parameters,autocomplete_uri,Modified,
-			 UsedAsThesaurus,UsedForAutocomplete,UsedForSubjects,UsedForLODRdfExpansion,allow__UsedAsThesaurus, allow__UsedForAutocomplete, allow__UsedForSubjects, allow__UsedForLODRdfExpansion) 
+			 UsedAsThesaurus,UsedForAutocomplete,UsedForSubjects,temporarily_used,UsedForLODRdfExpansion,allow__UsedAsThesaurus, allow__UsedForAutocomplete, allow__UsedForSubjects, allow__UsedForLODRdfExpansion) 
 			SELECT POS,Name,$neuenuser,AuthUser,AuthPasswd,Protocol,Server,Port,Type,mode,Path_Start,Servlet_Start,Path_Refine,comment,sparql_endpoint,sparql_endpoint_params,Servlet_refine,src_parameters,autocomplete_uri,CURRENT_TIMESTAMP,
-			UsedAsThesaurus,UsedForAutocomplete,UsedForSubjects,UsedForLODRdfExpansion,allow__UsedAsThesaurus, allow__UsedForAutocomplete, allow__UsedForSubjects, allow__UsedForLODRdfExpansion 
+			UsedAsThesaurus,UsedForAutocomplete,UsedForSubjects,UsedForSubjects,UsedForLODRdfExpansion,allow__UsedAsThesaurus, allow__UsedForAutocomplete, allow__UsedForSubjects, allow__UsedForLODRdfExpansion 
 			FROM src_interface 
 			WHERE forRODINuser=$showuser
 			$EVT_FILTER
@@ -224,6 +224,7 @@ EOQ;
 			$Name=$_REQUEST['Name'];
 			$UsedAsThesaurus=$_REQUEST['UsedAsThesaurus'];
 			$UsedForSubjects=$_REQUEST['UsedForSubjects'];
+			$temporarily_used=$_REQUEST['temporarily_used']; // only the user sets it by program
 			$UsedForAutocomplete=$_REQUEST['UsedForAutocomplete'];
 			$UsedForLODRdfExpansion=$_REQUEST['UsedForLODRdfExpansion'];
 			$allow__UsedAsThesaurus=				$_REQUEST['allow__UsedAsThesaurus'];
@@ -350,6 +351,7 @@ EOE;
 				 SET 	Name='$Name',
 						UsedAsThesaurus=$UsedAsThesaurus,
 						UsedForSubjects=$UsedForSubjects,
+						temporarily_used=$temporarily_used,
 						UsedForLODRdfExpansion=$UsedForLODRdfExpansion,
 						UsedForAutocomplete=$UsedForAutocomplete,
 						$EVTL_ALLOW_STUFF
@@ -630,10 +632,10 @@ EOP;
 						 		$username=$user_info['username'];
 						 		$SIZE=1;
 							}
-							if ($attr == 'Created' || $attr == 'Modified')
+							if ($attr == 'Created' || $attr == 'Modified' || $attr=='temporarily_used')
 								$DISABLED=' disabled ';
 							
-							if ($attr == 'UsedAsThesaurus' || $attr == 'UsedForSubjects' || $attr == 'UsedForLODRdfExpansion' || $attr == 'UsedForAutocomplete')
+							if ($attr == 'UsedAsThesaurus' || $attr == 'UsedForSubjects' || $attr=='temporarily_used' || $attr == 'UsedForLODRdfExpansion' || $attr == 'UsedForAutocomplete')
 								$TYPE='checkbox';
 							else 
 							if ($attr == 'allow__UsedAsThesaurus' || $attr == 'allow__UsedForSubjects' || $attr == 'allow__UsedForLODRdfExpansion' || $attr == 'allow__UsedForAutocomplete' )

@@ -158,6 +158,12 @@ div#fb_itemname {
 	text-align:left;
 }
 
+.fb-expander-temp-off
+{
+	
+}
+
+
 .fb-collapser {
 	background-image:url(<?php print $RODINIMAGESURL; ?>/icon_expanded_black_w12.png);
 	background-repeat:no-repeat;
@@ -177,6 +183,7 @@ div#fb_itemname {
 	position: relative;	
 	text-align: left;
 	overflow-y: auto;
+	white-space:nowrap;
 }
 
 .facet-result-count {
@@ -229,6 +236,15 @@ div#fb_itemname {
 .facetcontrol-td-timeout {
 	color:<?php print $COLOR_WARNINGS; ?>;
 	padding-left:6px;
+	font-family:"Arial";
+	font-size: small; /*like portaneo vidgetmenu */
+	font-weight:bold;
+	text-align:left; 
+}
+
+
+.facetcontrol-td-temp-off {
+	color:<?php print $COLOR_ONTOFACET_TEMPOFF; ?>;
 	font-family:"Arial";
 	font-size: small; /*like portaneo vidgetmenu */
 	font-weight:bold;

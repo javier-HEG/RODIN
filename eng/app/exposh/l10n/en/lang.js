@@ -19,7 +19,7 @@ lang["lblPleasesomesearchwords"]="Please enter some search words and retry your 
 lang["lblmetasearchrodinTitle"]="Please type some words here and start the RODIN search by pressing on the search-button";
 lang["lblmetasearchrodinbuttonTitle"]="Start search";
 lang["lblmetasearchrodinbuttonValue"]="Search";
-lang["lblCollectingResultsUpTo"]="Collecting maximal $$ results for each visualized widget ";
+lang["lblCollectingResultsUpTo"]="Collecting maximal $$ results for each restored widget ";
 lang["lblCollectingResultsWait"]="of your search for \"$$\", please wait.";
 lang["msgPleaseAddWidgetsToTab"]="Please add some widgets to this tab and retry your search";
 

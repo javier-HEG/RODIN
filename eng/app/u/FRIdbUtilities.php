@@ -2389,22 +2389,32 @@ function register_SRC_REFINE_INTERFACES($USER_ID)
 }
 
 
+/**
+ * Returns Records actevated for UsedForSubjects iff temporarily_used
+ */
 function get_active_THESAURI_expansion_sources($USER_ID)
 {
-	return initialize_SRC_MODULES( $USER_ID , ' AND UsedForSubjects=1 ');
+	return initialize_SRC_MODULES( $USER_ID , ' AND UsedForSubjects=1 AND temporarily_used=1');
 }
 		
-function get_active_LOD_expansion_sources($USER_ID)
+/**
+ * Returns Records actevated for UsedForSubjects
+ * NB: temporarily_used is NOT asked here
+ */
+		function get_active_LOD_expansion_sources($USER_ID)
 {
 	//print "<br>Calling LOD sources for $USER_ID:";
 	
 	return initialize_SRC_MODULES( $USER_ID , ' AND UsedForLODRdfExpansion=1 ');
 }
-		
+
+/**
+ * Returns Records actevated for autocomplete iff temporarily_used
+ */
 function get_active_SRC_autocomplete_sources($USER_ID)
 {
 	//print "<br>get_active_SRC_autocomplete_sources for user id $USER_ID:";
-	$SRCM= initialize_SRC_MODULES( $USER_ID , ' AND UsedForAutocomplete=1 ');
+	$SRCM= initialize_SRC_MODULES( $USER_ID , ' AND UsedForAutocomplete=1  AND temporarily_used=1');
 	//var_dump($SRCM);
 	return $SRCM;
 }
@@ -2473,8 +2483,8 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 				$SERVICE_URL_START.="/$Path_Start/$Servlet_Start";
 				$SERVICE_URL_REFINE.="/$Path_Refine/$Servlet_Refine";
 				*/
-
-				$SRC_REFINE_INTERFACE_SPECS[$ID]=$Name;
+				$Temporarily_used=$REC['temporarily_used']?$REC['temporarily_used']:0;
+				$SRC_REFINE_INTERFACE_SPECS[$ID]=array($Name,$Temporarily_used);
 			} // while
 			$AJAX.="fri_initialize_src();
 ";
@@ -3147,7 +3157,7 @@ function check_rodin_installation($PROT,$HOST,$PORT,$RODINROOT,$RODINSEGMENT)
 #################################
 #
 # Exec part: compute RODIN user info
-#
+# debugUtils::callStack(Exception::getTrace());
 
 
 	$POSH_user_info = get_POSH_user_info();

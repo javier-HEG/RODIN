@@ -33,6 +33,110 @@ function fb_toggle_allItemContent(facet_id) {
 
 
 /**
+ * 
+ */
+function fb_toggleonto_temponoff(cb,src_id,maybezero)
+{
+	var checkservice='<?php print $FB_SRC_TCHECKSERVICEURL; ?>'
+									+'?i='+src_id
+									+'&c='+cb.checked;
+	//alert('checkservice: '+checkservice);
+	//CALL SRC
+	$p.ajax.call( checkservice,
+		{
+			'type':'load',
+			'callback':
+			 {
+				'function':parent.cbfb_toggleonto_temponoff,
+				'variables':
+				 {
+					'i':src_id,
+					'c':cb.checked,
+					'cbid':cb.id,
+					'maybezero':maybezero,
+					'srcname':cb.getAttribute('srcname'),
+				 }
+			 }
+		}
+	);	
+} //fb_toggleonto_temponoff
+
+
+
+/**
+ * Toogle on/off the ontofacets engine
+ */
+function cbfb_toggleonto_temponoff(response,vars)
+{
+	var i = vars['i'];
+	var c = vars['c'];
+	var srcname = vars['srcname'];
+	var cbid = vars['cbid'];
+	var maybezero = vars['maybezero'];
+	var affectedrows = -1;
+	var SRCitemNamenExpander1= document.getElementById("fb_itemname_expander_"+i);
+	var SRCitemNamenExpander2= document.getElementById("fb_itemname_expander2_"+i);
+	
+	if (response!=null) 
+	{
+		affectedrows = (response.getElementsByTagName("affectedrows")[0]).textContent;
+	}
+	var ok = ((!maybezero && affectedrows==1)
+					 || (maybezero && (affectedrows==0 || affectedrows==1)));
+	//alert('cbfb_toggleonto_temponoff affected rows: '+affectedrows);
+	if (ok)
+	{
+		if (c)
+		{ // checked -> undo graying off
+			SRCitemNamenExpander1.setAttribute('class','fb-expander');
+			SRCitemNamenExpander1.setAttribute('onclick',SRCitemNamenExpander1.getAttribute('realonclick'));
+			
+			SRCitemNamenExpander2.setAttribute('class','facetcontrol-td');
+			SRCitemNamenExpander2.setAttribute('title','This ontological facets engine is switched on - check again on the box (on the left) to switch it off');
+			//?Call with 100ms delay?
+			SRCitemNamenExpander2.setAttribute('onclick',SRCitemNamenExpander2.getAttribute('realonclick'));
+		}
+		else // not checked -> gray off
+		{
+			//Hide facets content
+			fb_show_itemcontentgroup(i, 'hide');
+			fb_show_itemcontent(i, '_b_','hide');
+			fb_show_itemcontent(i, '_n_','hide');
+			fb_show_itemcontent(i, '_r_','hide');
+			
+			fb_init_src_display(i, 'broader');
+			fb_init_src_display(i, 'narrower');
+			fb_init_src_display(i, 'related');
+
+			//Gray off:
+			SRCitemNamenExpander1.setAttribute('class','fb-expander-temp-off');
+			SRCitemNamenExpander1.setAttribute('realonclick',SRCitemNamenExpander1.getAttribute('onclick'));
+			SRCitemNamenExpander1.setAttribute('onclick',"document.getElementById('"+cbid+"').click()");
+		
+			SRCitemNamenExpander2.setAttribute('class','facetcontrol-td-temp-off');
+			SRCitemNamenExpander2.setAttribute('title','This ontological facets engine is temporarily switched off - click once on the engine\'s name \''+srcname+'\' or check again on the box (on the left) to switch it on');
+			SRCitemNamenExpander2.setAttribute('realonclick',SRCitemNamenExpander2.getAttribute('onclick'));
+		}
+	}	
+
+	
+} // cbfb_toggleonto_temponoff
+
+
+
+function setclick_SRCitemNamenExpanders()
+{
+	var SRCitemNamenExpander1= document.getElementById("fb_itemname_expander_"+i);
+	var SRCitemNamenExpander2= document.getElementById("fb_itemname_expander2_"+i);
+	alert('setclick_SRCitemNamenExpanders: '
+					+'\n\n'+SRCitemNamenExpander1.getAttribute('realonclick')
+					+'\n\n'+SRCitemNamenExpander2.getAttribute('realonclick'));
+
+	SRCitemNamenExpander1.setAttribute('onclick',SRCitemNamenExpander1.getAttribute('realonclick'));
+	SRCitemNamenExpander2.setAttribute('onclick',SRCitemNamenExpander2.getAttribute('realonclick'));
+}
+
+/**
  * Shows/hides the segments (narrower, broader, related) corresponding
  * to the SRC engine referred by the 'facet_id'. It doesn't force the
  * segments to expand and reveal their cantained terms.

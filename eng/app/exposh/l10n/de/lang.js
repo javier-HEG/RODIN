@@ -19,7 +19,7 @@ lang["lblPleasesomesearchwords"]="Bitte geben Sie einige Suchwoerter ein und wie
 lang["lblmetasearchrodinTitle"]="Geben Sie hier einige Suchwoerter ein und klicken Sie dann auf Suche";
 lang["lblmetasearchrodinbuttonTitle"]="Klicken Sie, um die Suche zu starten";
 lang["lblmetasearchrodinbuttonValue"]="Suche";
-lang["lblCollectingResultsUpTo"]="Es werden bis zu $$ Ergebnisse je angezeigtes Widget ";
+lang["lblCollectingResultsUpTo"]="Es werden bis zu $$ Ergebnisse je offenes Widget ";
 lang["lblCollectingResultsWait"]="fuer Ihre Suche nach \"$$\" gesammelt, bitte warten.";
 lang["msgPleaseAddWidgetsToTab"]="Fügen Sie bitte ein Widget hinzu und versuchen Sie es erneut";
 

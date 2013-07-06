@@ -51,37 +51,51 @@ function generate_facetboard($INIT_SRC_REF_TABS) {
 EOF;
 	
 	if (count($INIT_SRC_REF_TABS)) {
-		foreach($INIT_SRC_REF_TABS as $src_service_id=>$SRCNAME) {
-			$broaderSegment = generate_ontosegment($src_service_id,$SRCNAME,'broader');
-			$narrowerSegment = generate_ontosegment($src_service_id,$SRCNAME,'narrower');
-			$relatedSegment = generate_ontosegment($src_service_id,$SRCNAME,'related');
+		foreach($INIT_SRC_REF_TABS as $src_service_id=>$ARR) {
+			list($SRCNAME,$TEMPORARILY_USED) = $ARR;
+			$TEMPORARILY_USED_CHECKED=$TEMPORARILY_USED?' checked ':' ';
+			$temporary_onoff= "<input type='checkbox' 
+													id='tyn_$src_service_id' 
+													title='Switch ontological facets on/off for $SRCNAME' 
+													$TEMPORARILY_USED_CHECKED
+													srcname='$SRCNAME'
+													onclick=fb_toggleonto_temponoff(this,$src_service_id,false) >";
+			$broaderSegment 	= generate_ontosegment($src_service_id,$SRCNAME,'broader');
+			$narrowerSegment 	= generate_ontosegment($src_service_id,$SRCNAME,'narrower');
+			$relatedSegment 	= generate_ontosegment($src_service_id,$SRCNAME,'related');
 
 			$FACETBOARD.=<<<EOF
 				<div id="fb_itemname_$src_service_id" class="facetcontrol-normal">
-					<div id="fb_itemcontent_v_{$src_service_id}" style="padding-right: 2px; display:none;">
-						<table id="fb_table_v_{$src_service_id}" cellpadding="0" cellspacing="0" border=0 width="100%" class="fb-group-table">
-							<tr style="cursor:pointer;font-style:italic;" class="fb-sorting">
-								<td class="facetcontrol-td" valign="center" style="font-style:italic;" />
-							</tr>
-						</table>  
-					</div>
-					<table cellpadding="1" cellspacing="1" border="0" style="width: 100%;">
-						<tr style="cursor: pointer;">
-							<td id="fb_itemname_expander_$src_service_id" class="fb-expander-uninit" alt="Expand" valign="center" width="10"
-							 onclick="\$p.ajax.call('../../app/tests/LoggerResponder.php?action=11&name={$SRCNAME}', {'type':'load'});
-							 	fb_toggle_allItemContent('{$src_service_id}');"> 	
+				 	<table cellpadding=0 cellspacing=0>
+				 		<tr>
+				 			<td align=left valign=top>$temporary_onoff</td>
+				 			<td>
+								<div id="fb_itemcontent_v_{$src_service_id}" style="padding-right: 2px; display:none;">
+									<table id="fb_table_v_{$src_service_id}" cellpadding="0" cellspacing="0" border=0 width="100%" class="fb-group-table">
+										<tr style="cursor:pointer;font-style:italic;" class="$CLASS_ITEMEXPANDER1">
+											<td class="facetcontrol-td" valign="center" style="font-style:italic;" />
+										</tr>
+									</table>  
+								</div>
+								<table cellpadding="1" cellspacing="1" border="0" style="width: 100%;">
+									<tr style="cursor: pointer;">
+										<td id="fb_itemname_expander_$src_service_id" class="fb-expander-uninit" alt="Expand" valign="center" width="10"
+										 onclick="\$p.ajax.call('../../app/tests/LoggerResponder.php?action=11&name={$SRCNAME}', {'type':'load'});
+										 	fb_toggle_allItemContent('{$src_service_id}');"> 	
+										</td>
+										<td id="fb_itemname_expander2_$src_service_id" align="left" valign="center" class="facetcontrol-td-uninit"
+											onclick="document.getElementById('fb_itemname_expander_$src_service_id').onclick();">$SRCNAME</td>
+										<td id="fb_itemcount_$src_service_id" class="facet-result-count"></td>
+									</tr>
+								</table>  
+							</div>
+							<div id="fb_itemcontent_{$src_service_id}" class="facetgroup-inactive">
+								$broaderSegment
+								$narrowerSegment
+								$relatedSegment
 							</td>
-							<td id="fb_itemname_expander2_$src_service_id" align="left" valign="center" class="facetcontrol-td-uninit"
-								onclick="\$p.ajax.call('../../app/tests/LoggerResponder.php?action=11&name={$SRCNAME}', {'type':'load'});
-									fb_toggle_itemcontentgroup('{$src_service_id}');">$SRCNAME</td>
-							<td id="fb_itemcount_$src_service_id" class="facet-result-count"></td>
 						</tr>
-					</table>  
-				</div>
-				<div id="fb_itemcontent_{$src_service_id}" class="facetgroup-inactive">
-					$broaderSegment
-					$narrowerSegment
-					$relatedSegment
+					</table>
 				</div id="fb_itemname_$src_service_id">
 EOF;
 		} // foreach

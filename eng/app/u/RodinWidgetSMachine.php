@@ -433,7 +433,6 @@ EOO;
 			}
 		} // foreach;
 
-
 		$SAVEACTION="get_and_send_form_x_params(document.$FORMNAME,'http://{$HOST}{$thisSCRIPT}','ajax=1&save=1&prefsuser=$USER_ID&app_id=$APP_ID', '$OKACTION','save');";
 
 		if (is_a_value($CLONEDFROM_APPID)) {

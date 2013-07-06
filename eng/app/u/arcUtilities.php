@@ -2714,7 +2714,10 @@ EOQ;
 		
 		
 		/**
-	 * $INITIALISED_SRCs = initialize_SRC($USER_ID)
+		 * $INITIALISED_SRCs = initialize_SRC($USER_ID)
+		 * Returns an array of SRC records
+		 * Selected among the SRC records which are temporarily used
+		 * 
 	 * @param $USER_ID - the user id for which some SRC's are activated
 	 * @param &$SRCS - if set, a result from a call like $SRCS = get_active_THESAURI_expansion_sources( $USER_ID );
 	 */

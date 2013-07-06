@@ -79,12 +79,12 @@ class RDFprocessor {
 	public  static $TOBECODED64 			= null; // to be used inside a SPARQL query
 	public  static $rdfp_TOLERATED_MIN_SUBJ_LEN = 3; // Discard subjects which are smaller than 3 chars length
 	public  static $rdfp_EXTRACT_SUBJECTS_FROM_TITLE = true; // Extract s. from titles if no subjects were provided by the source
-	public  static $rdfp_MAX_SRC_SUBJECT_EXPANSION_PRO_SRC = 3; // Allow each SRC a maximum of calls on subject
+	public  static $rdfp_MAX_SRC_SUBJECT_EXPANSION_PRO_SRC = 5; // 3 Allow each SRC a maximum of calls on subject
 	public  static $rdfp_MAX_SUBJECT_TOKENIZE = 2; // 2 - discard a subject if it has more than n words
-	public  static $rdfp_MAX_SRC_SUBJECT_EXPANSION = 4; // 4 Limit SRC subjects expansion (expand at most n subjects)
-	public  static $rdfp_MAX_LOD_SUBJECT_DOCFETCH  = 4; // 3 Limit DOC FETCH expansion to (n) subjects
-	public  static $rdfp_MAX_LOD_DOC_ADD  					= 15; // 2 Limit SUGGESTED DOC ADDING to (n) subjects
-	public  static $rdfp_THRESHOLD_DATASOURCE_MIN_SUBJECTS = 4; // 4 if less then n subjects, try to read subjetcs from RODIN result title
+	public  static $rdfp_MAX_SRC_SUBJECT_EXPANSION =  8; // 4 Limit SRC subjects expansion (expand at most n subjects)
+	public  static $rdfp_MAX_LOD_SUBJECT_DOCFETCH  =  4; // 3 Limit DOC FETCH expansion to (n) subjects
+	public  static $rdfp_MAX_LOD_DOC_ADD  				 = 10; // 2 Limit SUGGESTED DOC ADDING to (n) subjects
+	public  static $rdfp_THRESHOLD_DATASOURCE_MIN_SUBJECTS = 2; // if less then n subjects, try to read subjetcs from RODIN result title
 	public  static $rdfp_TOLERATED_SRC_SOLR_DATA_AGE_SEC =604800; // 1 week RDF STORAGE tolerated data age before removing/recalling/refreshing data from remote source
 	public  static $rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC =604800; // 1 week = 604800 secs RDF STORAGE tolerated data age before removing/recalling/refreshing data from remote source
 	public  static $rdfp_USE_ARC_SOLR_BRIDGE = 'no'; // ARC triples are also indexed in solr
@@ -3074,7 +3074,7 @@ class RDFprocessor {
 										."<br>Used url: <b>".htmlentities($urlcall)."</b>"
 									,'#aa4455');
 				
-				$IS_SRCEngineSKOSResult = (get_class($CONTENT)=='SRCEngineSKOSResult');
+				$IS_SRCEngineSKOSResult = (is_object($CONTENT) && get_class($CONTENT)=='SRCEngineSKOSResult');
 				
 				if ($DEBUG)
 				{

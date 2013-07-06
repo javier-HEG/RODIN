@@ -1424,8 +1424,8 @@ EOQ;
     	$ns_url=$row['ns_url'];
 			$NAMESPACES{$ns_name}=$ns_url;
 		}
-    mysql_close($DBconn);
-    
+    if ($DBconn) mysql_close($DBconn);
+		else print getBacktrace();
 		
 		if(0)
 		{
@@ -1446,7 +1446,30 @@ EOQ;
 $FRIUTILITIES=1;
 
 
+/**
+ * Getting backtrace
+ *
+ * @param int $ignore ignore calls
+ *
+ * @return string
+ */
+ function getBacktrace($ignore = 2)
+{
+    $trace = '';
+    foreach (debug_backtrace() as $k => $v) {
+        if ($k < $ignore) {
+            continue;
+        }
 
+        array_walk($v['args'], function (&$item, $key) {
+            $item = var_export($item, true);
+        });
+
+        $trace .= '<br>#' . ($k - $ignore) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . (isset($v['class']) ? $v['class'] . '->' : '') . $v['function'] . '(' . implode(', ', $v['args']) . ')' . "\n";
+    }
+
+    return $trace;
+} 
 
 
 
