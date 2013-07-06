@@ -1,7 +1,7 @@
 <?php
 
 include_once '../sroot.php';
-include_once '../../gen/u/arc/ARC2.php';
+include_once '../../../gen/u/arc/ARC2.php';
 include_once '../../../../gen/u/simplehtmldom/simple_html_dom.php';
 include_once '../u/FRIutilities.php';
 include_once '../u/FRIdbUtilities.php';

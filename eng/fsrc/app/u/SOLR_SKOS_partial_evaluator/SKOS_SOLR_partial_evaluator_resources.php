@@ -484,7 +484,7 @@ function get_skos_desc_list($searchterm,&$store)
 EOQ;
 
 	$QUERY=utf8_encode($QUERY);
-	print "<br><br>exec_sparql: ".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
+	//print "<br><br>exec_sparql: ".str_replace("\n","<br>",htmlentities($QUERY))."<br>";
 
 	$result=array();
 	if ($rows = $store->query($QUERY, 'rows')) 
@@ -924,7 +924,7 @@ function separate_namespace(&$namespaces,$term,$sep=':',$href=false)
 {
   //OPTIMIZE
   //print "<br><br>separate_namespace ... Test substitution on <b>$term</b>";
-  if (!(strstr($term,'http://')))
+  if (!(strstr($term,'http')))
   {
     //print "<br>Exit: Term '<b>$term</b>' already done";
     return $term;

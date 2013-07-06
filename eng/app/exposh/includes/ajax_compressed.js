@@ -167,7 +167,7 @@ var allowSave     = false;
 var isPortal      = true;
 var rand          = $random(0,100).toInt();
 var rssNoCache    = false;
-var leftMenuWidth = 250; //left menus width
+var leftMenuWidth = parent.RODINleftMenuWidth; //left menus width from index_connected.php/root.php
 var p_version;
 var createDivDynamically = true;
 var wip_message   = "loading ...";
@@ -11151,7 +11151,8 @@ $p.app.counter.activityStep=0;
 			//alert('computeFooterPosition:' +widgetsBottomPos);
 		}
 
-		fri_setFacetBoardParameter(widgetsBottomPos);
+		//We omit to adapt facetboard height:
+		//fri_setFacetBoardParameter(widgetsBottomPos);
 	},
 	/*
 	         Function: save
@@ -13683,7 +13684,7 @@ $p.app.widgets={
 		$p.app.cache.shadow();
 
 		// Maximize module holding the visualization
-		var maxStyle = "display: block; margin: 5px; position: fixed; left: 250px; top:10px; ";
+		var maxStyle = "display: block; margin: 5px; position: fixed; left: 28px; top:10px; ";
 		maxStyle += "height:" + (window.innerHeight - 50) + "px; ";
 		maxStyle += "width:" + (window.innerWidth - 300) + "px; ";
 		maxStyle += "z-index: 17;";

@@ -834,7 +834,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 			var src_service_url = parent.SRC_REFINE_INTERFACE[k]['url'];
 			var	interface_initialized=parent.SRC_REFINE_INTERFACE[k]['initialized'];
 			//Check temporarily used on callback
-			var temporarily_used = document.getElementById('tyn_'+service_id).checked;
+			var temporarily_used = (document.getElementById('tyn_'+service_id).getAttribute('checked')=='true');
 			if (temporarily_used)
 			{
 				var now = new Date();
@@ -947,7 +947,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 		var service_id		=variables['service_id'];
 		var src_service_name 	=variables['src_service_name']
 		var src_service_url 	=variables['src_service_url']
-        var this_wid_uniq_id	=variables['this_wid_uniq_id'];
+    var this_wid_uniq_id	=variables['this_wid_uniq_id'];
 		var calledfromoutsideiframe=variables['calledfromoutsideiframe'];
 		var lang				=variables['l'];
 
@@ -1032,7 +1032,6 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 				}
 				
 				eclog('fri_rodin_start_ontosearch_context_skos Start (service_id='+service_id+', preprocessed_terms=['+preprocessed_terms+'])');
-
 				
 				var callparams = '&sid='+sid
 				+'&newsid='+newsid
@@ -3397,7 +3396,7 @@ function fri_setFacetBoardParameter(widgetsColumnHeight) {
 			var facetboardContainerDiv = document.getElementById('facetboard-container');
 			var facetBoardContainerNewHeight = facetBoardNewHeight - facetboardTitleBarDivScrollHeight
 				- facetNodeLabelDivScrollHeight;
-			
+			//We omit a maximal height
 			facetboardContainerDiv.style.maxHeight = facetBoardContainerNewHeight + "px";
 		}
 	}

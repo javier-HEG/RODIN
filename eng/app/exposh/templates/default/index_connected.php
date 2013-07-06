@@ -38,6 +38,9 @@
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head> 
+	<script type="text/javascript">
+		RODINleftMenuWidth=<?php print $FACETBOARDMINWIDTH ?>;
+	</script>
 	<title>Loading ... </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="language" content="<?php echo __LANG;?>" />
@@ -89,7 +92,6 @@
 
 <?php 
 	launch_hook('userinterface_header',$pagename);
-	
 	//FRI:
 	$WCONLOG=$_REQUEST['WANTCONSOLELOG'];
 	$WANTCONSOLELOG= ($WCONLOG!=0?'true':'false');
@@ -283,20 +285,7 @@ EOP;
 	
 	<div id="rodinBoards" class="allBoards">
 		<div id="addWidgetBoard" class="singleRodinBoard"></div>
-    <div id="facetboard" class="singleRodinBoard" onmouseover="mark_ontoterms_on_resultmatch()">
-			<div id="facetsBoardTitleBar" class="rodinBoardTitleBar"> 
-				<img id="refining_busy_info2" src="<?php print $IMG_REFINING_DONE; ?>" class="rodinBoardTitleImage" />
-				<span id="facetboard_title" class="rodinBoardTitleLabel">
-					<?php print lg("lblFacetsBoardTitle"); ?>
-				</span>
-				<img id="faceBoardTogle" onClick="javascript: toggleBoardExpanded('facetboard');" class="toggleBoardIcon" />
-				<script type="text/javascript">forceBoardExpanded('facetboard');</script>
-			</div>
-				
-			<div id="facetBoardContent" name="boardContent">
-				<?php print generate_facetboard($INIT_SRC_REF_TABS); ?>
-			</div>
-		</div>
+		
 		
 		<div id="cloudboard" class="singleRodinBoard">
 			<div id="cloudBoardTitleBar" class="rodinBoardTitleBar"> 
@@ -326,7 +315,30 @@ EOP;
 			</div>
 		</div>
 		<div id="messages"></div>
-	</div>
+	</div>		
+		
+		
+		
+    <div id="facetboard" class="singleRodinBoard" onmouseover="mark_ontoterms_on_resultmatch()">
+			<div id="facetsBoardTitleBar" class="rodinBoardTitleBar"> 
+				<img id="refining_busy_info2" src="<?php print $IMG_REFINING_DONE; ?>" class="rodinBoardTitleImage" />
+				<span id="facetboard_title" class="rodinBoardTitleLabel">
+					<?php print lg("lblFacetsBoardTitle"); ?>
+				</span>
+				<img id="faceBoardTogle" onClick="javascript: toggleBoardExpanded('facetboard');" class="toggleBoardIcon" />
+				<script type="text/javascript">forceBoardExpanded('facetboard');</script>
+			</div>
+				
+			<div id="facetBoardContent" name="boardContent">
+				<div id="fb_itemname_$src_service_id" class="facetcontrol-normal">
+					<table cellpadding=0 cellspacing=0 width='<?php print $FACETBOARDMINWIDTH ?>' border=0>
+					<?php print generate_facetboard($INIT_SRC_REF_TABS); ?>
+					</table>
+				</div>
+			</div>
+		</div>
+		
+
 	
 	<div id="modules" class="maintbl">
 		<div id="tabs">
@@ -510,6 +522,8 @@ EOP;
 
 </div>
 	<script type="text/javascript">
+		toggleBoardExpanded('cloudboard'); //close cloudboard
+	
    	SETVERSION='<?php print $setversion ?>';
     if (! DIAGNOSTIC_OK)
     {

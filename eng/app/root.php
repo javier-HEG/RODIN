@@ -54,8 +54,10 @@ if (preg_match("/MSIE/",$userAgent))
 # Manually set global variables
 #
 $DEFAULTRODINSKIN = 'first'; //Can also be 'fresh';
-$FACETBOARDMINWIDTH="240px";
+$FACETBOARDMINWIDTH="240";
+$FACETBOARDMINWIDTH_PX="240px";
 $FACETBOARDMINHEIGHT="240px";
+$FACETBOARDSHOWMAXLISTELEMS=3;
 
 $IDLE_MAXTIMEOUT = -1; //60*10; // seconds, set to -1 to disable
 $MAX_DB_RETRIES = 10;
@@ -225,6 +227,11 @@ $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';
 //LOGO
 $RODINLOGO=$POSHIMGWEBROOT . '/logo_portal.gif';
 #############################################
+
+//ICONS Switching ONTOThesauri on/off
+$URL_ICONONTO_ON_OFF="$RODINUTILITIES_GEN_URL/images/ico_close.gif";
+$URL_ICONONTO_OFF_ON="$RODINUTILITIES_GEN_URL/images/ico_open.png";
+
 
 $lodLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/u/rdfize.php?listwr=on";
 

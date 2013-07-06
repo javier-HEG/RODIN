@@ -23,6 +23,7 @@ td#header {
     background: url(../../../posh/images/bgblank.png) #ffffff repeat-x top;
 }
 .maintbl {
+	margin-left: 280px;
 	padding-top: 4px;
 	color: <?php print $COLOR_SUPERVISIBLETEXT; ?>;
 	/*background-color: #fff;  FRI*/

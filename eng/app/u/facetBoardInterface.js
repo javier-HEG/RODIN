@@ -15,33 +15,40 @@ function fb_toggle_allItemContent(facet_id) {
 	var facetgroup_div_id = 'fb_itemcontent_'+facet_id;
 	var facetgroup_div=friGetElementId(facetgroup_div_id);
 	
-	if (facetgroup_div.className == 'facetgroup-inactive') {
-		fb_show_itemcontentgroup(facet_id, 'show');
-		
-		fb_show_itemcontent(facet_id, '_b_','show');
-		fb_show_itemcontent(facet_id, '_n_','show');
-		fb_show_itemcontent(facet_id, '_r_','show');
-	}
-	else {
+	if (facetgroup_div.className == 'facetgroup-inactive') 
+		fb_show_allItemContent(facet_id,facetgroup_div);
+	else 
+		fb_hide_allItemContent(facet_id,facetgroup_div);
+}
+
+function fb_show_allItemContent(facet_id,facetgroup_div)
+{
+	fb_show_itemcontentgroup(facet_id, 'show');
+	fb_show_itemcontent(facet_id, '_b_','show');
+	fb_show_itemcontent(facet_id, '_n_','show');
+	fb_show_itemcontent(facet_id, '_r_','show');
+}
+
+function fb_hide_allItemContent(facet_id,facetgroup_div)
+{
 		fb_show_itemcontentgroup(facet_id, 'hide');
-		
 		fb_show_itemcontent(facet_id, '_b_','hide');
 		fb_show_itemcontent(facet_id, '_n_','hide');
 		fb_show_itemcontent(facet_id, '_r_','hide');
-	}
 }
-
 
 /**
  * 
  */
 function fb_toggleonto_temponoff(cb,src_id,maybezero)
 {
+	var iid = 'iyn_'+src_id;
 	var checkservice='<?php print $FB_SRC_TCHECKSERVICEURL; ?>'
 									+'?i='+src_id
-									+'&c='+cb.checked;
+									+'&c='+cb.getAttribute('shouldchecked');
 	//alert('checkservice: '+checkservice);
 	//CALL SRC
+	var shouldchecked = (cb.getAttribute('shouldchecked') == 'true');
 	$p.ajax.call( checkservice,
 		{
 			'type':'load',
@@ -51,8 +58,9 @@ function fb_toggleonto_temponoff(cb,src_id,maybezero)
 				'variables':
 				 {
 					'i':src_id,
-					'c':cb.checked,
+					'c':shouldchecked,
 					'cbid':cb.id,
+					'iid':iid,
 					'maybezero':maybezero,
 					'srcname':cb.getAttribute('srcname'),
 				 }
@@ -72,16 +80,25 @@ function cbfb_toggleonto_temponoff(response,vars)
 	var c = vars['c'];
 	var srcname = vars['srcname'];
 	var cbid = vars['cbid'];
+	var iid = vars['iid'];
 	var maybezero = vars['maybezero'];
+	var cb_item=document.getElementById(cbid);
+
+	var iconsrc_on_off = cb_item.getAttribute('iconsrc_on_off');
+	var iconsrc_off_on = cb_item.getAttribute('iconsrc_off_on');
+	var title_on_off = cb_item.getAttribute('title_on_off');
+	var title_off_on = cb_item.getAttribute('title_off_on');
+	
 	var affectedrows = -1;
 	var SRCitemNamenExpander1= document.getElementById("fb_itemname_expander_"+i);
 	var SRCitemNamenExpander2= document.getElementById("fb_itemname_expander2_"+i);
+	var img=document.getElementById(iid);
 	
 	if (response!=null) 
 	{
 		affectedrows = (response.getElementsByTagName("affectedrows")[0]).textContent;
 	}
-	var ok = ((!maybezero && affectedrows==1)
+	var ok = ((!maybezero && (affectedrows==1))
 					 || (maybezero && (affectedrows==0 || affectedrows==1)));
 	//alert('cbfb_toggleonto_temponoff affected rows: '+affectedrows);
 	if (ok)
@@ -89,12 +106,20 @@ function cbfb_toggleonto_temponoff(response,vars)
 		if (c)
 		{ // checked -> undo graying off
 			SRCitemNamenExpander1.setAttribute('class','fb-expander');
-			SRCitemNamenExpander1.setAttribute('onclick',SRCitemNamenExpander1.getAttribute('realonclick'));
+			if (SRCitemNamenExpander1.getAttribute('realonclick'))
+			    SRCitemNamenExpander1.setAttribute('onclick',SRCitemNamenExpander1.getAttribute('realonclick'));
 			
 			SRCitemNamenExpander2.setAttribute('class','facetcontrol-td');
 			SRCitemNamenExpander2.setAttribute('title','This ontological facets engine is switched on - check again on the box (on the left) to switch it off');
 			//?Call with 100ms delay?
-			SRCitemNamenExpander2.setAttribute('onclick',SRCitemNamenExpander2.getAttribute('realonclick'));
+			if (SRCitemNamenExpander2.getAttribute('realonclick'))
+				SRCitemNamenExpander2.setAttribute('onclick',SRCitemNamenExpander2.getAttribute('realonclick'));
+			cb_item.setAttribute('checked','true');
+			cb_item.setAttribute('shouldchecked','false');
+			cb_item.setAttribute('title',title_on_off);
+			img.src=iconsrc_on_off;
+			img.style.width='15px';
+			img.style.height='15px';
 		}
 		else // not checked -> gray off
 		{
@@ -116,6 +141,12 @@ function cbfb_toggleonto_temponoff(response,vars)
 			SRCitemNamenExpander2.setAttribute('class','facetcontrol-td-temp-off');
 			SRCitemNamenExpander2.setAttribute('title','This ontological facets engine is temporarily switched off - click once on the engine\'s name \''+srcname+'\' or check again on the box (on the left) to switch it on');
 			SRCitemNamenExpander2.setAttribute('realonclick',SRCitemNamenExpander2.getAttribute('onclick'));
+			cb_item.setAttribute('checked','false');
+			cb_item.setAttribute('shouldchecked','true');
+			cb_item.setAttribute('title',title_off_on);
+			img.src=iconsrc_off_on;
+			img.style.width='19px';
+			img.style.height='19px';
 		}
 	}	
 
@@ -241,7 +272,6 @@ function fb_facetboard_set_timeoutinfo(src_service_id, action, base64codedWarnin
 
 function fb_addToFacetBoardValidatedTerms(src_service_id, base64codedterms, base64codedrawterms) {
 	var rodinsegment = '<?php echo $RODINSEGMENT; ?>';
-	
 	if (base64codedterms != '') {
 		jQuery('#fb_itemcontent_v_' + src_service_id).show();
 		
@@ -259,9 +289,12 @@ function fb_addToFacetBoardValidatedTerms(src_service_id, base64codedterms, base
 				ranked_preterms_raw[i] = '';
 			}
 		}
+		
+		var termTableRow=null;
 		//FRI run from 1 to n (avoid labeling under SRC Name)
+		//show max showmaxlistelems ...
 		for (var i = 1; i < ranked_preterms.length; i++) {
-			var termTableRow = generate_ontofacet(ranked_preterms[i], Base64.decode(ranked_preterms_raw[i]), null, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment);
+			termTableRow = generate_ontofacet(ranked_preterms[i], Base64.decode(ranked_preterms_raw[i]), null, src_service_id, i, 'boh', parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false);
 			table.append(termTableRow);
 		}
 	}
@@ -320,7 +353,12 @@ function fb_add_to_facetboard(src_service_id, cached, action, base64codedterms, 
 			fb_table.ranked_roots = ranked_root;
 			fb_table.ranked_terms_raw = ranked_term_raw;
 			
-			fb_render_terms(fb_general_itemcount, fb_counterobj, fb_table, action);
+			fb_render_terms(fb_general_itemcount, fb_counterobj, fb_table, src_service_id, action);
+			
+			//Expand render of thesaurus
+			var facetgroup_div_id = 'fb_itemcontent_'+src_service_id;
+			var facetgroup_div=friGetElementId(facetgroup_div_id);
+			fb_show_allItemContent(src_service_id,facetgroup_div);
 		}
 	}	
 }
@@ -368,13 +406,14 @@ function fb_init_src_display(src_service_id, action) {
  * Extracts terms from fb_tablebody and adds them in the table-list
  * that corresponds to the action specified.
  */
-function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, action) {
+function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_service_id, action) {
 	var ranked_term = fb_tablebody.ranked_terms;
 	var ranked_term_raw = fb_tablebody.ranked_terms_raw;
   var ranked_roots = fb_tablebody.ranked_roots;
 	var rodinsegment = '<?php echo $RODINSEGMENT; ?>';
 	var rankinfos = fb_tablebody.rows[0];
-	var tBody = null;
+	var tBody = fb_tablebody.getElementsByTagName('tbody')[0];
+	var showmaxlistelems = <?php echo $FACETBOARDSHOWMAXLISTELEMS; ?>;
 	
 	// Update SRC global count of results
 	var general_count = 0;
@@ -399,13 +438,38 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, acti
 		else
 			fb_counterobj.innerHTML = lg('lblSingleResultFound', ranked_term.length);
 	}
-		
-	// Add eachnew element to table
+	
+	// Add each new element to table up to showmaxlistelems
+
+	var limit=Math.min(showmaxlistelems,ranked_term.length);
+	for (var i = 1; i <= limit; i++) {
+		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false);
+		tBody.appendChild(termTableRow);		
+	}
+	
+	/*
 	ranked_term.foreach( function(k, term) {
 		tBody = fb_tablebody.getElementsByTagName('tbody')[0];
-		newTR = generate_ontofacet(term, ranked_term_raw[k], ranked_roots[k], parent.LANGUAGE_OF_RESULT_CODED, rodinsegment); 
+		newTR = generate_ontofacet(term, ranked_term_raw[k], ranked_roots[k], src_service_id, k, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false); 
 		tBody.appendChild(newTR);
 	});
+	*/
+	var delta = ranked_term.length - limit - 1;
+	if (delta > 0 )
+	{
+		i=-1;
+		var plural = (delta==1?'':'s');
+		termTableRow = generate_ontofacet('See '+delta+' further '+action+' term'+plural+'...', '', null, src_service_id, i, 'boh', '', rodinsegment, true, false);
+		tBody.appendChild(termTableRow);
+		
+		//Add the remaining terms but hidden!
+		for (var i = limit+1; i < ranked_term.length; i++) {
+			termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, true);
+			tBody.appendChild(termTableRow);
+		}
+	}
+	
+	
 }
 
 
@@ -413,17 +477,37 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, acti
  * FACETBOARD CONSTRUCTION
  * Generates the table row for the given term.
  */
-function generate_ontofacet(term, ranked_term_raw, rootbase46, lang, rodinsegment) {
+function generate_ontofacet(term, ranked_term_raw, rootbase46, src_service_id, i, action, lang, rodinsegment, ismore, ishidden) 
+{
+	var of_icons_id="ricons_"+action.substring(0,1)+'_'+src_service_id+'_'+i;
 	var tableRow = document.createElement('tr');
-	tableRow.setAttribute("class", "fb-term-row");
+	tableRow.setAttribute("onmouseover", "document.getElementById('"+of_icons_id+"').style.visibility='visible'");
+	tableRow.setAttribute("onmouseout", "document.getElementById('"+of_icons_id+"').style.visibility='hidden'");
+	
+	if (ishidden) //Make row unvisible
+		tableRow.setAttribute("class", "fb-term-row fb-hidden");
+	else
+	{
+		if (ismore)
+			tableRow.setAttribute("class", "fb-ismore");
+		else
+			tableRow.setAttribute("class", "fb-term-row");
+	}
 	
 	var tempTableCell = document.createElement('td');
 	tempTableCell.setAttribute("align","left");
 	
 	var termLink = document.createElement('a');
-	termLink.setAttribute("class", "fb-term");
-	termLink.setAttribute("title", lg('lblOntoFacetsTermActions'));
-
+	if (ismore) 
+	{
+		termLink.setAttribute("class", "fb-ismore");
+		termLink.setAttribute("title", lg('lblOntoFacetsMoreActions'));
+	}
+	else
+	{
+		termLink.setAttribute("class", "fb-term");
+		termLink.setAttribute("title", lg('lblOntoFacetsTermActions'));
+	}
 	termLink.innerHTML = term;
 	tempTableCell.appendChild(termLink);
 	tableRow.appendChild(tempTableCell);
@@ -431,23 +515,22 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, lang, rodinsegmen
 	// A new TD for buttons
 	tempTableCell = document.createElement('td');
 	tempTableCell.setAttribute("align", "right");
-	
-  if (rootbase46)
+	tempTableCell.setAttribute("id", of_icons_id);
+	tempTableCell.style.visibility='hidden';
+
+	if (rootbase46 && !ismore)
   {
     // Show the rank button
     var rankButton = document.createElement('img');
     rankButton.setAttribute("src", "../../../gen/u/images/rank-icon.png");
     rankButton.setAttribute("style", "cursor:pointer;");
     rankButton.setAttribute("title", lg("lblClick2RankResults", term));
-
     rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ rootbase46 + "', '" + term+ "', '" + lang + "');");
-
     tempTableCell.appendChild(rankButton);
   }
   
-  
   // Show the Survista button only if the raw form is a ZBW URI or a DBPedia category
-	if (ranked_term_raw && (ranked_term_raw.indexOf("http://zbw") >= 0 || ranked_term_raw.indexOf("http://dbpedia.org/resource/Category:") >= 0)) {
+	if (ranked_term_raw && !ismore && (ranked_term_raw.indexOf("http://zbw") >= 0 || ranked_term_raw.indexOf("http://dbpedia.org/resource/Category:") >= 0)) {
 	  var survistaButton = document.createElement('img');
     
 		survistaButton.setAttribute("src", "../../../gen/u/images/survista-icon.png");
@@ -458,7 +541,6 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, lang, rodinsegmen
 		tempTableCell.appendChild(survistaButton);
 	}
   
-	
 	tableRow.appendChild(tempTableCell);
 
 	return tableRow;

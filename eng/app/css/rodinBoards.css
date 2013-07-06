@@ -6,7 +6,7 @@
 /* Global to all Rodin boards */
 /******************************/
 div.singleRodinBoard {
-	width: <?php print $FACETBOARDMINWIDTH; ?>;
+	width: <?php print $FACETBOARDMINWIDTH_PX; ?>;
 	position:relative;	
 	margin-bottom: 6px;
 	overflow-y: hidden;
@@ -152,10 +152,13 @@ div#fb_itemname {
 }
 
 .fb-expander {
-	background-image:url(<?php print $RODINIMAGESURL; ?>/icon_collapsed_black_h12.png);
+	/*background-image:url(<?php print $RODINIMAGESURL; ?>/icon_collapsed_black_h12.png);
 	background-repeat:no-repeat;
 	background-position:center;
-	text-align:left;
+	text-align:left;*/
+	width: 0px;
+	display: none;
+	visibility:hidden;
 }
 
 .fb-expander-temp-off
@@ -165,9 +168,12 @@ div#fb_itemname {
 
 
 .fb-collapser {
-	background-image:url(<?php print $RODINIMAGESURL; ?>/icon_expanded_black_w12.png);
+	/*background-image:url(<?php print $RODINIMAGESURL; ?>/icon_expanded_black_w12.png); 
 	background-repeat:no-repeat;
-	background-position:center;
+	background-position:center;*/
+	width: 0px;
+	display: none;
+	visibility:hidden;
 }
 
 .facetboard-container {
@@ -177,9 +183,10 @@ div#fb_itemname {
 
 .facetcontrol-normal,
 .facetcontrol-active {
+	padding-top: 2px;
 	border-top: 2px solid <?php print $COLOR_BORDERLINE; ?>;
-	padding-left: 4px;
-	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	/*padding-left: 4px;*/
+	/*background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
 	position: relative;	
 	text-align: left;
 	overflow-y: auto;
@@ -187,7 +194,7 @@ div#fb_itemname {
 }
 
 .facet-result-count {
-    font-size: 12px;
+    font-size: 10px;
     font-style: italic;
     font-weight: normal;
     min-width: 80px;
@@ -221,12 +228,13 @@ div#fb_itemname {
 .cached 
 {
   font-style: italic;
-  color:#000080;
+  color:#669ad7 ;
 }
   
 .facetcontrol-td {
+	padding-top: 2px;
 	font-family:"Arial";
-	font-size: small; /*like portaneo vidgetmenu */
+	font-size:medium;
 	font-weight:bold;
 	text-align:left; 
 }
@@ -251,18 +259,30 @@ div#fb_itemname {
 	text-align:left; 
 }
 
-.facetgroup-header {
-	padding: 2px 2px 2px 8px;
+.facetgroup-header-broader {
+	padding-top: 0px;
+	padding-left: 2px;
 	border-style:hidden;
 	background-color: white;
 	position:relative;
 }
 
+.facetgroup-header-narrower, 
+.facetgroup-header-related 
+{
+	padding-top: 4px;
+	padding-left: 2px;
+	border-style:hidden;
+	/*background-color: white;*/
+	position:relative;
+}
+
+
 .facetgroup-active,
 .facetgroup-inactive {
-	padding: 2px 0px;
+	padding: 0px 0px;
 	border-style: none;
-	background-color: white;
+	/*background-color:#F0F0E0;*/
 	position: relative;	
 }
 
@@ -273,9 +293,9 @@ div#fb_itemname {
 
 .facetlist-active,
 .facetlist-inactive {
-	padding: 0px 2px 0px 8px;
+	padding: 2px 2px 0px 2px;
 	border-style: none;
-	background-color: white;
+	/*background-color: white;*/
 	position: relative;
 }
 
@@ -283,6 +303,14 @@ div#fb_itemname {
 	display:none;
 	visibility:hidden;
 }
+
+
+.fb-hidden
+{
+	display: none;
+	visibility: hidden;
+}
+
 
 div#fb_container {
 	border-top-style:solid;
@@ -310,6 +338,8 @@ div#fb_container {
 	border-bottom-width:thin;
 	font-size:small;
 	font-style:italics;! important;	
+	display: none;
+	visibility: hidden;
 }
 
 .fb-tab-selected {
@@ -344,7 +374,7 @@ a.fb-term {
 	text-align: left;
 	text-decoration: none;
 	font-family:"Arial";
-	font-size: 13px; /*like portaneo vidgetmenu */
+	font-size: 12px; /*like portaneo vidgetmenu */
 	cursor: pointer;
 }
 
@@ -359,6 +389,7 @@ a.fb-term-hl {
 	cursor: pointer;
 }
 
+/*
 a:hover.fb-term
 {
 	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
@@ -368,16 +399,48 @@ a:hover.fb-term-hl
 {
 	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
 }
+*/
 
 table.fb-group-table {
-	padding-left: 16px;
+	padding-left:  0px;
 	padding-right: 2px;
 }
 
 tr.fb-term-row > td {
-	padding-top: 6px;
-	border-bottom: 1px solid <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	padding-top: 0px;
+	/*border-bottom: 0px solid <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
 }
+
+tr.fb-ismore:hover
+{
+	background:red;
+}
+
+a.fb-ismore
+{
+	text-decoration:none;
+	font-family:Arial;
+	font-size: 12px;
+	color:#999999;
+	cursor:pointer;
+}
+
+
+tr.fb-ismore td
+{
+	background-color:#EFE9DA;
+	border-style: outset;
+	border:1px solid #9a8d7c;
+}
+
+tr.fb-term-row:hover,
+tr.ontotr:hover,
+td.ontotr:hover
+{
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+}
+
+
 
 /*
 a#srcsearchlink
@@ -530,3 +593,16 @@ a.crumb-survista-normal {
 a.crumb-zen-normal {
 	color:<?php print $COLOR_BC_ZEN_TEXT; ?>;
 }
+
+td.onoff
+{
+	width:18px;
+	margin: 0;
+	padding: 0;
+	vertical-align:middle;
+	text-align:center;	
+	display:block;
+	height:18px;
+	overflow:hidden;
+}
+

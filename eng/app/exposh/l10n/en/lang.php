@@ -50,8 +50,8 @@ $GLOBALS['lgMap']["titleBibsonomyUserRestrict"]="Enter a username to restrict th
 //Ontological facets
 $GLOBALS['lgMap']["titleOntoFacetsSearch"]="Fill in a term to explore its ontological facets";
 $GLOBALS['lgMap']["lblOntoExploreFacets"]="Click to explore the ontological facets of your query";
-$GLOBALS['lgMap']['lblOntoFacetsBroader'] = "More general terms";
-$GLOBALS['lgMap']['lblOntoFacetsNarrower'] = "More specific terms";
+$GLOBALS['lgMap']['lblOntoFacetsBroader'] = "Broader terms";
+$GLOBALS['lgMap']['lblOntoFacetsNarrower'] = "Narrower terms";
 $GLOBALS['lgMap']['lblOntoFacetsRelated'] = "Related terms";
 $GLOBALS['lgMap']['titleOntoFacetsBroader'] = "Show/hide more general terms of #1";
 $GLOBALS['lgMap']['titleOntoFacetsNarrower'] = "Show/hide more specific terms of #1";

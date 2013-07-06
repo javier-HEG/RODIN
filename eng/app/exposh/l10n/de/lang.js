@@ -52,6 +52,8 @@ lang["lblRightClickForOptions"]="Klicken Sie rechts, um mögliche Aktionen anzuz
 lang["lblOntoFacetsExplore"]="Klicken Sie, um die ontologischen Facetten von \"$$\" anzuzeigen";
 lang["lblClick2RankResults"]="Klicken Sie, um die Widgetsergebnisse nach ontologischen Kontext von \"$$\" zu sortieren";
 lang["lblOntoFacetsShowOnSurvista"]="Klicken Sie, um die visuelle Darstellung von \"$$\" anzuzeigen";
+
+lang["lblOntoFacetsMoreActions"]="Klicken Sie um mehr Terme anzuzeigen";
 lang["lblOntoFacetsTermActions"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 lang["lblOntoFacetsTermActions2"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 lang["lblSRCTimeout"]="Die Zeit ist überschritten ohne dass Resultate gefunden werden konnten.";

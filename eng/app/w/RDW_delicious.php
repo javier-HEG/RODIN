@@ -141,7 +141,6 @@ EOH;
  * @param string $chaining_url
  */
 function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
-	$DEBUG=0;
 	global $datasource;
 	global $DELICIOUS_search_baseFEED;
 	global $REALNAME;
@@ -163,9 +162,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	$feed = "$DELICIOUS_search_baseFEED$parameters";
 
 	//$rssContent = file_get_contents($feed);
-  list($timestamp,$rssContent) = get_cached_widget_response($feed);
-
-	if ($DEBUG) { print "got data: ".htmlentities($rssContent); exit; }
+        $rssContent = get_cached_widget_response($feed);
 
 	$rss = str_get_html($rssContent);
 	

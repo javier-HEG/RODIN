@@ -46,6 +46,7 @@ lang["lblOntoFacetsExplore"]="Cliquez pour explorer les facettes ontologiques de
 
 lang["lblClick2RankResults"]="Cliquez pour ordonner les resultats des widgets par le contexte ontologique de \"$$\"";
 lang["lblOntoFacetsShowOnSurvista"]="Cliquez pour montrer une représentation graphique de \"$$\"";
+lang["lblOntoFacetsMoreActions"]="Cliquez pour voir plus des termes";
 lang["lblOntoFacetsTermActions"]="Cliquez à droite pour voir les actions possibles";
 lang["lblOntoFacetsTermActions2"]="Cliquez à gauche pour filtrer les resultats des widgets sur ce mot, cliquez à droite pour voir les actions possibles";
 lang["lblSRCTimeout"]="Le temps alloué à l'exploration des facettes ontologiques a été dépassé sans trouver des résultats.";
