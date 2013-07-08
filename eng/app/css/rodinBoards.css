@@ -222,6 +222,7 @@ div#fb_itemname {
 	font-weight:lighter;
 	text-align:left; 
 	color:<?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	white-space: nowrap;
 }
 
 
@@ -237,6 +238,7 @@ div#fb_itemname {
 	font-size:medium;
 	font-weight:bold;
 	text-align:left; 
+	white-space: nowrap;
 }
 
 
@@ -248,23 +250,26 @@ div#fb_itemname {
 	font-size: small; /*like portaneo vidgetmenu */
 	font-weight:bold;
 	text-align:left; 
+	white-space: nowrap;
 }
 
 
 .facetcontrol-td-temp-off {
 	color:<?php print $COLOR_ONTOFACET_TEMPOFF; ?>;
 	font-family:"Arial";
-	font-size: small; /*like portaneo vidgetmenu */
 	font-weight:bold;
 	text-align:left; 
+	white-space: nowrap;
 }
 
 .facetgroup-header-broader {
 	padding-top: 0px;
 	padding-left: 2px;
 	border-style:hidden;
-	background-color: white;
+	/*background-color: white;*/
 	position:relative;
+	display:none;
+	visibility:hidden;
 }
 
 .facetgroup-header-narrower, 
@@ -275,6 +280,8 @@ div#fb_itemname {
 	border-style:hidden;
 	/*background-color: white;*/
 	position:relative;
+	display:none;
+	visibility:hidden;
 }
 
 
@@ -293,7 +300,7 @@ div#fb_itemname {
 
 .facetlist-active,
 .facetlist-inactive {
-	padding: 2px 2px 0px 2px;
+	padding: 2px 4px 0px 8px;
 	border-style: none;
 	/*background-color: white;*/
 	position: relative;
@@ -411,9 +418,31 @@ tr.fb-term-row > td {
 	/*border-bottom: 0px solid <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
 }
 
-tr.fb-ismore:hover
+
+tr.fb-seemore
 {
-	background:red;
+}
+
+td.fb-ismore
+{
+	padding-top:2px;
+}
+
+td a.fb-ismore
+{
+	padding: 1px 4px 1px 4px;
+	background-color:#eFe9dA;
+	color: #6F695A;
+	font-style: italics;
+	font-family: Arial;
+	font-size:small;
+	
+}
+
+td a.fb-ismore:hover
+{
+	background-color:#FeFe9E9; 
+	color:black;
 }
 
 a.fb-ismore
@@ -437,7 +466,7 @@ tr.fb-term-row:hover,
 tr.ontotr:hover,
 td.ontotr:hover
 {
-	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2bis; ?>;
 }
 
 
@@ -598,7 +627,7 @@ td.onoff
 {
 	width:18px;
 	margin: 0;
-	padding: 0;
+	padding-top: 6px;
 	vertical-align:middle;
 	text-align:center;	
 	display:block;

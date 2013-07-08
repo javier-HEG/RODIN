@@ -294,7 +294,7 @@ function fb_addToFacetBoardValidatedTerms(src_service_id, base64codedterms, base
 		//FRI run from 1 to n (avoid labeling under SRC Name)
 		//show max showmaxlistelems ...
 		for (var i = 1; i < ranked_preterms.length; i++) {
-			termTableRow = generate_ontofacet(ranked_preterms[i], Base64.decode(ranked_preterms_raw[i]), null, src_service_id, i, 'boh', parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false);
+			termTableRow = generate_ontofacet(ranked_preterms[i], Base64.decode(ranked_preterms_raw[i]), null, src_service_id, i, 'boh', parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0);
 			table.append(termTableRow);
 		}
 	}
@@ -305,12 +305,12 @@ function fb_addToFacetBoardValidatedTerms(src_service_id, base64codedterms, base
  */
 function fb_add_to_facetboard(src_service_id, cached, action, base64codedterms, base64codedrawterms, base64lightcodedroots) {
 	var fb_itemname_expander2id = 'fb_itemname_expander2_'+src_service_id;
-	var fb_table_name = 'fb_table_'+fb_action2art(action)+'_'+src_service_id;
+	var fb_table_id = 'fb_table_'+fb_action2art(action)+'_'+src_service_id;
 	var fb_counterobj_name = 'fb_itemcount_'+fb_action2art(action)+'_'+src_service_id;
 	var fb_itemcount_name = 'fb_itemcount_'+src_service_id;
 	
 	var fb_itemname_expander2 = friGetElementId(fb_itemname_expander2id);
-	var fb_table = friGetElementId(fb_table_name);
+	var fb_table = friGetElementId(fb_table_id);
 	var fb_counterobj = friGetElementId(fb_counterobj_name);
 	var fb_general_itemcount = friGetElementId(fb_itemcount_name);
 	
@@ -374,10 +374,10 @@ function fb_resetValidatedTermsList(src_service_id) {
  * table and result count for the specified action.
  */
 function fb_reset_src(src_service_id, action) {
-	var fb_table_name = 'fb_table_' + fb_action2art(action) + '_' + src_service_id;
+	var fb_table_id = 'fb_table_' + fb_action2art(action) + '_' + src_service_id;
 	var fb_counterobj_name = 'fb_itemcount_' + fb_action2art(action) + '_' + src_service_id;
 	var fb_itemcount_name = 'fb_itemcount_' + src_service_id;
-	var fb_table = friGetElementId(fb_table_name);
+	var fb_table = friGetElementId(fb_table_id);
 	var fb_counterobj = friGetElementId(fb_counterobj_name);
 	var fb_general_itemcount = friGetElementId(fb_itemcount_name);
 	var terms = '';
@@ -388,8 +388,11 @@ function fb_reset_src(src_service_id, action) {
 		fb_counterobj.innerHTML = '';
 		fb_deleteRows(fb_table);
 	} else {
-		alert ('No obj '+fb_table_name);
+		alert ('No obj '+fb_table_id);
 	}
+	
+	
+	
 }
 
 
@@ -399,6 +402,14 @@ function fb_init_src_display(src_service_id, action) {
 	var fb_general_itemcount = friGetElementId(fb_itemcount_name);
 	fb_general_itemcount.innerHTML = '';
 	fb_reset_src(src_service_id, action);
+		
+	var fb_item_id="fb_item_"+action.substring(0,1)+'_'+src_service_id;
+	//hide facetgroup-header to action
+	//alert('ZERO HIDE '+fb_item_id);
+	jQuery('#'+fb_item_id).each(function() {
+		this.style.visibility='hidden';
+		this.style.display='none';
+	});
 }
 
 
@@ -407,6 +418,7 @@ function fb_init_src_display(src_service_id, action) {
  * that corresponds to the action specified.
  */
 function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_service_id, action) {
+	var fb_tablebody_id = fb_tablebody.id;
 	var ranked_term = fb_tablebody.ranked_terms;
 	var ranked_term_raw = fb_tablebody.ranked_terms_raw;
   var ranked_roots = fb_tablebody.ranked_roots;
@@ -414,6 +426,7 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 	var rankinfos = fb_tablebody.rows[0];
 	var tBody = fb_tablebody.getElementsByTagName('tbody')[0];
 	var showmaxlistelems = <?php echo $FACETBOARDSHOWMAXLISTELEMS; ?>;
+	var fb_item_id="fb_item_"+action.substring(0,1)+'_'+src_service_id;
 	
 	// Update SRC global count of results
 	var general_count = 0;
@@ -423,6 +436,7 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 	}
 	
 	general_count = general_count + ranked_term.length;
+	//alert('action= '+action+'\n\nranked_term.length='+ranked_term.length+'\n\n'+ranked_term);
 	
 	if (general_count > 0) {
 		if (general_count > 1)
@@ -442,8 +456,11 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 	// Add each new element to table up to showmaxlistelems
 
 	var limit=Math.min(showmaxlistelems,ranked_term.length);
-	for (var i = 1; i <= limit; i++) {
-		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false);
+	//alert('limit='+limit+'\nranked_term.length='+ranked_term.length);
+	
+	for (var i = 0; i < limit; i++) {
+		//alert('this term: '+ranked_term[i]+'\n\nranked terms: ('+ranked_term+')')
+		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0);
 		tBody.appendChild(termTableRow);		
 	}
 	
@@ -454,22 +471,42 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 		tBody.appendChild(newTR);
 	});
 	*/
-	var delta = ranked_term.length - limit - 1;
+	var delta = ranked_term.length - limit;
+	
+	//Special case 1 further term: Allow it to go with the others...
+	if (delta==1)
+	{
+		i=limit;
+		//alert('allow one more term to be displayed at idx='+i+' action:'+action)
+		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0);
+		tBody.appendChild(termTableRow);
+	}
+	else
 	if (delta > 0 )
 	{
-		i=-1;
+		i='more';
 		var plural = (delta==1?'':'s');
-		termTableRow = generate_ontofacet('See '+delta+' further '+action+' term'+plural+'...', '', null, src_service_id, i, 'boh', '', rodinsegment, true, false);
+		var itemtxt = 'More '+action+' term'+plural+'...';
+		
+		
+		termTableRow = generate_ontofacet(itemtxt, '', null, fb_tablebody_id, src_service_id, i, action, '', rodinsegment, true, false, delta);
 		tBody.appendChild(termTableRow);
 		
 		//Add the remaining terms but hidden!
-		for (var i = limit+1; i < ranked_term.length; i++) {
-			termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, true);
+		for (var i = limit; i < ranked_term.length; i++) {
+			termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, true, 0);
 			tBody.appendChild(termTableRow);
 		}
 	}
 	
-	
+	//show facetgroup-header to action if there were at least one facet:
+	if (ranked_term.length)
+	{
+		jQuery('#'+fb_item_id).each(function() {
+			this.style.visibility='visible';
+			this.style.display='block';
+		});
+	}
 }
 
 
@@ -477,21 +514,31 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
  * FACETBOARD CONSTRUCTION
  * Generates the table row for the given term.
  */
-function generate_ontofacet(term, ranked_term_raw, rootbase46, src_service_id, i, action, lang, rodinsegment, ismore, ishidden) 
+function generate_ontofacet(term, ranked_term_raw, rootbase46, fb_tablebody_id, src_service_id, i, action, lang, rodinsegment, ismore, ishidden, counthiddenterms) 
 {
 	var of_icons_id="ricons_"+action.substring(0,1)+'_'+src_service_id+'_'+i;
 	var tableRow = document.createElement('tr');
-	tableRow.setAttribute("onmouseover", "document.getElementById('"+of_icons_id+"').style.visibility='visible'");
-	tableRow.setAttribute("onmouseout", "document.getElementById('"+of_icons_id+"').style.visibility='hidden'");
 	
+	if (ismore)
+	{
+	}
+	else
+	{
+		tableRow.setAttribute("onmouseover", "document.getElementById('"+of_icons_id+"').style.visibility='visible'");
+		tableRow.setAttribute("onmouseout", "document.getElementById('"+of_icons_id+"').style.visibility='hidden'");
+	}
 	if (ishidden) //Make row unvisible
 		tableRow.setAttribute("class", "fb-term-row fb-hidden");
 	else
 	{
 		if (ismore)
-			tableRow.setAttribute("class", "fb-ismore");
+		{
+			tableRow.setAttribute("class", "fb-seemore");
+		}
 		else
+		{
 			tableRow.setAttribute("class", "fb-term-row");
+		}
 	}
 	
 	var tempTableCell = document.createElement('td');
@@ -500,8 +547,12 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, src_service_id, i
 	var termLink = document.createElement('a');
 	if (ismore) 
 	{
+		tempTableCell.setAttribute("class", "fb-ismore");
 		termLink.setAttribute("class", "fb-ismore");
-		termLink.setAttribute("title", lg('lblOntoFacetsMoreActions'));
+		
+		var moretitle=lg('lblOntoFacetsMoreActions').replace('xxx',counthiddenterms);
+		termLink.setAttribute("title", moretitle);
+		termLink.setAttribute("onclick", "fb_display_more_skos_facets('"+fb_tablebody_id+"','"+src_service_id+"','"+action+"')");
 	}
 	else
 	{
@@ -518,12 +569,35 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, src_service_id, i
 	tempTableCell.setAttribute("id", of_icons_id);
 	tempTableCell.style.visibility='hidden';
 
+	//Add both ex menu items here too
+	//re-search-in-onto
+	var rio_img_src='<?php echo $RODINIMAGESWEB; ?>/magnifier-onto-small.png';
+	var researchontoButton = document.createElement('img');
+  researchontoButton.setAttribute("src", rio_img_src);
+  researchontoButton.setAttribute("style", "vertical-align:top;cursor:pointer;width:15;height:15;padding-right:1px");
+  researchontoButton.setAttribute("title", lg("lblSurvistaExploreOntoFacets"));
+  researchontoButton.setAttribute("onClick", "exploreInOntologicalFacets('"+term+"',null)");
+  tempTableCell.appendChild(researchontoButton);
+	
+
+	//add-to-breadcrumb:
+	var atb_img_src='<?php echo $RODINIMAGESWEB; ?>/add-to-breadcrumb.png';
+	var add2breadcrumbButton = document.createElement('img');
+  add2breadcrumbButton.setAttribute("src", atb_img_src);
+  add2breadcrumbButton.setAttribute("style", "vertical-align:top;cursor:pointer;width:15;height:15;padding-right:1px");
+  add2breadcrumbButton.setAttribute("title", lg("lblSurvistaAddToBreadcrumb"));
+  add2breadcrumbButton.setAttribute("onClick", "bc_add_breadcrumb_unique('"+term+"','result')");
+  tempTableCell.appendChild(add2breadcrumbButton);
+
+
+
+
 	if (rootbase46 && !ismore)
   {
     // Show the rank button
     var rankButton = document.createElement('img');
     rankButton.setAttribute("src", "../../../gen/u/images/rank-icon.png");
-    rankButton.setAttribute("style", "cursor:pointer;");
+    rankButton.setAttribute("style", "vertical-align:top;cursor:pointer;padding-right:1px");
     rankButton.setAttribute("title", lg("lblClick2RankResults", term));
     rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ rootbase46 + "', '" + term+ "', '" + lang + "');");
     tempTableCell.appendChild(rankButton);
@@ -534,7 +608,7 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, src_service_id, i
 	  var survistaButton = document.createElement('img');
     
 		survistaButton.setAttribute("src", "../../../gen/u/images/survista-icon.png");
-		survistaButton.setAttribute("style", "cursor:pointer;");
+		survistaButton.setAttribute("style", "vertical-align:top;cursor:pointer;");
 		survistaButton.setAttribute("title", lg("lblOntoFacetsShowOnSurvista", term));
 		survistaButton.setAttribute("onClick", "javascript:$p.app.widgets.placeSurvista('" + ranked_term_raw + "', '" + term+ "', '" + lang + "','" + rodinsegment+"');");
 		
@@ -544,6 +618,23 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, src_service_id, i
 	tableRow.appendChild(tempTableCell);
 
 	return tableRow;
+}
+
+
+function fb_display_more_skos_facets(fb_tablebody_id, src_service_id,action)
+{
+	//hide seemore element and show hidden elements (fb-hidden)
+	var fb_table=document.getElementById(fb_tablebody_id);
+	//Hide seemore
+	jQuery('.fb-ismore',fb_table).each(function() {
+		jQuery(this).hide();
+	});
+	
+	//Show hidden elements	
+	jQuery('.fb-hidden',fb_table).each(function() {
+		jQuery(this).removeClass('fb-hidden')
+	});
+	
 }
 
 

@@ -2267,9 +2267,7 @@ if (response!=null) {
                 correctParent.RESULTFILTEREXPR='';
              	break;
 						case "exploreInOntologicalFacets":
-							correctParent.fb_set_node_ontofacet(jQuery(el).text().toLowerCase());
-							correctParent.detectLanguageInOntoFacets_launchOntoSearch(jQuery(el).text(), 0, 0, 0, 0, 0, 0, correctParent.$p);
-							correctParent.$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + jQuery(el).text() + '&from=widget&name=' + get_datasource_name('$widgetDatasource'), {'type':'load'});
+							exploreInOntologicalFacets(jQuery(el).text(),correctParent);
 						break;
 					}
 				});
@@ -2277,6 +2275,16 @@ if (response!=null) {
 		})(jQuery);
 	}
 
+
+	function exploreInOntologicalFacets(term,correctParent)
+	{
+		if (!correctParent) 
+		correctParent = (typeof parent.isIndexConnected == 'undefined') ? window.opener : parent;
+
+		correctParent.fb_set_node_ontofacet(term.toLowerCase());
+		correctParent.detectLanguageInOntoFacets_launchOntoSearch(term, 0, 0, 0, 0, 0, 0, correctParent.$p);
+		correctParent.$p.ajax.call('../../app/tests/LoggerResponder.php?action=10&query=' + term + '&from=widget&name=' + get_datasource_name('$widgetDatasource'), {'type':'load'});
+	}
 
 	function reload_frames_render(render) {
 		set_zoom_text_icons(render);

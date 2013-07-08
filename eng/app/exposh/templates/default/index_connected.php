@@ -523,8 +523,9 @@ EOP;
 </div>
 	<script type="text/javascript">
 		toggleBoardExpanded('cloudboard'); //close cloudboard
-	
-   	SETVERSION='<?php print $setversion ?>';
+		//Simulate click on onto (speedup for dev)
+		//document.getElementById('ontofacet_center').value='Social Policy'; //Search for Time
+		SETVERSION='<?php print $setversion ?>';
     if (! DIAGNOSTIC_OK)
     {
       var d = $("crashwarning");

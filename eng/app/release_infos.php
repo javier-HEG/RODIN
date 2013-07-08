@@ -22,7 +22,7 @@ include_once("u/arcUtilities.php");
 <br />Please report any issue using <?php echo $MANTIS ?> 
 <br />
 <br />
-<br /><b>RODIN Release 2.8</b>
+<br /><b>RODIN Release 2.8.2</b>
 <br />===================
 <br />SOLR integration for results
 <br />Aggregated view for results
@@ -36,6 +36,7 @@ include_once("u/arcUtilities.php");
 <br />RDF LAB with LOD input from Europeana on single results
 <br />SRC driven AutoComplete with SKOS and description information
 <br />RDFization of results, docs importing, ranking of all documents.
+<br />NEW ONTOFACETS LAYOUT - more responsive and more compact
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  
