@@ -179,7 +179,7 @@ function RodinResult(resultId) {
 	            filterButtonDiv.hide();
 	          });
 	        } else
-	          jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.minContent);
+	          jQuery('#' + this.contentDivId).html(/* spotlightDivHtml + */ this.minContent);
 	        jQuery('#' + this.contentDivId).show();
 	        remark_ontoterms=true;
 	        break;
@@ -187,12 +187,12 @@ function RodinResult(resultId) {
 	        jQuery('#' + this.contentDivId).parent().css('float', '');
 	        jQuery('#' + this.contentDivId).parent().css('width', '100%');
 	        jQuery('#' + this.contentDivId).parent().css('border-bottom', '1px solid gray');
-	        jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.tokenContent);
+	        jQuery('#' + this.contentDivId).html(/* spotlightDivHtml + */ this.tokenContent);
 	        jQuery('#' + this.contentDivId).show();
 	        remark_ontoterms=true;
 	        break;
 	      case 'all':
-	        jQuery('#' + this.contentDivId).html(spotlightDivHtml + this.allContent);
+	        jQuery('#' + this.contentDivId).html(/* spotlightDivHtml + */  this.allContent);
 	        remark_ontoterms=true;
 	        break;
 	      default:

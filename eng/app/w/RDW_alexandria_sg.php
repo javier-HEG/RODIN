@@ -25,6 +25,9 @@ $ALEX_SG_URL = array('alexpub_en_MCM.xml' => 'http://www.alexandria.unisg.ch/EXP
 // Query input : q (rodin internal query tag)
 ##############################################
 $title=lg("titleWidgetTypeSearch");
+
+if ($WANT_WIDGET_SEARCH)
+{
 $htmldef=<<<EOH
 	<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
 EOH;
@@ -49,6 +52,7 @@ $htmldef=<<<EOH
 	<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 add_search_control('ask','','',$htmldef,1);
+}
 ##############################################
 
 

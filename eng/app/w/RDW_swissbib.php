@@ -34,7 +34,9 @@ $swissbib_record_url = "http://www.swissbib.ch/TouchPoint/start.do?Language=de&V
 
 // - Query (Rodin default is 'q')
 $title=lg("titleWidgetTypeSearch");
-$htmldef=<<<EOH
+if ($WANT_WIDGET_SEARCH)
+{
+	$htmldef=<<<EOH
 	<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
 EOH;
 add_search_control('q',$qx,'$q',$htmldef,1);
@@ -54,7 +56,7 @@ $htmldef=<<<EOH
 	<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 add_search_control('ask','','',$htmldef,1);
-
+}
 
 /* ********************************************************************************
  * Widget functions

@@ -28,8 +28,10 @@ $title = lg("titleWidgetTypeSearch");
 $qx = $_REQUEST['q'];
 $cachetimestamp = $_REQUEST['cachetimestamp'];
 
-$htmldef = <<<EOH
-	<input class="localSearch" name="q" type="text" value="$qx" title="$title" onchange="$SEARCHSUBMITACTION">
+if ($WANT_WIDGET_SEARCH)
+{
+	$htmldef = <<<EOH
+		<input class="localSearch" name="q" type="text" value="$qx" title="$title" onchange="$SEARCHSUBMITACTION">
 EOH;
 add_search_control('q', $qx, '$q', $htmldef, 1);
 
@@ -48,7 +50,7 @@ $htmldef = <<<EOH
 	<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 add_search_control('ask', '', '', $htmldef, 1);
-
+}
 // The following tells the widget state machine to check
 // once for internet connection and warn if no one found
 // (timeout) before collecting results

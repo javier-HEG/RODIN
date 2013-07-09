@@ -31,7 +31,9 @@ print "<br> WIDGET IN BAU ...";
 		$title=lg("titleWidgetTypeSearch");
 		$q=$_REQUEST['q'];
 		if (!$q) $q=$_REQUEST['qe'];
-			$htmldef=<<<EOH
+if ($WANT_WIDGET_SEARCH)
+{
+		$htmldef=<<<EOH
 			<input class="localSearch" name="q" type="text" value="$q" title='$title' onchange="$SEARCHSUBMITACTION">
 EOH;
 		add_search_control('q',$q,'$q',$htmldef,1);
@@ -59,8 +61,9 @@ EOH;
 			<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 		add_search_control('ask','','',$htmldef,1);
+	}
 		##############################################
-		}
+}
 
 
 

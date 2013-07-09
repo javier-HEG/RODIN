@@ -23,18 +23,25 @@ function fb_toggle_allItemContent(facet_id) {
 
 function fb_show_allItemContent(facet_id,facetgroup_div)
 {
-	fb_show_itemcontentgroup(facet_id, 'show');
-	fb_show_itemcontent(facet_id, '_b_','show');
-	fb_show_itemcontent(facet_id, '_n_','show');
-	fb_show_itemcontent(facet_id, '_r_','show');
+fb_show_itemcontentgroup(facet_id, 'show');
+fb_show_itemcontent(facet_id, '_b_','show');
+fb_show_itemcontent(facet_id, '_n_','show');
+fb_show_itemcontent(facet_id, '_r_','show');
+jQuery( friGetElementId('fb_itemcount_b_'+facet_id) ).hide();
+jQuery( friGetElementId('fb_itemcount_n_'+facet_id) ).hide();
+jQuery( friGetElementId('fb_itemcount_r_'+facet_id) ).hide();
 }
 
 function fb_hide_allItemContent(facet_id,facetgroup_div)
 {
-		fb_show_itemcontentgroup(facet_id, 'hide');
-		fb_show_itemcontent(facet_id, '_b_','hide');
-		fb_show_itemcontent(facet_id, '_n_','hide');
-		fb_show_itemcontent(facet_id, '_r_','hide');
+	fb_show_itemcontentgroup(facet_id, 'hide');
+	fb_show_itemcontent(facet_id, '_b_','hide');
+	fb_show_itemcontent(facet_id, '_n_','hide');
+	fb_show_itemcontent(facet_id, '_r_','hide');
+	
+	jQuery( friGetElementId('fb_itemcount_b_'+facet_id) ).show();
+	jQuery( friGetElementId('fb_itemcount_n_'+facet_id) ).show();
+	jQuery( friGetElementId('fb_itemcount_r_'+facet_id) ).show();
 }
 
 /**
@@ -174,10 +181,9 @@ function setclick_SRCitemNamenExpanders()
  */
 function fb_toggle_itemcontentgroup(facet_id) {
 	var facet_div = friGetElementId('fb_itemcontent_' + facet_id);
-
 	if (facet_div != null) {
 		if (facet_div.className === 'facetgroup-inactive') {
-			fb_show_itemcontentgroup(facet_id, 'show');
+			alert('show term count facetgroup-inactive')
 		} else {
 			fb_show_itemcontentgroup(facet_id, 'hide');
 		}
@@ -219,10 +225,15 @@ function fb_toggle_itemcontent(facet_id, extension) {
 	var facet_div = friGetElementId('fb_itemcontent' + extension + facet_id);
 
 	if (facet_div != null) {
+		var fb_counterobj_name = 'fb_itemcount'+extension+facet_id;
+		var fb_counterobj = friGetElementId(fb_counterobj_name);
+			
 		if (facet_div.className === 'facetlist-inactive') {
 			fb_show_itemcontent(facet_id, extension, 'show');
+			jQuery(fb_counterobj).hide();
 		} else {
 			fb_show_itemcontent(facet_id, extension, 'hide');
+			jQuery(fb_counterobj).show();
 		}
 	}
 }
@@ -261,7 +272,7 @@ function fb_show_itemcontent(facet_id, extension, mode) {
  * Sets a time-out message as the title of the name of the SRC service that
  * has timed out. 
  */
-function fb_facetboard_set_timeoutinfo(src_service_id, action, base64codedWarning) {
+function fb_facetboard_set_timeoutinfo(src_service_id, skos_relation, base64codedWarning) {
 	var fb_itemname_expander2id = 'fb_itemname_expander2_'+src_service_id;
 	var fb_itemname_expander2 = friGetElementId(fb_itemname_expander2id);
 	
@@ -270,43 +281,13 @@ function fb_facetboard_set_timeoutinfo(src_service_id, action, base64codedWarnin
 }
 
 
-function fb_addToFacetBoardValidatedTerms(src_service_id, base64codedterms, base64codedrawterms) {
-	var rodinsegment = '<?php echo $RODINSEGMENT; ?>';
-	if (base64codedterms != '') {
-		jQuery('#fb_itemcontent_v_' + src_service_id).show();
-		
-		var table = jQuery('#fb_table_v_' + src_service_id);
-		
-		var ranked_preterms = Base64.decode(base64codedterms).split(',');
-		var ranked_preterms_raw;
-		
-		if (base64codedrawterms != '') {
-			ranked_preterms_raw = base64codedrawterms.split(',');
-		} else {
-			ranked_preterms_raw = new Array;
-			
-			for (var i = 0; i < ranked_preterms.length; i++) {
-				ranked_preterms_raw[i] = '';
-			}
-		}
-		
-		var termTableRow=null;
-		//FRI run from 1 to n (avoid labeling under SRC Name)
-		//show max showmaxlistelems ...
-		for (var i = 1; i < ranked_preterms.length; i++) {
-			termTableRow = generate_ontofacet(ranked_preterms[i], Base64.decode(ranked_preterms_raw[i]), null, src_service_id, i, 'boh', parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0);
-			table.append(termTableRow);
-		}
-	}
-}
-
 /**
  * Adds a list of terms (together with their URIs) to the facetboard explorer.
  */
-function fb_add_to_facetboard(src_service_id, cached, action, base64codedterms, base64codedrawterms, base64lightcodedroots) {
+function fb_add_to_facetboard(src_service_id, cached, skos_relation, base64codedterms, base64codedrawterms, base64lightcodedroots) {
 	var fb_itemname_expander2id = 'fb_itemname_expander2_'+src_service_id;
-	var fb_table_id = 'fb_table_'+fb_action2art(action)+'_'+src_service_id;
-	var fb_counterobj_name = 'fb_itemcount_'+fb_action2art(action)+'_'+src_service_id;
+	var fb_table_id = 'fb_table_'+fb_skos_relation2art(skos_relation)+'_'+src_service_id;
+	var fb_counterobj_name = 'fb_itemcount_'+fb_skos_relation2art(skos_relation)+'_'+src_service_id;
 	var fb_itemcount_name = 'fb_itemcount_'+src_service_id;
 	
 	var fb_itemname_expander2 = friGetElementId(fb_itemname_expander2id);
@@ -353,7 +334,7 @@ function fb_add_to_facetboard(src_service_id, cached, action, base64codedterms, 
 			fb_table.ranked_roots = ranked_root;
 			fb_table.ranked_terms_raw = ranked_term_raw;
 			
-			fb_render_terms(fb_general_itemcount, fb_counterobj, fb_table, src_service_id, action);
+			fb_render_terms(fb_general_itemcount, fb_counterobj, fb_table, src_service_id, skos_relation);
 			
 			//Expand render of thesaurus
 			var facetgroup_div_id = 'fb_itemcontent_'+src_service_id;
@@ -371,11 +352,11 @@ function fb_resetValidatedTermsList(src_service_id) {
 
 /**
  * Resets the general item count for the SRC service and clears the
- * table and result count for the specified action.
+ * table and result count for the specified skos_relation.
  */
-function fb_reset_src(src_service_id, action) {
-	var fb_table_id = 'fb_table_' + fb_action2art(action) + '_' + src_service_id;
-	var fb_counterobj_name = 'fb_itemcount_' + fb_action2art(action) + '_' + src_service_id;
+function fb_reset_src(src_service_id, skos_relation) {
+	var fb_table_id = 'fb_table_' + fb_skos_relation2art(skos_relation) + '_' + src_service_id;
+	var fb_counterobj_name = 'fb_itemcount_' + fb_skos_relation2art(skos_relation) + '_' + src_service_id;
 	var fb_itemcount_name = 'fb_itemcount_' + src_service_id;
 	var fb_table = friGetElementId(fb_table_id);
 	var fb_counterobj = friGetElementId(fb_counterobj_name);
@@ -397,14 +378,14 @@ function fb_reset_src(src_service_id, action) {
 
 
 
-function fb_init_src_display(src_service_id, action) {
+function fb_init_src_display(src_service_id, skos_relation) {
 	var fb_itemcount_name = 'fb_itemcount_'+src_service_id;
 	var fb_general_itemcount = friGetElementId(fb_itemcount_name);
 	fb_general_itemcount.innerHTML = '';
-	fb_reset_src(src_service_id, action);
+	fb_reset_src(src_service_id, skos_relation);
 		
-	var fb_item_id="fb_item_"+action.substring(0,1)+'_'+src_service_id;
-	//hide facetgroup-header to action
+	var fb_item_id="fb_item_"+skos_relation.substring(0,1)+'_'+src_service_id;
+	//hide facetgroup-header to skos_relation
 	//alert('ZERO HIDE '+fb_item_id);
 	jQuery('#'+fb_item_id).each(function() {
 		this.style.visibility='hidden';
@@ -415,9 +396,9 @@ function fb_init_src_display(src_service_id, action) {
 
 /**
  * Extracts terms from fb_tablebody and adds them in the table-list
- * that corresponds to the action specified.
+ * that corresponds to the skos_relation specified.
  */
-function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_service_id, action) {
+function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_service_id, skos_relation) {
 	var fb_tablebody_id = fb_tablebody.id;
 	var ranked_term = fb_tablebody.ranked_terms;
 	var ranked_term_raw = fb_tablebody.ranked_terms_raw;
@@ -426,7 +407,7 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 	var rankinfos = fb_tablebody.rows[0];
 	var tBody = fb_tablebody.getElementsByTagName('tbody')[0];
 	var showmaxlistelems = <?php echo $FACETBOARDSHOWMAXLISTELEMS; ?>;
-	var fb_item_id="fb_item_"+action.substring(0,1)+'_'+src_service_id;
+	var fb_item_id="fb_item_"+skos_relation.substring(0,1)+'_'+src_service_id;
 	
 	// Update SRC global count of results
 	var general_count = 0;
@@ -436,22 +417,25 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 	}
 	
 	general_count = general_count + ranked_term.length;
-	//alert('action= '+action+'\n\nranked_term.length='+ranked_term.length+'\n\n'+ranked_term);
+	//alert('skos_relation= '+skos_relation+'\n\nranked_term.length='+ranked_term.length+'\n\n'+ranked_term);
 	
 	if (general_count > 0) {
 		if (general_count > 1)
-			fb_general_itemcount.innerHTML = lg('lblResultsFound', general_count);
+			fb_general_itemcount.innerHTML = lg('lblOntoFacetsFound', general_count);
 		else
-			fb_general_itemcount.innerHTML = lg('lblSingleResultFound', general_count);
+			fb_general_itemcount.innerHTML = lg('lblSingleOntoFacetFound', general_count);
 	}
 
 	// Update local count of found terms
 	if (ranked_term.length > 0) {
 		if (ranked_term.length > 1)
-			fb_counterobj.innerHTML = lg('lblResultsFound', ranked_term.length);
+			fb_counterobj.innerHTML = lg('lblOntoFacetsFound', ranked_term.length);
 		else
-			fb_counterobj.innerHTML = lg('lblSingleResultFound', ranked_term.length);
+			fb_counterobj.innerHTML = lg('lblSingleOntoFacetFound', ranked_term.length);
 	}
+	// always hide skos_relation count (to be shown on closed item)
+	jQuery(fb_counterobj).hide();
+	
 	
 	// Add each new element to table up to showmaxlistelems
 
@@ -460,14 +444,14 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 	
 	for (var i = 0; i < limit; i++) {
 		//alert('this term: '+ranked_term[i]+'\n\nranked terms: ('+ranked_term+')')
-		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0);
+		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, skos_relation, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0);
 		tBody.appendChild(termTableRow);		
 	}
 	
 	/*
 	ranked_term.foreach( function(k, term) {
 		tBody = fb_tablebody.getElementsByTagName('tbody')[0];
-		newTR = generate_ontofacet(term, ranked_term_raw[k], ranked_roots[k], src_service_id, k, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false); 
+		newTR = generate_ontofacet(term, ranked_term_raw[k], ranked_roots[k], src_service_id, k, skos_relation, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false); 
 		tBody.appendChild(newTR);
 	});
 	*/
@@ -477,8 +461,8 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 	if (delta==1)
 	{
 		i=limit;
-		//alert('allow one more term to be displayed at idx='+i+' action:'+action)
-		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0);
+		//alert('allow one more term to be displayed at idx='+i+' skos_relation:'+skos_relation)
+		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, skos_relation, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0);
 		tBody.appendChild(termTableRow);
 	}
 	else
@@ -486,20 +470,20 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
 	{
 		i='more';
 		var plural = (delta==1?'':'s');
-		var itemtxt = 'More '+action+' term'+plural+'...';
+		var itemtxt = 'Show all terms (+'+delta+')...';
 		
 		
-		termTableRow = generate_ontofacet(itemtxt, '', null, fb_tablebody_id, src_service_id, i, action, '', rodinsegment, true, false, delta);
+		termTableRow = generate_ontofacet(itemtxt, '', null, fb_tablebody_id, src_service_id, i, skos_relation, '', rodinsegment, true, false, delta);
 		tBody.appendChild(termTableRow);
 		
 		//Add the remaining terms but hidden!
 		for (var i = limit; i < ranked_term.length; i++) {
-			termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, action, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, true, 0);
+			termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, skos_relation, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, true, 0);
 			tBody.appendChild(termTableRow);
 		}
 	}
 	
-	//show facetgroup-header to action if there were at least one facet:
+	//show facetgroup-header to skos_relation if there were at least one facet:
 	if (ranked_term.length)
 	{
 		jQuery('#'+fb_item_id).each(function() {
@@ -514,9 +498,9 @@ function fb_render_terms(fb_general_itemcount, fb_counterobj, fb_tablebody, src_
  * FACETBOARD CONSTRUCTION
  * Generates the table row for the given term.
  */
-function generate_ontofacet(term, ranked_term_raw, rootbase46, fb_tablebody_id, src_service_id, i, action, lang, rodinsegment, ismore, ishidden, counthiddenterms) 
+function generate_ontofacet(term, ranked_term_raw, rootbase46, fb_tablebody_id, src_service_id, i, skos_relation, lang, rodinsegment, ismore, ishidden, counthiddenterms) 
 {
-	var of_icons_id="ricons_"+action.substring(0,1)+'_'+src_service_id+'_'+i;
+	var of_icons_id="ricons_"+skos_relation.substring(0,1)+'_'+src_service_id+'_'+i;
 	var tableRow = document.createElement('tr');
 	
 	if (ismore)
@@ -550,14 +534,14 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, fb_tablebody_id, 
 		tempTableCell.setAttribute("class", "fb-ismore");
 		termLink.setAttribute("class", "fb-ismore");
 		
-		var moretitle=lg('lblOntoFacetsMoreActions').replace('xxx',counthiddenterms);
-		termLink.setAttribute("title", moretitle);
-		termLink.setAttribute("onclick", "fb_display_more_skos_facets('"+fb_tablebody_id+"','"+src_service_id+"','"+action+"')");
+		//var moretitle=lg('lblOntoFacetsMoreskos_relations').replace('xxx',counthiddenterms);
+		//termLink.setAttribute("title", moretitle);
+		termLink.setAttribute("onclick", "fb_display_more_skos_facets('"+fb_tablebody_id+"','"+src_service_id+"','"+skos_relation+"')");
 	}
 	else
 	{
 		termLink.setAttribute("class", "fb-term");
-		termLink.setAttribute("title", lg('lblOntoFacetsTermActions'));
+		termLink.setAttribute("title", lg('lblOntoFacetsTermskos_relations'));
 	}
 	termLink.innerHTML = term;
 	tempTableCell.appendChild(termLink);
@@ -596,7 +580,7 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, fb_tablebody_id, 
   {
     // Show the rank button
     var rankButton = document.createElement('img');
-    rankButton.setAttribute("src", "../../../gen/u/images/rank-icon.png");
+    rankButton.setAttribute("src", "../../../gen/u/images/funnel.png");
     rankButton.setAttribute("style", "vertical-align:top;cursor:pointer;padding-right:1px");
     rankButton.setAttribute("title", lg("lblClick2RankResults", term));
     rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ rootbase46 + "', '" + term+ "', '" + lang + "');");
@@ -621,12 +605,12 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, fb_tablebody_id, 
 }
 
 
-function fb_display_more_skos_facets(fb_tablebody_id, src_service_id,action)
+function fb_display_more_skos_facets(fb_tablebody_id, src_service_id,skos_relation)
 {
 	//hide seemore element and show hidden elements (fb-hidden)
 	var fb_table=document.getElementById(fb_tablebody_id);
 	//Hide seemore
-	jQuery('.fb-ismore',fb_table).each(function() {
+	jQuery('.fb-seemore',fb_table).each(function() {
 		jQuery(this).hide();
 	});
 	
@@ -650,15 +634,15 @@ function fb_set_node_ontofacet(label) {
 }
 
 /**
- * A single character is used to represent actions in the IDs of the
+ * A single character is used to represent skos_relations in the IDs of the
  * html elements composing the ontological facet explorer. The character
- * used is the first one of the action name string. 
+ * used is the first one of the skos_relation name string. 
  */
-function fb_action2art(action) {
-	if (action != '') {
-		return action.substring(0, 1);
+function fb_skos_relation2art(skos_relation) {
+	if (skos_relation != '') {
+		return skos_relation.substring(0, 1);
 	} else {
-		return action;
+		return skos_relation;
 	}
 }
 
@@ -687,7 +671,7 @@ function fb_sort_alfa(srcname,art)
 
 function resetCloudBoard(userId) {
 	var url = "<?php print $TAGCLOUDRESPONDER; ?>";
-	url += "?pid=" + userId + "&action=reset";
+	url += "?pid=" + userId + "&skos_relation=reset";
 	
 	$p.ajax.call(url, {
 		'type':'load',
@@ -699,7 +683,7 @@ function refreshCloudBoard(userId) {
 	var url = "<?php print $TAGCLOUDRESPONDER; ?>";
 	var max = (jQuery("#sizeBySelect option:selected").attr("value") == "recency") ? 5 : 10;
 	
-	url += "?pid=" + userId + "&action=refresh&max=" + max + "&sizeby=" + jQuery("#sizeBySelect option:selected").attr("value");
+	url += "?pid=" + userId + "&skos_relation=refresh&max=" + max + "&sizeby=" + jQuery("#sizeBySelect option:selected").attr("value");
 	
 	$p.ajax.call(url, {
 		'type':'load',

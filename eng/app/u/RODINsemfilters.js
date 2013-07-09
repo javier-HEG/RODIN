@@ -880,9 +880,10 @@ function src_widget_morelikethis(obj,semanticcontextbase64,term,lang)
   var group_div = document.getElementById('fb_itemcontent_'+ONTO_id);
   if (!group_div) alert('ALERT: NO OBJECT WITH ID='+'fb_itemcontent_'+ONTO_id);
   
+  /* //We do not ask - we do:
   if (confirm("This will show ranked widget results\naccordingly to similarity with the context of '"+term+"':"
           +"\n\n"+semanticcontext
-          +"\n\nContinue?"))
+          +"\n\nContinue?")) */
   {
     var solr_id = semanticcontextbase64;
     var solr_path = 'rodin_result';
@@ -976,9 +977,10 @@ function handle_post_solr_doc_update(response,vars) {
     var slrq='mlt?q=id:'+solr_id+'&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1';
     var generic_solr_call=solr_path+slrq;
     //alert('widget_morelikethis generic_solr_call: '+generic_solr_call);
+    /* // we do not ask - we do:
     if (confirm("This will show ranked widget results accordingly to similarity with this result."
       //+" \n\n using "+generic_solr_call
-      +"\n\nContinue?"))
+      +"\n\nContinue?")) */
     {
       slrq_to_widgets(slrq);
     }

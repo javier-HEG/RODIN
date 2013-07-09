@@ -1,6 +1,6 @@
 <?php
 // General
-$GLOBALS['lgMap']["lblMetaSearchPrefsNbResults"]="Ergebnisse pro Widget";
+$GLOBALS['lgMap']["lblMetaSearchPrefsNbResults"]="Ergebnisse pro Ressource";
 $GLOBALS['lgMap']["lblMetaSearchPrefsTextZoom"]="Ergebnispräsentation";
 $GLOBALS['lgMap']["titleTextZoomOne"]="Klicken Sie, um das Resultat in einer Linie anzuzeigen";
 $GLOBALS['lgMap']["titleTextZoomTwo"]="Klicken Sie, um einen Teil des Resultates anzuzeigen";
@@ -25,14 +25,14 @@ $GLOBALS['lgMap']["lblGotNoResults"]="Ihre Suche ergab leider keine Resultate. B
 $GLOBALS['lgMap']["lblOneResultFound"]="1 Resultat gefunden";
 $GLOBALS['lgMap']["lblNumberOfResultsFound"]="#1 Resultate gefunden";
 $GLOBALS['lgMap']["lblContextMenuMorphoFilterX1"]="Hovern Sie zum Wählen eines morphologischen Filters";
-$GLOBALS['lgMap']["lblContextMenuAddToBreadcrumb"]="Klicken Sie, um den Begriff zu den Breadcrumbs hinzuzufügen";
+$GLOBALS['lgMap']["lblContextMenuAddToBreadcrumb"]="Klicken Sie, um den Begriff als Filter zu verwenden";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTermX1"]="Klicken Sie, um Vorkommnisse dieses Begriffs zu filtern";
-$GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Klicken Sie, um den Begriff in den ontologischen Facetten zu suchen:";
+$GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Klicken Sie, um den Begriff weiter zu explorieren:";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Vrw. F1";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="Vrw. F2";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm3"]="Vrw. F3";
 $GLOBALS['lgMap']["titleOpenResult"]="Click to open result information in new tab";
-$GLOBALS['lgMap']["lblActionsOnWord"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
+$GLOBALS['lgMap']["lblOntoFacetsTermskos_relations"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 
 // Widgetprefs
 $GLOBALS['lgMap']["lblPrefsOpen"]="Klicken Sie, um die Einstellungen dieses Widgets anzupassen";
@@ -71,7 +71,7 @@ $GLOBALS['lgMap']["lblSkosRelatedProperty"]="ist verwandt mit";
 $GLOBALS['lgMap']["titleLaunchZenFilter"]="Klicken Sie, um Begriffe zu filtern";
 
 // Widget Morelikethis
-$GLOBALS['lgMap']["titleLaunchWidgetMLT"]="Klicken Sie, um Widgetsdokumente wie dieses zu priorisieren";
+$GLOBALS['lgMap']["titleLaunchWidgetMLT"]="Suchen Sie mit diesem Dokument";
 
 
 // Other originally in POSH

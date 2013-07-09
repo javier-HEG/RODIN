@@ -74,8 +74,11 @@
 	// QUERY TAG: q (DEFAULT)
 	##############################################
 	$title=lg("titleWidgetTypeSearch");
-	$htmldef=<<<EOH
-	<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
+	
+	if ($WANT_WIDGET_SEARCH)
+	{
+		$htmldef=<<<EOH
+		<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
 EOH;
 	add_search_control('q',$qx,'',$htmldef,2);
 	##############################################
@@ -89,6 +92,7 @@ EOH;
 		<input class="localMaxResults" name="m" type="text" value="$m" title='$title'/>
 EOH;
 	add_search_control('m',$m,20,$htmldef,2);
+	}
 	##############################################
 
 

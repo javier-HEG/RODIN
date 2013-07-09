@@ -36,21 +36,21 @@ lang["lblAfterCleaningEmptyTerm"]="Invalid term. Please, add only complete terms
 lang["titleSurvistaClose"]="Click to close the visualization";
 lang["titleSurvistaMaximize"]="Click to maximize the visualization";
 lang["titleSurvistaRestore"]="Cklick to restore the visualization";
-lang["lblSurvistaAddToBreadcrumb"]="Click to add the word as breadcrumb";
-lang["lblSurvistaExploreOntoFacets"]="Click to explore the word in ontological facets";
+lang["lblSurvistaAddToBreadcrumb"]="Click to use as a filter";
+lang["lblSurvistaExploreOntoFacets"]="Click to explore further";
 lang["lblDoubleClickToExplore"]="Double-click to visualize this concept";
 lang["lblRightClickForOptions"]="Right-click to see available actions";
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Click to explore the ontological facets of your term \"$$\"";
-lang["lblClick2RankResults"]="Click to rank widget results with respect to the ontological context of term \"$$\"";
+lang["lblClick2RankResults"]="Filter results with this term";
 lang["lblOntoFacetsShowOnSurvista"]="Click to show visual representation of your term \"$$\"";
 lang["lblOntoFacetsMoreActions"]="Click to see xxx further terms";
 lang["lblOntoFacetsTermActions"]="Right-click to see available actions";
 lang["lblOntoFacetsTermActions2"]="Right-click to see available actions";
 lang["lblSRCTimeout"]="Timeout exceeded without response from the ontology engine.";
-lang["lblSingleResultFound"]="$$ result";
-lang["lblResultsFound"]="$$ results";
+lang["lblSingleOntoFacetFound"]="$$ term";
+lang["lblOntoFacetsFound"]="$$ terms";
 
 //TagCloud
 lang["titleClickOnTag"]="Click to send the term to the search field, double click to search directly";
@@ -73,6 +73,8 @@ lang["lblZenFilterNoResults"]="No concepts could be automatically extracted from
 //Widgets
 lang["titleWidgetOpenInTab"]="Click to open widget in a new browser tab";
 lang["titleWidgetRestore"]="Restore";
+lang["lblPrefsOpen"]="Click to set widget search preferences";
+lang["lblOntoFacetsTermskos_relations"]="Right-click to see available actions";
 
 //User configuration menu
 lang["titleManageAccount"]="Click to manage my account";
@@ -304,7 +306,7 @@ lang["msgAreYouSureSupElement"]="Are you sure to delete this element?";
 lang["msgNeedToBeConnected"]="You need to save this page to use this widget";
 lang["lblModuleTitle"]="Title";
 lang["lblBeginningWith"]="Beginning with ";
-lang["lblExplore"]="Add widgets";
+lang["lblExplore"]="Add Resources";
 lang["lblAddEvent"]="Add event";
 lang["lblAdd"]="Add";
 lang["lblDate"]="Date";

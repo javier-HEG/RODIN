@@ -120,7 +120,7 @@ EOF;
 						class='ontotr'
 	 			>$temporary_onoff</td>
 	 			<td>
-					<div id="fb_itemcontent_v_{$src_service_id}" style="padding-right:2px; padding-top:6px; display:none;">
+					<div id="fb_itemcontent_v_{$src_service_id}" style="padding-right:2px; padding-top:2px; display:none;">
 						<table id="fb_table_v_{$src_service_id}" cellpadding="0" cellspacing="0" border=0 width="100%" class="fb-group-table">
 							<tr style="cursor:pointer;font-style:italic;" class="$CLASS_ITEMEXPANDER1"
 							>

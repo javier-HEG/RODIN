@@ -22,8 +22,10 @@ print_htmlheader("BIBSONOMY RODIN WIDGET");
 
 // - Query (Rodin default is 'q')
 $title = lg("titleWidgetTypeSearch");
-$htmldef=<<<EOH
-	<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
+if ($WANT_WIDGET_SEARCH)
+{
+	$htmldef=<<<EOH
+		<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
 EOH;
 add_search_control('q', $q, '$q', $htmldef, 2);
 	
@@ -42,7 +44,7 @@ $htmldef=<<<EOH
 	<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 add_search_control('ask', '', '', $htmldef, 2);
-
+}
 
 /* ********************************************************************************
  * Widget functions

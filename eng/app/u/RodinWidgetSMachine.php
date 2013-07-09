@@ -168,6 +168,8 @@ function RDW_DISPLAYSEARCHCONTROLS_EPI()
 	global $remoteuser, $datasource;
 	global $HOST, $FORMNAME;
 	global $_w;
+	global $TAB_DB_ID; //TAB ID
+	global $WIDGET_ID;
 	global $APP_ID;
 	global $USER_ID;
 	global $CLONEDFROM_APPID;
@@ -385,13 +387,15 @@ EOH;
 				if ($paramvalue <> '') $SEARCHPARAMSEXIST=true;
 			}
 		} //saved_userprefs_for_this_widget_application
-
-
-
+	
+		
 		#Prepare for displaying
-
+		#9.7.2013 FRI: We still use this serverside technique
+		#we do NOT show but leave there the command wheel
+		#The user click on the widget wheel is transferred to this wheel
 		$filterdivid="{$datasource}_{$APP_ID}_filter";
 		$filterimgdivid="imgicon_".uniqid();
+		$filterimgdivid='userprefs_'.$TAB_DB_ID.'_'.$WIDGET_ID;
 		
 		$FILTERDIV = make_filter_div($filterdivid,$_w);
 		
@@ -456,9 +460,10 @@ EOO;
 			}
 		} // copy&store the PREFS from the cloning widget
 
+		//WE DO NOT SHOW THE PREFS ICON HERE BUT KEEP THE ICON STRUCTURE AND DIV
 		print<<<EOP
-			<td align="left" valign="top" name="searchPreferences">
-				<img class="openPreferencesButton" id="$filterimgdivid" src="$ICONOPEN" title="$TITLEOPEN"
+			<td align="left" valign="top" name="searchPreferences" style="display:none">
+				<img class="openPreferencesButton" id="$filterimgdivid" src="$ICONOPEN_______" title="$TITLEOPEN"
 					onclick="var prefsDiv = document.getElementById('$filterdivid');
 							 var openPrefsButton = document.getElementById('$filterimgdivid');
 
@@ -469,7 +474,7 @@ EOO;
 			</td>
 		</tr>
 	</table>
-	<div style="display: none; height: 0px;">$ZOOMFILTER</div>
+	<!--div style="display: none; height: 0px;">$ZOOMFILTER</div-->
 EOP;
 
 
@@ -544,7 +549,15 @@ EOP;
 
 	} // WANTFILTER
 	else
+	{
+		$DELETE_PREFS_ICON_FROM_WIDGET_TITLE_BAR =<<<EOS
+		<script type='text/javascript'>
+		 	parent.delete_prefs_icon_from_widget_title_bar($TAB_DB_ID,$WIDGET_ID);
+	 	</script>
+EOS;
+		print $DELETE_PREFS_ICON_FROM_WIDGET_TITLE_BAR; 
 		print '</table><div style="display: none; height: 0px;">' . $ZOOMFILTER . '</div>';
+	}
 	#####################################
 
 
@@ -821,7 +834,7 @@ function RDW_COLLECTRESULTS_EPI()
 				$DB->close();
 		}
 
-		print "</div> VICHANGO";
+		//print "</div> VICHANGO";
 
 		// This variable tells if the widget should continue to the 
 		// next state, in that case it redirects itself.

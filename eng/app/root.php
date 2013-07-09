@@ -219,7 +219,7 @@ $IMG_REFINING_TITLE = "Calculating ontological facets to your query ...";
 //Zen filter icon
 $ZEN_FILTER_ICON = $RODINIMAGESURL . '/funnel.png';
 //MoreLikeThis icon
-$MLT_ICON = $RODINIMAGESURL . '/rank-icon.png';
+$MLT_ICON = $RODINIMAGESURL . '/funnel.png';
 
 //Tag-cloud icon
 $TAG_CLOUD_ICON = $RODINIMAGESURL . '/clock-history.png';
@@ -235,6 +235,7 @@ $URL_ICONONTO_OFF_ON="$RODINUTILITIES_GEN_URL/images/ico_open.png";
 
 $lodLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/u/rdfize.php?listwr=on";
 
+$WANT_WIDGET_SEARCH =false;
 $WANT_RDF_ANNOTATION=true; 
 $WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=			0    	;
 

@@ -189,7 +189,6 @@ div#fb_itemname {
 	/*background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
 	position: relative;	
 	text-align: left;
-	overflow-y: auto;
 	white-space:nowrap;
 }
 
@@ -216,9 +215,9 @@ div#fb_itemname {
 }
 
 .facetcontrol-td-uninit {
-	padding-left:6px;
 	font-family:"Arial";
-	font-size: small; /*like portaneo widgetmenu */
+	font-size: medium; /*like portaneo widgetmenu */
+	font-weight:bold;
 	font-weight:lighter;
 	text-align:left; 
 	color:<?php print $COLOR_LITTLEVISIBLETEXT; ?>;
@@ -245,9 +244,8 @@ div#fb_itemname {
 .facetcontrol-td-error, 
 .facetcontrol-td-timeout {
 	color:<?php print $COLOR_WARNINGS; ?>;
-	padding-left:6px;
 	font-family:"Arial";
-	font-size: small; /*like portaneo vidgetmenu */
+	font-size: medium; /*like portaneo vidgetmenu */
 	font-weight:bold;
 	text-align:left; 
 	white-space: nowrap;
@@ -627,7 +625,7 @@ td.onoff
 {
 	width:18px;
 	margin: 0;
-	padding-top: 6px;
+	padding-top: 2px;
 	vertical-align:middle;
 	text-align:center;	
 	display:block;

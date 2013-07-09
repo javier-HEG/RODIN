@@ -83,6 +83,8 @@
 	// QUERY TAG: q (DEFAULT)
 	##############################################
 	$title=lg("titleWidgetTypeSearch");
+	if ($WANT_WIDGET_SEARCH)
+{
 	$htmldef=<<<EOH
 	<input name="q" type="text" value="$qx" title='$title' class="localSearch" onchange="$SEARCHSUBMITACTION">
 EOH;
@@ -110,6 +112,7 @@ EOH;
 		<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 	add_search_control('ask','','',$htmldef,2);
+}
 	##############################################
 
 

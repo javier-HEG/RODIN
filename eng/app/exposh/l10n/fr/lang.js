@@ -36,22 +36,22 @@ lang["lblAfterCleaningEmptyTerm"]="Terme invalide. Ajoutez seulement des mots en
 lang["titleSurvistaClose"]="Cliquez pour fermer la visualisation";
 lang["titleSurvistaMaximize"]="Cliquez pour maximiser la visualisation";
 lang["titleSurvistaRestore"]="Cliquez pour restaurer la visualisation";
-lang["lblSurvistaAddToBreadcrumb"]="Cliquez pour ajouter le mot aux breadcrumbs";
-lang["lblSurvistaExploreOntoFacets"]="Cliquez pour explorer le mot dans les facettes ontologiques";
+lang["lblSurvistaAddToBreadcrumb"]="Cliquez pour utiliser le mot comme filtre";
+lang["lblSurvistaExploreOntoFacets"]="Cliquez pour explorer le mot";
 lang["lblDoubleClickToExplore"]="Faites un double-clic pour visualiser ce concept";
 lang["lblRightClickForOptions"]="Cliquez à droit pour voir les actions possibles";
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Cliquez pour explorer les facettes ontologiques de \"$$\"";
 
-lang["lblClick2RankResults"]="Cliquez pour ordonner les resultats des widgets par le contexte ontologique de \"$$\"";
+lang["lblClick2RankResults"]="Filtrez les resultats avec ce term";
 lang["lblOntoFacetsShowOnSurvista"]="Cliquez pour montrer une représentation graphique de \"$$\"";
 lang["lblOntoFacetsMoreActions"]="Cliquez pour voir xxx termes supplementaires";
 lang["lblOntoFacetsTermActions"]="Cliquez à droite pour voir les actions possibles";
 lang["lblOntoFacetsTermActions2"]="Cliquez à gauche pour filtrer les resultats des widgets sur ce mot, cliquez à droite pour voir les actions possibles";
 lang["lblSRCTimeout"]="Le temps alloué à l'exploration des facettes ontologiques a été dépassé sans trouver des résultats.";
-lang["lblSingleResultFound"]="$$ résultat";
-lang["lblResultsFound"]="$$ résultats";
+lang["lblSingleOntoFacetFound"]="$$ term";
+lang["lblOntoFacetsFound"]="$$ termes";
 
 //TagCloud
 lang["titleClickOnTag"]="Cliquez pour envoyer le terme aux champs de recherche, clicquez doublement pour demarrer la recherche";
@@ -74,6 +74,8 @@ lang["lblZenFilterNoResults"]="L'extraction automatique de concepts à partir du
 //Widgets
 lang["titleWidgetOpenInTab"]="Cliquez pour ouvrir le widget dans un nouvel onglet du navigateur";
 lang["titleWidgetRestore"]="Restaurer";
+lang["lblPrefsOpen"]="Cliquez pour regler les préférences de ce widget";
+lang["lblOntoFacetsTermskos_relations"]="Cliquez à droite pour voir les actions possibles";
 
 //User configuration menu
 lang["titleManageAccount"]="Cliquez pour gérer votre compte";

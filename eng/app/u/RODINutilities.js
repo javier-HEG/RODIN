@@ -218,6 +218,49 @@ function format3pos(num)
 
 
 
+	function transfer_click_from_widget_control_to_prefs(tab_id,widget_id)
+	{
+		//alert('transfer_click_from_widget_control_to_prefs('+tab_id+','+widget_id+')');
+		var userprefsid='userprefs_'+ tab_id + '_' + widget_id;
+		var iframeid = 'modfram'+tab_id+'_'+widget_id;
+		var iframe = null;
+		var pertinentIframes = getPertinentIframesInfos(tab_id);			
+		for(var i=0;i<pertinentIframes.length;i++)
+		{
+			var iframe=pertinentIframes[i][0];
+			if (iframe.id==iframeid)
+			{
+				iframe_discovered=true;
+				break;
+			}
+		}
+		
+		if (iframe) // transfer click to prefs
+		{
+			var prefs = iframe.contentWindow.document.getElementById(userprefsid);
+			if (prefs)
+			{
+				prefs.click();
+			}
+		}
+	}
+
+
+	function delete_prefs_icon_from_widget_title_bar(tab_id,widget_id)
+	{
+		//alert('delete_prefs_icon_from_widget_title_bar('+tab_id+','+widget_id+')');
+		var widget_title_bar_prefs_a_id = 'rodinwprefs_'+tab_id+'_'+widget_id;
+		//alert('search for '+widget_title_bar_prefs_a_id)
+		var a = document.getElementById(widget_title_bar_prefs_a_id);
+		if (a)
+		{
+			//alert('deset '+a.id)
+			a.style.visibility='hidden';
+		}
+	}
+
+
+
 
 
 	function open_rdfize(url,tabname)
@@ -1400,7 +1443,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 						}
 						if (errormessage!='')
 						{	/*DoNot initialize but inform sth wrong*/
-							errormessage+='\n Please retry later.';
+							errormessage+='\n\nPlease retry later.';
 							SRCitemNamenExpander2.setAttribute('class','facetcontrol-td-error');
 							SRCitemNamenExpander2.setAttribute('title',errormessage);
 						}
@@ -1606,7 +1649,7 @@ if (response!=null) {
 					 related_results_root= pclass.string.trim( ( response.getElementsByTagName("related_root")[0]).textContent );
 				 }
     		
-				parent.fb_addToFacetBoardValidatedTerms(service_id, validated_results, validated_results_raw);
+				//parent.fb_addToFacetBoardValidatedTerms(service_id, validated_results, validated_results_raw);
 				
         
 //        alert('broader_results_root=('+broader_results_root+')'
@@ -1697,89 +1740,7 @@ if (response!=null) {
 }
 
 
-	
-	
 
-
-	function react_to_refine_response(response,vars)
-	{
-		
-		//alert('react_to_refine_response cid:'+vars['cid']+' XMLresponse:'+response);
-		
-		var pclass=vars['pclass'];
-		var module=vars['module'];
-		var newsid=vars['newsid'];
-		var newtab_db_id = vars['newtab_db_id'];
-		
-		var cid	='';
-		var sid ='';
-		var c		='';
-
-		var maxDur='';
-		var rts='';
-		var cdur='';
-
-		var v='';
-		var q='';
-		var srv='';
-		var srv_raw='';
-		var searchtxt='(xml error)';
-			
-		if (response!=null)
-		{
-			if (response.getElementsByTagName("refine")[0])
-			{
-				 cid		=(response.getElementsByTagName("cid")[0]).textContent;
-				 sid		=(response.getElementsByTagName("sid")[0]).textContent;
-				 c			=(response.getElementsByTagName("c")[0]).textContent;
-		
-				 maxDur	=(response.getElementsByTagName("maxDur")[0]).textContent;
-				 rts		=(response.getElementsByTagName("rts")[0]).textContent;
-				 cdur		=(response.getElementsByTagName("cdur")[0]).textContent;
-
-				 v			= parent.Base64.decode( pclass.string.trim( ( response.getElementsByTagName("v")[0]).textContent ) );
-				 q			= parent.Base64.decode( pclass.string.trim( ( response.getElementsByTagName("q")[0]).textContent ) );
-				 srv=		parent.Base64.decode( pclass.string.trim( ( response.getElementsByTagName("srv")[0]).textContent ) );
-				 if (response.getElementsByTagName("srv_raw")[0])
-				 {
-					 srv_raw= parent.Base64.decode( pclass.string.trim( ( response.getElementsByTagName("srv_raw")[0]).textContent ) );
-					 if (srv_raw != '')
-					 {
-						 //alert('SRC supplied srv_raw: ('+srv_raw+')');
-						 /*srv_raw contains a sequence of base64encoded terms separated by a SEPARATOR =comma*/
-					 }
-				 }
-				 searchtxt = srv;
-			} // refine ok
-		} // response <> null
-		
-		
-		var iframe = parent.document.getElementById('modfram'+newtab_db_id+'_'+module.uniq);
-		var rodinwidgetname= parseUri(iframe.src).file;
-		// cancel any q, subst qe value:
-
-		old_querystring=parseUri(iframe.src).query;
-		var x=1; // dummy
-		var qs = new Querystring(old_querystring);
-		if (qs.contains('q')) qs.set('q','');
-		qs.set('qe',searchtxt);
-		qs.set('sid',newsid);
-		qs.set('go','1');
-		qs.set('show','RDW_widget');
-		//qs.set('_w',_w);
-		//qs.set('_h',_h);
-		qs.set('_x',iframe.id);
-		qs.set('pid',parent.$p.app.user.id);
-		var uri=
-			parseUri(iframe.src).protocol + '://' + parseUri(iframe.src).host + parseUri(iframe.src).path;
-		var newuri=uri+'?'+qs.toString();
-		olduri=uri+'?'+old_querystring;
-
-		iframe.src=newuri; // and reload!
-	}
-
-
-	
 	
 	
 	function get_stopwordlist(pclass)

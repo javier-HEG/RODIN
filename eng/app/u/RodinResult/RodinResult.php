@@ -369,7 +369,7 @@ class BasicRodinResult {
 			$html .= '<img src="'."$WEBROOT$RODINROOT".'/gen/u/images/link_go.png" title="' . lg('titleOpenResult') . '" onclick="window.open(\'' . $this->getUrlPage() . '\',\'_blank\');" /><br />';
 		}
 		
-		$html .= $this->htmlHeaderZenFilter($sid, $resultIdentifier) . '<br />';
+		// $html .= $this->htmlHeaderZenFilter($sid, $resultIdentifier) . '<br />';
 		
 		if (!$aggView)
 			$html .= $this->htmlHeaderMLT($this->id, $this->sid, $datasource, $resultIdentifier) . '<br />';

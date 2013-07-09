@@ -43,22 +43,22 @@ lang["lblAfterCleaningEmptyTerm"]="Ungültiger Begriff! Bitte fügen Sie nur vol
 lang["titleSurvistaClose"]="Klicken Sie, um die Visualisierung zu schliessen";
 lang["titleSurvistaMaximize"]="Klicken Sie, um die Visualisierung zu maximieren";
 lang["titleSurvistaRestore"]="Klicken Sie, um die Visualisierung neu zu laden";
-lang["lblSurvistaAddToBreadcrumb"]="Klicken Sie, um den Begriff zu den Breadcrumbs hinzuzufügen";
-lang["lblSurvistaExploreOntoFacets"]="Klicken Sie, um den Begriff in den ontologischen Facetten zu suchen";
+lang["lblSurvistaAddToBreadcrumb"]="Klicken Sie, um den Begriff als Filter zu verwenden";
+lang["lblSurvistaExploreOntoFacets"]="Klicken Sie, um den Begriff weiter zu explorieren";
 lang["lblDoubleClickToExplore"]="Klicken Sie doppelt, um dieses Konzept anzuzeigen";
 lang["lblRightClickForOptions"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 
 //Ontological facets
 lang["lblOntoFacetsExplore"]="Klicken Sie, um die ontologischen Facetten von \"$$\" anzuzeigen";
-lang["lblClick2RankResults"]="Klicken Sie, um die Widgetsergebnisse nach ontologischen Kontext von \"$$\" zu sortieren";
+lang["lblClick2RankResults"]="Filtern Sie die Ergebnisse nach diesem Term";
 lang["lblOntoFacetsShowOnSurvista"]="Klicken Sie, um die visuelle Darstellung von \"$$\" anzuzeigen";
 
 lang["lblOntoFacetsMoreActions"]="Klicken Sie um weitere xxx Terme anzuzeigen";
 lang["lblOntoFacetsTermActions"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 lang["lblOntoFacetsTermActions2"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 lang["lblSRCTimeout"]="Die Zeit ist überschritten ohne dass Resultate gefunden werden konnten.";
-lang["lblSingleResultFound"]="$$ Ergebnis";
-lang["lblResultsFound"]="$$ Ergebnisse";
+lang["lblSingleOntoFacetFound"]="$$ Term";
+lang["lblOntoFacetsFound"]="$$ Terme";
 
 //ZenFilter
 lang["lblZenFiltering"]="Filtert";
@@ -74,6 +74,9 @@ lang["lblZenFilterNoResults"]="No concepts could be automatically extracted from
 //Widgets
 lang["titleWidgetOpenInTab"]="Klicken Sie, um das Widget in einem neuen Browserfenster zu öffnen";
 lang["titleWidgetRestore"]="Restore";
+lang["lblPrefsOpen"]="Klicken Sie, um die Einstellungen dieses Widgets anzupassen";
+lang["lblOntoFacetsTermskos_relations"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
+
 
 //User configuration menu
 lang["titleManageAccount"]="Klicken Sie, um Ihr Profil zu bearbeiten";

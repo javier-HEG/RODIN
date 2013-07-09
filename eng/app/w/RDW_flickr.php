@@ -27,8 +27,10 @@ print_htmlheader("FLICKR RODIN WIDGET");
 
 // - Query (Rodin default is 'q')
 $title=lg("titleWidgetTypeSearch");
-$htmldef=<<<EOH
-	<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
+if ($WANT_WIDGET_SEARCH)
+{
+	$htmldef=<<<EOH
+		<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
 EOH;
 add_search_control('q', $qx, '$q', $htmldef, 1);
 
@@ -47,6 +49,7 @@ $htmldef=<<<EOH
 	<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 add_search_control('ask','','',$htmldef,1);
+}
 
 
 /**
