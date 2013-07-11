@@ -168,7 +168,7 @@ function RDW_DISPLAYSEARCHCONTROLS_EPI()
 	global $remoteuser, $datasource;
 	global $HOST, $FORMNAME;
 	global $_w;
-	global $TAB_DB_ID; //TAB ID
+	global $TAB_DB_ID; if (!$TAB_DB_ID) $TAB_DB_ID=0;
 	global $WIDGET_ID;
 	global $APP_ID;
 	global $USER_ID;

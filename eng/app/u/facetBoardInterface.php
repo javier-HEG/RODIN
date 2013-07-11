@@ -112,8 +112,11 @@ EOF;
 			$narrowerSegment 	= generate_ontosegment($src_service_id,$SRCNAME,'narrower');
 			$relatedSegment 	= generate_ontosegment($src_service_id,$SRCNAME,'related');
 			$FBTERMWIDTH=$FACETBOARDMINWIDTH*0.9;
+			
+			$SRCNAME_TOOLTIP=lg('lable'.$SRCNAME);
+			
 			$FACETBOARD.=<<<EOF
-	 		<tr>
+	 		<tr title='$SRCNAME_TOOLTIP'>
 	 			<td align=left valign=top class='onoff'
 	 					onmouseover="document.getElementById('tyn_$src_service_id').style.visibility ='visible'" 
 						onmouseout="document.getElementById('tyn_$src_service_id').style.visibility ='hidden'"

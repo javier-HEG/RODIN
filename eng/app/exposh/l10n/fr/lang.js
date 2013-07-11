@@ -581,6 +581,7 @@ lang["myapplicationsIconDesc"]="Gestion des mes applications : acc&egrave;s aux 
 lang["lblMoreInfo"]="Informations compl&eacute;mentaires";
 lang["errorEmptyFieldForm"]="Veuillez remplir tous les champs obligatoires du formulaire";
 lang["maximize"]="Agrandir";
+lang["restore"]="Agrandir";
 lang["minimize"]="Reduire";
 lang["options"]="Options";
 lang["communicate"]="Communiquer";

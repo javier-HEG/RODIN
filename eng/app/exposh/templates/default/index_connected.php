@@ -144,24 +144,24 @@ EOI;
 			<span class="optionLabel">{$textZoomLabel}:</span>
 			<img id="img_mainzoombutton1" class="optionButton" src="$B_MIN_ICON_NORMAL"
 				title="$title1"
-				onClick="javascript: reload_frames_render('min');"
-				onMouseOver="javascript: i1 = document.getElementById('img_mainzoombutton1');zoomb1=i1.src; src='$B_MIN_ICON_HOVER'" 
-				onMouseOut="javascript: i1 = document.getElementById('img_mainzoombutton1');i1.src=zoomb1;" />
+				onClick=" reload_frames_render('min');"
+				onMouseOver=" i1 = document.getElementById('img_mainzoombutton1');zoomb1=i1.src; src='$B_MIN_ICON_HOVER'" 
+				onMouseOut=" i1 = document.getElementById('img_mainzoombutton1');i1.src=zoomb1;" />
 			<img id="img_mainzoombutton2" class="optionButton" src="$B_TOKEN_ICON_NORMAL"
 				title="$title2"
-				onClick="javascript: reload_frames_render('token');"	
-				onMouseOver="javascript: i2 = document.getElementById('img_mainzoombutton2');zoomb2=i2.src;src='$B_TOKEN_ICON_HOVER'" 
-				onMouseOut="javascript: i2 = document.getElementById('img_mainzoombutton2');i2.src=zoomb2;">
+				onClick=" reload_frames_render('token');"	
+				onMouseOver=" i2 = document.getElementById('img_mainzoombutton2');zoomb2=i2.src;src='$B_TOKEN_ICON_HOVER'" 
+				onMouseOut=" i2 = document.getElementById('img_mainzoombutton2');i2.src=zoomb2;">
 			<img id="img_mainzoombutton3" class="optionButton" src="$B_ALL_ICON_NORMAL"
 				title="$title3" 
-				onClick="javascript: reload_frames_render('all');"
-				onMouseOver="javascript: i3 = document.getElementById('img_mainzoombutton3');zoomb3=i3.src;src='$B_ALL_ICON_HOVER'" 
-				onMouseOut="javascript: i3 = document.getElementById('img_mainzoombutton3');i3.src=zoomb3;">
+				onClick=" reload_frames_render('all');"
+				onMouseOver=" i3 = document.getElementById('img_mainzoombutton3');zoomb3=i3.src;src='$B_ALL_ICON_HOVER'" 
+				onMouseOut=" i3 = document.getElementById('img_mainzoombutton3');i3.src=zoomb3;">
 			<!--img id="img_mainzoombutton4" class="optionButton" src="$B_FILTER_ICON_NORMAL"
 				title="$title4"
-				onClick="javascript: hide_un_highlighted_results();"
-				onMouseOver="javascript: i4 = document.getElementById('img_mainzoombutton4');zoomb4=i4.src;src='$B_FILTER_ICON_HOVER'"
-				onMouseOut="javascript: i4 = document.getElementById('img_mainzoombutton4');i4.src=zoomb4;"-->
+				onClick=" hide_un_highlighted_results();"
+				onMouseOver=" i4 = document.getElementById('img_mainzoombutton4');zoomb4=i4.src;src='$B_FILTER_ICON_HOVER'"
+				onMouseOut=" i4 = document.getElementById('img_mainzoombutton4');i4.src=zoomb4;"-->
 
 			<input id="selectedTextZoom" type="hidden" value="" />
 		</div>
@@ -172,7 +172,7 @@ EOH;
 	$aggregatedViewSwitch = '<div id="aggregateButtonDiv" class="searchOptionDiv">' . "\n"
 		. '<span class="optionLabel" id="aggregateButtonLabel">' . lg("lblEnableAggregation") . ':</span>' . "\n"
 		. '<img id="aggregateButton" class="optionButton" src="'.$RODINUTILITIES_GEN_URL.'/images/button-aggregate-on.png"' . "\n"
-		. 'onClick="javascript: toggle_aggregation();" title="" />' . "\n"
+		. 'onClick=" toggle_aggregation();" title="" />' . "\n"
 		. '</div>' . "\n";
 
 //-------- prepare and set here context menu for aggregated view:
@@ -197,10 +197,12 @@ EOAM;
 	$launchMetaSearchCode = "eclog(Date() + ' Metasearch Start'); "
 		 . "var s = document.getElementById('rodinsearch_s'); "
 		 . "bc_registerMetaSearchText(s.value); "
+		 . "hide_autocomplete_bruteforce(); "
 		 . "\$p.ajax.call('../../app/tests/LoggerResponder.php?action=8&query=' + get_search_text(), {'type':'load'}); "
-		 . "return fri_parallel_metasearch(get_search_text(),document.getElementById('rodinsearch_m').value,-1,-1,{$_SESSION['user_id']},true,false,window.\$p)";
+		 . "return fri_parallel_metasearch(get_search_text(),document.getElementById('rodinsearch_m').value,-1,-1,{$_SESSION['user_id']},true,false,window.\$p)"
+		 ;
 	
-	$onKeyUpSearchFAction="javascript: bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode }";
+	$onKeyUpSearchFAction=" bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode }";
 
 	$SOLR_LOGO='';
   if ($RESULTS_STORE_METHOD=='solr')
@@ -211,12 +213,12 @@ EOAM;
 
   $DBRODIN_LOGO="<img id='dbrodinlogo' src='$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png' title=''/>";
 	$OPENDBRODINLODBROWSER="open_lod_browser('$WEBROOT$RODINROOT/$RODINSEGMENT/app/lod/resource/a/','_blank');return false;";
-  $DBRODIN_HREF="<a href='' onclick=\"javascript: $OPENDBRODINLODBROWSER\" target='_blank' title='Click to open dbRODIN LoD browser (on your last search) in a new tab'>$DBRODIN_LOGO</a>";
+  $DBRODIN_HREF="<a href='' onclick=\" $OPENDBRODINLODBROWSER\" target='_blank' title='Click to open dbRODIN LoD browser (on your last search) in a new tab'>$DBRODIN_LOGO</a>";
   
   $RDFIZE_LOGO="<img id='rdfizelogo' src='$RODINUTILITIES_GEN_URL/images/white.PNG' title=''/>";
  	$LABPARAMS="?listwr=on&user_id=".$_SESSION['user_id']."&username=".$_SESSION['username'];  
 	$OPENRDFIZELAB="open_rdfize('$RDFIZEURL$LABPARAMS','_blank');return false;";
-  $RDFIZE_HREF= "<a href='#' onclick=\"javascript: $OPENRDFIZELAB\" target='_blank' title='Click to open RDFIZE LAB (new efficient prototype)  (on your last search) in a new TAB'>$RDFIZE_LOGO</a>";
+  $RDFIZE_HREF= "<a href='#' onclick=\" $OPENRDFIZELAB\" target='_blank' title='Click to open RDFIZE LAB (new efficient prototype)  (on your last search) in a new TAB'>$RDFIZE_LOGO</a>";
 	
 	
   list($message,$test_rodin_komponenten_ok,$noofproblems) = rodin_service_diagnostics();
@@ -252,7 +254,7 @@ EOP;
 		onkeyup="<?php print $onKeyUpSearchFAction; ?>" />
 	<input id="metasearchrodinbutton" type="button"
 		name="rodingensearchbutton" title="" value=""
-		onclick="javascript: <?php print $launchMetaSearchCode; ?>" />
+		onclick=" <?php print $launchMetaSearchCode; ?>" />
 		<div id='linksdiv'>
 			<?php print $DBRODIN_HREF ?><?php print $RDFIZE_HREF ?>
 		</div>
@@ -284,30 +286,30 @@ EOP;
 	</div>
 	
 	<div id="rodinBoards" class="allBoards">
-		<div id="addWidgetBoard" class="singleRodinBoard"></div>
-		
-		
+		<div id="addWidgetBoard" class="singleRodinBoard"
+			onclick="this.getElementById('vmenuToggle').click()"></div>
 		<div id="cloudboard" class="singleRodinBoard">
-			<div id="cloudBoardTitleBar" class="rodinBoardTitleBar"> 
+			<div id="cloudBoardTitleBar" class="rodinBoardTitleBar"
+			onclick="this.getElementById('cloudBoardToggle').click()"> 
 				<img id="cloudBoardIcon" src="<?php print $TAG_CLOUD_ICON; ?>" class="rodinBoardTitleImage" />
 				<span id="cloudBoardTitle" class="rodinBoardTitleLabel">
 					<?php print lg("lblHistoricalBoardTitle"); ?>
 				</span>
-				<img id="cloudBoardToggle" onClick="javascript: toggleBoardExpanded('cloudboard');" class="toggleBoardIcon" />
+				<img id="cloudBoardToggle" onClick="toggleBoardExpanded('cloudboard','cloudBoardTitleBar');" class="toggleBoardIcon" />
 				<script type="text/javascript">forceBoardExpanded('cloudboard');</script>
 			</div>
 		
 			<div id="cloudBoardContent" name="boardContent">
 				<div class="boardConfiguration">
-					<select id="sizeBySelect" onchange="javascript: refreshCloudBoard('<?php print $_SESSION['user_id'] ?>');">
+					<select id="sizeBySelect" onchange="refreshCloudBoard('<?php print $_SESSION['user_id'] ?>');">
 						<option value="frequency" selected="selected">Tag-cloud</option>
 						<option value="recency"><?php print lg("lblHistoricalRecency"); ?></option>
 					</select>
 					<button id="tagCloudEraseButton" title="<?php print lg('lblTagCloudeEraseTitle');?>"
-						onclick="javascript: if(confirm(lg('lblConfirmWant2EraseTagCloud'))) { resetCloudBoard('<?php print $_SESSION['user_id'] ?>'); }"
+						onclick="if(confirm(lg('lblConfirmWant2EraseTagCloud'))) { resetCloudBoard('<?php print $_SESSION['user_id'] ?>'); }"
 						style="height: 20px; float: right;"><img src="<?php print "$POSHIMAGES/ico_close.gif"; ?>" /></button>
 					<button id="tagCloudReloadButton" title="<?php print lg('lblTagCloudeReloadTitle');?>"
-						onclick="javascript: refreshCloudBoard('<?php print $_SESSION['user_id'] ?>');"
+						onclick=" refreshCloudBoard('<?php print $_SESSION['user_id'] ?>');"
 						style="height: 20px; float: right;"><img src="<?php print "$POSHIMAGES/ico_refresh.gif"; ?>" /></button>
 				</div>
 				<div id="cloudBoardTags"></div>
@@ -318,26 +320,29 @@ EOP;
 	</div>		
 		
 		
-		
-    <div id="facetboard" class="singleRodinBoard" onmouseover="mark_ontoterms_on_resultmatch()">
-			<div id="facetsBoardTitleBar" class="rodinBoardTitleBar"> 
-				<img id="refining_busy_info2" src="<?php print $IMG_REFINING_DONE; ?>" class="rodinBoardTitleImage" />
-				<span id="facetboard_title" class="rodinBoardTitleLabel">
-					<?php print lg("lblFacetsBoardTitle"); ?>
-				</span>
-				<img id="faceBoardTogle" onClick="javascript: toggleBoardExpanded('facetboard');" class="toggleBoardIcon" />
-				<script type="text/javascript">forceBoardExpanded('facetboard');</script>
-			</div>
-				
-			<div id="facetBoardContent" name="boardContent">
-				<div id="fb_itemname_$src_service_id" class="facetcontrol-normal">
-					<table cellpadding=0 cellspacing=0 width='<?php print $FACETBOARDMINWIDTH ?>' border=0>
-					<?php print generate_facetboard($INIT_SRC_REF_TABS); ?>
-					</table>
-				</div>
+	
+  <div id="facetboard" class="singleRodinBoard" 
+  		 onmouseover="mark_ontoterms_on_resultmatch()"
+  >
+		<div id="facetsBoardTitleBar" class="rodinBoardTitleBar"
+			onclick="this.getElementById('faceBoardTogle').click()"> 
+			<img id="refining_busy_info2" src="<?php print $IMG_REFINING_DONE; ?>" class="rodinBoardTitleImage" />
+			<span id="facetboard_title" class="rodinBoardTitleLabel">
+				<?php print lg("lblFacetsBoardTitle"); ?>
+			</span>
+			<img id="faceBoardTogle" onClick="toggleBoardExpanded('facetboard','facetsBoardTitleBar');" class="toggleBoardIcon" />
+			<script type="text/javascript">forceBoardExpanded('facetboard');</script>
+		</div>
+			
+		<div id="facetBoardContent" name="boardContent">
+			<div id="fb_itemname_$src_service_id" class="facetcontrol-normal">
+				<table cellpadding=0 cellspacing=0 width='<?php print $FACETBOARDMINWIDTH ?>' border=0>
+				<?php print generate_facetboard($INIT_SRC_REF_TABS); ?>
+				</table>
 			</div>
 		</div>
-		
+	</div>
+	
 
 	
 	<div id="modules" class="maintbl">
@@ -522,6 +527,7 @@ EOP;
 
 </div>
 	<script type="text/javascript">
+	if (!parent) parent=document; //Workaround chrome
 		toggleBoardExpanded('cloudboard'); //close cloudboard
 		//Simulate click on onto (speedup for dev)
 		//document.getElementById('ontofacet_center').value='Social Policy'; //Search for Time

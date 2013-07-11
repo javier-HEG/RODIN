@@ -589,6 +589,7 @@ lang["lblModifyLang"]="Sprache ändern";
 lang["lblMoreInfo"]="Zusätzliche Informationen";
 lang["lblNewMagic"]="Eine neue Seite mit diesen Tags anlegen";
 lang["maximize"]="Maximieren";
+lang["restore"]="Wiederherstellen";
 lang["me"]="Ich selbst";
 lang["menu"]="Menü";
 lang["menuNotAccessible"]="Ein Menü ist auf dieser Seite nicht verfügbar";

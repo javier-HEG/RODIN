@@ -74,6 +74,7 @@ lang["lblZenFilterNoResults"]="No concepts could be automatically extracted from
 lang["titleWidgetOpenInTab"]="Click to open widget in a new browser tab";
 lang["titleWidgetRestore"]="Restore";
 lang["lblPrefsOpen"]="Click to set widget search preferences";
+lang["lblActionsOnWord"]="Right-click to see available actions";
 lang["lblOntoFacetsTermskos_relations"]="Right-click to see available actions";
 
 //User configuration menu
@@ -577,6 +578,7 @@ lang["portalIconDesc"]="Click to change options of the current page";
 lang["myapplicationsIconDesc"]="Manage my applications : add, remove and access to the other applications";
 lang["errorEmptyFieldForm"]="Please fill in all the mandatory fields";
 lang["maximize"]="Maximize";
+lang["restore"]="Restore";
 lang["minimize"]="Minimize";
 lang["options"]="Options";
 lang["communicate"]="Communicate";

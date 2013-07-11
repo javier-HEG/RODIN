@@ -2478,9 +2478,10 @@ function make_uncache_javascript_code($txt)
 	 	parent.adapt_widgetsareas_on_openclose_widgetmenu();
 	 	parent.FRIdarkProtectionUncache('$txt');
 	 	parent.refreshCloudBoard('$uid');
+	 	parent.fb_updatefacettermsctxmenuitems4exwr();
+	 	parent.hide_autocomplete_bruteforce();
 	 </script>
 EOS;
-
 	return $UNCACHE;
 }
 

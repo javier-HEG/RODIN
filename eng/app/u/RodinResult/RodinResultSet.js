@@ -2,7 +2,7 @@ function RodinResultSet() {
 	this.results = new Array();
 	this.containerDivId = null;
 	
-	this.askResulsToRender = function (textZoom) {
+	this.askResultsToRender = function (textZoom) {
 		for (var i = 0; i < this.results.length; i++) {
 			this.results[i].render(textZoom);
 		}

@@ -16,13 +16,13 @@ include_once("u/arcUtilities.php");
 <br />
 <br /><b>DEVELOPMENT / RELEASE INFOS </b>
 <br />
-<br />4.4.2013 
+<br />12.7.2013 
 <br />By Fabio Ricci (FRI) - Tel. 076-5281961
 <br />and Javier Belmonte (BEL)
 <br />Please report any issue using <?php echo $MANTIS ?> 
 <br />
 <br />
-<br /><b>RODIN Release 2.8.3</b>
+<br /><b>RODIN Release 2.8.4</b>
 <br />===================
 <br />SOLR integration for results
 <br />Aggregated view for results
@@ -38,6 +38,7 @@ include_once("u/arcUtilities.php");
 <br />RDFization of results, docs importing, ranking of all documents.
 <br />NEW ONTOFACETS LAYOUT - more responsive and more compact
 <br />Improved GUI - following the suggestions of the great RODIN team
+<br />WIDGET e-lib.ch
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  

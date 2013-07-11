@@ -40,9 +40,15 @@ div.rodinBoardTitleBar span.rodinBoardTitleLabel {
 	color:<?php print $COLOR_MENUCONTENT; ?>;
 }
 
-div.allBoards div.collapsedContent {
+div.allBoards div.collapsedContent 
+{
 	display: none;
 	visibility: hidden;
+}
+
+div.rodinBoardTitleBar
+{
+	cursor:pointer;
 }
 
 div.singleRodinBoard div.boardConfiguration {
@@ -94,6 +100,22 @@ div#addWidgetBoard div.menuitemcontent a:visited {
 div#addWidgetBoard div.menuitemcontent a:hover {
 	text-decoration: none;
 }
+
+img.ontofacetterm,
+img.ontofacetterm4exwr
+{
+	vertical-align:top;
+	cursor:pointer;
+	padding-right:1px;
+}
+
+img.hidden
+{
+	display:none;
+	visibiliy:hidden;
+}
+
+
 
 
 /******************/

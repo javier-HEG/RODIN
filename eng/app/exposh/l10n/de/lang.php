@@ -31,7 +31,8 @@ $GLOBALS['lgMap']["lblContextMenuExploreOntoFacets"]="Klicken Sie, um den Begrif
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm1"]="Vrw. F1";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm2"]="Vrw. F2";
 $GLOBALS['lgMap']["lblContextMenuRestrictToOntoTerm3"]="Vrw. F3";
-$GLOBALS['lgMap']["titleOpenResult"]="Click to open result information in new tab";
+$GLOBALS['lgMap']["titleOpenResult"]="Klicken Sie, um das Ergebnis in neuem Tab anzuzeigen";
+$GLOBALS['lgMap']["lblActionsOnWord"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 $GLOBALS['lgMap']["lblOntoFacetsTermskos_relations"]="Klicken Sie rechts, um mögliche Aktionen anzuzeigen";
 
 // Widgetprefs
@@ -72,6 +73,14 @@ $GLOBALS['lgMap']["titleLaunchZenFilter"]="Klicken Sie, um Begriffe zu filtern";
 
 // Widget Morelikethis
 $GLOBALS['lgMap']["titleLaunchWidgetMLT"]="Suchen Sie mit diesem Dokument";
+
+//SRC
+$GLOBALS['lgMap']["lableSTW"]="Wirtschaft (STW)";
+$GLOBALS['lgMap']["lableSOZ"]="Soziologie (SOZ)";
+$GLOBALS['lgMap']["lableLOCSH"]="Englische Schlagworte (LoCSH)";
+$GLOBALS['lgMap']["lableRAMEAU"]="Französische Schlagworte (RAMEAU)";
+$GLOBALS['lgMap']["lableGND"]="Deutsche Normdatei (GND)";
+$GLOBALS['lgMap']["lableDBPedia"]="Enzyklopädie (DBPedia)";
 
 
 // Other originally in POSH

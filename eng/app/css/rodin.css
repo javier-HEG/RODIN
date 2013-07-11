@@ -18,7 +18,7 @@
 
 #dbrodinlogo {
   position:relative;
-	top:5px;
+	/*top:5px;*/
   height:20px;
 }
 
@@ -72,7 +72,10 @@ a.admicontact
 
 div#rodinmetasearch {
 	/* Same as div#breadcrumbs in rodinBoard.css */
-    width: 820px;
+    width: 900px;
+    position: relative;
+    top: -18px;
+    left: 200px;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 4px;
@@ -81,17 +84,18 @@ div#rodinmetasearch {
 
 div#rodinmetasearch input#rodinsearch_s {
 	padding: 3px;
-	width: 410px;
-	height: 35px;
+	width: 500px;
+	height: 40px;
 	margin-left: 170px;
 	vertical-align: middle;
-	font-size:large;
+	font-size:xx-large;
+	margin:1px;
 }
 
 div#rodinmetasearch input#metasearchrodinbutton {
 	padding: 3px;
 	width: 140px;
-	height: 35px;
+	height: 40px;
 	font-weight: bold;
 	vertical-align: middle;
 	font-size:large;

@@ -797,7 +797,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 				$resultCounter++;
 			}
 			
-			print '<script type="text/javascript">widgetResultSet.askResulsToRender("' . $render . '")</script>';
+			print '<script type="text/javascript">widgetResultSet.askResultsToRender("' . $render . '")</script>';
 		} else {
 			print '<p class="widgetResultCount">' . lg('lblGotNoResults') . '</p>';
 		}

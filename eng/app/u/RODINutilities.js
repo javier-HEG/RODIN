@@ -326,10 +326,7 @@ function format3pos(num)
     LANGUAGE_OF_RESULT = '';
 		LANGUAGE_OF_RESULT_OK = true;
 
-		/*Hide Autocomplete brute force*/
-		var autocomplete= document.getElementById(AUTOCOMPLETECONTAINER_ID);
-		if (autocomplete)
-			autocomplete.style.display='none';
+		hide_autocomplete_bruteforce();
 		
 		var languageDetectorUrl = '<?php print "../../app/u/LanguageDetector.php"; ?>';
 		languageDetectorUrl += '?text=' + search;
@@ -404,6 +401,8 @@ function format3pos(num)
 	}
 	
 	function detectResultInOntoFacets_launchOntoSearch(response, variables) {
+		if (response)
+		{
 		var analyzedText = response.getElementsByTagName("text")[0].textContent;
 		var detectedLanguage = response.getElementsByTagName("language")[0].textContent;
 		
@@ -413,7 +412,7 @@ function format3pos(num)
     { 
       if (detectedLanguage == "un") detectedLanguage = "en";
 
-      var ontofacetLanguage = document.getElementById("ontofacet_center_language");
+      var ontofacetLanguage = parent.document.getElementById("ontofacet_center_language");
       ontofacetLanguage.value = detectedLanguage;
       parent.LANGUAGE_OF_RESULT_CODED=detectedLanguage;
 
@@ -428,6 +427,7 @@ function format3pos(num)
       var pclass = variables['pclass'];
       launch_fri_onto_metasearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass);
     }
+   }
 	}
 	
 	function setLanguageForOntofacets(language) {
@@ -574,16 +574,13 @@ function format3pos(num)
 		//alert('aftersearch_actions:  '+what);
 		unlock_ontosearch_dialog(what);
 
-		/*Hide Autocomplete brute force - to be sure ...*/
-		var autocomplete= document.getElementById(AUTOCOMPLETECONTAINER_ID);
-		if (autocomplete)
-			autocomplete.style.display='none';
+		hide_autocomplete_bruteforce();
 		
     //Force always the comp of onto highlights:
     ONTOTERMS_REDO_HIGHLIGHTING=true;
     mark_ontoterms_on_resultmatch();
-
-	}
+    fb_updatefacettermsctxmenuitems4exwr();
+ }
 	
 	
 	
@@ -600,6 +597,7 @@ function format3pos(num)
 		var cloud 			=variables['cloud']
 		var pclass			=variables['pclass'];
 		
+		hide_autocomplete_bruteforce();
 		eclog('fri_rodin_metasearch_wrap Start (search=['+search+'])');
 		fri_rodin_metasearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass);
 	}
@@ -620,7 +618,9 @@ function format3pos(num)
 				+'\n'+'interactive='+interactive
 				+'\n'+'cloud='+cloud
 				+'\n'+'pclass='+pclass);
-		
+				
+		hide_autocomplete_bruteforce();
+
 		var searchtxt = '';
 		var setversion=SETVERSION;
 		if (cloud) {/* take from cloud! widget? */
@@ -769,9 +769,11 @@ function format3pos(num)
 				var newUrl = server + parseUri(iframe.src).path + '?' + qs.toString();
 				//alert(newUrl);
 				iframe.src = newUrl; // Automatically reloads the iFrame!
+				hide_autocomplete_bruteforce();
 			}
 		}
-
+		
+		hide_autocomplete_bruteforce();
 		return false;
 	} // fri_rodin_metasearch
 
@@ -802,13 +804,24 @@ function fri_rodin_do_onto_search_wrap(blankurl,variables) {
 	eclog('fri_rodin_do_onto_search_wrap Start (terms=['+terms+'])');
 
 	/*Hide Autocomplete brute force - to be sure ...*/
-	var autocomplete= document.getElementById(AUTOCOMPLETECONTAINER_ID);
-	if (autocomplete)
-		autocomplete.style.display='none';
-
+	hide_autocomplete_bruteforce();
 
 	fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass);
 }
+
+
+function hide_autocomplete_bruteforce()
+{
+	var autocomplete= document.getElementById(AUTOCOMPLETECONTAINER_ID);
+	if (autocomplete)
+		autocomplete.style.display='none';
+	else 
+	{
+		autocomplete= parent.document.getElementById(AUTOCOMPLETECONTAINER_ID);
+		autocomplete.style.display='none';
+	}
+}
+
 
 /**
  * NB. Called from document level
@@ -865,7 +878,10 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 
 		wtslog('fri_rodin_do_onto_search: ','ONTOS_SYNCH',ONTOS_SYNCH,0,0);
 		ONTOS_SYNCH=0; // SYNC INFRA -> dangerous if htere are other processes still running... 
-			
+		
+		//Check once if widget results are existing/displayed
+		var existing_widgetsresults = getNumberOfExistingWidgetResults() > 1;
+	
 		//LAUNCH THE SEMREF INTERFACE TO COMPUTE TERMS
 		//FOREACH SRC INTERFACE (TEMPORARILY USED) LAUNCH IN PARALLEL
 		
@@ -930,7 +946,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 						+'&maxdur='+gui_refinement_request['maxdur']
 						+'&c='+gui_refinement_request['c']
 						+'&service_id='+service_id
-			            +'&user='+pclass.app.user.id
+			      +'&user='+pclass.app.user.id
 						;
 					url 	 = url_bridge+params;
 					
@@ -950,6 +966,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 													'cid':cid,
 													'newsid':newsid,
 													'l':lang,
+													'exwr': existing_widgetsresults,
 													'service_id':service_id,
 													'src_service_name':src_service_name,
 													'src_service_url':src_service_url,
@@ -1489,6 +1506,8 @@ function handle_received_src_data(response,vars) {
   var pclass = vars['pclass'];
 	var module = vars['module'];
 	var newsid = vars['newsid'];
+	var exwr 	 = vars['exwr']; //existing_widgetsresults
+
 	var service_id = vars['service_id'];
 	var newtab_db_id = vars['newtab_db_id'];
 	var NO_RESULTS_FOUND = 'Sorry, no refinement found';
@@ -1588,7 +1607,7 @@ if (response!=null) {
 			}
 		} else {	
 			if (action=='broader' || action=='narrower' ||  action=='related') {
-				parent.fb_add_to_facetboard(service_id,cached,action,results,results_raw,null);
+				parent.fb_add_to_facetboard(service_id,cached,action,results,results_raw,null,exwr);
 			} else if (action=='preall' || action=='all') {
 				parent.fb_resetValidatedTermsList(service_id);
 				
@@ -1657,14 +1676,14 @@ if (response!=null) {
 //              +'\n\n'+'related_results_root=('+related_results_root+')'
 //          );
         
-				parent.fb_add_to_facetboard(service_id,cached,'broader',broader_results,broader_results_raw,broader_results_root);
-				parent.fb_add_to_facetboard(service_id,cached,'narrower',narrower_results,narrower_results_raw,narrower_results_root);
-				parent.fb_add_to_facetboard(service_id,cached,'related',related_results,related_results_raw,related_results_root);
+				parent.fb_add_to_facetboard(service_id,cached,'broader',broader_results,broader_results_raw,broader_results_root,exwr);
+				parent.fb_add_to_facetboard(service_id,cached,'narrower',narrower_results,narrower_results_raw,narrower_results_root,exwr);
+				parent.fb_add_to_facetboard(service_id,cached,'related',related_results,related_results_raw,related_results_root,exwr);
 			} else if (action=='dummy' || action=='dummytimeout' || error) {
 				if (typeof(results)!='undefined') {
-					parent.fb_add_to_facetboard(service_id,cached,'broader',results,results_raw,broader_results_root);
-					parent.fb_add_to_facetboard(service_id,cached,'narrower',results,results_raw,narrower_results_root);
-					parent.fb_add_to_facetboard(service_id,cached,'related',results,results_raw,related_results_root);
+					parent.fb_add_to_facetboard(service_id,cached,'broader',results,results_raw,broader_results_root,exwr);
+					parent.fb_add_to_facetboard(service_id,cached,'narrower',results,results_raw,narrower_results_root,exwr);
+					parent.fb_add_to_facetboard(service_id,cached,'related',results,results_raw,related_results_root,exwr);
 				}
 			}
 		} 
@@ -2256,14 +2275,14 @@ if (response!=null) {
 		var currentAggregationStatus = tabAggregatedStatus[index];
 		if (currentAggregationStatus) {
 			var resultSetIndex = allWidgetsResultsSetsTabId.indexOf(tab_id);
-			allWidgetsResultSets[resultSetIndex].askResulsToRender(render);
+			allWidgetsResultSets[resultSetIndex].askResultsToRender(render);
 		}
 
     var pertinentIframes = getPertinentIframesInfos(tab_id);			
 		for(var i=0;i<pertinentIframes.length;i++) {
 			var iframe = pertinentIframes[i][0];
 			
-			document.getElementById(iframe.id).contentWindow['widgetResultSet'].askResulsToRender(render);
+			document.getElementById(iframe.id).contentWindow['widgetResultSet'].askResultsToRender(render);
 		}
 	}
 	
@@ -3371,7 +3390,28 @@ function fri_setFacetBoardParameter(widgetsColumnHeight) {
 	}
 }
 
+function getNumberOfExistingWidgetResults()
+{
+	//alert('getNumberOfExistingWidgetResults');
+	var existingWidgetResults = 0;
+	var tab_id = parent.tab[parent.$p.app.tabs.sel].id;
+	var numberofdisplayedwidgetresults=0;
+	var pertinentIframes = getPertinentIframesInfos(tab_id);			
+	for (var i = 0; i < pertinentIframes.length; i++) {
+		var iframe = pertinentIframes[i][0];
+		//alert('iframetocheck: '+iframe);
+		if (iframe)
+		{
+			var existingWidgetResultContainersForWidget_nodelist = iframe.contentWindow.document.querySelectorAll(".oo-result-container");
+			if (existingWidgetResultContainersForWidget_nodelist)
+				existingWidgetResults += existingWidgetResultContainersForWidget_nodelist.length;
+			// .oo-result-container
+		}
+	}
+	//alert('getNumberOfExistingWidgetResults RESULTS: '+ (existingWidgetResults))
 
+	return existingWidgetResults;
+}
 
 
 function DOMr_find_iframe(obj, lvl)
