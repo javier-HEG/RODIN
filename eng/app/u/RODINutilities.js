@@ -265,10 +265,11 @@ function format3pos(num)
 
 	function open_rdfize(url,tabname)
 	{
-		
+		var wps = document.getElementById('psortCB').checked?1:0;
 		var params= typeof(SID) == 'undefined'
 							?  ''
 							: 'sid='+SID
+							+'&wps='+wps
 							;
 							 	
 		var realurl=url+'&'+params;
@@ -672,6 +673,9 @@ function format3pos(num)
 		// Save SID
 		saveLastSidPerTab(SID, db_tab_id);
 
+		//Get personalSortCBOX state
+		var want_psort = document.getElementById('psortCB').checked;
+		
 		// Launch the protective pop-up
 		var html_message='';
 		var msgtxt = '<div style="padding-left: 6px; padding-right: 28px;">'
@@ -746,6 +750,7 @@ function format3pos(num)
 				qs.set('sid',SID);
         qs.set('slrq','');
         qs.set('go','1');
+        qs.set('wps',want_psort?1:0);
 				qs.set('textZoomRender', document.getElementById("selectedTextZoom").value);
 				qs.set('rerender',0);
 				qs.set('show','RDW_widget');

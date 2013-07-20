@@ -8,13 +8,19 @@ $GLOBALS['lgMap']["titleTextZoomThree"]="Cliquez pour afficher l'ensemble du ré
 $GLOBALS['lgMap']["titleTextZoomFour"]="Cliquez pour afficher l'ensemble du résultats filtré";
 $GLOBALS['lgMap']["lblEnableAggregation"]="Regrouper les résultats";
 $GLOBALS['lgMap']["lblDisableAggregation"]="Désactiver le regroupement";
-
 $GLOBALS['lgMap']["lblYouHaveBeenDisconnected"]="Vous avez été déconnecté après #1 minutes d'inactivité.";
 $GLOBALS['lgMap']["lblBreadcrumbsTitle"]="Mots de recherche ajoutés";
 $GLOBALS['lgMap']["titleBreadcrumbsTitle"]="Cliquez pour effacer chaque mot de l'extension de requête";
 $GLOBALS['lgMap']["lblHistoricalBoardTitle"]="Requêtes précédentes";
 $GLOBALS['lgMap']["lblFacetsBoardTitle"]="Facettes ontologiques";
 $GLOBALS['lgMap']["titleGlobalMaxResults"]="Rentrez le nombre de résultats souhaités par widget";
+$GLOBALS['lgMap']["lblOpenLOD"]="LOD";
+$GLOBALS['lgMap']["ttpOpenLOD"]="Cliquez pour afficher l'espace LOD de RODIN sur la dernière requête dans un nouvel onglet";
+$GLOBALS['lgMap']["lblOpenRdfLab"]="RDF Lab";
+$GLOBALS['lgMap']["ttpOpenRdfLab"]="Cliquez pour afficher le LAB RDF de RODIN sur la dernière requête dans un nouvel onglet";
+$GLOBALS['lgMap']["lblTogglePSort"]="Personal Quality Sort";
+$GLOBALS['lgMap']["ttpTogglePSort"]="Cliquez pour activer le filtrage de qualité final sur le resultats en utilisant les données personales or de groupe definée dans les réglages pour #1";
+
 
 // Widgets
 $GLOBALS['lgMap']["titleWidgetButtonAsk"]="Cliquez pour lancer une recherche local au widget";

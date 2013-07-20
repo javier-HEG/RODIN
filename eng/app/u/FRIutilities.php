@@ -2411,47 +2411,49 @@ function perform_server_actions_after_last_widget_rendering()
 	$username = $_SESSION['longname']; 
 	global $sid, $datasource;
 	global $setversion;
+	global $wps;
 	
 	if ($rdfize && intval($setversion) >'2012')
 	{
 		
-	$RDFIZING="$PROT://localhost$RODINROOT/$RODINSEGMENT/app/u/rdfize.php"
-							."?user_id=$USER_ID"
-							."&username=".str_replace(" ","%20",$username)
-							."&sid=$sid"
-							."&rdfize=on"
-							."&reqhost=$HOST"
-						;
-
-	$QUERYSTRING=$_SERVER['QUERY_STRING'];
-
-	Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING U $RDFIZING"),$sid);
-	Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING? $QUERYSTRING"),$sid);
+		$RDFIZING="$PROT://localhost$RODINROOT/$RODINSEGMENT/app/u/rdfize.php"
+								."?user_id=$USER_ID"
+								."&username=".str_replace(" ","%20",$username)
+								."&sid=$sid"
+								."&rdfize=on"
+								."&wps=$wps"
+								."&reqhost=$HOST"
+							;
 	
-	$SCRIPT =<<<EOS
-	 <script type='text/javascript'>
-	 //alert('$RDFIZING')
-	 parent.signal_rdfizing_done();
-	 </script>
+		$QUERYSTRING=$_SERVER['QUERY_STRING'];
+	
+		Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING U $RDFIZING"),$sid);
+		Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING? $QUERYSTRING"),$sid);
+		
+		$SCRIPT =<<<EOS
+		 <script type='text/javascript'>
+		 alert('$RDFIZING')
+		 parent.signal_rdfizing_done();
+		 </script>
 EOS;
 
-	if($RODINSEGMENT=='eng') 
-		print $SCRIPT;
-	
-	//ATTENTION: THIS WIDGET RENDERING IS EXECUTED TWICE ????
-	//call this to produce rdfizing
-	$res = file_get_contents($RDFIZING);
-	if (strstr($res,'400 Bad Request'))
-		$res='400 Bad Request';
-	else if (preg_match("/rdfized:\s(\d+)\sadded_triples\sand\s(\d+)\sadded_documents/",$res,$match))
-	{
-		$added_triples=$match[1];
-		$added_documents=$match[2];
-		$res="$added_documents added docs, $added_triples new triples";
-	} 
-	
-	Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING: $res"),$sid);
-	} // rerender
+		//if($RODINSEGMENT=='eng') 
+		//print $SCRIPT;
+		
+		//ATTENTION: THIS WIDGET RENDERING IS EXECUTED TWICE ????
+		//call this to produce rdfizing
+		$res = file_get_contents($RDFIZING);
+		if (strstr($res,'400 Bad Request'))
+			$res='400 Bad Request';
+		else if (preg_match("/rdfized:\s(\d+)\sadded_triples\sand\s(\d+)\sadded_documents/",$res,$match))
+		{
+			$added_triples=$match[1];
+			$added_documents=$match[2];
+			$res="$added_documents added docs, $added_triples new triples";
+		} 
+		
+		Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING: $res"),$sid);
+	} // rerender agg view rdfized
 } // perform_actions_after_last_widget_rendering
 
 
@@ -2525,6 +2527,8 @@ function sxml_get_secondtagname($sxml)
 		 $addon='_anubis';
 		
 		$BG_IMAGE_DISK= "$RODINIMAGES/rodin_bg_{$RODINSEG}$addon.png";
+		
+		//print "<br>get_RODINIMAGE($RODINSEG) returns: $BG_IMAGE_DISK";
 		
 		if (!file_exists($BG_IMAGE_DISK))
 		{

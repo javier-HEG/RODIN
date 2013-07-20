@@ -23,7 +23,9 @@ $authentif_getUser = "
             typ,
             lang,
             long_name,
-            activity
+            activity,
+						positext,
+						negatext
     FROM    users
     WHERE   id=%u
         AND md5pass=%s
@@ -36,7 +38,9 @@ $authentif_getUserByName = "
             lang,
             long_name,
             activity,
-			md5user
+						md5user,
+						positext,
+						negatext
     FROM    users
     WHERE   username=%s
         AND typ NOT IN ('S','D')
@@ -54,7 +58,7 @@ $xmltabs_getTabs = "
 			status,
 			param,
 			shared,
-            removable
+      removable
 	FROM 	profile
 	WHERE	user_id=%u
 	ORDER BY seq ASC ";
@@ -118,7 +122,7 @@ $scrunlock_checkPass = "SELECT user_id FROM profile WHERE user_id=%u AND id=%u A
 $scrsuppersonal_deleteTab = "DELETE FROM profile WHERE user_id=%u AND id=%u ";
 $scrsuppersonal_deleteModules = "DELETE FROM module WHERE user_id=%u AND profile_id=%u ";
 $scrsuppersonal_updateTabPos = "UPDATE profile SET seq=seq-1 WHERE user_id=%u AND seq>%u ";
-$scrsubscribe_checkUser = "SELECT id,username,pass,long_name,typ,lastconnect_date,md5pass,md5user,lang,description,picture,stat,activity,extra,keywords FROM users WHERE username=%s AND typ IN ('I','N')";
+$scrsubscribe_checkUser = "SELECT id,username,pass,long_name,typ,lastconnect_date,md5pass,md5user,lang,description,picture,stat,activity,extra,keywords,positext,negatext FROM users WHERE username=%s AND typ IN ('I','N')";
 $scrsubscribe_addUser = "INSERT INTO users(username,pass,typ,lastconnect_date,md5pass,long_name,md5user,lang,statdate) VALUES (%s,'','J',CURRENT_DATE,%s,%s,%s,%s,'0000-00-00')";
 $scrsubscribe_log = "INSERT INTO log (action,pubdate,param1) VALUES (3,CURRENT_DATE,%u) ";
 $scrsubscribe_addNewsletter = "INSERT INTO portaneo_newsletter_users (email, status, reg_date) VALUES (%s,'Y', CURRENT_DATE) ";
@@ -190,6 +194,12 @@ $scrchangepwd_changePass = "
             md5pass=MD5(%s)
     WHERE   id=%u
         AND md5pass=MD5(%s)
+";
+$scrchangeresonance = "
+    UPDATE  users
+    SET     positext = %s,
+    				negatext = %s
+    WHERE   id=%u
 ";
 $scrchangepwd_changePass_md5 = "UPDATE users SET md5pass=MD5(%s) WHERE md5pass=%s and username=%s";
 $scrchangepwd_changePortalPass = "UPDATE profile SET md5pass=MD5(%s) WHERE user_id=%u and md5pass=MD5(%s) ";

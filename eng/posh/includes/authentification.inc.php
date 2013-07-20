@@ -166,7 +166,9 @@ function user_login_cookie($id,$md5pass,&$user,&$errormsg)
 			$user->lang = $row["lang"];
 			$user->longname = $row["long_name"]=="" ? $row["username"] : $row["long_name"];
 			$user->pass = $md5pass;
-            $user->activity = $row["activity"];
+      $user->activity = $row["activity"];
+			$user->positext = $row["positext"];
+			$user->negatext = $row["negatext"];
 			$DB->freeResults();
 
 			$DB->execute($authentication_updateConnectDate,$DB->escape($id));
@@ -235,7 +237,10 @@ function user_login_form($username,$password,&$user,&$errormsg)
 				$user->lang = $row["lang"];
 				$user->longname = $row["long_name"]=="" ? $username : $row["long_name"];
 				$user->pass = md5($password);
-                $user->activity = $row["activity"];
+        $user->activity = $row["activity"];
+				$user->positext = $row["positext"];
+				$user->negatext = $row["negatext"];
+				
 				$DB->freeResults();
 
 				$DB->execute($authentication_updateConnectDate,$user->id);

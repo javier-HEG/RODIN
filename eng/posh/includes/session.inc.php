@@ -1,7 +1,7 @@
 <?php
 # ************** LICENCE ****************
 /*
-	Copyright (c) PORTANEO.
+	Copyright (c) PORTANEO. FABIO RICI - FRI - MODIFIED
 
 	This file is part of POSH (Portaneo Open Source Homepage) http://sourceforge.net/projects/posh/.
 
@@ -32,7 +32,7 @@ session_start();
     @param[in]  $id, $user, $type, $lang, $longname
 
 */
-function init_session($id,$user,$type,$lang,$longname,$activity)
+function init_session($id,$user,$type,$lang,$longname,$activity,$positext,$negatext)
 {
 	if (isset($id))
     {
@@ -51,10 +51,20 @@ function init_session($id,$user,$type,$lang,$longname,$activity)
         $_SESSION['lang'] = $lang;
     }
 	if (isset($longname))
-    {
+  {
         $_SESSION['longname'] = $longname;
-    }
-    $_SESSION['availability'] = (isset($activity) ? $activity : 'o');
+  }
+	if (isset($positext))
+  {
+        $_SESSION['positext'] = $positext;
+  }
+	if (isset($negatext))
+  {
+        $_SESSION['negatext'] = $negatext;
+  }
+	
+	
+  $_SESSION['availability'] = (isset($activity) ? $activity : 'o');
 }
 /*! close_session
 

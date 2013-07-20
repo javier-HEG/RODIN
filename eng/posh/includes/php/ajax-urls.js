@@ -52,6 +52,7 @@ posh["scr_addmodule_intab"]="scr_addmodule_intab.php";
 posh["scr_feed_changestatus"]="scr_feed_changestatus.php";
 posh["scr_authentif"]="scr_authentif.php";
 posh["scr_changepwd"]="scr_changepwd.php";
+posh["scr_changeresonance"]="scr_changeresonance.php"; //FRI
 posh["scr_connect"]="scr_connect.php";
 posh["scr_subscribe"]="scr_subscribe.php";
 posh["scr_network_updatemyprofile"]="scr_network_updatemyprofile.php";

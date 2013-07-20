@@ -938,7 +938,8 @@ function rodin_service_diagnostics()
   $title_mantis="Click to issue a mantis task on this issue";
 
   
-    
+  if ($RODINSEGMENT<>'eng')
+  {
   //Test Internet connection
   $internet_ok = check_internetconn();
   if (!$internet_ok)
@@ -953,28 +954,28 @@ function rodin_service_diagnostics()
             ."<tr><td/><td><span class=\"errorexplanation\">(This means, that almost no widget will provide you with search results)</span></td></tr>";
   }
   
-  if ($RESULTS_STORE_METHOD == 'solr') {
-    //Test SOLR connectability
-    $SOLR_COLLECTIONS=array(  'rodin_result',
-                              'rodin_search',
-                              'cached_rodin_widget_responsed',
-                              'cached_rodin_src_response',
-                              'zbw_stw',
-                              'gesis_thesoz'  );
-    
-    list($problemtext,$solr_connected) = test_solr_connected($SOLR_COLLECTIONS);
-    if (!$solr_connected)
-    {
-      $LOCALREASON='SOLR connectivity';
-      $MALFUNCTION_REASON.=$MALFUNCTION_REASON?', ':'';
-      $MALFUNCTION_REASON.=$LOCALREASON;
-      $noofproblems++;
-      $message.="<tr height=15/>"
-              ."<tr><td/><td><span class=\"error\">$LOCALREASON</span> seems to fail - is SOLR <b>running</b> on this server?</td></tr>"
-              //."<tr><td/><td>$problemtext</td></tr>"
-              ."<tr><td/><td><span class=\"errorexplanation\">(This is fatal to RODIN: no search possible)</span></td></tr>";
-    }
-
+	  if ($RESULTS_STORE_METHOD == 'solr') {
+	    //Test SOLR connectability
+	    $SOLR_COLLECTIONS=array(  'rodin_result',
+	                              'rodin_search',
+	                              'cached_rodin_widget_responsed',
+	                              'cached_rodin_src_response',
+	                              'zbw_stw',
+	                              'gesis_thesoz'  );
+	    
+	    list($problemtext,$solr_connected) = test_solr_connected($SOLR_COLLECTIONS);
+	    if (!$solr_connected)
+	    {
+	      $LOCALREASON='SOLR connectivity';
+	      $MALFUNCTION_REASON.=$MALFUNCTION_REASON?', ':'';
+	      $MALFUNCTION_REASON.=$LOCALREASON;
+	      $noofproblems++;
+	      $message.="<tr height=15/>"
+	              ."<tr><td/><td><span class=\"error\">$LOCALREASON</span> seems to fail - is SOLR <b>running</b> on this server?</td></tr>"
+	              //."<tr><td/><td>$problemtext</td></tr>"
+	              ."<tr><td/><td><span class=\"errorexplanation\">(This is fatal to RODIN: no search possible)</span></td></tr>";
+	    }
+	}
     //Test SOLR http accessability:
     list($problemtext,$solr_http_queryable) = solr_collection_http_access();
     if (!$solr_http_queryable)

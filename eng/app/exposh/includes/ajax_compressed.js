@@ -11874,7 +11874,8 @@ $p.app.widgets={
 				'class': 'hmod',
 				'cellspacing': '0',
 				'cellpadding': '0',
-				'width': '100%'
+				'width': '100%',
+				'border':0
 			}
 		);
 		var tbodyObj2 = new Element('tbody');
@@ -11955,10 +11956,10 @@ $p.app.widgets={
 			iObj1.icon=this.icon;
 			iObj1.uniq = this.uniq;
 			iObj1.inject(aObj1);												
-			aObj1.inject(tdObj3);						
+			aObj1.inject(tdObj3); //FRI						
 		}
         
-		tdObj3.inject(trObj2);
+		//tdObj3.inject(trObj2);
 		
 		var tdObj4 = new Element('td', 
 			{
@@ -11991,6 +11992,7 @@ $p.app.widgets={
 		var tdObj5 = new Element('td', 
 			{
 				'class': 'optmodhide',
+				'valign': 'middle',
 				'id': 'module'+this.tab+'_'+this.uniq+'_o'
 			}
 		);					
@@ -12049,7 +12051,35 @@ $p.app.widgets={
     			bObj3.set('html','&nbsp;');
     			bObj3.inject(divObj2);
 		}
-																	
+															
+		//FRI Adding hier Icon/HREF for controlling widget preferences
+		if(__showWidgetUserPreferences)
+		{
+			var aObj4bis = new Element('a',
+				{
+					'events':
+					{
+						'click': function()
+						{
+							transfer_click_from_widget_control_to_prefs(tab[$p.app.tabs.sel].id, this.uniq);
+						}
+					},
+					'id': 'rodinwprefs_'+tab[$p.app.tabs.sel].id+'_'+this.uniq,
+					'href': '#',
+					'title':lg('lblPrefsOpen')
+				} 
+			);
+			aObj4bis.uniq = this.uniq;
+			 
+            //aObj4.set('html',$p.img("ico_refresh.gif",12,11,lg("lblRefresh")));
+			aObj4bis.set('html','<img width=16 height=16 class="optmod_prefs" src="../../../gen/u/images/famfamfam/cog.png" alt="'+lg("lblPrefsOpen")+'" />');
+			aObj4bis.inject(divObj2);
+			var bObj4bis = new Element('b');
+			bObj4bis.set('html','&nbsp;');
+			bObj4bis.inject(divObj2);
+		}
+		
+		
 		if(__showModuleRefresh)
 		{
 			var aObj4 = new Element('a',
@@ -12062,7 +12092,8 @@ $p.app.widgets={
 						}
 					},
 					'href': '#',
-					'title':lg('lblRefresh')
+					'title':lg('lblRefresh'),
+					'class':'widgeticon'
 				} 
 			);
 			aObj4.uniq = this.uniq;
@@ -12093,6 +12124,7 @@ $p.app.widgets={
 									}
 							  },
 					'href': '#',
+					'class':'widgeticon',
 					'id': 'module'+this.tab+'_'+this.uniq+'_icon_a',
 					'title': tab[$p.app.tabs.sel].module[$p.app.widgets.uniqToId(this.uniq)].minimized ? lg('titleWidgetRestore') : lg("minimize")
 				} 
@@ -12126,7 +12158,8 @@ $p.app.widgets={
 									}
 							  },
 					'href': '#',
-                    'title': lg('titleWidgetOpenInTab')
+					'class':'widgeticon',
+          'title': lg('titleWidgetOpenInTab')
 				} 
 			);
 			aObj6.uniq = this.uniq;
@@ -12155,6 +12188,7 @@ $p.app.widgets={
 									}
 							  },
 					'href': '#',
+					'class':'widgeticon',
 					'title':lg('lblClose')
 				} 
 			);
@@ -12591,7 +12625,7 @@ $p.app.widgets={
 					},
 					'mouseout': function()
 					{
-                        $p.app.widgets.showOptions(this.uniq,false);																
+              $p.app.widgets.showOptions(this.uniq,false);																
 					}
 				},
 				'class': 'headmod'
@@ -12690,7 +12724,7 @@ $p.app.widgets={
 		var tdObj4 = new Element('td', 
 			{
 				 'width': '100%'
-		    }
+		  }
 		);
 								
 		var divObj1 = new Element('div', // FRI tab ICON here
@@ -20105,10 +20139,31 @@ $p.app.widgets.factory={
 $p.app.connection={
 	active:true,
     oldvalues:{},
+    
+ 	/*
+		$p.app.connection.changeResonanceTexts : change user resonance texts
+	*/
+	changeResonanceTexts:function()
+	{
+		// Change user password
+		var positext= document.forms["newresonance"].positags.value;
+		var negatext= document.forms["newresonance"].negatags.value;
+		
+		POSITEXT=positext;
+		NEGATEXT=negatext;
+		
+		$p.ajax.call(posh["scr_changeresonance"],
+			{
+				'type':'execute',
+				'variables':"positext="+positext+"&negatext="+negatext,
+				'alarm':true,
+			}
+		);
+	},
 	/*
 		$p.app.connection.changePass : change user password
 	*/
-	changePass:function()
+	changePass: function()
 	{
 		// Change user password
 		document.forms["newpass"].pass1.value=$p.string.trim(document.forms["newpass"].pass1.value);
@@ -21808,6 +21863,31 @@ $p.network={
 				+ '<p style="margin: 2px; text-align: right; padding-right: 60px;">' + lg('lblFuturPasswordAgain') + ': <input class="thinbox" type="password" name="pass2" maxlength="16" /></p>'
 				+ '<input style="margin-top: 16px;" onClick="$p.app.connection.changePass();" type="button" value="'+lg("lblSaveChanges")+'" />'
 				+ '</form>';
+
+
+			// Code for personal resonance change
+			var positivetext_default='economy, money, crisis, ROI, margin, social, macro, micro, management, industry, private, public';
+			var negativetext_default='Music, Sport, Phylosophy';
+			var positivetext = (POSITEXT!=''?POSITEXT:positivetext_default);
+			var negativetext = (NEGATEXT!=''?NEGATEXT:negativetext_default);
+			
+			var posititle=lg('ttpPsortResonancePositive');
+			var negatitle=lg('ttpPsortResonanceNegative');
+			var presonanceChangeForm = '<h1 style="margin-top: 20px;">'+lg('lblChangeResonanceTexts')+'</h1>'
+	      + '<form name="newresonance">'
+				+ '<table cellpadding="0" cellspacing="0" border=1 style="margin-left: 20px; margin-right: 20px width:100%"><tr>'
+				+ '<td title="'+posititle+'">'+lg('lblPositiveResonanceTags')+'</td>'
+				+ '<td></td>'
+				+ '<td title="'+negatitle+'">'+lg('lblNegativeResonanceTags')+'</td>'
+				+ '</tr><tr>'
+						+'<td valign="top" title="'+posititle+'"><textarea id="positags" rows="4" cols="30" class="resizablearea" name="positiveresonance">'+positivetext+'</textarea></td>'
+						+'<td width="10"></td>'
+						+'<td valign="top" title="'+negatitle+'"><textarea id="negatags" rows="4" cols="30" class="resizablearea" name="negativeresonance">'+negativetext+'</textarea></td>'
+				+ '</tr></table>'
+				+ '<input style="margin-top: 10px;" onClick="$p.app.connection.changeResonanceTexts();" type="button" value="'+lg("lblSaveResonanceChanges")+'" />'
+				+ '</form>';
+
+
 			
 			// Code for language change
 			var options = '';
@@ -21816,7 +21896,7 @@ $p.network={
 				options += '<option value="' + __AVLANGS[i] + '"' + selected + '>' + __AVLANGS[i] + '</option>';
 			}
 			
-			var changeLangueForm = '<h1 style="margin-top: 32px;">'+lg('lblChangeLanguage')+'</h1>'
+			var changeLangueForm = '<h1 style="margin-top: 20px;">'+lg('lblChangeLanguage')+'</h1>'
 				+ '<form name="changeLang">'
 				+ '<p style="margin: 2px;">' + lg('lblNewLanguage') + ': <select id="langList" name="langList" size="1">' + options + '</select></p>'
 				+ '<input style="margin-top: 16px;" onClick="$p.network.attribLangValue(this.parentNode.langList.value);" type="button" value="'+lg("lblSaveChanges")+'" />'
@@ -21825,7 +21905,7 @@ $p.network={
 			// Launch the user-configuration pop-up
 			var html_message='';
 			var msgtxt = '<div style="padding-left: 6px; padding-right: 28px; text-align: center; font-size: 12px;">'
-				+ passwordChangeForm + changeLangueForm
+				+ passwordChangeForm + changeLangueForm + presonanceChangeForm
 				+ '</div>';
 			
 			$p.app.popup.fadeinFRI(msgtxt, 500, 100, html_message);

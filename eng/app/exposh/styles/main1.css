@@ -338,11 +338,11 @@ ul.tabnav li.active {
 	margin: 0px;
 	padding: 0px;
 	font-size: 14px;/*FRI*/
-	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>
 	border-bottom: 1px solid <?php print $COLOR_BORDERLINE; ?>;
 }
 #headlink a:link,#headlink a:visited {
-	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
 	text-decoration: underline;
 }
 #headlink a:hover {
@@ -350,7 +350,7 @@ ul.tabnav li.active {
 }
 
 #headlink a:link,#headlink a:visited {
-	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>
 }
 
 #headmenu {
@@ -360,13 +360,13 @@ ul.tabnav li.active {
 	overflow: hidden;
 	z-index:100;
 	background-color: #fff;
-	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>
 	padding: 2px;
 	font-size: 12px;
 	border: 2px solid <?php print $COLOR_BORDERLINE; ?>;
 }
 #headmenu a {
-	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>
 	background: #fff;
 	display: block;
 	width: 100%;
@@ -374,7 +374,7 @@ ul.tabnav li.active {
 	padding: 3px;
 }
 #headmenu a:hover, #headlink a:focus {
-	background: #eeeeee;
+	background: <?php print $COLOR_MOREVISIBLETEXT; ?>;
 }
 
 #information {

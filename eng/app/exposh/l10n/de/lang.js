@@ -87,6 +87,15 @@ lang["lblFuturPasswordAgain"]="Neues Passwort bestätigen";
 lang["lblChangeLanguage"]="Sprache ändern";
 lang["lblNewLanguage"]="Neue Sprache";
 lang["lblSaveChanges"]="Speichern";
+lang["lblChangeResonanceTexts"]="Ändern Sie den Resonanztext";
+lang["ttpChangeResonanceTexts"]="Ändern Sie den Resonanztext, in dem Sie Textsegmente einführen, die die Suchresultate anziehen oder abstossen";
+lang["lblPositiveResonanceTags"]="Ändern Sie den positiven Resonanztext";
+lang["ttpPositiveResonanceTags"]="Ändern Sie den positiven Resonanztext, in dem Sie Textsegmente einführen, die die Suchresultate anziehen";
+lang["lblNegativeResonanceTags"]="Ändern Sie den negativen Resonanztext";
+lang["ttpNegativeResonanceTags"]="Ändern Sie den positiven Resonanztext, in dem Sie Textsegmente einführen, die die Suchresultate abstossen";
+lang["lblSaveResonanceChanges"]="Modifiziere Resonanztexte";
+lang["ttpSaveResonanceChanges"]="Klicken Sie, um die Resonantztexte in der Datenbank zu modifizieren";
+
 
 //Posh
 lang["lblTabDelete"]="Diesen Tab entfernen";

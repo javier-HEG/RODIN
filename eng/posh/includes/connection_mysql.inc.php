@@ -44,7 +44,6 @@ class connection
 	function connection($server,$usernamedb,$passworddb,$dbname)
 	{
 		$this->id = @mysql_connect($server, $usernamedb, $passworddb);
-		
 		if ($this->id)
 		{
 			$this->selectDB($dbname);
@@ -64,7 +63,8 @@ class connection
 	*/
 	function selectDB($name)
 	{
-		return @mysql_select_db($name);
+		$con= @mysql_select_db($name);
+		return $con;
 	}
 	/*
 		close : close the server connexion
@@ -97,6 +97,7 @@ class connection
 		{
 			$this->sql=$sql;
 		}
+		
 		$this->result = mysql_query($this->sql,$this->id);
 		if (!$this->result) $this->warning();
 	}

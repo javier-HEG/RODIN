@@ -86,6 +86,14 @@ lang["lblFuturPasswordAgain"]="Confirmez le nouveau mot de passe";
 lang["lblChangeLanguage"]="Changer la langue";
 lang["lblNewLanguage"]="Nouvelle langue";
 lang["lblSaveChanges"]="Enregistrer";
+lang["lblChangeResonanceTexts"]="Change Resonance Texts";
+lang["ttpChangeResonanceTexts"]="Change Resonance Texts by entering positive and negative texts used to filter search results";
+lang["lblPositiveResonanceTags"]="Change positive resonance text";
+lang["ttpPositiveResonanceTags"]="Change positive resonance text by entering positive texts used to attract search results containing this text";
+lang["lblNegativeResonanceTags"]="Change negative resonance text";
+lang["ttpNegativeResonanceTags"]="Change negative resonance text by entering positive texts used to repulse search results containing this text";
+lang["lblSaveResonanceChanges"]="Modify Resonance Texts";
+lang["ttpSaveResonanceChanges"]="Click to save your resonance texts used to filter search results";
 
 //Other originally in POSH
 lang["lblTabDelete"]="Supprimer cet onglet";

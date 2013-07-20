@@ -641,7 +641,7 @@ a.sellist {
 /*====== HEADER LINKS =====*/
 
 #headlink {
-	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
 	font-size: 14px;
 	text-align: right;
 	line-height: 27px;
@@ -653,7 +653,7 @@ a.sellist {
 }
 
 #headlink a:link,#headlink a:visited {
-	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
 	text-decoration: underline;
 }
 
@@ -673,7 +673,7 @@ a.sellist {
 	overflow: hidden;
 	z-index:100;
 	background-color: #fff;
-	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
+	color: <?php print $COLOR_MOREVISIBLETEXT; ?>
 	padding: 2px;
 	font-size: 12px;
 }

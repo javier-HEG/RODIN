@@ -49,8 +49,8 @@ if (user_login($user,$password,false,$user,$errormsg))
 		user_setcookie($user);
 	}
 
-	//Session initialization		
-	init_session($user->id,$user->username,$user->type,$user->lang,$user->longname,$user->activity);
+	//Session initialization	
+	init_session($user->id,$user->username,$user->type,$user->lang,$user->longname,$user->activity,$user->positext,$user->negatext);
 	$_SESSION['mdp'] = 1;
 	$_SESSION['FRI_START'] = 1; //FRI: Signalise first start (against reload)
 

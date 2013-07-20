@@ -47,9 +47,9 @@ function generate_facetboard($INIT_SRC_REF_TABS) {
 					<td colspan=2 width='95%'>
 						<table cellspacing=0 cellpading=0>
 							<tr>
-								<td width=$FACETBOARDMINWIDTH>
+								<td width="228px">
 									<input id="ontofacet_center" type="text" title="$ontoFacetsSearchFieldTitle"
-										style="width:100%"
+                                        style="width:100%"
 										onkeyup="if (event.keyCode==13) { document.getElementById('ontofacet_center_search').click(); }" />
 								</td>
 								<td align=right>
@@ -112,11 +112,12 @@ EOF;
 			$narrowerSegment 	= generate_ontosegment($src_service_id,$SRCNAME,'narrower');
 			$relatedSegment 	= generate_ontosegment($src_service_id,$SRCNAME,'related');
 			$FBTERMWIDTH=$FACETBOARDMINWIDTH*0.9;
-			
-			$SRCNAME_TOOLTIP=lg('lable'.$SRCNAME);
-			
+
+            $SRCNAME_LABLE=lg('lbl'.$SRCNAME);
+            $SRCNAME_TOOLTIP=lg('ttp'.$SRCNAME);
+
 			$FACETBOARD.=<<<EOF
-	 		<tr title='$SRCNAME_TOOLTIP'>
+	 		<tr>
 	 			<td align=left valign=top class='onoff'
 	 					onmouseover="document.getElementById('tyn_$src_service_id').style.visibility ='visible'" 
 						onmouseout="document.getElementById('tyn_$src_service_id').style.visibility ='hidden'"
@@ -136,6 +137,7 @@ EOF;
 								style="cursor: pointer;"
 									onmouseover="document.getElementById('tyn_$src_service_id').style.visibility ='visible'" 
 									onmouseout="document.getElementById('tyn_$src_service_id').style.visibility ='hidden'"
+									title='$SRCNAME_TOOLTIP'
 						>
 							<td id="fb_itemname_expander_$src_service_id" class="fb-expander-uninit" alt="Expand" valign="center"
 								onclick="\$p.ajax.call('../../app/tests/LoggerResponder.php?action=11&name={$SRCNAME}',{'type':'load'});
@@ -147,8 +149,8 @@ EOF;
 									class="facetcontrol-td-uninit"
 									title="$TITLE_ALL_ON_OFF"
 									onclick="document.getElementById('fb_itemname_expander_$src_service_id').onclick();"
-							>$SRCNAME</td>
-							<td id="fb_itemcount_$src_service_id" class="facet-result-count" width=$FBTERMWIDTH/>
+							>$SRCNAME_LABLE</td>
+							<td id="fb_itemcount_$src_service_id" class="facet-result-count" />
 						</tr>
 					</table>  
 				</div>
@@ -213,7 +215,7 @@ function generate_ontosegment($src_service_id, $srcName, $segmentName) {
 		
 		<!-- Segment list of terms -->
 		<div id="fb_itemcontent_{$shortName}_{$src_service_id}" class="facetlist-inactive">
-			<table id="fb_table_{$shortName}_{$src_service_id}" cellpadding="0" cellspacing="0" border=0 width="100%" class="fb-group-table">
+			<table id="fb_table_{$shortName}_{$src_service_id}" cellpadding="0" cellspacing="0" border=0 width="225px" class="fb-group-table">
 				<tr style="cursor:pointer;font-style:italic;" class="fb-sorting">
 					<td class="facetcontrol-td" valign="center" style="font-style:italic;" />
 				</tr>

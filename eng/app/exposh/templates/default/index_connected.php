@@ -119,6 +119,9 @@ EOI;
 		$INIT_SRC_REF_TABS = $INIT_SRC_OBJ['src_interface_specs'];
 	}
 
+	
+	
+	
 #------------------ ZOOM BUTTONS ----------------
 	$zoom_button_width = "20px";
 	$zoom_button_height = "20px";
@@ -168,13 +171,46 @@ EOI;
 		<script type="text/javascript">set_zoom_text_icons("token");</script>
 EOH;
 
-//------------------ Agregated view controls ----------------
+//------------------ Aggregated view controls ----------------
 	$aggregatedViewSwitch = '<div id="aggregateButtonDiv" class="searchOptionDiv">' . "\n"
 		. '<span class="optionLabel" id="aggregateButtonLabel">' . lg("lblEnableAggregation") . ':</span>' . "\n"
 		. '<img id="aggregateButton" class="optionButton" src="'.$RODINUTILITIES_GEN_URL.'/images/button-aggregate-on.png"' . "\n"
 		. 'onClick=" toggle_aggregation();" title="" />' . "\n"
 		. '</div>' . "\n";
 
+
+	//------------------ Personal Sort Control ----------------
+	$personalSortCBOX = '<div id="psortButtonDiv" class="searchOptionDiv">' . "\n"
+		. '<span class="optionLabel" id="psortButtonLabel">' . lg("lblTogglePSort") . ':</span>' . "\n"
+		. '<input id="psortCB" disabled type="checkbox" title ="ONGOING WORK: '.lg("ttpTogglePSort",$_SESSION['longname']).'">'
+		. '</div>' . "\n";
+		
+//------------------ LOD SPACE control ----------------
+		
+  $DBRODIN_LOGO="<img id='dbrodinlogo' src='$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png' title=''/>";
+	$OPENDBRODINLODBROWSER="open_lod_browser('$WEBROOT$RODINROOT/$RODINSEGMENT/app/lod/resource/a/','_blank');return false;";
+  $DBRODIN_HREF="<a href='' onclick=\" $OPENDBRODINLODBROWSER\" target='_blank' title='Click to open dbRODIN LoD browser (on your last search) in a new tab'>$DBRODIN_LOGO</a>";
+  $LODTITLE=lg('ttpOpenLOD');
+	
+  $RDFIZE_LOGO="<img id='rdfizelogo' src='$RODINUTILITIES_GEN_URL/images/white.PNG' title=''/>";
+ 	$LABPARAMS="?listwr=on&user_id=".$_SESSION['user_id']."&username=".$_SESSION['username'];  
+	$OPENRDFIZELAB="open_rdfize('$RDFIZEURL$LABPARAMS','_blank');return false;";
+  $RDFIZE_HREF= "<a href='#' onclick=\" $OPENRDFIZELAB\" target='_blank' title='Click to open RDFIZE LAB (new efficient prototype)  (on your last search) in a new TAB'>$RDFIZE_LOGO</a>";
+	$RDFLABTITLE= lg('ttpOpenRdfLab');
+		
+	$lodViewStart = '<div id="lodButtonDiv" class="searchOptionDiv">' . "\n"
+		. '<span class="optionLabel" id="lodButtonLabel">' . lg("lblOpenLOD") . ':</span>' . "\n"
+		. '<img id="lodButton" class="optionButton" src="'.$RODINUTILITIES_GEN_URL.'/images/icon_arrow_right2.png"' . "\n"
+		. 'onClick=" '.$OPENDBRODINLODBROWSER.'" title="'.$LODTITLE.'" />' . "\n"
+		. '</div>' . "\n";
+
+	$rdfLabStart = '<div id="rdflabButtonDiv" class="searchOptionDiv">' . "\n"
+		. '<span class="optionLabel" id="rdflabButtonLabel">' . lg("lblOpenRdfLab") . ':</span>' . "\n"
+		. '<img id="lodButton" class="optionButton" src="'.$RODINUTILITIES_GEN_URL.'/images/semantic_web.png"' . "\n"
+		. 'onClick=" '.$OPENRDFIZELAB.'" title="'.$RDFLABTITLE.'" />' . "\n"
+		. '</div>' . "\n";
+
+		
 //-------- prepare and set here context menu for aggregated view:
 $restrictToOntoTermLabel = lg('lblContextMenuRestrictToOntoTermX1');
 $addToBreadcrumbLabel = lg('lblContextMenuAddToBreadcrumb');
@@ -211,15 +247,7 @@ EOAM;
  			$SOLR_LOGO="<img id='solrlogo' src='$RODINUTILITIES_GEN_URL/images/solr_logo.png' title='Using SOLR as persistency and search engine'/>";
   }
 
-  $DBRODIN_LOGO="<img id='dbrodinlogo' src='$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png' title=''/>";
-	$OPENDBRODINLODBROWSER="open_lod_browser('$WEBROOT$RODINROOT/$RODINSEGMENT/app/lod/resource/a/','_blank');return false;";
-  $DBRODIN_HREF="<a href='' onclick=\" $OPENDBRODINLODBROWSER\" target='_blank' title='Click to open dbRODIN LoD browser (on your last search) in a new tab'>$DBRODIN_LOGO</a>";
-  
-  $RDFIZE_LOGO="<img id='rdfizelogo' src='$RODINUTILITIES_GEN_URL/images/white.PNG' title=''/>";
- 	$LABPARAMS="?listwr=on&user_id=".$_SESSION['user_id']."&username=".$_SESSION['username'];  
-	$OPENRDFIZELAB="open_rdfize('$RDFIZEURL$LABPARAMS','_blank');return false;";
-  $RDFIZE_HREF= "<a href='#' onclick=\" $OPENRDFIZELAB\" target='_blank' title='Click to open RDFIZE LAB (new efficient prototype)  (on your last search) in a new TAB'>$RDFIZE_LOGO</a>";
-	
+ 	
 	
   list($message,$test_rodin_komponenten_ok,$noofproblems) = rodin_service_diagnostics();
   if ($test_rodin_komponenten_ok)
@@ -245,6 +273,7 @@ EOP;
 
 <body onUnload="$p.app.counter.stop();" bgcolor=<?php print $COLOR_PAGE_BACKGROUND;?>> 
 <div id="cache" style="position:absolute;left:0;top:0;z-index:8;display:none;"></div>
+<div id='upperarea'>
 <div id="headlink" name="headlink"></div>
 <div id="information"></div>
 <div id="crashwarning" align=center></div>
@@ -255,9 +284,6 @@ EOP;
 	<input id="metasearchrodinbutton" type="button"
 		name="rodingensearchbutton" title="" value=""
 		onclick=" <?php print $launchMetaSearchCode; ?>" />
-		<div id='linksdiv'>
-			<?php print $DBRODIN_HREF ?><?php print $RDFIZE_HREF ?>
-		</div>
  </div>
 
 <div id="breadcrumbs" class="breadCrumbsHidden">
@@ -267,10 +293,15 @@ EOP;
 		</div>
 		<div id="breadcrumbs_terms"></div>
 </div>
-
+</div>
 <div id="metaSearchOptionsBar">
+
+	<?php echo $rdfLabStart; ?>
+	<?php echo $lodViewStart; ?>
 	<?php echo $aggregatedViewSwitch; ?>
 	<?php echo $textZoomButtons; ?>
+	<?php echo $personalSortCBOX; ?>
+		
 	<div id="maxResultsPerWidgetDiv" class="searchOptionDiv">
 		<span class="optionLabel"><?php print lg("lblMetaSearchPrefsNbResults");?>:</span>
 		<input id="rodinsearch_m" style="text-align: right" type="text" size="2" value="<?php print $m; ?>"
@@ -532,6 +563,10 @@ EOP;
 		//Simulate click on onto (speedup for dev)
 		//document.getElementById('ontofacet_center').value='Social Policy'; //Search for Time
 		SETVERSION='<?php print $setversion ?>';
+		
+		POSITEXT='<?php print $_SESSION['positext']; ?>';
+		NEGATEXT='<?php print $_SESSION['negatext']; ?>';
+		
     if (! DIAGNOSTIC_OK)
     {
       var d = $("crashwarning");

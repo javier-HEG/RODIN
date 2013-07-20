@@ -572,10 +572,10 @@ function generate_ontofacet(term, ranked_term_raw, rootbase46, fb_tablebody_id, 
     var rankButton = document.createElement('img');
     
     //Add content only if existing_widgetsresults, otherwise leave img with class
+	  rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ rootbase46 + "', '" + term+ "', '" + lang + "');");
+    rankButton.setAttribute("title", lg("lblClick2RankResults", term));
     if(existing_widgetsresults)
     {
-	    rankButton.setAttribute("title", lg("lblClick2RankResults", term));
-	    rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ rootbase46 + "', '" + term+ "', '" + lang + "');");
 		  rankButton.setAttribute("class", "ontofacetterm4exwr");
 		}
 		else

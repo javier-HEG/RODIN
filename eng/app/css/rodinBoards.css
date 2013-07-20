@@ -9,7 +9,7 @@ div.singleRodinBoard {
 	width: <?php print $FACETBOARDMINWIDTH_PX; ?>;
 	position:relative;	
 	margin-bottom: 6px;
-	overflow-y: hidden;
+	overflow: hidden;
 	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
 	border: 3px solid <?php print $COLOR_BORDERLINE; ?>;
 	font-size: 12px;
@@ -52,6 +52,7 @@ div.rodinBoardTitleBar
 }
 
 div.singleRodinBoard div.boardConfiguration {
+    overflow: hidden;
 	background-color: <?php print $COLOR_BORDERLINE; ?>;
 	padding-top: 2px;
 }
@@ -218,7 +219,7 @@ div#fb_itemname {
     font-size: 10px;
     font-style: italic;
     font-weight: normal;
-    min-width: 80px;
+    width: 70px;
     padding-right: 6px;
     text-align: right;
     color: darkgray;
@@ -435,7 +436,7 @@ table.fb-group-table {
 
 tr.fb-term-row > td {
 	padding-top: 0px;
-	/*border-bottom: 0px solid <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
+    /*border-bottom: 0px solid <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
 }
 
 
@@ -536,6 +537,8 @@ div#metaSearchOptionsBar {
 	float: left;
 	padding: 2px 0px 2px 0px;
 	margin-top: 2px;
+    position: relative;
+    top:-5px;
 }
 
 div#metaSearchOptionsBar .searchOptionDiv {
@@ -566,6 +569,12 @@ div#metaSearchOptionsBar .optionLabel {
 
 div#metaSearchOptionsBar input {
 	height: 24px;
+	margin-top: 1px;
+}
+
+div#metaSearchOptionsBar input#psortCB{
+	height: 24px;
+	width:	24px;
 	margin-top: 1px;
 }
 

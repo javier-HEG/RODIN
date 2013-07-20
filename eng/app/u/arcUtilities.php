@@ -2358,7 +2358,7 @@ EOQ;
 		$suggestions_data=array();
 		$descriptions=array();
 	
-		$max_retrieval_results=202; // Limit search engine to n results each SRC
+		$max_retrieval_results=12; // Limit search engine to n results each SRC
 		$max_displayed_results=2; // Limit display in autocomplete to n results
 			
 		$servicename='autocomplete';
@@ -2372,7 +2372,6 @@ EOQ;
 			include_once('LanguageDetection.php');
 			foreach($PREPARED_AUTOCOMPLETE_SOURCES as $AUTOCOMPLETE_SRC_SOURCE)
 			{
-				
 				$broaders=$narrowers=$relateds=array();
 				$broaders_properties=$narrowers_properties=$relateds_properties=array();
 				if ($DEBUG)

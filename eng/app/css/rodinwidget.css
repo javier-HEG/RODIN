@@ -182,7 +182,7 @@ div.oo-result-header,
 div.oo-result-header-lod {
 	display: table-cell;
 	width: 24px;
-	background-color: #bbb;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND4 ?>;
 	text-align: center;
 	font-weight: bold;
 	color: gray;

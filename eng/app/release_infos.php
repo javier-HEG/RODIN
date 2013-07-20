@@ -22,7 +22,7 @@ include_once("u/arcUtilities.php");
 <br />Please report any issue using <?php echo $MANTIS ?> 
 <br />
 <br />
-<br /><b>RODIN Release 2.8.4</b>
+<br /><b>RODIN Release 2.8.5</b>
 <br />===================
 <br />SOLR integration for results
 <br />Aggregated view for results
@@ -39,6 +39,8 @@ include_once("u/arcUtilities.php");
 <br />NEW ONTOFACETS LAYOUT - more responsive and more compact
 <br />Improved GUI - following the suggestions of the great RODIN team
 <br />WIDGET e-lib.ch
+<br />RESONANCE FILTERING (personal filter)
+
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>
  together with the  

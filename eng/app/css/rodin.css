@@ -36,6 +36,16 @@
 	width:45px;
 }
 
+
+/*
+#BE8A4B #FFD363
+*/
+div#upperarea
+{
+  background-color: #FFE393;
+}
+
+
 div#crashwarning {
   
   z-index: 120;
@@ -84,12 +94,16 @@ div#rodinmetasearch {
 
 div#rodinmetasearch input#rodinsearch_s {
 	padding: 3px;
+    padding-left: 7px;
+    padding-right: 7px;
+    padding-bottom: 3px;
 	width: 500px;
 	height: 40px;
 	margin-left: 170px;
 	vertical-align: middle;
 	font-size:xx-large;
 	margin:1px;
+    border-radius: 6px 6px 6px 6px;
 }
 
 div#rodinmetasearch input#metasearchrodinbutton {
@@ -99,6 +113,7 @@ div#rodinmetasearch input#metasearchrodinbutton {
 	font-weight: bold;
 	vertical-align: middle;
 	font-size:large;
+    border-radius: 6px 6px 6px 6px;
 }
 
 div#rodinmetasearch img#rodinSearchHelpButton {

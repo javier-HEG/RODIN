@@ -599,8 +599,9 @@ EOT;
 	print $T;
 	$govalue=RDW_COLLECTRESULTS;
 	$T=<<<EOT
+		\n<input type="hidden" name="wps" value="$wps" />
 		\n<input type="hidden" name="slrq" value="$slrq" />
-		\n<input type="hidden" name="go" value="$govalue" />
+				\n<input type="hidden" name="go" value="$govalue" />
 		\n<input type="hidden" name="p" value="$p" />
 		\n<input type="hidden" name="app_id" value="$APP_ID" />
 		\n<input type="hidden" name="setversion" value="$setversion" />

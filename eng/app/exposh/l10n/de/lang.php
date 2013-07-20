@@ -14,6 +14,12 @@ $GLOBALS['lgMap']["titleBreadcrumbsTitle"]="Alle zusätzlichen Suchbegriffe entf
 $GLOBALS['lgMap']["lblHistoricalBoardTitle"]="Frühere Suchanfragen";
 $GLOBALS['lgMap']["lblFacetsBoardTitle"]="Ontologische Facetten";
 $GLOBALS['lgMap']["titleGlobalMaxResults"]="Geben Sie hier die gewünschte Anzahl anzuzeigender Resultate ein";
+$GLOBALS['lgMap']["lblOpenLOD"]="LOD";
+$GLOBALS['lgMap']["ttpOpenLOD"]="Klicken Sie, um RODINs LOD-Raum bzgl. letzter Suche im neuen Tab zu öffnen";
+$GLOBALS['lgMap']["lblOpenRdfLab"]="RDF Lab";
+$GLOBALS['lgMap']["ttpOpenRdfLab"]="Klicken Sie, um RODINs RDFisierungslab  LAB bzgl. letzter Suche im neuen Tab zu öffnen";
+$GLOBALS['lgMap']["lblTogglePSort"]="Persönliche Endfilterung";
+$GLOBALS['lgMap']["ttpTogglePSort"]="Klicken Sie, um eine Endfilterung bzgl. Ihrer in den Einstellungen zu #1 spezifizierten persönlichen oder Gruppenkriterien vorzunehmen";
 
 // Widgets
 $GLOBALS['lgMap']["titleWidgetButtonAsk"]="Klicken Sie, um eine lokale Suche im Widget zu starten";

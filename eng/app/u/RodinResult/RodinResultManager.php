@@ -474,7 +474,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
       $filecontent=file_get_contents($solr_result_query_url);
       $solr_sxml= simplexml_load_string($filecontent);
 			
-      if ((!$aggView) &&
+      if (0 && (!$aggView) &&
       		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x') 
               || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on p, x, st 
       {  
@@ -678,9 +678,10 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					print "<br>$rrrank for (".$result->getTitle()."): ".$result->getRank();
 				}
 	    }
-	    
+
+      //Sort results on score top biggest
 	    if (count($tmp_allResults))
-			{krsort($tmp_allResults);
+			{ksort($tmp_allResults);
       	reset($tmp_allResults);}
 			
 			if($debug)

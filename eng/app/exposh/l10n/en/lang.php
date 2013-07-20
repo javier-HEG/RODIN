@@ -6,14 +6,22 @@ $GLOBALS['lgMap']["titleTextZoomOne"]="Click to show results in compact view";
 $GLOBALS['lgMap']["titleTextZoomTwo"]="Click to show results in normal view";
 $GLOBALS['lgMap']["titleTextZoomThree"]="Click to show results in detailed view";
 $GLOBALS['lgMap']["titleTextZoomFour"]="Click to show results filtered in current view";
-$GLOBALS['lgMap']["lblEnableAggregation"]="Aggregated view";
-$GLOBALS['lgMap']["lblDisableAggregation"]="Disable aggregated view";
+$GLOBALS['lgMap']["lblEnableAggregation"]="Aggregated and expanded view";
+$GLOBALS['lgMap']["lblDisableAggregation"]="Disable aggregated and expanded view";
 $GLOBALS['lgMap']["lblYouHaveBeenDisconnected"]="You have been disconnected after #1 minutes of inactivity.";
 $GLOBALS['lgMap']["lblBreadcrumbsTitle"]="Additional search terms";
 $GLOBALS['lgMap']["titleBreadcrumbsTitle"]="Click to remove all additional search terms"; 
 $GLOBALS['lgMap']["lblHistoricalBoardTitle"]="Past Searches";
 $GLOBALS['lgMap']["lblFacetsBoardTitle"]="Ontological Facets";
 $GLOBALS['lgMap']["titleGlobalMaxResults"]="Enter the wished number of results per widget";
+$GLOBALS['lgMap']["lblOpenLOD"]="LOD";
+$GLOBALS['lgMap']["ttpOpenLOD"]="Click to open RODIN's LOD Space on last search in a new tab";
+$GLOBALS['lgMap']["lblOpenRdfLab"]="RDF Lab";
+$GLOBALS['lgMap']["ttpOpenRdfLab"]="Click to open RODIN's RDFIZE LAB on last search in a new tab";
+$GLOBALS['lgMap']["lblTogglePSort"]="Personal Quality Sort";
+$GLOBALS['lgMap']["ttpTogglePSort"]="Click to activate RODIN's personal quality sort on final results on the basis of resonance on personal or group data available in RODIN's user preferences for #1";
+
+
 
 // Widgets
 $GLOBALS['lgMap']["titleWidgetButtonAsk"]="Click to submit a local widget search";
@@ -76,12 +84,18 @@ $GLOBALS['lgMap']["titleLaunchWidgetMLT"]="Search with this document";
 
 
 //SRC
-$GLOBALS['lgMap']["lableSTW"]="Economy (STW)";
-$GLOBALS['lgMap']["lableSOZ"]="Sociology (SOZ)";
-$GLOBALS['lgMap']["lableLOCSH"]="English Subject Headings (LoCSH)";
-$GLOBALS['lgMap']["lableRAMEAU"]="French Subject Headings (RAMEAU)";
-$GLOBALS['lgMap']["lableGND"]="Integrated Authority File (GND)";
-$GLOBALS['lgMap']["lableDBPedia"]="Encyclopedia (DBPedia)";
+$GLOBALS['lgMap']["lblSTW"]="Economy (STW)";
+$GLOBALS['lgMap']["ttpSTW"]="Economy thesaurus from ZBW - Zentralbibliothek für Wirtschaft";
+$GLOBALS['lgMap']["lblSOZ"]="Sociology (SOZ)";
+$GLOBALS['lgMap']["ttpSOZ"]="Sociology thesaurus from ... ???";
+$GLOBALS['lgMap']["lblLOCSH"]="English Subjects (LoCSH)";
+$GLOBALS['lgMap']["ttpLOCSH"]="English Subject Headings";
+$GLOBALS['lgMap']["lblRAMEAU"]="French Subjects (RAMEAU)";
+$GLOBALS['lgMap']["ttpRAMEAU"]="French Subject Headings from ... ???";
+$GLOBALS['lgMap']["lblGND"]="German Subjects (GND)";
+$GLOBALS['lgMap']["ttpGND"]="Integrated Authority File from ... ???";
+$GLOBALS['lgMap']["lblDBPedia"]="Encyclopedia (DBPedia)";
+$GLOBALS['lgMap']["ttpDBPedia"]="Universal encyclopedia";
 
 
 

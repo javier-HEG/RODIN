@@ -86,6 +86,7 @@ session_start();
 	$RDW_REQUEST['sid'] = 0;
 	$RDW_REQUEST['nosrc'] = 0;
 	$RDW_REQUEST['slrq'] = ''; //solr extra select/ranking info
+	$RDW_REQUEST['wps'] = ''; //solr extra select/ranking info
 	$RDW_REQUEST['n'] = $DEFAULTRODINSKIN;
 	$RDW_REQUEST['m'] = 10;
 	$RDW_REQUEST['q'] = 0;
