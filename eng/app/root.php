@@ -14,7 +14,7 @@ date_default_timezone_set('Europe/Zurich');
 $_SESSION['RODINVERSION'] = '2.5';
 
 $PROGRAMNAME='RODIN';
-$VERSION='3';
+$VERSION='2.8.6';
 
 
 $RODIN_APPNAME = "RODIN";
@@ -440,9 +440,11 @@ $RODINADMIN_LINK = <<<EOL
 	title='Send a message to the current RODIN administrator $RODINADMIN_ADMIN_EMAILADDR'>RODIN administrator</a>
 EOL;
 
-$RODINSKIN = $_GET['skin'];
+$RODINSKIN = $_GET['skin']; 
+if (!$RODINSKIN) $RODINSKIN = getA('SKIN');
 if ($RODINSKIN)
 {
+	//Can we find it also on a disk?
 	$SKINDIR="app/css/skins/$RODINSKIN";
 	#######################################
 	$max=10;
@@ -456,17 +458,18 @@ if ($RODINSKIN)
 	}
 
 	if($skinfound)
+	{
+		$_SESSION['RODINSKIN']=$RODINSKIN;
 		$SKINDIR="$updir$SKINDIR";
+		//print "SKINDIR FOUND: $SKINDIR";
+	}
 	else
+	{
 		$SKINDIR="$RODIN/app/css/skins/$DEFAULTRODINSKIN";
+		//print "SKINDIR NOT FOUND AND SET TO: $SKINDIR";
+	}
 }
-else if ($_SESSION['RODINSKIN'])
-{
-	$RODINSKIN = $_SESSION['RODINSKIN'];
-	$SKINDIR = "$RODIN/app/css/skins/$RODINSKIN";
-}
-else
-	$SKINDIR = "$RODIN/app/css/skins/$DEFAULTRODINSKIN";
+
 
 if (file_exists("$SKINDIR/RODIN_COLORS.php"))
 	include_once("$SKINDIR/RODIN_COLORS.php");
@@ -598,6 +601,15 @@ $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['path']='/solr/subject_r
 $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['core']=null;
 $SOLR_RODIN_CONFIG['subject_ranking']['adapteroptions']['timeout']=5;
 
+# SOLR for collection docs_ranking:
+$SOLR_RODIN_CONFIG['docs_ranking']['adapteroptions']['user']='rodin';
+$SOLR_RODIN_CONFIG['docs_ranking']['adapteroptions']['host']='localhost';
+$SOLR_RODIN_CONFIG['docs_ranking']['adapteroptions']['port']=$SOLR_PORT;
+$SOLR_RODIN_CONFIG['docs_ranking']['adapteroptions']['path']='/solr/docs_ranking/';
+$SOLR_RODIN_CONFIG['docs_ranking']['adapteroptions']['core']=null;
+$SOLR_RODIN_CONFIG['docs_ranking']['adapteroptions']['timeout']=5;
+
+
 # SOLR (general) for ARC collection(s):
 $SOLR_RODIN_CONFIG['arc']['adapteroptions']['user']='rodin';
 $SOLR_RODIN_CONFIG['arc']['adapteroptions']['host']='localhost';
@@ -619,6 +631,7 @@ $SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
 
 function get_rodin_skin()
 {
+	//print " get_rodin_skin() returns: ".$_SESSION['RODINSKIN'];
 	return 	$_SESSION['RODINSKIN'];
 }
 
@@ -846,7 +859,6 @@ function limitusernamelength($uname, $limitlen=16)
 	if ($len > $limitlen)
 	{
 		$mitte = $limitlen/2;
-
 		$primo	=substr($uname,0,$mitte);
 		$secondo=substr($uname,$len - $mitte, $mitte);
 		#print "<br>limitusernamelength($uname) --> $primo$secondo";
@@ -856,12 +868,10 @@ function limitusernamelength($uname, $limitlen=16)
 	{
 		return $uname;
 	}
-
 }
 
 
-
-
+$ADMIN_USING=0;
 
 
 $ROOT=1;

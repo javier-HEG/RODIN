@@ -274,6 +274,7 @@ class BasicRodinResult {
 		}
 		
 		
+    $result_doc->rank       = $result_doc->rank; //FRI neu
     $result_doc->user       = $user;
     $result_doc->id         = $id // do we have already one id?
     												? $id // yes: take old id
@@ -321,7 +322,7 @@ class BasicRodinResult {
 		}
 		$color = RodinResultManager::getRodinResultTypeColor($this->resultType,$this->getLod());
 		$title = $EVTL_SOURCE . RodinResultManager::getRodinResultTypeName($this->resultType);
-		if ($this->getRank()) $title.= ' ranked with ' . $this->getRank() . ' points';
+		if ($this->getRank() > 0) $title.= ' ranked with a score of ' . $this->getRank();
 		$html = '<div id="header-' . $resultIdentifier . '" class="'.$HEADERCLASS.'" style="border-left: 2px solid ' . $color . ';" title="' . $title . '"></div>';
 		return $html;
 	}
@@ -417,7 +418,7 @@ class BasicRodinResult {
 		$string .= '[Authors: "' . $this->getAuthors() . '" ] ';
 		$string .= '[Date: "' . $this->getDate() . '" ] ';
 		$string .= '[URL: "' . $this->getUrlPage() . '" ] ';
-		$string .= '[Properties: ' . var_export($this->getResultProperties(), true) . ']]';
+		$string .= '[Properties: ' . var_export($this->getValidProperties(), true) . ']]';
 		
 		return $string;
 	}

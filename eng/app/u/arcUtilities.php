@@ -186,11 +186,23 @@ EOX;
 		
 		/**
 		 * Extracts portions of $txt which are numbers or (en) stopwords
+		 * 
+		 * In case there is an expression in parenthesis, 
+		 * assume this expression is more concrete than the first one
+		 * and take that expression instead of the term
+		 * 
 		 * @param $txt0 - The text to be cleaned
 		 */
 		function filter_as_subject($txt0,$pattern='')
 		{
 			//Do not want to see the following chars inside the term $txt0
+			
+			if (preg_match("/\((.+)\)/",$txt0,$match))
+			{
+				$txt0 = $match[1];
+			}
+			
+			
 			$pattern = $pattern<>''?$pattern:'/[0-9&!;\\\.\:\-_\[\]\(\)]+/';
 			$replace = '';
 			$txt= trim(preg_replace($pattern, $replace, $txt0));
@@ -1415,6 +1427,10 @@ EOQ;
 	 * enrich the vector
 	 * if the filtered version is new to $vector
 	 * 
+	 * In case there is an expression in parenthesis, 
+	 * assume this expression is more concrete than the first one
+	 * and take that expression instead of the term
+	 * 
 	 * @param text $candidate - a term
 	 * @param array $vector - the vector to fill
 	 * @param string $lang
@@ -1437,7 +1453,7 @@ EOQ;
 				if (($langt=detectLanguageAndLog($subject,'insert_filtered_once',$sid))==$lang || ($tolerated_lang<>'' && $langt==$tolerated_lang))
 				{
 					if (!in_array($subject,$vector))
-							$vector[]= $subject;
+							$vector[]= capital_noun($subject);
 					//print "<br>TAKE($langt==$lang) SUBJ($subject):";
 				 
 					if($DEBUG)  

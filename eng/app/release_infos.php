@@ -1,7 +1,5 @@
-
 <?php 
-
-include_once("root.php");
+require("./root.php");
 include_once("u/arcUtilities.php");
  $NOW=date("d.m.Y_H:i:s");
 
@@ -12,7 +10,7 @@ include_once("u/arcUtilities.php");
  $US_LINK = "<a href='mailto:fabio.ricci@ggaweb.ch?subject=RODIN_SMOKE_TEST_ON_{$NOW}_SEGMENT???'>us</a>";
  ?>
 
-<a href="http://campus.hesge.ch/id_bilingue/projekte/rodin/index_fr.asp" target=_blank>RODIN</a>
+<a href="http://campus.hesge.ch/id_bilingue/projekte/rodin/index_fr.asp" target=_blank>RODIN Version <?php print $VERSION?></a>
 <br />
 <br /><b>DEVELOPMENT / RELEASE INFOS </b>
 <br />
@@ -22,7 +20,7 @@ include_once("u/arcUtilities.php");
 <br />Please report any issue using <?php echo $MANTIS ?> 
 <br />
 <br />
-<br /><b>RODIN Release 2.8.5</b>
+<br /><b>Features:</b>
 <br />===================
 <br />SOLR integration for results
 <br />Aggregated view for results
@@ -54,10 +52,15 @@ Please report any bug issue to <?php echo $MANTIS ?>
 <br>to send <?php print $US_LINK?> or to issue a <?php print $MANTIS_ISSUE_SMOKETEST?>
 <br>on a <a href='<?php print $RODINSMOKETEST_DIR_URL?>' target='blank' title='Click to switch to a download area "smoketest" containing rodin test documents to fill and send'>SMOKE or DEEP RODIN Test</a>
 </p>
-<?php 
-
-	$ADMIN_USING=strstr($_SESSION['RODINADMINEMAILADDR'],'fabio') || strstr($_SESSION['RODINADMINEMAILADDR'],'rodinuser');
-  //if ($RODINSEGMENT<>'p')
+<?php
+	$USED_EXTERNALLY = strstr($_SESSION['username'],'infoclio');
+	$_SESSION['used_externally']=$USED_EXTERNALLY;
+	
+	$USED_BY_ADMIN =  strstr($_SESSION['username'],'rodinuser')
+							  || strstr($_SESSION['username'],'fabio');
+	$_SESSION['used_by_admin']=$USED_BY_ADMIN;
+	
+  if ($RODINSEGMENT=='eng')
   {
   	print "<b><i>USEFUL LINKS:</i></b>";
     $SRC_CONTROL_LINK="$WEBROOT$RODINROOT/$RODINSEGMENT/fsrc/app/u/select_src.php?".($ADMIN_USING?'u=2':'');

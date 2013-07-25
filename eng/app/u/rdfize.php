@@ -32,7 +32,6 @@ $SEG=$RODINSEGMENT;
 $_SESSION['user_id']=$USER_ID;
 $_SESSION['username']=$USER_NAME;
 	
-	
 if ($sid<>'')
 {
 	$search_term = collect_queries_tag($SEG,$USER_ID,$sid);
@@ -67,6 +66,10 @@ $checked_list3pls=$list3pls?' checked ':'';
 
 $rdfize=$list3pls || $_GET['rdfize']=='on';
 $checked_rdfize=$rdfize?' checked ':'';
+
+$wps=$_GET['wps'];
+$checked_wps=$wps?' checked ':'';
+$WANT_USER_RESONANCE=($wps=='on' || $wps==1);
 
 $viz3pls=$_GET['viz3pls']=='on';
 $checked_viz3pls=$viz3pls?' checked ':'';
@@ -111,7 +114,6 @@ if ($sid<>'')
 	$resultMaxSetSize = $resultCount;
 	
 	$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
-	
 	
 	list($searchres_timestamp,$_) = timestamp_for_rdf_annotation();
 	
@@ -283,9 +285,10 @@ if ($sid<>'')
 										$RDFLOG.=htmlprint($BLA,'#fbb');
 								} // foreach
 						}
-																																
-						$ranked_docs = $rdfprocessor->rerankadd_docs($sid, $expandeddocs, $ranked_result_subjects);
-						
+																							
+						$ranked_docs = $rdfprocessor->rerankadd_docs($sid, $expandeddocs, $ranked_result_subjects, $WANT_USER_RESONANCE);
+
+            //OUTPUT IF RDFLAB/RDFIZE GUI param set
 						if (1 && $list3pls)
 						{
 							$RDFLOG.= "<hr><b>Sorted ranked documents </b>";
@@ -334,7 +337,7 @@ if ($sid<>'')
 		}
 	}
 		
-	if ($list3pls)
+	if ($list3pls && $deakt)
 	{
 	
 		
@@ -388,7 +391,7 @@ $STATLINK="../tests/rdf_exec_stat.php?sid=$sid&u=$USER_ID";
 
 if($listwr)
 print<<<EOP
-	<div id='div1' style="width:810px;height:400px;scroll:auto">
+	<div id='div1' style="width:1000px;height:400px;scroll:auto">
 	<h2>$TITLEPAGE</h2>
 	<p>
 		<input type='button' title='Click to open LOCAL STORE SPARQL Explorer in new tab' value='OPEN LOCAL STORE SPARQL Explorer' onclick="window.open('$RDFSEMEXP_STOREEXPLORER')">
@@ -411,7 +414,7 @@ print<<<EOP
 		<table style="width:100%">
 			<tr>
 				<td colspan="2">
-					<input type='button' name='go' value='press to RDFize' style="width:800px" onclick="fsid.submit()">
+					<input type='button' name='go' value='press to RDFize' style="width:100%;background-color:green;color:white;height:30px;font-size:large" onclick="fsid.submit()" >
 				</td>
 			</tr>
 			<tr>
@@ -426,6 +429,7 @@ print<<<EOP
 				<td colspan="2">
 				RDFize:<input type='checkbox' name='rdfize' $checked_rdfize title='For programs only ;-)'>&nbsp;&nbsp;&nbsp;
 				List widget results:<input type='checkbox' name='listwr' $checked_listwr>&nbsp;&nbsp;&nbsp;
+				P. Resonance:<input type='checkbox' name='wps' $checked_wps>&nbsp;&nbsp;&nbsp;
 				RDFize & display triples:<input type='checkbox' name='list3pls' $checked_list3pls>&nbsp;&nbsp;&nbsp;
 				graphviz search graph:<input type='checkbox' name='viz3search' $checked_viz3search title='Visualize search subgraph for $search_term' >&nbsp;&nbsp;&nbsp;
 				graphviz whole graph:<input type='checkbox' name='viz3pls' $checked_viz3pls title='Visualize all triples graphically' >&nbsp;&nbsp;&nbsp;

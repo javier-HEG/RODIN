@@ -42,8 +42,8 @@
 */
 div#upperarea
 {
-  background-color: #FFE393;
-}
+  background-color:<?php print $RODIN_UPPERAREA_BGCOLOR; ?>;
+} 
 
 
 div#crashwarning {
@@ -257,7 +257,7 @@ div.rdf_widgetinfo {
 	border-color:black;
 	border-width:1px;
 	border-style:solid;
-	width:800px;
+	width:100%;
 	max-height:300px;
 	overflow:auto;
 } 
@@ -269,7 +269,7 @@ div.limitstats {
 	border-color:black;
 	border-width:1px;
 	border-style:solid;
-	width:800px;
+	width:100%;
 	max-height:300px;
 	overflow:auto;	
 }
@@ -319,7 +319,7 @@ div.graphviz {
 div#divLOGGING {
 	padding:3px 3px 3px 3px;
 	border:2px solid black;
-	width:800px;
+	width:100%;
 	max-height:300px;
 	/*visibility:hidden;
 	display:none;*/
@@ -341,7 +341,7 @@ span.numofobjects {
 div.tripletable
 {
 	background-color:#FFeeee;
-	width:810px;
+	width:100%;
 	max-height:500px;
 	overflow:auto;
 }

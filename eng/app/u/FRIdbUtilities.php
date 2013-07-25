@@ -1600,14 +1600,19 @@ function get_query_DB($sid) {
 
 
 
-function get_POSH_user_info()
+function get_POSH_user_info($USER_ID ='')
 ####################################################
 {
 	global $CAN_ACCESS_ADMIN_VAR;
 	if ($CAN_ACCESS_ADMIN_VAR)
 	{
+		if ($USER_ID)
+			$WHERE=" id = $USER_ID";
+		else
+			$WHERE=" lastconnect_date = (select max(lastconnect_date) from users) ";
+		
 		$Q=<<<EOQ
-SELECT id,long_name,username FROM users WHERE lastconnect_date = (select max(lastconnect_date) from users)
+SELECT id,long_name,username,positext,negatext FROM users WHERE $WHERE
 EOQ;
 
  		return fri_fetch_assoc($Q);
@@ -1615,6 +1620,21 @@ EOQ;
 	else
 		return 'installing...';
 }
+
+
+/**
+ * 
+ */
+function get_resonance_texts_from_poshdb($USER_ID)
+{
+	if (($user_values=get_POSH_user_info($USER_ID)))
+	{
+		$positext = $user_values['positext'];
+		$negatext = $user_values['negatext'];
+	}
+	return array($positext,$negatext);
+} // get_resonance_textsfrom_poshdb
+
 
 
 
@@ -3161,10 +3181,10 @@ function check_rodin_installation($PROT,$HOST,$PORT,$RODINROOT,$RODINSEGMENT)
 # debugUtils::callStack(Exception::getTrace());
 
 
-	$POSH_user_info = get_POSH_user_info();
+	$POSH_user_info = get_POSH_user_info($USER);
 
 	$rodinuseremail=$POSH_user_info['username'];
-	$rodinuserid=$POSH_user_info['id'];
+	$rodinuserid=$USER;
 	$rodinuser=$POSH_user_info['long_name'];
 
 	class debugUtils {

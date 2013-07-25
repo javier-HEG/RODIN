@@ -219,7 +219,7 @@ div#fb_itemname {
     font-size: 10px;
     font-style: italic;
     font-weight: normal;
-    width: 70px;
+    min-width: 70px;
     padding-right: 6px;
     text-align: right;
     color: darkgray;
@@ -569,12 +569,7 @@ div#metaSearchOptionsBar .optionLabel {
 
 div#metaSearchOptionsBar input {
 	height: 24px;
-	margin-top: 1px;
-}
-
-div#metaSearchOptionsBar input#psortCB{
-	height: 24px;
-	width:	24px;
+	width: 24px;
 	margin-top: 1px;
 }
 

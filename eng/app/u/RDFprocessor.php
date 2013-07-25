@@ -68,6 +68,7 @@ class RDFprocessor {
 	
 	public  static $importGraph			  = null;
 	public  static $submlt_collection = 'subject_ranking'; //SOLR collection used for ranking
+	public  static $docmlt_collection = 'docs_ranking'; //SOLR collection used for ranking
 	public  static $querysubjects_servicename ='queryexp';
 	public  static $relatedsubjects_servicename ='subexp';
 	public  static $lodfetch_servicename ='lodfetch';
@@ -1023,6 +1024,9 @@ class RDFprocessor {
 	
 	
 	
+	
+	
+	
 	/**
 	 * ranks every subject in $result_subjects and in $skos_subjects_expansions
 	 */
@@ -1074,35 +1078,34 @@ class RDFprocessor {
 																						array_values($flattened_expanded_result_subject_list) ) );
 		if ($DEBUG)
 		{
+			$RDFLOG.= "<br><br> search_subjects to be taken:";
+			foreach(array_keys($search_subjects) as $k=>$s)
+						$RDFLOG.= "<br>$k=>$s";
+			$RDFLOG.= "<br><br> flattened_expanded_search_subject_list to be taken:";
+			foreach($flattened_expanded_search_subject_list as $k=>$s)
+						$RDFLOG.= "<br>$k=>$s";
+			$RDFLOG.= "<hr><b>rerank_subjects - reference search text:</b> <br>"
+						.$subsumptionfree_search_text;
 			
-		$RDFLOG.= "<br><br> search_subjects to be taken:";
-		foreach(array_keys($search_subjects) as $k=>$s)
-					$RDFLOG.= "<br>$k=>$s";
-		$RDFLOG.= "<br><br> flattened_expanded_search_subject_list to be taken:";
-		foreach($flattened_expanded_search_subject_list as $k=>$s)
-					$RDFLOG.= "<br>$k=>$s";
-		$RDFLOG.= "<hr><b>rerank_subjects - reference search text:</b> <br>"
-					.$subsumptionfree_search_text;
-		
-		$RDFLOG.= "<br><br> Result subjects to be taken:";
-		foreach($result_subjects as $k=>$s)
-					$RDFLOG.= "<br>$k=>$s";
-		$RDFLOG.= "<br><br> flattened_expanded_result_subject_list to be taken:";
-		foreach($flattened_expanded_result_subject_list as $k=>$s)
-					$RDFLOG.= "<br>$k=>$s";
-		$RDFLOG.= "<br><br> expanded_new_result_subjects to be taken:";
-		foreach($expanded_new_result_subjects as $k=>$s)
-					$RDFLOG.= "<br>$k=>$s";
-		$RDFLOG.= "<br><br><b> result_subject_list to be ranked</b>:";
-		foreach($result_subject_list as $k=>$s)
-					$RDFLOG.= "<br>$k=>$s";
+			$RDFLOG.= "<br><br> Result subjects to be taken:";
+			foreach($result_subjects as $k=>$s)
+						$RDFLOG.= "<br>$k=>$s";
+			$RDFLOG.= "<br><br> flattened_expanded_result_subject_list to be taken:";
+			foreach($flattened_expanded_result_subject_list as $k=>$s)
+						$RDFLOG.= "<br>$k=>$s";
+			$RDFLOG.= "<br><br> expanded_new_result_subjects to be taken:";
+			foreach($expanded_new_result_subjects as $k=>$s)
+						$RDFLOG.= "<br>$k=>$s";
+			$RDFLOG.= "<br><br><b> result_subject_list to be ranked</b>:";
+			foreach($result_subject_list as $k=>$s)
+						$RDFLOG.= "<br>$k=>$s";
 		}
 
 		$sorted_ranked_subjects = rank_vectors_vsm(	$subsumptionfree_search_text,
 																								$result_subject_list, 
 																								$this->sid, 
 																								$this->USER_ID,
-																								$miminumrank=	1);
+																								$miminumrank=	1	);
 		
 		if ($DEBUG)
 		foreach($sorted_ranked_subjects as $subject_label=>$REC)
@@ -1119,15 +1122,73 @@ class RDFprocessor {
 	
 	
 	/**
+	 * Returns a homogeneous list from rodin result docs and external docs
+	 * where label is the index and rank (currently present) score taken from $ranked_docs
+	 * $ranked_docs_list{$rdoc_label}=$rank;
+	 */
+	function resume_docs_with_rank( &$rodin_results,&$ranked_docs_ext,&$ranked_docs )
+	{
+		$DEBUG=1;
+		global $RDFLOG;
+		$resumed_docs = array();
+		
+		if($DEBUG)
+		{
+			$RDFLOG.="<br>resume_docs_with_rank() <hr>";
+			$RDFLOG.="<br>ranked_docs: ";
+				foreach($ranked_docs as $docuid=>$rank) $RDFLOG.="<br> $rank: $docuid";
+			$RDFLOG.="<br>ranked_docs_ext: ";
+				foreach($ranked_docs_ext as $docuid=>$rank) $RDFLOG.="<br> $rank: $docuid";
+		}
+		
+		foreach($this->rodin_results as $result)
+		{
+			$resumed_docs[] = array(	'rodinresdoc', 
+																$docuid = $this->get_result_uid($result),
+			 													$result, 
+			 													$title = $result->getTitle(), 
+			 													$rank = $ranked_docs[ $docuid ] );
+			if ($DEBUG) $RDFLOG.="<br>rod doc $rank: $title ";
+		}
+
+		foreach($ranked_docs_ext as $docuid=>$rank)
+		{
+			$result=
+			list (	$rodin_result_type,
+							$rank,
+							$title,
+							$description,
+							$date_created,
+							$source_url,
+							$identifier_url,
+							$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
+ 							$subjects		) = $this->get_rdf_resultdoc_values($docuid,$rank);
+
+			$resumed_docs[] = array('lodresdoc', $docuid, $result, $title, $rank );
+			if ($DEBUG) $RDFLOG.="<br>lod doc $rank: $title";
+		}
+		if($DEBUG)
+			$RDFLOG.="<hr>";
+		return $resumed_docs;
+	} //resume_docs_by_rank
+	
+	
+	
+	
+	
+	
+	/**
 	 * Ranks all rodin result document and the exp_docs in the current search
 	 * Returns a list of all ranked docs .....
+   * In case $WANT_USER_RESONANCE is set, an additional ranking is executed taking
+   * boosting user resonance texts,
+   * neg-boosting user non-resonance (repulsive) texts.
 	 */
-	public function rerankadd_docs($sid, &$docs_ext, &$ranked_result_subjects)
+	public function rerankadd_docs($sid, &$docs_ext, &$ranked_result_subjects, $WANT_USER_RESONANCE)
 	{
 		//Rank documents using ranked subjects.
-		$DEBUG;
+		$DEBUG=1;
 		global $RDFLOG;
-				
 		
 		if ($DEBUG) $RDFLOG.="<hr><b>rerankadd_docs</b>";
 		$C = get_class($this);
@@ -1143,178 +1204,274 @@ class RDFprocessor {
 		$ranked_docs_ext= rank_docs_with_its_subjects($docs_ext,$this->store, $C::$NAMESPACES, $ranked_result_subjects);
 
 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END RERANK"),$this->sid);
+		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START WRES ASSEMBLING"),$this->sid);
+
+		
+		
+		$ranked_doc_infos = $this->resume_docs_with_rank(  $this->rodin_results,
+																											 $ranked_docs_ext,
+																											 $ranked_docs         );
+	
+		if ($DEBUG)
+		{
+			$ranked_doc_infos_debug = $ranked_doc_infos;
+			krsort($ranked_doc_infos_debug);
+			foreach($ranked_doc_infos_debug as $ranked_doc_info_debug)
+			{
+				list($typ, $docuid, $result, $title, $rank ) = $ranked_doc_info_debug;
+				$RDFLOG.= "<br> DOC($typ) PRE RESONANCE: $rank: $docuid $title";
+				//$RDFLOG.= "<br> DOC($typ) PRE RESONANCE: ".$result.": $title";
+			}
+		}
+	
+	
+		###############################################################
+    # Rank already ranked documents using USER resonance texts:
+    #
+    if ($WANT_USER_RESONANCE)
+    {
+    	list(	$positive_reference_text,
+    				$negative_reference_text ) = get_resonance_texts_from_poshdb($this->USER_ID);
+			
+			if ($DEBUG)
+				$RDFLOG.="<hr><b>USER RESONANCE!</b>"
+								."<br>POSITIVE REF TEXT: (($positive_reference_text))"
+								."<br>NEGATIVE REF TEXT: (($negative_reference_text))";
+			
+			//SUPERSEED $ranked_docs with new sorting
+    	$ranked_docs = rank_vectors2_vsm(	$positive_reference_text,
+																				$ranked_doc_infos, 
+																				$this->sid, 
+																				$this->USER_ID,
+																				$miminumrank=	1);
+    } # $WANT_USER_RESONANCE
+		else // We need to have all in $ranked_docs
+		{
+	    // MERGE $ranked_docs and $ranked_docs_ext
+	    foreach($ranked_docs as $o=>$r)
+				$all_ranked_docs{$o}=$r;
+			foreach($ranked_docs_ext as $o=>$r)
+				$all_ranked_docs{$o}=$r;
+			
+	    $ranked_docs = $all_ranked_docs;
+		}
+		
 		
 		if ($DEBUG)
 		{
-			$RDFLOG.="<br>rerankadd_rdf_documents_related_to_search:";
-			$c=count($ranked_docs);
-			$RDFLOG.="<br>$c Internal docs:"; //print "<br>$c Internal docs:<br>"; var_dump($ranked_docs);
-			foreach($ranked_docs as $docuid=>$rank)
-			{
-				$RDFLOG.="<br> $docuid=>$rank";
-			}
-			
-			$c=count($ranked_docs_ext);
-			$RDFLOG.="<br>$c External docs:"; //print "<br>$c External docs:<br>"; var_dump($ranked_docs_ext);
-			foreach($ranked_docs_ext as $docuid=>$rank)
-			{
-				$RDFLOG.="<br> $docuid=>$rank";
-			}
+			$RDFLOG.="<hr>RANKED DOCS AFTER UNIQUE MERGE: ";
+			foreach($ranked_docs as $objuid=>$rank) $RDFLOG.="<br> - $rank: $objuid";
 		}
-		//Adjust the rank annotation of each doc
-		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START WRES ASSEMBLING"),$this->sid);
+		#######################################################################
+		#
+		# ADD DOC TO RODIN RESULTS RANKED
+		#
+		#######################################################################
 		
+		//if ($DEBUG) { print "<hr>"; var_dump($ranked_doc_infos);}
 		
-		foreach($this->rodin_results as $result)
-		//foreach($ranked_docs as $docuid=>$rank)
+		foreach($ranked_doc_infos as $ranked_doc_info)
 		{
-			$C=get_class($this);
+			$rank=0;
+			list(	$type, $docuid, $result, $title, $previousrank ) = $ranked_doc_info;
+			$rank = $ranked_docs{$docuid};
 			
-			$rdoc_uid = $this->get_result_uid($result);
-			$rank = $ranked_docs{$rdoc_uid};
-			// rank the result corresponding to this doc with $rank
-			$result->setRank($rank);
-			$ranked_docs_list{$rdoc_uid}=$rank;
-		} // foreach $ranked_docs
-		RodinResultManager::saveRodinResults($this->rodin_results, $this->sid, $datasource='', $timestamp='');
-				
-		#######################################################################
-		#
-		# ADD DOC TO RODIN RESULTS
-		#
-		#######################################################################
-		foreach($ranked_docs_ext as $docuid=>$rank)
-		{
-			$rodin_result_type='';
-			//Gather data to build result info
-			//from RDF store
-			$p_o = get_entity_infos2(	$C::$NAMESPACES,
-																$C::$NAMESPACES_PREFIX,
-																$this->store,
-																$docuid,
-																$token='',
-																true );
-			if (is_array($p_o) && count($p_o))
+//		foreach($ranked_docs_ext as $docuid=>$rank)
+			switch($type)
 			{
-				if ($DEBUG) $RDFLOG.="<br><br>rerankadd_rdf_documents_related_to_search()<br>Assembling info for external doc $docuid:";
-				foreach($p_o as $p=>$ooo)
-				{
-					if ($DEBUG) $RDFLOG.="<br>($p) => ";
+				##############################################
+				##############################################
+				case 'rodinresdoc':
+				##############################################
+				##############################################
+					if ($DEBUG)
+						$RDFLOG.= "<br>FINAL RANKED $type $docuid ($rank previous:$previousrank) DOC ($title)";
+					//$RDFLOG.= "<br>CREATING ranked ($rank) $type ($title)";
+					$result->setRank($rank);
+					RodinResultManager::saveRodinResults($allResults=array($result), $this->sid, $result->datasource, $timestamp='');
+					break;
 					
-					if (is_array($ooo))
+				##############################################
+				##############################################
+				case 'lodresdoc':
+				##############################################
+				##############################################
+					if ($DEBUG)
+						$RDFLOG.= "<br>FINAL RANKED $type $docuid ($rank previous:$previousrank) DOC ($title)";
+									list (	$rodin_result_type,
+									$previousrank, //is the subject rank at this stage
+									$title,
+									$description,
+									$date_created,
+									$source_url,
+									$identifier_url,
+									$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
+		 							$subjects		) = $result;
+					//$RDFLOG.= "<br>CREATING ranked ($rank) $type ($title)";
+					//add once -> yes but at the moment SOLR stores it once ... even on multiple calls
+					//Do not forget: we might still get some uncomplete information (through triple limit)
+					
+					if ($rodin_result_type)
 					{
-						if ($DEBUG) 
+						if ($title==$oldtitle)
 						{
-							$RDFLOG.= "[";
-							foreach($ooo as $ovalue) $RDFLOG.= "(".$ovalue[0].")";
-							$RDFLOG.= "]";
+							 $RDFLOG.=htmlprint("<br>rerankadd_rdf_documents_related_to_search():<br>prevent adding doc because title ($title) already added",'red');
+						}
+						else // do add unique
+						{
+							// if (this external doc is unique)
+							
+							$R = RodinResultManager::create_rodinResult_for_lod(  $rodin_result_type,
+																																		$rank,
+																																		$title,
+																																		$description,
+																																		$date_created,
+																																		$source_url,
+																																		$identifier_url,
+																																		$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
+																																		$subjects  );
+																														
+							//print "<hr>CREATED ranked ($rank) LOD RESULT: "; var_dump($R);																							
+																														
+							RodinResultManager::saveRodinResults($allResults=array($R), $this->sid, $datasource='extern', $timestamp='');
+							$oldtitle=$title;
+							$added_documents++;
+							
 						}
 					}
-					switch ($p)
-					{
-						//Note:
-						//ASSUMING (*) the LOD SOURCE has meticolous data
-						//HERE a discrimination on dce:type
-						//can lead to an exact mapping to a RODIN result
-						//UNFORTUNATELY this (*) is not the case
-						//since dce:type comes in several languages and forms
-						//therefore we renounce to discriminate and
-						//ASSUME HERE ALWAYS a type 'article'
-						
-						case 'dce:type': 
-									if ($ooo[0][0]=='pdf' 
-									|| $ooo[0][0]=='Thesis'
-									|| $ooo[0][0]=='Article'
-									|| $ooo[0][0]=='Text'
-									|| $ooo[0][0]=='czasopismo'
-									|| 1
-									) 
-										 $rodin_result_type = 'article';
-									if (!$rodin_result_type)
-										fontprint("<br>rerankadd_rdf_documents_related_to_search() Error mapping LOD document types to rodin result types (".$ooo[0][0]." ?)",'red');
-									break;
-						case 'dce:date': 
-									$date_created = $ooo[0][0];
-									break;
-						case 'dce:title':
-									$title=decode_64_literal($p,$ooo[0][0],$C::$TOBECODED64);
-									break;
-						case 'dce:description':
-									$description=decode_64_literal($p,$ooo[0][0],$C::$TOBECODED64);
-									break;
-						case 'dce:identifier':
-										if (count($ooo)>=1)
-										$source_url = $ooo[0][0];
-									if (count($ooo)>1)
-										$identifier_url = $ooo[1][0];
-									if ($DEBUG)
-									{
-										print "<hr>dce:identifier "; var_dump($ooo);
-										print "<br>Take source_url = ($source_url)"; 
-										print "<br>Take identifier_url = ($identifier_url)"; 
-									}
-									break;
-						case 'dce:creator':
-									foreach($ooo as $ovalue)
-										$creators[]=decode_64_literal($p,$ovalue[0],$C::$TOBECODED64);
-									$authors=array('creator'=>$creators);
-									break;
-						case 'dce:subject':
-									foreach($ooo as $ovalue)
-										$subjects[]=read_rodin_label($ovalue[0], $this->store, $C::$NAMESPACES);
-									break;
-											
-					} // switch
-				} // foreach pair
-				//add once -> yes but at the moment SOLR stores it once ... even on multiple calls
-				//Do not forget: we might still get some uncomplete information (through triple limit)
-				
-				if ($rodin_result_type)
+					else 
+						$RDFLOG.=htmlprint("<br>Error adding external document ($docuid)",'red');
+					break; // lodresdoc
+				} // switch type
+	
+				$ranked_docs_list{$title}=$rank;
+				if ($added_documents >= $C::$rdfp_MAX_LOD_DOC_ADD)
 				{
-					if ($title==$oldtitle)
-					{
-						 $RDFLOG.=htmlprint("<br>rerankadd_rdf_documents_related_to_search():<br>prevent adding doc because title ($title) already added",'red');
-					}
-					else // do add unique
-					{
-						// if (this external doc is unique)
-						
-						$R = RodinResultManager::create_rodinResult_for_lod(  $rodin_result_type,
-																																	$rank,
-																																	$title,
-																																	$description,
-																																	$date_created,
-																																	$source_url,
-																																	$identifier_url,
-																																	$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
-																																	$subjects  );
-																													
-						RodinResultManager::saveRodinResults($allResults=array($R), $this->sid, $datasource='extern', $timestamp='');
-						$oldtitle=$title;
-						$added_documents++;
-						$ranked_docs_list{$docuid}=$rank;
-						
-						if ($added_documents >= $C::$rdfp_MAX_LOD_DOC_ADD)
-						{
-							$RDFLOG.=htmlprint("<br>rerankadd_rdf_documents_related_to_search():<br>breaking adding loop to $added_documents because of limit of (".$C::$rdfp_MAX_LOD_DOC_ADD.") max docs to add",'red');
-							break;
-						}
-					}
+					$RDFLOG.=htmlprint("<br>rerankadd_rdf_documents_related_to_search():<br>breaking adding loop to $added_documents because of limit of (".$C::$rdfp_MAX_LOD_DOC_ADD.") max docs to add",'red');
+					break;
 				}
-			}
-			else 
-				$RDFLOG.=htmlprint("<br>Error adding external document ($docuid)",'red');
-		} // $ranked_docs_ext
+		} // foreach
+		
+		RodinResultManager::saveRodinResults($this->rodin_results, $this->sid, $datasource='', $timestamp='');
+		
 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END WRES ASSEMBLING"),$this->sid);
-		return $ranked_docs_list;		
+		return $ranked_docs_list;
 
 	} // rerankadd_docs
 	
 	
 	
 	
-	
-	
+	/**
+	 * Searches in the LOD space for a result using docuid
+	 * Returns a vector of results
+	 */
+	public function get_rdf_resultdoc_values($docuid,$rank)
+	{
+		$DEBUG=0;
+		$C = get_class($this);
+		$rodin_result_type='';
+		//Gather data to build result info
+		//from RDF store
+		$p_o = get_entity_infos2(	$C::$NAMESPACES,
+															$C::$NAMESPACES_PREFIX,
+															$this->store,
+															$docuid,
+															$token='',
+															true );
+		if (is_array($p_o) && count($p_o))
+		{
+			if ($DEBUG) $RDFLOG.="<br><br>rerankadd_rdf_documents_related_to_search()<br>Assembling info for external doc $docuid:";
+			foreach($p_o as $p=>$ooo)
+			{
+				if ($DEBUG) $RDFLOG.="<br>($p) => ";
+				
+				if (is_array($ooo))
+				{
+					if ($DEBUG) 
+					{
+						$RDFLOG.= "[";
+						foreach($ooo as $ovalue) $RDFLOG.= "(".$ovalue[0].")";
+						$RDFLOG.= "]";
+					}
+				}
+				switch ($p)
+				{
+					//Note:
+					//ASSUMING (*) the LOD SOURCE has meticolous data
+					//HERE a discrimination on dce:type
+					//can lead to an exact mapping to a RODIN result
+					//UNFORTUNATELY this (*) is not the case
+					//since dce:type comes in several languages and forms
+					//therefore we renounce to discriminate and
+					//ASSUME HERE ALWAYS a type 'article'
+					
+					case 'dce:type': 
+								if ($ooo[0][0]=='pdf' 
+								|| $ooo[0][0]=='Thesis'
+								|| $ooo[0][0]=='Article'
+								|| $ooo[0][0]=='Text'
+								|| $ooo[0][0]=='czasopismo'
+								|| 1
+								) 
+									 $rodin_result_type = 'article';
+								if (!$rodin_result_type)
+									fontprint("<br>rerankadd_rdf_documents_related_to_search() Error mapping LOD document types to rodin result types (".$ooo[0][0]." ?)",'red');
+								break;
+					case 'dce:date': 
+								$date_created = $ooo[0][0];
+								break;
+					case 'dce:title':
+								$title=decode_64_literal($p,$ooo[0][0],$C::$TOBECODED64);
+								break;
+					case 'dce:description':
+								$description=decode_64_literal($p,$ooo[0][0],$C::$TOBECODED64);
+								break;
+					case 'dce:identifier':
+									if (count($ooo)>=1)
+									$source_url = $ooo[0][0];
+								if (count($ooo)>1)
+									$identifier_url = $ooo[1][0];
+								
+								
+								$source_url= (strstr($source_url,'http'))? $source_url: '';
+								$identifier_url= (strstr($identifier_url,'http'))? $identifier_url: '';
+										
+								if ($DEBUG)
+								{
+									print "<hr>dce:identifier "; var_dump($ooo);
+									print "<br> source_url = ($source_url)"; 
+									print "<br> identifier_url = ($identifier_url)"; 
+								}	
+								
+								if (!$source_url && $identifier_url) 
+										 $source_url=$identifier_url;
+										 
+								if ($DEBUG)
+									print "<br><b>source_url</b>: $source_url";
+								break;
+					case 'dce:creator':
+								foreach($ooo as $ovalue)
+									$creators[]=decode_64_literal($p,$ovalue[0],$C::$TOBECODED64);
+								$authors=array('creator'=>$creators);
+								break;
+					case 'dce:subject':
+								foreach($ooo as $ovalue)
+									$subjects[]=read_rodin_label($ovalue[0], $this->store, $C::$NAMESPACES);
+								break;
+				} // switch
+			} // foreach
+		}
+		return array(	$rodin_result_type,
+									$rank,
+									$title,
+									$description,
+									$date_created,
+									$source_url,
+									$identifier_url,
+									$authors,  // $authorFieldNames = array('creator'=>, 'person'=>, 'contributor'=>);
+									$subjects	);
+	} // get_rdf_resultdoc_values
 	
 	
 	
@@ -1393,8 +1550,8 @@ class RDFprocessor {
 						if ($DEBUG)
 							$RDFLOG.=htmlprint("<br>DISCARD subject ($slabel) because it has too many words (more than ".$C::$rdfp_MAX_SUBJECT_TOKENIZE.")",'red'); 
 					}
-					else // insert it!
-					$subjects_swl_cleaned[]=$slabel;
+					else // insert it capital!
+					$subjects_swl_cleaned[]=capital_noun($slabel);
 				}
 			} // foreach (filter)
 			if ($showsubjects || 1) tell_subjects($subjects_swl_cleaned,"clean_subject_labels(): globally considered stopword cleaned and length tested subjects for RODIN result:");
@@ -1429,10 +1586,15 @@ class RDFprocessor {
 		$showsubjects=1;
 			
 		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($result->getProperty('subjects'))),$this->searchtermlang);
-		if (!$datasource_subjects)
+		if ($DEBUG) $RDFLOG.="<br>compute_datasource_subjects(subjects) ... delivers ".count($datasource_subjects)." subjects";
+		if (count($datasource_subjects)==0)
+		
 		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($sss= $result->getProperty('keywords'))),$this->searchtermlang);
-		if (!$datasource_subjects)
+		if ($DEBUG) $RDFLOG.="<br>compute_datasource_subjects(keywords) ... delivers ".count($datasource_subjects)." subjects";
+		if (count($datasource_subjects)==0)
+		
 		$datasource_subjects = $this->compute_datasource_subjects(trim(strtolower($sss= $result->getProperty('tags'))),$this->searchtermlang);
+		if ($DEBUG) $RDFLOG.="<br>compute_datasource_subjects(tags) ... delivers ".count($datasource_subjects)." subjects";
 		
 		if ($DEBUG || 1) 
 			$RDFLOG.="<br>USED (DETECTED) LANGUAGE for searchterm ({$this->searchterm}): ".$this->searchtermlang;
@@ -1451,8 +1613,10 @@ class RDFprocessor {
 			if (RDFprocessor::$rdfp_EXTRACT_SUBJECTS_FROM_TITLE)
 			{
 				if ($DEBUG || 1)
-					$RDFLOG.= htmlprint("<br>Compute subjects from title",'green').", since threshold ".RDFprocessor::$rdfp_THRESHOLD_DATASOURCE_MIN_SUBJECTS." not reached ($c subjects read)";
-				
+				{
+					$subjects_debug=implode(', ',$subjects);
+					$RDFLOG.= htmlprint("<br>Compute subjects from title",'green').", since threshold ".RDFprocessor::$rdfp_THRESHOLD_DATASOURCE_MIN_SUBJECTS." not reached ($c subjects read= (($subjects_debug)))";
+				}
 				//Justincase: quotes !!!
 				$title=str_replace('"','',$title);
 				$title=str_replace("'",'',$title);
@@ -1926,7 +2090,7 @@ class RDFprocessor {
 		//Add as subject the whole title - without colons...
 		if (($langt=detectLanguageAndLog($title_cleaned,'compute_title_subjects',$this->sid))==$lang)
 		{
-			$subjects[]=  trim(preg_replace("/[:;]/",'',$title_cleaned));
+			$subjects[]=  capital_noun(trim(preg_replace("/[:;]/",'',$title_cleaned)));
 			if($DEBUG)  $RDFLOG.= "<br>TAKE($langt==$lang) SUBJ($title_cleaned):";
 		} else {
 			if($DEBUG)  $RDFLOG.= htmlprint("<br>DISC SUBJ($langt<>$lang) SUBJ($title_cleaned)",'red');
@@ -2815,7 +2979,7 @@ class RDFprocessor {
 										//Add-register ONLY if some results effectively came
 										if ($count_results)
 										{
-											add_to_assocvector($skos_subject_expansion,$s,$expanded_subjects);					
+											add_to_assocvector($skos_subject_expansion,capital_noun($s),$expanded_subjects);					
 											$processed_subjects{$s}=$count_results;
 											$processed_subjects_pro_src{$ID}+=$count_results;
 										}
@@ -3018,7 +3182,7 @@ class RDFprocessor {
 									//Add-register ONLY if some results effectively came:
 									if ($count_results)
 									{
-										add_to_assocvector($skos_subject_expansion,$s,$expanded_subjects)	;					
+										add_to_assocvector($skos_subject_expansion,capital_noun($s),$expanded_subjects)	;					
 										//$skos_subject_expansion{$s} = $expanded_subjects;
 										$processed_subjects{$s}=$count_results; 
 										$processed_subjects_pro_src{$ID}+=$count_results;
@@ -3969,7 +4133,8 @@ EOS;
 			$RDFLOG.="<br>$c Internal docs:"; //print "<br>$c Internal docs:<br>"; var_dump($ranked_docs);
 			foreach($ranked_docs as $docuid=>$rank)
 			{
-				$RDFLOG.="<br> $docuid=>$rank";
+				$title=getResultTitle($docuid);
+				$RDFLOG.="<br> $rank: $title";
 			}
 			
 			$c=count($ranked_docs_ext);
@@ -4099,6 +4264,23 @@ EOS;
 	}
 	// rerankadd_rdf_documents_related_to_search
 	
+	
+	
+	
+	
+	
+	public function getResultTitle($docuid)
+	{
+		foreach($this->rodin_results as $result)
+		{
+			if ($docuid == $this->get_result_uid($result))
+			{
+				$title=$result->getTitle();
+				break;
+			}
+		} //Grasp title for $docuid
+		return $title;
+	}
 	
 	
 	

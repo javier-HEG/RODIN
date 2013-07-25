@@ -66,6 +66,7 @@ switch ($RODINSEGMENT) {
 	case('p') : $COLOR_RODINSEGMENT="#000066"; break;
 	case('d') : $COLOR_RODINSEGMENT="#336699"; break;
 	case('x') : $COLOR_RODINSEGMENT="#DD6600"; break;
+	case('xxl') : $COLOR_RODINSEGMENT="#000033"; break;
 	default : $COLOR_RODINSEGMENT="#000000";
 }
 
@@ -410,6 +411,13 @@ function microtime_float()
 }
 
 
+function capital_noun($noun)
+{
+	$capnoun= strtoupper(substr($noun,0,1)).substr($noun,1);
+	return $capnoun;
+}
+
+
 
 function clean_html($str)
 {
@@ -586,10 +594,10 @@ function compute_sid($datasource,$remoteuser)
 #
 #
 {
-
+	global $RODINSEGMENT;
 	$timestamp=date("Ymd.Hi.s"); // up till seconds
 	$microsec=substr(microtime(false),2,6);
-	$timestamp.=$microsec;
+	$timestamp.=$microsec.'.'.$RODINSEGMENT;
 
 	return "$timestamp.$remoteuser";
 
@@ -1594,6 +1602,7 @@ function cache_response_SOLR($cacheid,$response)
 }
 
 
+
 /**
  * ranks a generic numbered (array) list of subject labels
  * returns a ranked vector
@@ -1601,31 +1610,131 @@ function cache_response_SOLR($cacheid,$response)
  * Author: Fabio Ricci, fabio.ricci@ggaweb.ch for HEG (Geneva,CH)
  * 
  * @param $referencetext - the text to be taken as reference
- * @param $subject_list - array of subject labels to be ranked
+ * @param $ranked_doc_info - array of objects containing result docs to be ranked
+ * 				each object is organized with a previous rank (k) and a text
+ * 				the previous rank k must be considered during this filtering
  * @param $sid - search identifier (a kind of secondary key)
  * @param $user_id - a number of the user id performing operations
  * @param $minimumrank - a rank value to be added to each ranking
  */
-function rank_vectors_vsm($referencetext, $subject_list, $sid, $user_id, $minimumrank)
+ function rank_vectors2_vsm($referencetext, &$ranked_doc_infos, $sid, $user_id, $minimumrank)
+{
+	$DEBUG=0;
+	global $RDFLOG;
+  require_once("../u/SOLRinterface/solr_interface.php");
+	$collection=RDFprocessor::$docmlt_collection;
+
+	//Delete all possible previous items having sid:$sid (cleanup before work):	
+	solr_delete_documents($collection,"sid:$sid");
+
+	//Upload each RESULT subject to SOLR
+	foreach($ranked_doc_infos as $k=>$ranked_doc_info)
+	{
+		list($typ, $docuid, $result, $title, $oldscore ) = $ranked_doc_info;
+		
+		if ($title)
+		{
+			$title=strtolower($title);
+			if ($DEBUG) 
+			{
+				if (is_array($title)) $RDFLOG.= "<br>mltadd TITLE IS ARRAY: "; 
+				$RDFLOG.= "<br>mltadd $k($previousrank)=>$title";
+			}
+			upload_text_to_SOLR(	$ID=$docuid,
+														$k,
+														$oldscore,
+														$title,
+														$collection,
+														$sid,
+														$user_id	);
+		}
+	}
+
+	//The following is the mlt id
+	$mltID="$sid.ref";
+	//$mltID=preg_replace("/\./",'_',"$sid.ref");
+	//UPLOAD reference text to SOLR
+	$reftext = strtolower(preg_replace("/,/",'',$referencetext));
+	upload_text_to_SOLR(	$mltID,
+												-1,
+												0, // $previousrank
+												pimpup4solr($reftext), // twice to reach vsp comp.
+												$collection,
+												$sid,
+												$user_id	);
+
+	// QUERY MLT NOW
+
+	// http://localhost:8885/solr/docs_ranking/mlt?q=id:20130520.234610.578.2-0-519a99a43da47&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1&fq=wdatasource:/rodin/eng/app/w/RDW_swissbib.rodin&wt=xml&fl=score,*
+	$ranked_elems = get_solr_mlt2(	$mltID, 
+																	$sid, 
+																	$user_id, 
+																	$ranked_doc_infos,
+																	$collection,
+																	$minimumrank		);
+	
+	//Delete all possible items having sid:$sid (cleanup after work):	
+	
+	//solr_delete_documents($collection,"sid:$sid");
+	
+	
+	return $ranked_elems;
+} // rank_vectors2_vsm
+
+ 
+/**
+ * Returning a pimped text to show effect of MLT
+ * WARNING: THIS ADDS (or not ADDS) A word randomly to the text
+ * So the MLT seems to match documents
+ */
+function pimpup4solr($txt)
+{
+	$words=explode(' ',$txt);
+	foreach($words as $word)
+	{
+		if(trim($word))
+		{
+			//if ($word=='information') // double it
+				if (rand(0,1)) $pimped.=' '.$word;
+			$pimped.=' '.$word;
+		}
+	}
+	return $pimped;
+}
+
+
+/**
+ * ranks a generic numbered (array) list of subject labels
+ * returns a ranked vector
+ * 
+ * Author: Fabio Ricci, fabio.ricci@ggaweb.ch for HEG (Geneva,CH)
+ * 
+ * @param $referencetext - the text to be taken as reference
+ * @param $labels - array of subject labels to be ranked
+ * @param $sid - search identifier (a kind of secondary key)
+ * @param $user_id - a number of the user id performing operations
+ * @param $minimumrank - a rank value to be added to each ranking
+ */
+function rank_vectors_vsm($referencetext, $labels, $sid, $user_id, $minimumrank)
 {
 	$DEBUG=0;
 	global $RDFLOG;
   require_once("../u/SOLRinterface/solr_interface.php");
 	$collection=RDFprocessor::$submlt_collection;
+	$count_subjects = count($labels);
 	
-	$count_subjects = count($subject_list);
-	
-	//Delete all possible previous subjects having $sid* :	
-	solr_delete_documents($collection,"id:$sid*");
+	//Delete all possible previous subjects having sid:$sid* :	
+	solr_delete_documents($collection,"sid:$sid");
 
 	//Upload each RESULT subject to SOLR
-	foreach($subject_list as $k=>$subjecttext)
+	foreach($labels as $k=>$subjecttext)
 	{
 		if ($subjecttext)
 		{
 			if ($DEBUG) print "<br>$k=>$subjecttext";
 			upload_text_to_SOLR(	$ID="$sid.$k.$subjecttext",
 														$k,
+														0,  //$previousrank
 														$subjecttext,
 														$collection,
 														$sid,
@@ -1638,6 +1747,7 @@ function rank_vectors_vsm($referencetext, $subject_list, $sid, $user_id, $minimu
 	//UPLOAD reference text to SOLR
 	upload_text_to_SOLR(	$mltID,
 												-1,
+												0, // $previousrank
 												$referencetext,
 												$collection,
 												$sid,
@@ -1649,17 +1759,24 @@ function rank_vectors_vsm($referencetext, $subject_list, $sid, $user_id, $minimu
 	$ranked_subjects = get_solr_mlt(	$mltID, 
 																		$sid, 
 																		$user_id, 
-																		$subject_list,
+																		$labels,
 																		$collection,
 																		$minimumrank		);
+	
+	//Delete all possible subjects having sid:$sid (cleanup after work):	
+	
+	solr_delete_documents($collection,"sid:$sid");
+	
 	
 	return $ranked_subjects;
 } // rank_vectors_vsm
 
 
 
-
-function upload_text_to_SOLR($id,$k,$text,$collection,$sid,$user_id)
+/**
+ * 
+ */
+function upload_text_to_SOLR($id,$k,$oldscore,$text,$collection,$sid,$user_id)
 {
 	$DEBUG=0;
   global $SOLR_RODIN_CONFIG;
@@ -1685,11 +1802,12 @@ function upload_text_to_SOLR($id,$k,$text,$collection,$sid,$user_id)
       // create a new document for the data
       $doc = new Solarium_Document_ReadWrite();
 			if ($doc)
-			
 			{
 		    $doc->id  		 	 = $id;
 	      $doc->body  		 = $text;
 	      $doc->k      		 = $k;
+	      $doc->oldscore	 = $oldscore;
+				
 	      $doc->seg        = $RODINSEGMENT;
 	      $doc->sid        = $sid;
 	      $doc->user       = $user_id;
@@ -1712,20 +1830,165 @@ function upload_text_to_SOLR($id,$k,$text,$collection,$sid,$user_id)
 
 
 
+
 /**
- * Returns ranked lists using $subject_list
+ * Reassess ranking on the basis of a resonance text
+ * Returns ranked lists using $labels
  * @param $minimumrank - a rank value to be added to each ranking
  * 
  */
-function get_solr_mlt($mltID, $sid, $user_id, &$subject_list, $collection, $minimumrank)
+function get_solr_mlt2($mltID, $sid, $user_id, &$ranked_doc_infos, $collection, $minimumrank)
 {
-	$DEBUG=0;
+	$DEBUG=1;
+	global $RDFLOG;
+  global $SOLR_RODIN_CONFIG;
+  global $SOLARIUMDIR;
+  global $RODINSEGMENT;
+	$min_score = PHP_INT_MAX;
+	$subjects_weakening_factor=10;
+	$ranked_docs=array();
+	$count_docs=count($ranked_doc_infos);
+	
+	if (!$count_docs) $count_docs=10;
+	
+	if (!$mltID)
+	{
+		$RDFLOG.=htmlprint("<br>get_solr_mlt2: error - no param mltID provided!!! "); 
+	}
+  $solr_host=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['host'];
+  $solr_port=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['port'];
+  $solr_path=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['path'];
+  $solr_core=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['core'];
+  $solr_timeout=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['timeout'];
+
+	if ($DEBUG)
+	{
+		$RDFLOG.= "<hr><b>get_solr_mlt2</b>({$mltID}, $sid, $user_id, $count_docs, $collection)";
+		
+	  //$solr_user=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
+		$RDFLOG.= "<br>solr_host=$solr_host"; 
+		$RDFLOG.= "<br>solr_port=$solr_port"; 
+		$RDFLOG.= "<br>solr_path=$solr_path"; 
+		$RDFLOG.= "<br>solr_core=$solr_core"; 
+	}
+  if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
+  {
+  	$queryexpression="id:$mltID";
+  	$query = $client->createMoreLikeThis();
+		if ($DEBUG) $RDFLOG.= "<br>calling mlt ($queryexpression)";
+		$query->setQuery($queryexpression);
+		$query->setMltFields('body');
+		//$query->setMinimumDocumentFrequency(1);
+		$query->setMinimumTermFrequency(1);
+		$query->setMinimumWordLength(2);
+		$query->setMinimumDocumentFrequency(1);
+		$query->createFilterQuery('sid')->setQuery("sid:$sid");
+		//$query->setInterestingTerms('none');  // Must be one of: none, list, details
+		$query->setMatchInclude(false);
+		$query->setStart(0)->setRows($count_docs); // wee need one row ...
+		
+		// this executes the query and returns the result
+		$resultset = $client->select($query);
+		$count_mlt_results=$resultset->getNumFound();
+		if ($DEBUG) $RDFLOG.= '<hr>Number of MLT matches found: '.$count_mlt_results.'<hr/>';
+		foreach ($resultset as $document) 
+		{
+			$oldscore=$k=$docuid=$body=$score=null;
+
+			/*
+			foreach($document AS $fieldname => $value)
+		  {
+		  	if(is_array($value)) $value = implode(', ', $value);
+				
+				switch($fieldname)
+				{
+					case 'k': 		 		$k=$value; break;
+					case 'id': 				$docuid=$value; break;
+					case 'oldscore': 	$oldscore= min(1,$value); break; //Force algebraically 1 as minimum oldscore
+					case 'body': 			$body=$value; break;
+					case 'score': 		$score= min($value, $minimumrank);  break;
+				} // switch
+		  } // int foreach
+		  */
+		  $docuid=		$document{'id'};
+		  $k= 				(implode(', ',	$document{'k'}));
+		  $oldscore= 	min(1,(implode(', ',	$document{'oldscore'}))); 
+		  $body= 			implode(', ',	$document{'body'});
+		  $score= 		(implode(', ',	$document{'score'}));
+		  
+			$oldscore = min(1,$oldscore); //force 1 as minimum oldscore to algebr. default score 
+			if ($oldscore==0) $oldscore=1; // it must be this way
+		  $sorted_ranked_docs{$docuid} = $score * $oldscore / $subjects_weakening_factor;
+			if ($DEBUG) $RDFLOG.= "<br>RESONANCE RANKED: $score * $oldscore / $subjects_weakening_factor = ". $sorted_ranked_docs{$docuid}." $docuid ($body)";
+		  $min_score=min($min_score, $sorted_ranked_docs{$docuid} );
+		} // ext foreach
+	} // $client
+	
+	//Complement ranking if less elements mlt found
+	$delta = $count_docs - $count_mlt_results;
+	if ($delta > 0 && $count_mlt_results>0)
+	{
+		if (is_array($sorted_ranked_docs) && count($sorted_ranked_docs))
+			$sorted_ranked_docs_keys=array_keys($sorted_ranked_docs);
+		else 
+			$sorted_ranked_docs_keys=array();	
+		
+		$min_score= ($min_score == PHP_INT_MAX)? 1: $min_score;
+		
+		if ($DEBUG) $RDFLOG.="<br>RESCORE $delta documents starting below $min_score ...";
+		
+		foreach($ranked_doc_infos as $k=>$ranked_doc_info)
+		{
+			//if ($DEBUG) $RDFLOG.="<br>DOC $docuid:... ";
+			
+			list($typ, $docuid, $result, $title, $previousrank ) = $ranked_doc_info;
+			
+			//foreach non scored element: score it in proportion less then minimum score
+			if (!in_array($docuid, $sorted_ranked_docs_keys))
+			{
+				$sorted_ranked_docs{$docuid} = $min_score - $min_score/$previousrank;
+				if ($DEBUG) $RDFLOG.= "<br>RESCORE from $previousrank to ".$sorted_ranked_docs{$docuid}. " $docuid ($title)";
+				//if ($DEBUG) $RDFLOG.= "<br>since $docuid not in (((".implode(',',$sorted_ranked_docs_keys).")))";
+				
+			}
+		}
+	} // need to add remaining docs because off (not scored)
+	else
+	{ //Just sum every doc into $sorted_ranked_docs:
+	
+		if ($DEBUG) $RDFLOG.="<br>SUM UP ORIGINAL RANKINGS: ";
+		foreach($ranked_doc_infos as $k=>$ranked_doc_info)
+		{
+			list($typ, $docuid, $result, $title, $previousrank ) = $ranked_doc_info;
+				$sorted_ranked_docs{$docuid} = $previousrank; // leave it so
+		}
+	}
+	if ($DEBUG) $RDFLOG.="<hr>";
+	
+	return $sorted_ranked_docs;// label->rank
+} // get_solr_mlt2
+		
+
+
+
+
+
+
+
+/**
+ * Returns ranked lists using $labels
+ * @param $minimumrank - a rank value to be added to each ranking
+ * 
+ */
+function get_solr_mlt($mltID, $sid, $user_id, &$labels, $collection, $minimumrank)
+{
+	$DEBUG=1;
 	global $RDFLOG;
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
   global $RODINSEGMENT;
 	$ranked_subjects=array();
-	$count_subjects=count($subject_list);
+	$count_subjects=count($labels);
 	
 	if (!$count_subjects) $count_subjects=10;
 	
@@ -1740,18 +2003,18 @@ function get_solr_mlt($mltID, $sid, $user_id, &$subject_list, $collection, $mini
 
 	if ($DEBUG)
 	{
-		print "<hr><b>get_solr_mlt</b>({$mltID}, $sid, $user_id, $count_subjects, $submlt_collection)";
+		$RDFLOG.=  "<hr><b>get_solr_mlt</b>({$mltID}, $sid, $user_id, $count_subjects, $submlt_collection)";
 		
 	  //$solr_user=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
-		print "<br>solr_host=$solr_host"; 
-		print "<br>solr_port=$solr_port"; 
-		print "<br>solr_path=$solr_path"; 
-		print "<br>solr_core=$solr_core"; 
+		$RDFLOG.=  "<br>solr_host=$solr_host"; 
+		$RDFLOG.=  "<br>solr_port=$solr_port"; 
+		$RDFLOG.=  "<br>solr_path=$solr_path"; 
+		$RDFLOG.=  "<br>solr_core=$solr_core"; 
 	}
   if (($client=solr_client_init($solr_host,$solr_port,$solr_path,$solr_core,$solr_timeout)))
   {
   	$query = $client->createMoreLikeThis();
-		if ($DEBUG) print "<br>calling (id:$mltID)";
+		if ($DEBUG) $RDFLOG.=  "<br>calling (id:$mltID)";
 		$query->setQuery('id:'.$mltID);
 		$query->setMltFields('body');
 		//$query->setMinimumDocumentFrequency(1);
@@ -1766,7 +2029,7 @@ function get_solr_mlt($mltID, $sid, $user_id, &$subject_list, $collection, $mini
 		// this executes the query and returns the result
 		$resultset = $client->select($query);
 		$count_results=$resultset->getNumFound();
-		if ($DEBUG) echo '<hr>Number of MLT matches found: '.$resultset->getNumFound().'<hr/>';
+		if ($DEBUG) $RDFLOG.= '<hr>Number of MLT matches found: '.$resultset->getNumFound().'<hr/>';
 		foreach ($resultset as $document) 
 		{
 		  foreach($document AS $fieldname => $value)
@@ -1788,14 +2051,12 @@ function get_solr_mlt($mltID, $sid, $user_id, &$subject_list, $collection, $mini
 	//sort the ranked subject (highest top)
 	if (count($eff_ranked_subjects) < $count_subjects)
 	{
-		foreach($subject_list as $k=>$label)
+		foreach($labels as $k=>$label)
 		{
 			if (! $sorted_ranked_subjects{$label})
 						$sorted_ranked_subjects{$label}=array($minimumrank,$k);
 		}
 	} // need to add remaining subjects because off (not scored)
-	
-	
 	
 	return $sorted_ranked_subjects;// label->rank
 } // get_solr_mlt
@@ -2415,7 +2676,6 @@ function perform_server_actions_after_last_widget_rendering()
 	
 	if ($rdfize && intval($setversion) >'2012')
 	{
-		
 		$RDFIZING="$PROT://localhost$RODINROOT/$RODINSEGMENT/app/u/rdfize.php"
 								."?user_id=$USER_ID"
 								."&username=".str_replace(" ","%20",$username)
@@ -2424,7 +2684,6 @@ function perform_server_actions_after_last_widget_rendering()
 								."&wps=$wps"
 								."&reqhost=$HOST"
 							;
-	
 		$QUERYSTRING=$_SERVER['QUERY_STRING'];
 	
 		Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING U $RDFIZING"),$sid);
@@ -2432,7 +2691,7 @@ function perform_server_actions_after_last_widget_rendering()
 		
 		$SCRIPT =<<<EOS
 		 <script type='text/javascript'>
-		 alert('$RDFIZING')
+		 //alert('$RDFIZING')
 		 parent.signal_rdfizing_done();
 		 </script>
 EOS;

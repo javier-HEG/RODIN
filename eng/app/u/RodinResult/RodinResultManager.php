@@ -206,7 +206,7 @@ class RodinResultManager {
           // print "\n<hr><br>RESULT: ";
           // var_dump($result);
 
-          $documents[] = $result->toInsertSOLRdocument($client, 
+          $documents[] = $result->toInsertSOLRdocument( $client, 
           																							$result->getId(), // if set -> update result record in SOLR
                                                         $sid, 
                                                         $datasource, 
@@ -405,7 +405,9 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
  * In case $datasource is not set, results for all widgets are retrieved 
  * The latter is used for the aggregated view
  */
-public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$external,$slrq_base64) {
+public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$external,$slrq_base64) 
+{
+		$debug=0;
 		$max=10;
 		$filenamex='/u/SOLRinterface/solr_interface.php';
 		
@@ -421,7 +423,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
     global $USER;
     global $RODINSEGMENT;
     global $m; if($m==0) $m=1000; //we do not know how may rows are to retrieve
-    
+    $rank_format_factor = 1000000;
+		
 		$LOD = $external && $internal
     			 ?'*'
     			 :($external?1:0);
@@ -545,7 +548,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
           if ($name=='id') // we need the SOLR id...
             $id=$value;
 					else if ($name=='rank')
-						$rank=intval($value);
+						$rank = floatval($value);
 					else if ($name=='lod')
 					{
 						$lod=intval($value);
@@ -658,9 +661,11 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
           {
           	//print "<hr>RESULT: <br>"; var_dump($result);
           	//Create an ID which keeps tracks of the ranking
-          	$rank_formatted=str_pad($rank, 4, '0', STR_PAD_LEFT);
+          	$rank = number_format($rank,6); // take 6 decimals pad 12 padded positions
+          	$rank_formatted=str_pad(floor($rank * 1000000), 12, '0', STR_PAD_LEFT);
           	$resseq_formatted=str_pad($NO_OF_DISPLAYED_RESULTS, 4, '0', STR_PAD_LEFT);
           	$result_show_id="r_{$rank_formatted}_{$resseq_formatted}";
+						if ($debug) print "\n<!--result_show_id (rank=$rank): $result_show_id (".$result->getTitle().")-->\n";
 						$tmp_allResults{$result_show_id} = $result;						
             $NO_OF_DISPLAYED_RESULTS++;
           }
@@ -670,7 +675,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
       //foreach($dedup_hash as $k=>$v) print "<br>$k=>$v"; //debug - show hash
       //Since $allResults should be read both from javascript and php
       //reorder the dataset so that it is already sorted when looped.
-      if($debug)
+      if($debug&&0)
 			{
 	      print "<hr>PRESORT results:";
 				while (list($rrrank, $result) = each($tmp_allResults))
@@ -681,15 +686,16 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 
       //Sort results on score top biggest
 	    if (count($tmp_allResults))
-			{ksort($tmp_allResults);
-      	reset($tmp_allResults);}
+			{krsort($tmp_allResults);
+      	//reset($tmp_allResults);
+			}
 			
-			if($debug)
+			if($debug&&0)
 			{
-	    	print "<hr>AFTERSORT results:";
+	    	print "\n<!-- AFTERSORT results:-->";
 				while (list($rrrank, $result) = each($tmp_allResults))
 				{
-					print "<br>$rrrank for (".$result->getTitle()."): ".$result->getRank();
+					print "\n<!--result_show_id (rank=".$result->getRank()." / $rrrank): $result_show_id (".$result->getTitle().")-->";
 				}
 			}
 			
@@ -837,14 +843,15 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			$RDFLOG.="]<br>subjects=";foreach($subjects as $a) $RDFLOG.="$a,";
 			$RDFLOG.="]<br>";
 		}
+		
+		
 		switch ($rodin_result_type) {
 				case 'article':
 					if ($debug)
 						$RDFLOG.="<br>create_rodinResult(article ....)";
 								// Create the result object
 					$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_ARTICLE);
-					$singleResult->setLod(true);
-					$singleResult->setRank($rank);
+					
 					// General fields
 					$singleResult->setTitle($title);
 					$singleResult->setDate($date_created);
@@ -921,6 +928,10 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_BASIC);
 					break;
 			}
+		
+		$singleResult->setRank($rank);
+		$singleResult->setLod(true);
+	
 		return $singleResult;
 	} // create_rodinResult
 	

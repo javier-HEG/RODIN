@@ -392,9 +392,9 @@ function solr_collection_http_access($collection='rodin_search')
  * Removes in $collection all docs matching $DELETEQUALIFICATION
  * e.g.: $DELETEQUALIFICATION="id:$sid*"
  */
-function 	solr_delete_documents($collection,$DELETEQUALIFICATION)
+function 	solr_delete_documents($collection,$DELETEQUALIFICATION,$DEBUG=0)
 {
-	$DEBUG=0;
+	global $SOLR_RODIN_CONFIG;
 	if ($DEBUG) print "<br>solr_delete_documents($collection,$DELETEQUALIFICATION): ";
 	$solr_user= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
   $solr_host= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['host']; //=$HOST;
@@ -402,12 +402,24 @@ function 	solr_delete_documents($collection,$DELETEQUALIFICATION)
   $solr_path= $SOLR_RODIN_CONFIG[$collection]['adapteroptions']['path']; //='/solr/rodin_result/';
   if (($client = init_SOLRCLIENT($collection,'solr_collection_empty system error solr_delete_documents')))
   {
+  	/*
   	$update = $client->createUpdate();
 		$update->addDeleteQuery($DELETEQUALIFICATION);
 		$update->addCommit();
 		$result = $client->update($update);
+		*/
+		//Delete is not executed in solarium here (but when separated!!)
+		//Try to use a URL command instead of a solarium command
+		//curl http://localhost:8983/solr/update?commit=true -H "Content-Type: text/xml" --data-binary '<delete><query>*:*</query></delete>'
+		$DELETEURL="http://$solr_host:$solr_port/solr/$collection/update?commit=true&stream.body=".("<delete><query>$DELETEQUALIFICATION</query></delete>")."";
+		$fileres=get_file_content($DELETEURL);
 		
-		if ($DEBUG) print "<br>STATUS: ".$result->getStatus();
+		if ($DEBUG) 
+		{
+			//var_dump($SOLR_RODIN_CONFIG[$collection]);
+			print "<br>RESULT OF <hr>".htmlentities($DELETEURL)." :<hr> ((".htmlentities($fileres)."))";
+			//print "<br>STATUS 2: ".$result->getStatus();
+		}
 	}
 }
 
