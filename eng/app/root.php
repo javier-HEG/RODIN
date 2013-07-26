@@ -8,15 +8,11 @@
 # 18.1.2010
 #
 
-
 date_default_timezone_set('Europe/Zurich');
-
-$_SESSION['RODINVERSION'] = '2.5';
 
 $PROGRAMNAME='RODIN';
 $VERSION='2.8.6';
-
-
+$_SESSION['RODINVERSION'] = $VERSION;
 $RODIN_APPNAME = "RODIN";
 
 #############################################
@@ -625,7 +621,13 @@ $SOLR_RODIN_LOCKDIR="$DOCROOT$RODINROOT/$RODINSEGMENT/app/data/locks/solr";
 #############################################
 
 
-
+#############################################
+# CONSTANTS
+#############################################
+$txtDefaultSubjectRanked = "default ranked upon subjects relevance";
+$txtDefaultRescoredSubjectRanked = "default (adapted) ranked upon subjects relevance";
+$txtPosiRanked = "positively ranked by your personal filter";
+$txtNegaRanked = "negatively ranked by your personal filter";
  
 
 

@@ -1563,6 +1563,10 @@ function get_cached_response_SOLR($url)
 
 
 
+
+
+
+
 function cache_response_SOLR($cacheid,$response)
 {
   require_once("../u/SOLRinterface/solr_interface.php");
@@ -1605,7 +1609,7 @@ function cache_response_SOLR($cacheid,$response)
 
 /**
  * ranks a generic numbered (array) list of subject labels
- * returns a ranked vector
+ * returns a pair (ranked vector, explanations)
  * 
  * Author: Fabio Ricci, fabio.ricci@ggaweb.ch for HEG (Geneva,CH)
  * 
@@ -1616,8 +1620,9 @@ function cache_response_SOLR($cacheid,$response)
  * @param $sid - search identifier (a kind of secondary key)
  * @param $user_id - a number of the user id performing operations
  * @param $minimumrank - a rank value to be added to each ranking
+ * @param $positive - default - indicate how the ranking should be done
  */
- function rank_vectors2_vsm($referencetext, &$ranked_doc_infos, $sid, $user_id, $minimumrank)
+ function rank_vectors2_vsm($referencetext, &$ranked_doc_infos, $sid, $user_id, $minimumrank, $positive=true)
 {
 	$DEBUG=0;
 	global $RDFLOG;
@@ -1666,19 +1671,21 @@ function cache_response_SOLR($cacheid,$response)
 	// QUERY MLT NOW
 
 	// http://localhost:8885/solr/docs_ranking/mlt?q=id:20130520.234610.578.2-0-519a99a43da47&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1&fq=wdatasource:/rodin/eng/app/w/RDW_swissbib.rodin&wt=xml&fl=score,*
-	$ranked_elems = get_solr_mlt2(	$mltID, 
+	list($ranked_elems,$explanations)
+								 = get_solr_mlt2(	$mltID, 
 																	$sid, 
 																	$user_id, 
 																	$ranked_doc_infos,
 																	$collection,
-																	$minimumrank		);
+																	$minimumrank,
+																	$positive		);
 	
 	//Delete all possible items having sid:$sid (cleanup after work):	
 	
 	//solr_delete_documents($collection,"sid:$sid");
 	
 	
-	return $ranked_elems;
+	return array($ranked_elems,$explanations);
 } // rank_vectors2_vsm
 
  
@@ -1833,20 +1840,35 @@ function upload_text_to_SOLR($id,$k,$oldscore,$text,$collection,$sid,$user_id)
 
 /**
  * Reassess ranking on the basis of a resonance text
- * Returns ranked lists using $labels
+ * Returns a pair (ranked items, explanations)
  * @param $minimumrank - a rank value to be added to each ranking
- * 
+ * @param $mltID - the id of the MLT doc
+ * @param $sid - current sid
+ * @param $user_id
+ * @param &$ranked_doc_infos - list of records (resultsinfos)
+ * @param $collection - the name of the solr collection to be used
+ * @param $minimumrank - a rank value to be added to each ranking
+ * @param $positive - ranking wanting or repulsing mlt records
  */
-function get_solr_mlt2($mltID, $sid, $user_id, &$ranked_doc_infos, $collection, $minimumrank)
+function get_solr_mlt2($mltID, $sid, $user_id, &$ranked_doc_infos, $collection, $minimumrank, $positive=true)
 {
 	$DEBUG=1;
 	global $RDFLOG;
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
   global $RODINSEGMENT;
+	global $txtDefaultSubjectRanked;
+	global $txtDefaultRescoredSubjectRanked;
+	global $txtPosiRanked;
+	global $txtNegaRanked;
+
+	$sign = $positive?1:-1;
+	$nomatch = true; // assume
 	$min_score = PHP_INT_MAX;
 	$subjects_weakening_factor=10;
 	$ranked_docs=array();
+	$sorted_ranked_docs=array();
+	$explanations = array();
 	$count_docs=count($ranked_doc_infos);
 	
 	if (!$count_docs) $count_docs=10;
@@ -1863,7 +1885,7 @@ function get_solr_mlt2($mltID, $sid, $user_id, &$ranked_doc_infos, $collection, 
 
 	if ($DEBUG)
 	{
-		$RDFLOG.= "<hr><b>get_solr_mlt2</b>({$mltID}, $sid, $user_id, $count_docs, $collection)";
+		$RDFLOG.= "<hr><b>get_solr_mlt2</b>({$mltID}, $sid, $user_id, $count_docs, $collection, $minimumrank, positive=$positive)";
 		
 	  //$solr_user=$SOLR_RODIN_CONFIG[$collection]['adapteroptions']['user'];
 		$RDFLOG.= "<br>solr_host=$solr_host"; 
@@ -1918,54 +1940,84 @@ function get_solr_mlt2($mltID, $sid, $user_id, &$ranked_doc_infos, $collection, 
 		  
 			$oldscore = min(1,$oldscore); //force 1 as minimum oldscore to algebr. default score 
 			if ($oldscore==0) $oldscore=1; // it must be this way
-		  $sorted_ranked_docs{$docuid} = $score * $oldscore / $subjects_weakening_factor;
-			if ($DEBUG) $RDFLOG.= "<br>RESONANCE RANKED: $score * $oldscore / $subjects_weakening_factor = ". $sorted_ranked_docs{$docuid}." $docuid ($body)";
-		  $min_score=min($min_score, $sorted_ranked_docs{$docuid} );
+		  $sorted_ranked_docs{$docuid} = $sign * $score * $oldscore / $subjects_weakening_factor;
+			$sorted_explanations{$docuid} = $positive?$txtPosiRanked:$txtNegaRanked;
+			
+			if ($DEBUG) $RDFLOG.= "<br>RESONANCE RANKED: $sign * $score * $oldscore / $subjects_weakening_factor = ". $sorted_ranked_docs{$docuid}." $docuid ($body)";
+		  $min_score=min($min_score, abs($sorted_ranked_docs{$docuid}) );
 		} // ext foreach
 	} // $client
 	
 	//Complement ranking if less elements mlt found
 	$delta = $count_docs - $count_mlt_results;
-	if ($delta > 0 && $count_mlt_results>0)
+	
+	############################
+	if ($positive)
+	############################
 	{
-		if (is_array($sorted_ranked_docs) && count($sorted_ranked_docs))
-			$sorted_ranked_docs_keys=array_keys($sorted_ranked_docs);
-		else 
-			$sorted_ranked_docs_keys=array();	
-		
-		$min_score= ($min_score == PHP_INT_MAX)? 1: $min_score;
-		
-		if ($DEBUG) $RDFLOG.="<br>RESCORE $delta documents starting below $min_score ...";
-		
-		foreach($ranked_doc_infos as $k=>$ranked_doc_info)
+		if ($delta > 0 && $count_mlt_results>0)
 		{
-			//if ($DEBUG) $RDFLOG.="<br>DOC $docuid:... ";
+			$nomatch=false;
+			if (is_array($sorted_ranked_docs) && count($sorted_ranked_docs))
+				$sorted_ranked_docs_keys=array_keys($sorted_ranked_docs);
+			else 
+				$sorted_ranked_docs_keys=array();	
 			
-			list($typ, $docuid, $result, $title, $previousrank ) = $ranked_doc_info;
+			$min_score= ($min_score == PHP_INT_MAX)? 1: $min_score;
 			
-			//foreach non scored element: score it in proportion less then minimum score
-			if (!in_array($docuid, $sorted_ranked_docs_keys))
+			if ($DEBUG) $RDFLOG.="<br>RESCORE $delta documents starting below $min_score ...";
+			
+			foreach($ranked_doc_infos as $k=>$ranked_doc_info)
 			{
-				$sorted_ranked_docs{$docuid} = $min_score - $min_score/$previousrank;
-				if ($DEBUG) $RDFLOG.= "<br>RESCORE from $previousrank to ".$sorted_ranked_docs{$docuid}. " $docuid ($title)";
-				//if ($DEBUG) $RDFLOG.= "<br>since $docuid not in (((".implode(',',$sorted_ranked_docs_keys).")))";
+				//if ($DEBUG) $RDFLOG.="<br>DOC $docuid:... ";
 				
+				list($typ, $docuid, $result, $title, $previousrank ) = $ranked_doc_info;
+				
+				//foreach non scored element: score it in proportion less then minimum score
+				if (!in_array($docuid, $sorted_ranked_docs_keys))
+				{
+					$sorted_ranked_docs{$docuid} = $min_score - $min_score/$previousrank;
+					$sorted_explanations{$docuid} = $txtDefaultRescoredSubjectRanked;
+					if ($DEBUG) $RDFLOG.= "<br>RESCORE from $previousrank to ".$sorted_ranked_docs{$docuid}. " $docuid ($title)";
+					//if ($DEBUG) $RDFLOG.= "<br>since $docuid not in (((".implode(',',$sorted_ranked_docs_keys).")))";
+				}
 			}
-		}
-	} // need to add remaining docs because off (not scored)
-	else
-	{ //Just sum every doc into $sorted_ranked_docs:
+		} // need to add remaining docs because off (not scored)
+	} // positive
+	############################
+	else // negative
+	############################
+	{
+		$nomatch=false;
+		//We do not need to rescore positive previous ranks
+		//since they will be higher than the negatives.
+	} // negative
+		
+		
+	if ($nomatch)
+	{ //NOTHING MLT matched: Just sum every doc into $sorted_ranked_docs:
 	
 		if ($DEBUG) $RDFLOG.="<br>SUM UP ORIGINAL RANKINGS: ";
 		foreach($ranked_doc_infos as $k=>$ranked_doc_info)
 		{
 			list($typ, $docuid, $result, $title, $previousrank ) = $ranked_doc_info;
-				$sorted_ranked_docs{$docuid} = $previousrank; // leave it so
+			$sorted_ranked_docs{$docuid} = $previousrank; // leave it so
+			$sorted_explanations{$docuid} = $txtDefaultSubjectRanked;
 		}
 	}
+	
+	if ($DEBUG) 
+	{
+		$RDFLOG.="<br>RETURNING RANKINGS: ";
+		foreach($sorted_ranked_docs as $o=>$r)
+		{
+			$RDFLOG.="<br>RANKED: ($r) $o";
+		}
+	}
+	
 	if ($DEBUG) $RDFLOG.="<hr>";
 	
-	return $sorted_ranked_docs;// label->rank
+	return array($sorted_ranked_docs,$sorted_explanations); // label->rank, label->explanation
 } // get_solr_mlt2
 		
 

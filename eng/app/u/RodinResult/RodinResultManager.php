@@ -515,6 +515,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
       foreach($DOCS as $DOC)
       {
       	$rank=null;
+				$explanation=null;
         $lod=null;
           
         if ($NO_OF_DISPLAYED_RESULTS>$m)
@@ -549,6 +550,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
             $id=$value;
 					else if ($name=='rank')
 						$rank = floatval($value);
+					else if ($name=='explanation')
+						$explanation=$value;
 					else if ($name=='lod')
 					{
 						$lod=intval($value);
@@ -611,6 +614,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					$result->setProperty('datasource', $wdatasource); 
           $result->setLod($lod); //mark result as coming from LOD sources
           $result->setRank($rank);
+          $result->setExplanation($explanation);
           					
           foreach($row as $attribute=>$value)
           {
@@ -819,6 +823,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	
 	public static function create_rodinResult_for_lod(  $rodin_result_type,
 																											$rank,
+																											$explanation,
 																											$title,
 																											$description,
 																											$date_created,
@@ -930,6 +935,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			}
 		
 		$singleResult->setRank($rank);
+		$singleResult->setExplanation($explanation);
 		$singleResult->setLod(true);
 	
 		return $singleResult;

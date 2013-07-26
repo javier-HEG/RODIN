@@ -46,7 +46,7 @@
 	<meta name="language" content="<?php echo __LANG;?>" />
 	
 	<link rel="stylesheet" type="text/css" href="../styles/main.css?v=<?php echo __POSHVERSION;?>" />
-	<link rel="stylesheet" type="text/css" href="../../app/css/rodin.css?v=<?php echo __POSHVERSION;?>" />
+	<link rel="stylesheet" type="text/css" href="../../app/css/rodin.css.php?v=<?php echo __POSHVERSION;?>" />
 	<link rel="stylesheet" type="text/css" href="<?php print "$CSS_URL"; ?>/rodinBoards.css.php" />
 	<link rel="stylesheet" type="text/css" href="<?php print $RODINU; ?>/contextmenu/jquery.contextMenu.css" />
 	<link rel="stylesheet" type="text/css" href="<?php print $CSS_URL; ?>/contextMenuInRodin.css.php" />
@@ -93,6 +93,14 @@
 <?php 
 	launch_hook('userinterface_header',$pagename);
 	//FRI:
+	$USED_EXTERNALLY = strstr($_SESSION['username'],'infoclio');
+	$_SESSION['used_externally']=$USED_EXTERNALLY;
+	
+	$USED_BY_ADMIN =  strstr($_SESSION['username'],'rodinuser')
+							  || strstr($_SESSION['username'],'fabio'
+								|| $RODINSEGMENT == 'eng');
+	$_SESSION['used_by_admin']=$USED_BY_ADMIN;
+	
 	$WCONLOG=$_REQUEST['WANTCONSOLELOG'];
 	$WANTCONSOLELOG= ($WCONLOG!=0?'true':'false');
 	
@@ -182,7 +190,7 @@ EOH;
 	//------------------ Personal Sort Control ----------------
 	$personalSortCBOX = '<div id="psortButtonDiv" class="searchOptionDiv">' . "\n"
 		. '<span class="optionLabel" id="psortButtonLabel">' . lg("lblTogglePSort") . ':</span>' . "\n"
-		. '<input id="psortCB" disabled type="checkbox" title ="ONGOING WORK: '.lg("ttpTogglePSort",$_SESSION['longname']).'">'
+		. '<input id="psortCB" type="checkbox" title ="'.lg("ttpTogglePSort",$_SESSION['longname']).'">'
 		. '</div>' . "\n";
 		
 //------------------ LOD SPACE control ----------------
@@ -204,6 +212,7 @@ EOH;
 		. 'onClick=" '.$OPENDBRODINLODBROWSER.'" title="'.$LODTITLE.'" />' . "\n"
 		. '</div>' . "\n";
 
+	if ($USED_BY_ADMIN)
 	$rdfLabStart = '<div id="rdflabButtonDiv" class="searchOptionDiv">' . "\n"
 		. '<span class="optionLabel" id="rdflabButtonLabel">' . lg("lblOpenRdfLab") . ':</span>' . "\n"
 		. '<img id="lodButton" class="optionButton" src="'.$RODINUTILITIES_GEN_URL.'/images/semantic_web.png"' . "\n"
@@ -270,6 +279,7 @@ EOP;
 EOP;
     }
 ?>
+
 
 <body onUnload="$p.app.counter.stop();" bgcolor=<?php print $COLOR_PAGE_BACKGROUND;?>> 
 <div id="cache" style="position:absolute;left:0;top:0;z-index:8;display:none;"></div>

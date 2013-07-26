@@ -12,8 +12,9 @@ class BasicRodinResult {
 	private $urlPage;
 	private $title;
 	private $score; //SOLR score on morelikethis queries
+	private $lod;  
 	private $rank;  //RDF rank for this result
-	private $lod;  //states result is taken from an LOD (external) source
+	private $explanation;  //rank or result explanation
 	private $authors;
 	private $date;
 	private $is_rdfized; //triples from this result were generated and inserted into store
@@ -219,7 +220,7 @@ class BasicRodinResult {
 	 */
 	public static function toInsertSOLRsearch(&$client, $sid, $query, $seg, $user) {
 
-    //print "<br>toInsertSOLRdocument ($datasource)<br>";
+    //print "<br>toInsertSOLRsearch ($datasource)<br>";
 
     // create a new document for the data
     $result_doc = new Solarium_Document_ReadWrite();
@@ -266,6 +267,8 @@ class BasicRodinResult {
     $result_doc->seg        = $seg;
     $result_doc->lod        = $this->getLod()?1:0;
     $result_doc->rank    		= $this->getRank();
+    if ($this->getExplanation())
+    	$result_doc->explanation= $this->getExplanation();
 		
 		
 		if ($result_doc->rank == 0)
@@ -322,7 +325,7 @@ class BasicRodinResult {
 		}
 		$color = RodinResultManager::getRodinResultTypeColor($this->resultType,$this->getLod());
 		$title = $EVTL_SOURCE . RodinResultManager::getRodinResultTypeName($this->resultType);
-		if ($this->getRank() > 0) $title.= ' ranked with a score of ' . $this->getRank();
+		if ($this->getExplanation()) $title.= ' scored with ' . $this->getRank(). ' '.$this->getExplanation();
 		$html = '<div id="header-' . $resultIdentifier . '" class="'.$HEADERCLASS.'" style="border-left: 2px solid ' . $color . ';" title="' . $title . '"></div>';
 		return $html;
 	}
@@ -548,6 +551,14 @@ class BasicRodinResult {
 	
 	public function getScore() {
 		return $this->score;
+	}
+
+	public function setExplanation($explanation) {
+		$this->explanation = $explanation;
+	}
+	
+	public function getExplanation() {
+		return $this->explanation;
 	}
 
 	public function setRank($rank) {

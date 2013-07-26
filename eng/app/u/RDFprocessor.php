@@ -1189,6 +1189,7 @@ class RDFprocessor {
 		//Rank documents using ranked subjects.
 		$DEBUG=1;
 		global $RDFLOG;
+		global $txtDefaultSubjectRanked;
 		
 		if ($DEBUG) $RDFLOG.="<hr><b>rerankadd_docs</b>";
 		$C = get_class($this);
@@ -1206,8 +1207,6 @@ class RDFprocessor {
 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END RERANK"),$this->sid);
 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START WRES ASSEMBLING"),$this->sid);
 
-		
-		
 		$ranked_doc_infos = $this->resume_docs_with_rank(  $this->rodin_results,
 																											 $ranked_docs_ext,
 																											 $ranked_docs         );
@@ -1223,7 +1222,7 @@ class RDFprocessor {
 				//$RDFLOG.= "<br> DOC($typ) PRE RESONANCE: ".$result.": $title";
 			}
 		}
-	
+		$explanations = array();
 	
 		###############################################################
     # Rank already ranked documents using USER resonance texts:
@@ -1239,11 +1238,54 @@ class RDFprocessor {
 								."<br>NEGATIVE REF TEXT: (($negative_reference_text))";
 			
 			//SUPERSEED $ranked_docs with new sorting
-    	$ranked_docs = rank_vectors2_vsm(	$positive_reference_text,
+    	list($ranked_docs,$explanations) 
+    							= rank_vectors2_vsm(	$positive_reference_text,
 																				$ranked_doc_infos, 
 																				$this->sid, 
 																				$this->USER_ID,
-																				$miminumrank=	1);
+																				$miminumrank=	1,
+																				$positive=true);
+																				
+			if ($DEBUG)
+			{
+				$RDFLOG.="<hr>POSITEXT RANKED DOCS: ";
+				foreach($ranked_docs as $objuid=>$rank) 
+				{
+					$expl=$explanations{$objuid};
+					$RDFLOG.="<br> - $rank [$expl]: $objuid";
+				}
+			}		
+			
+			//SUPERSEED $ranked_docs with new sorting
+    	list($ranked_docs_negative,$explanations_negative) 
+    												= rank_vectors2_vsm(	$negative_reference_text,
+																									$ranked_doc_infos, 
+																									$this->sid, 
+																									$this->USER_ID,
+																									$miminumrank=	1,
+																									$positive=false		);
+			if ($DEBUG)
+			{
+				$RDFLOG.="<hr>NEGATEXT RANKED DOCS: ";
+				foreach($ranked_docs_negative as $objuid=>$rank) 
+					if ($rank<0) 
+					{
+						$expl=$explanations{$objuid};
+						$RDFLOG.="<br> - $rank [$expl]: $objuid";
+					}
+			}																	
+			
+			//Superseede ranked elements in case of negative ranks + explanation
+			foreach($ranked_docs_negative as $o=>$r)
+			{
+				if ($r<0) 
+				{
+					//superseed rank of $o with $r
+					$ranked_docs{$o}=$r;
+					$explanations{$o} = $explanations_negative{$o};
+				}
+			}
+																				
     } # $WANT_USER_RESONANCE
 		else // We need to have all in $ranked_docs
 		{
@@ -1254,17 +1296,25 @@ class RDFprocessor {
 				$all_ranked_docs{$o}=$r;
 			
 	    $ranked_docs = $all_ranked_docs;
+			
+			//Adapt explanations:
+			foreach($ranked_docs as $o=>$r)
+				$explanations{$o}= $txtDefaultSubjectRanked;
 		}
 		
 		
 		if ($DEBUG)
 		{
-			$RDFLOG.="<hr>RANKED DOCS AFTER UNIQUE MERGE: ";
-			foreach($ranked_docs as $objuid=>$rank) $RDFLOG.="<br> - $rank: $objuid";
+			$RDFLOG.="<hr>RANKED MERGED DOCS (rodin+lod): ";
+			foreach($ranked_docs as $objuid=>$rank) 
+			{
+				$expl=$explanations{$objuid}; 
+				$RDFLOG.="<br>$rank [$expl] : $objuid";
+			}
 		}
 		#######################################################################
 		#
-		# ADD DOC TO RODIN RESULTS RANKED
+		# ADD DOC TO RODIN RESULTS MANAGEMENT SYSTEM RANKED AND EXPLAINED
 		#
 		#######################################################################
 		
@@ -1275,6 +1325,7 @@ class RDFprocessor {
 			$rank=0;
 			list(	$type, $docuid, $result, $title, $previousrank ) = $ranked_doc_info;
 			$rank = $ranked_docs{$docuid};
+			$explanation = $explanations{$docuid};
 			
 //		foreach($ranked_docs_ext as $docuid=>$rank)
 			switch($type)
@@ -1285,9 +1336,10 @@ class RDFprocessor {
 				##############################################
 				##############################################
 					if ($DEBUG)
-						$RDFLOG.= "<br>FINAL RANKED $type $docuid ($rank previous:$previousrank) DOC ($title)";
+						$RDFLOG.= "<br>FINAL RANKED $type $docuid ($rank [$explanation] previous:$previousrank) DOC ($title)";
 					//$RDFLOG.= "<br>CREATING ranked ($rank) $type ($title)";
 					$result->setRank($rank);
+					$result->setExplanation($explanation);
 					RodinResultManager::saveRodinResults($allResults=array($result), $this->sid, $result->datasource, $timestamp='');
 					break;
 					
@@ -1297,7 +1349,7 @@ class RDFprocessor {
 				##############################################
 				##############################################
 					if ($DEBUG)
-						$RDFLOG.= "<br>FINAL RANKED $type $docuid ($rank previous:$previousrank) DOC ($title)";
+						$RDFLOG.= "<br>FINAL RANKED $type $docuid ($rank [$explanation] previous:$previousrank) DOC ($title)";
 									list (	$rodin_result_type,
 									$previousrank, //is the subject rank at this stage
 									$title,
@@ -1323,6 +1375,7 @@ class RDFprocessor {
 							
 							$R = RodinResultManager::create_rodinResult_for_lod(  $rodin_result_type,
 																																		$rank,
+																																		$explanation,
 																																		$title,
 																																		$description,
 																																		$date_created,
