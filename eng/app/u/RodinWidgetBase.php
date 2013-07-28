@@ -325,7 +325,7 @@ EOD;
 	{
 		global $SEARCHFILTERcontrol;
 		
-		$res=add_control(&$SEARCHFILTERcontrol,$name,$realname,$value,$defaultvalueQS,$htmldef,$pos);
+		$res=add_control($SEARCHFILTERcontrol,$name,$realname,$value,$defaultvalueQS,$htmldef,$pos);
 		//print "<br>$res elements SEARCHFILTERcontrol";
 		return $res;
 	} // add_searchfilter_control
@@ -338,7 +338,7 @@ EOD;
 	{
 		global $SEARCHcontrol;
 	
-		$res= add_control(&$SEARCHcontrol,$name,'',$value,$defaultvalueQS,$htmldef,$pos);
+		$res= add_control($SEARCHcontrol,$name,'',$value,$defaultvalueQS,$htmldef,$pos);
 		
 		//print "<br>$res elements SEARCHcontrol";
 	
@@ -554,11 +554,11 @@ EOP;
 			. "datasource = '$datasource' AND application_id = '$APP_ID';";
 		
 		$DB = new RODIN_DB();
-		$ret = mysql_query($checkQuery, $DB->DBconn);
+		$ret = mysqli_query($DB->DBconn,$checkQuery);
 
 		$count = 0;
 		if ($ret != null) {
-			$REC = mysql_fetch_assoc($ret);
+			$REC = mysqli_fetch_assoc($ret);
 			$count = $REC['CNT'];
 		}
 		
@@ -602,10 +602,10 @@ EOP;
 		application_id = '$app_id';";
 		
 		$DB = new RODIN_DB();
-		$qresult = mysql_query($QUERY_DELETE);
-		if (($affected_rows= mysql_affected_rows())<1)
+		$qresult = mysqli_query($DB->DBconn,$QUERY_DELETE);
+		if (($affected_rows= mysqli_affected_rows($DB->DBconn))<1)
 		{
-			throw(New Exception(mysql_error($DB->DBconn)."<hr>Query:".$QUERY_DELETE."<br><br>"));
+			throw(New Exception(mysqli_error($DB->DBconn)."<hr>Query:".$QUERY_DELETE."<br><br>"));
 		}
 		else print "<br>unregister_default_prefs  $app_id PREFS DELETED";
 	}	

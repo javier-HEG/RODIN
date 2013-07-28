@@ -1182,8 +1182,7 @@ function print_info($storename,$txt,$elsetxt='',$want_statistics=false)
     $EVTL_STORENAME_TXT=$storename==''?'':"in store '$storename'";
     global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
     //print "DB: $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST";
-    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
-		@mysql_select_db($ARCDB_DBNAME);
+    $DBconn = mysqli_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS,$ARCDB_DBNAME) or $errors = $errors . "Could not connect to database.\n";
     
     $Q=<<<EOQ
     DELETE FROM $ARCDB_DBNAME.`triplefiles_toload` 
@@ -1191,10 +1190,10 @@ function print_info($storename,$txt,$elsetxt='',$want_statistics=false)
     $EVTL_STORENAME
 EOQ;
     
-    $resultset = mysql_query($Q);
-		if (($numofrows=mysql_affected_rows())<1)
-			throw(New Exception(mysql_error($DBconn)."<hr>Problem deleting triple load tasks for storename '$storename' - Query:".$Q."<br><br>"));
-    mysql_close($DBconn);
+    $resultset = mysqli_query($DBconn,$Q);
+		if (($numofrows=mysqli_affected_rows($DBconn))<1)
+			throw(New Exception(mysqli_error($DBconn)."<hr>Problem deleting triple load tasks for storename '$storename' - Query:".$Q."<br><br>"));
+    mysqli_close($DBconn);
     
     print "<br>$numofrows triple load tasks DELETED $EVTL_STORENAME_TXT !";
     
@@ -1208,12 +1207,8 @@ EOQ;
   {
     global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
     //print "DB: $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST";
-    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
-		@mysql_select_db($ARCDB_DBNAME);
-    
-    $statistics=mysql_real_escape_string($statistics);
-    
-    
+    $DBconn = mysqli_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS,$ARCDB_DBNAME) or $errors = $errors . "Could not connect to database.\n";
+    $statistics=mysqli_real_escape_string($statistics);
     
     $Q=<<<EOQ
     UPDATE $ARCDB_DBNAME.`triplefiles_toload` 
@@ -1223,10 +1218,10 @@ EOQ;
     AND `filepath` = '$filepath' 
 EOQ;
     
-    $resultset = mysql_query($Q);
-		if (($numofrows=mysql_affected_rows())<>1)
-			throw(New Exception(mysql_error($DBconn)."<hr>Not Just one row (=$numofrows)in update - Query:".$Q."<br><br>"));
-    mysql_close($DBconn);
+    $resultset = mysqli_query($DBconn,$Q);
+		if (($numofrows=mysqli_affected_rows($DBconn))<>1)
+			throw(New Exception(mysqli_error($DBconn)."<hr>Not Just one row (=$numofrows)in update - Query:".$Q."<br><br>"));
+    mysqli_close($DBconn);
     return true;
     
   } // store_statistics_for_this_loaded_triple_file
@@ -1247,8 +1242,7 @@ EOQ;
     $EVTL_SORT=$want_statistics?'ORDER BY timestamp_statistics ASC':'';
     global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
     //print "DB: $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST";
-    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
-		@mysql_select_db($ARCDB_DBNAME);
+    $DBconn = mysqli_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS,$ARCDB_DBNAME) or $errors = $errors . "Could not connect to database.\n";
     
     $Q=<<<EOQ
     SELECT * 
@@ -1261,14 +1255,14 @@ EOQ;
     ; 
 EOQ;
     
-    $resultset = mysql_query($Q);
+    $resultset = mysqli_query($DBconn,$Q);
     
     //print "$Q<br><br>";var_dump($resultset);
     
-    while ($row = mysql_fetch_assoc($resultset)) {
+    while ($row = mysqli_fetch_assoc($resultset)) {
 			$TASKS[] = array($row['storename'],$row['filepath'], $row['statistics'], $row['timestamp_statistics']);
 		}
-    mysql_close($DBconn);
+    mysqli_close($DBconn);
 
     //print "<br>TASKS: ";var_dump($TASKS);
     
@@ -1282,8 +1276,7 @@ EOQ;
   function register_triples_file($storename,$filepath)
   {
     global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
-    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
-		@mysql_select_db($ARCDB_DBNAME);
+    $DBconn = mysqli_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS,$ARCDB_DBNAME) or $errors = $errors . "Could not connect to database.\n";
     
     $Q=<<<EOQ
     INSERT INTO $SRCDB_DBNAME.`triplefiles_toload` 
@@ -1291,10 +1284,10 @@ EOQ;
     VALUE ('$filepath','$storename'); 
 EOQ;
     
-    $resultset = mysql_query($Q);
-		if (($numofrows=mysql_affected_rows())<1)
-			throw(New Exception(mysql_error($DBconn)."<hr>Query:".$Q."<br><br>"));
-    mysql_close($DBconn);
+    $resultset = mysqli_query($DBconn,$Q);
+		if (($numofrows=mysqli_affected_rows($DBconn))<1)
+			throw(New Exception(mysqli_error($DBconn)."<hr>Query:".$Q."<br><br>"));
+    mysqli_close($DBconn);
     return $numofrows;
   } // register_triples_file
 
@@ -1408,8 +1401,7 @@ EOQ;
   {
     global $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST;
     //print "DB: $ARCDB_DBNAME, $ARCDB_USERNAME, $ARCDB_USERPASS, $ARCDB_DBHOST";
-    $DBconn = mysql_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS) or $errors = $errors . "Could not connect to database.\n";
-		@mysql_select_db($ARCDB_DBNAME);
+    $DBconn = mysqli_connect($ARCDB_DBHOST,$ARCDB_USERNAME,$ARCDB_USERPASS,$ARCDB_DBNAME) or $errors = $errors . "Could not connect to database.\n";
     
     $Q=<<<EOQ
     SELECT * 
@@ -1417,14 +1409,14 @@ EOQ;
     ; 
 EOQ;
     
-    $resultset = mysql_query($Q);
+    $resultset = mysqli_query($DBconn,$Q);
     
-    while ($row = mysql_fetch_assoc($resultset)) {
+    while ($row = mysqli_fetch_assoc($resultset)) {
     	$ns_name=$row['ns_name'];
     	$ns_url=$row['ns_url'];
 			$NAMESPACES{$ns_name}=$ns_url;
 		}
-    if ($DBconn) mysql_close($DBconn);
+    if ($DBconn) mysqli_close($DBconn);
 		else print getBacktrace();
 		
 		if(0)

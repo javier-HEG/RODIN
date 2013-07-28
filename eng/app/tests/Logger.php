@@ -7,8 +7,8 @@
  
  				
 class Logger {
-	const LOGGER_ACTIVATED = true;
-	const LOG_INTO_DB = true;
+	const LOGGER_ACTIVATED = false;
+	const LOG_INTO_DB = false;
 
   const LOGIN_ACTION = 0;
 	const LOGOUT_ACTION = 1;
@@ -97,6 +97,8 @@ class Logger {
 				if (Logger::LOG_INTO_DB)
 				{
 					global $RODINDB_DBNAME;
+					global $CAN_ACCESS_ADMIN_VAR, $MAX_DB_RETRIES;
+					global $RODINROOT, $RODINSEGMENT, $RODINADMIN_USERNAME, $RODINADMIN_USERPASS, $RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS,$RODINADMIN_DBNAME;
 					if (!function_exists('dblogger'))
 					{
 						//print "<br<LOAD app/u/FRIdbUtilities.php ....";

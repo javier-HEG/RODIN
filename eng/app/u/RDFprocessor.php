@@ -2130,7 +2130,6 @@ class RDFprocessor {
 			
 		} // alexandria
 		
-	
 		$title_cleaned_arr=array_unique(cleanup_stopwords(explode(' ',strtolower(clean_spechalchars($title))),$this->stopwords));
 		$title_cleaned=implode(' ',$title_cleaned_arr); //separate into chunks
 	  

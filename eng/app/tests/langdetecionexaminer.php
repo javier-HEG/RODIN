@@ -48,12 +48,11 @@ EOP;
 
 	try {
 		$DB = new RODIN_DB('rodin');
-		$DBconn=$DB->DBconn;
-		$resultset = mysql_query($SQL);
+		$resultset = mysqli_query($DB->DBconn,$SQL);
 		$DB->close();
 
 		if ($resultset)
-		while ($row = mysql_fetch_assoc($resultset))
+		while ($row = mysqli_fetch_assoc($resultset))
 		{
 			$dorecord=false;
 			if (preg_match("/exit\((.*)\)\Wwas\((.*),(.*)\)/",$row['msg'],$match))

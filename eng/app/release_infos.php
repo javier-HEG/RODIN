@@ -38,6 +38,8 @@ include_once("u/arcUtilities.php");
 <br />Improved GUI - following the suggestions of the great RODIN team
 <br />WIDGET e-lib.ch
 <br />RESONANCE FILTERING (personal filter)
+<br />PORTED TO LATEST MYSQL (5.6.12)/PHP(5.5)
+
 
 </p>
 Please report any bug issue to <?php echo $MANTIS ?>

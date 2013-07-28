@@ -64,14 +64,14 @@ document.f.shown.focus();
 
 	print $QUERY_CALLS;
 
-	$resultset= mysql_query($QUERY_CALLS);
+	$resultset= mysqli_query($DBconn,$QUERY_CALLS);
 	if ($resultset)
 	{
 	
-		$numrows = mysql_num_rows($resultset);
+		$numrows = mysqli_num_rows($resultset);
 		print " Numrows: ".$numrows;
 		$n=0;
-		while (($row = mysql_fetch_assoc($resultset)))
+		while (($row = mysqli_fetch_assoc($resultset)))
 		{
 			$n++;
 			$result[]=$row;

@@ -43,8 +43,7 @@ class SRC_DB {
 		try {
 			//print "<br> trying to connect($DB): {$this->DB_DB} {$this->DB_HOST},{$this->DB_UNAME},{$this->DB_PWORD}";
 		
-			$DBconn = mysql_connect($this->DB_HOST,$this->DB_UNAME,$this->DB_PWORD) or $errors = $errors . "Could not connect to database.\n";
-			@mysql_select_db($this->DB_DB) or $errors = $errors . "Unable to select database $DB_DB\n";
+			$DBconn = mysqli_connect($this->DB_HOST,$this->DB_UNAME,$this->DB_PWORD,$this->DB_DB) or $errors = $errors . "Could not connect to database.\n";
 			$this->DBconn=$DBconn;
 		}
 		catch (Exception $e)
@@ -56,7 +55,7 @@ class SRC_DB {
 	//'mysqli://benutzerasswort@server/datenbank'
 	public function close()
 	{
-		mysql_close($this->DBconn);
+		mysqli_close($this->DBconn);
 	}
 } // DB
 

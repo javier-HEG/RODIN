@@ -18,6 +18,8 @@ class RODIN_DB {
 
 	public function __construct($DB='rodin')
 	{
+		$DEBUG=0;
+		
 		global $RODINSEGMENT;
 		global $RODINDB_HOST;
 		global $RODINDB_DBNAME;
@@ -48,11 +50,10 @@ class RODIN_DB {
 		$errors="";
 		if ($CAN_ACCESS_ADMIN_VAR) {
 			try {
-
-				
-				$DBconn = @mysql_connect($this->DB_HOST,$this->DB_UNAME,$this->DB_PWORD) or $errors = $errors . "Could not connect to database.\n";
-				@mysql_select_db($this->DB_DB) or $errors = $errors . "Unable to select database $DB_DB\n";
+				$DBconn = mysqli_connect($this->DB_HOST,$this->DB_UNAME,$this->DB_PWORD,$this->DB_DB) or $errors = $errors . "Could not connect to database.\n";
 				$this->DBconn=$DBconn;
+				if ($DEBUG) print "<br>RODIN_DB called with ({$this->DB_HOST},{$this->DB_UNAME},{$this->DB_PWORD},{$this->DB_DB}) returns: ({$DBconn})";
+				if ($DEBUG && $DBconn==null) print "<br>ERROR: ZERO CONNECTION";
 			}
 			catch (Exception $e)
 			{
@@ -66,7 +67,7 @@ class RODIN_DB {
 	{
 		global $CAN_ACCESS_ADMIN_VAR;
 		if ($CAN_ACCESS_ADMIN_VAR) // otherwise we have no db yet  (installing)
-			mysql_close($this->DBconn);
+			@mysqli_close($this->DBconn);
 	}
 } // DB
 
@@ -99,9 +100,9 @@ INSERT into dblog_client
 values ('$widget','$message')
 EOQ;
 
-			$resultset = mysql_query($Q);
-			if (mysql_affected_rows()<1)
-						throw(New Exception(mysql_error($DBconn)."<hr>Query:".$Q."<br><br>"));
+			$resultset = mysqli_query($DB->DBconn,$Q);
+			if (mysqli_affected_rows()<1)
+						throw(New Exception(mysqli_error($DB->DBconn)."<hr>Query:".$Q."<br><br>"));
 			$DB->close();
 		}
 		catch (Exception $e)
@@ -154,11 +155,18 @@ function store_widget_results(&$DecodedSearchresults)
 
 		// Is there ALREADY a result relative to sid in query?
 		$countSidInSearchTable = "SELECT count(*) FROM SEARCH WHERE SEARCH.sid = '$sid';";
-		$sid_ret = mysql_query($countSidInSearchTable);
+		$sid_ret = mysqli_query($DB->DBconn, $countSidInSearchTable);
 		
 		if ($sid_ret)
-			$sid_exists = (mysql_result($sid_ret,0) == 1);
-
+		{
+			/* seek to row no. 0 */
+		  mysqli_data_seek($sid_ret, 0);
+	    /* fetch row */
+	    $row = mysqli_fetch_row($sid_ret);
+			$count_sid=$row[0];
+			$sid_exists = ($count_sid == 1);
+			//$sid_exists = (mysql_result($sid_ret,0) == 1);
+		}
 		if ($sid_exists) {} // Do nothing, results are already in DB
 		else { // Insert query results in the DB 
 			$dbq = addslashes($q);
@@ -168,10 +176,10 @@ function store_widget_results(&$DecodedSearchresults)
 			if ($debug)
 				print "<br />sid+ datasource + q = $sid + $datasource + $q<br />DB_SEARCH_INSERT: $insertSearchInDb<br>";
 
-			$qresultDB_SEARCH_INSERT = mysql_query($insertSearchInDb);
+			$qresultDB_SEARCH_INSERT = mysqli_query($DB->DBconn,$insertSearchInDb);
 			
-			if (mysql_affected_rows()<1)
-				throw(New Exception(mysql_error($DBconn)."<hr>Query:".$insertSearchInDb."<br><br>"));
+			if (mysqli_affected_rows()<1)
+				throw(New Exception(mysqli_error($DB->DBconn)."<hr>Query:".$insertSearchInDb."<br><br>"));
 		}
 		
 		$DB_RESULT_INSERT = "INSERT INTO result (`sid`,`datasource`,`xpointer`,`node`,`follow`,`attribute`,`type`,`value`,`url`,`visible`) ";
@@ -219,10 +227,10 @@ function store_widget_results(&$DecodedSearchresults)
 					print "DB_RESULT_INSERT:<br>$DB_RESULT_INSERT<hr>";
 				}
 
-				$qresultDB_RESULT_INSERT = mysql_query($DB_RESULT_INSERT);
+				$qresultDB_RESULT_INSERT = mysqli_query($DB->DBconn,$DB_RESULT_INSERT);
 
-				if (mysql_affected_rows()<1)
-					throw(New Exception(mysql_error($DBconn)."<hr>Query:".$DB_RESULT_INSERT."<br><br>"));
+				if (mysqli_affected_rows()<1)
+					throw(New Exception(mysqli_error($DB->DBconn)."<hr>Query:".$DB_RESULT_INSERT."<br><br>"));
 			}
 		}
 	} catch (Exception $e) {
@@ -313,10 +321,10 @@ function get_result_count($sid, $datasource) {
 			
 		// Get the result count from xPointer -1
 		$query = "SELECT value FROM result WHERE sid = '$sid' AND datasource='$datasource' AND xpointer='-1' LIMIT 0 , 1";
-		$resultset = mysql_query($query);
+		$resultset = mysqli_query($DB->DBconn,$query);
 		
 		if ($resultset) {
-			$row = mysql_fetch_assoc($resultset);
+			$row = mysqli_fetch_assoc($resultset);
 			$resultCount = $row['value'];
 		}
 		
@@ -342,10 +350,10 @@ function build_result_EATV_array($sid, $datasource) {
 		
 		// Construct the row again
 		$query = "SELECT * FROM result WHERE sid = '$sid' AND datasource='$datasource'";
-		$resultset= mysql_query($query);
+		$resultset= mysqli_query($DB->DBconn, $query);
 			
 		if ($resultset)	{
-			while ($row = mysql_fetch_assoc($resultset)) {
+			while ($row = mysqli_fetch_assoc($resultset)) {
 				$xpointer = $row['xpointer'];
 					
 				if ($xpointer > -1) {
@@ -1306,7 +1314,7 @@ function cleanup($input)
 	$input = str_replace('"',' ',$input);
 	$input = str_replace("\n",' ',$input);
 	$input = htmlentities($input);
-	$input = mysql_real_escape_string($input);
+	$input = mysqli_real_escape_string($input);
 	return $input;
 }
 
@@ -1404,10 +1412,10 @@ EOQ;
 
 		//print "<br>$Q<br>";
 
-		$resultset = mysql_query($Q);
+		$resultset = mysqli_query($DB->DBconn,$Q);
 		$DB->close();
 		if ($resultset)
-	  while ($row = mysql_fetch_assoc($resultset))
+	  while ($row = mysqli_fetch_assoc($resultset))
 	  {
 			$logger_records[]=$row;
 		}
@@ -1436,10 +1444,10 @@ ORDER BY sid DESC
 LIMIT $TOP
 EOQ;
 
-    $resultset = mysql_query($Q);
+    $resultset = mysqli_query($DB->DBconn,$Q);
 		$DB->close();
 
-    while ($row = mysql_fetch_assoc($resultset))
+    while ($row = mysqli_fetch_assoc($resultset))
     {
          $sid =$row['sid'];
          $query =$row['query'];
@@ -1471,10 +1479,10 @@ function fetch_record($Q,$DBID='rodin')
 		$DB = new RODIN_DB($DBID);
 		$DBconn = $DB->DBconn;
 
-		$ret = mysql_query($Q, $DBconn);
+		$ret = mysqli_query($DBconn,$Q);
 
 		if ($ret!=null)
-			$resultset = mysql_fetch_assoc($ret);
+			$resultset = mysqli_fetch_assoc($ret);
 		
 		$DB->close();
 	}
@@ -1579,13 +1587,21 @@ function get_query_DB($sid) {
 
 		// Check if there is a search with such SID
 		$query = "SELECT query FROM SEARCH WHERE SEARCH.sid = '$sid'";
-		$sid_ret = mysql_query($query);
+		$sid_ret = mysqli_query($DB->DBconn,$query);
 		
 		if ($sid_ret!=null) {
-			$numrows = mysql_num_rows($sid_ret);
+			$numrows = mysqli_num_rows($sid_ret);
 			
 			if ($numrows>0)
-				$res = mysql_result($sid_ret, 0);
+			{
+				 /* seek to row no. 0 */
+  		  mysqli_data_seek($numrows, 0);
+		    /* fetch row */
+		    $row = mysqli_fetch_row($numrows);
+				$res=$row[0];
+				mysqli_free_result($numrows);
+				//$res = mysql_result($sid_ret, 0);
+			}
 		}
 		
 		$DB->close();
@@ -1604,6 +1620,9 @@ function get_POSH_user_info($USER_ID ='')
 ####################################################
 {
 	global $CAN_ACCESS_ADMIN_VAR;
+	
+	$DEBUG=1; 
+	
 	if ($CAN_ACCESS_ADMIN_VAR)
 	{
 		if ($USER_ID)
@@ -1757,10 +1776,10 @@ EOQ;
 		try {
 			$DB = new RODIN_DB('posh');
 			$DBconn=$DB->DBconn;
-			$resultset = mysql_query($Q);
+			$resultset = mysqli_query($DB->DBconn,$Q);
 			$DB->close();
 
-			while ($row = mysql_fetch_assoc($resultset))
+			while ($row = mysqli_fetch_assoc($resultset))
 			{
 				$users[]= array('id'=>$row['id'],'long_name'=>$row['long_name'],'username'=>$row['username']);
 			}
@@ -1787,11 +1806,11 @@ EOQ;
 			$DBconn=$DB->DBconn;
 			if ($DBconn)
 			{
-				if (!$resultset = mysql_query($Q,$DBconn))
+				if (!$resultset = mysqli_query($DB->DBconn,$Q))
 					fontprint("Problem beim oeffnen der posh DB ",'red');
 				$DB->close();
 
-				if ($row = mysql_fetch_assoc($resultset))
+				if ($row = mysqli_fetch_assoc($resultset))
 				{
 					$users= array('id'=>$row['id'],'long_name'=>$row['long_name'],'username'=>$row['username']);
 				}
@@ -1816,8 +1835,8 @@ EOQ;
 
 	$DB = new RODIN_DB('rodin');
 	$DBconn=$DB->DBconn;
-	$urset = mysql_query($DBQUERY);
-	$affected=mysql_affected_rows($DBconn);
+	$urset = mysqli_query($DB->DBconn,$DBQUERY);
+	$affected=mysqli_affected_rows($DB->DBconn);
 
 	return $affected;
 } // db_logger_delete
@@ -1847,8 +1866,8 @@ EOQ;
 		print "<br>dblogger(): No Database connected";
 	else 
 	{
-		$urset = mysql_query($DBQUERY);
-		$affected=mysql_affected_rows($DBconn);
+		$urset = mysqli_query($DB->DBconn,$DBQUERY);
+		$affected=mysqli_affected_rows($DB->DBconn);
 		if ($affected < 0)
 		{
 			fontprint("<br>dblogger: Problem (affected=$affected) inserting into 'logger' ...<br>(($DBQUERY)))",'red');
@@ -1876,12 +1895,12 @@ function fri_fetch_assoc($Q)
 
 			if ($DBconn)
 			{
-				$resultset = mysql_query($Q,$DBconn);
+				$resultset = mysqli_query($DBconn,$Q);
 				$DB->close();
 				if($resultset)
-				$row = mysql_fetch_assoc($resultset);
+				$row = mysqli_fetch_assoc($resultset);
 			}
-			#print "fri_fetch_assoc: $Q";
+			//print "fri_fetch_assoc: $Q";
 
 	}
 	catch (Exception $e)
@@ -1889,7 +1908,7 @@ function fri_fetch_assoc($Q)
 		inform_bad_db($e." on Q=$Q");
 	}
 
-	#print "fri_fetch_assoc returns : $row";
+	//print "fri_fetch_assoc returns : "; var_dump($row);
 
 	return $row;
 }
@@ -1912,11 +1931,11 @@ EOQ;
 		try {
 			$DB = new RODIN_DB('posh');
 			$DBconn=$DB->DBconn;
-			$resultset = mysql_query($query);
+			$resultset = mysqli_query($DB->DBconn,$query);
 			$DB->close();
 
 		  if ($resultset)
-				while ($row = mysql_fetch_assoc($resultset))
+				while ($row = mysqli_fetch_assoc($resultset))
 				{
 					$widgestinfos[]= array('id'=>$row['id'],'url'=>$row['url'],'name'=>$row['name'],'description'=>$row['description']);
 				}
@@ -1951,10 +1970,10 @@ EOQ;
 		try {
 			$DB = new RODIN_DB('posh');
 			$DBconn=$DB->DBconn;
-			$resultset = mysql_query($query);
+			$resultset = mysqli_query($DB->DBconn,$query);
 			$DB->close();
 
-			while ($row = mysql_fetch_assoc($resultset))
+			while ($row = mysqli_fetch_assoc($resultset))
 			{
 				if ($tags) $tags.=", ";
 				$tags.= $row['label_simplified'];
@@ -1990,11 +2009,11 @@ EOQ;
 		try {
 			$DB = new RODIN_DB('posh');
 			$DBconn=$DB->DBconn;
-			$resultset = mysql_query($query);
+			$resultset = mysqli_query($DB->DBconn,$query);
 			$DB->close();
 
 			if ($resultset)
-			while ($row = mysql_fetch_assoc($resultset))
+			while ($row = mysqli_fetch_assoc($resultset))
 			{
 					$widgestinfos[]= array('id'=>$row['id'],'url'=>$row['url'],'name'=>$row['name'],'description'=>$row['description']);
 			}
@@ -2086,7 +2105,7 @@ EOQ;
 	try {
 		$DB = new RODIN_DB('rodin');
 		$DBconn=$DB->DBconn;
-		$resultset = mysql_query($query);
+		$resultset = mysqli_query($DB->DBconn,$query);
 		$DB->close();
 	}
 	catch (Exception $e)
@@ -2104,7 +2123,7 @@ EOQ;
 	try {
 		$DB = new RODIN_DB('rodin');
 		$DBconn=$DB->DBconn;
-		$resultset = mysql_query($query);
+		$resultset = mysqli_query($DB->DBconn);
 		$DB->close();
 	}
 	catch (Exception $e)
@@ -2215,10 +2234,10 @@ function collect_queries_tag_DB($USER) {
 	try {
 		$DB = new RODIN_DB('rodin');
 		$DBconn=$DB->DBconn;
-		$resultset = mysql_query("SELECT Query FROM search WHERE sid like '%.$USER' ORDER BY sid DESC");
+		$resultset = mysqli_query($DB->DBconn,"SELECT Query FROM search WHERE sid like '%.$USER' ORDER BY sid DESC");
 		$DB->close();
 
-		while ($row = mysql_fetch_assoc($resultset)) {
+		while ($row = mysqli_fetch_assoc($resultset)) {
 			$queries[] = $row['Query'];
 		}
 	} catch (Exception $e) {
@@ -2339,10 +2358,10 @@ function register_SRC_REFINE_INTERFACES($USER_ID)
 			$DB = new RODIN_DB('rodin');
 			$DBconn=$DB->DBconn;
 			//print "<br>$QUERY_GET";
-			$resultset = mysql_query($QUERY_GET);
+			$resultset = mysqli_query($DBconn,$QUERY_GET);
 			$DB->close();
 			$start=1;
-			while ($REC = mysql_fetch_assoc($resultset))
+			while ($REC = mysqli_fetch_assoc($resultset))
 			{
 				$cnt++;
 				$AuthUser	=$REC['AuthUser'];
@@ -2469,15 +2488,13 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 			$DB = new RODIN_DB('rodin');
 			$DBconn=$DB->DBconn;
 			//print "<br>$QUERY_GET";
-			$resultset = mysql_query($QUERY_GET,$DBconn);
+			$resultset = mysqli_query($DB->DBconn,$QUERY_GET);
 			$DB->close();
 			$noOfSRC=0;
 			if ($resultset)
 			{
-			while ($REC = mysql_fetch_assoc($resultset))
+			while ($REC = mysqli_fetch_assoc($resultset))
 			{
-				
-				
 				$noOfSRC++;
 				$Name				=$REC['Name'];
 				$ID					=$REC['ID'];
@@ -2605,8 +2622,8 @@ SELECT id, url, website
 FROM rodinposh_$RODINSEGMENT.dir_item;
 EOQ;
 		print "<u>Automatical Widget Update in POSH Database according to current root $RODINROOT/$RODINSEGMENT </u> ((($Q_SELECT))):<br>";
-		$resultset= mysql_query($Q_SELECT,$DBconn);
-		while ($row = mysql_fetch_assoc($resultset))
+		$resultset= mysqli_query($DB->DBconn,$Q_SELECT);
+		while ($row = mysqli_fetch_assoc($resultset))
 		{
 			$id						=$row['id'];
 			$oldurl 			=$row['url'];
@@ -2660,11 +2677,11 @@ EOQ;
 	LIMIT 1 ;
 EOQ;
 			if (0) print "<hr>$Q_UPDATE";
-			$urset = mysql_query($Q_UPDATE);
-			$affected=mysql_affected_rows();
+			$urset = mysqli_query($DB->DBconn,$Q_UPDATE);
+			$affected=mysqli_affected_rows($DB->DBconn);
 			if ($affected < 0)
 			{
-				throw(New Exception(mysql_error($DBconn)."<hr>Query:".$Q_UPDATE."<br><br>"));
+				throw(New Exception(mysqli_error($DB->DBconn)."<hr>Query:".$Q_UPDATE."<br><br>"));
 			}
 			else {
 				fontprint( "<small><small>".$URL_INFORM
@@ -3036,8 +3053,8 @@ function check_corrent_fsrc_localpaths($PROT,$HOST,$PORT,$RODINROOT,$RODINSEGMEN
 		$DBconn=$DB->DBconn;
 
 		print "<br><br><u>Automatical SRC Engine Update in RODIN SRC Database according to current root $RODINROOT/$RODINSEGMENT </u>:<br>";
-		$resultset= mysql_query($SQL_SRC_INTERFACES);
-		while ($row = mysql_fetch_assoc($resultset))
+		$resultset= mysqli_query($DB->DBconn,$SQL_SRC_INTERFACES);
+		while ($row = mysqli_fetch_assoc($resultset))
 		{
 			$ID				=$row['ID'];
 			$Name			=$row['Name'];
@@ -3068,11 +3085,11 @@ WHERE src_interface.ID = $ID
 LIMIT 1 ;
 EOQ;
 			if (0) print "<hr>$Q_UPDATE";
-			$urset = mysql_query($Q_UPDATE);
-			$affected=mysql_affected_rows();
+			$urset = mysqli_query($DB->DBconn,$Q_UPDATE);
+			$affected=mysqli_affected_rows($DB->DBconn);
 			if ($affected < 0)
 			{
-				throw(New Exception(mysql_error($DBconn)."<hr>Query:".$Q_UPDATE."<br><br>"));
+				throw(New Exception(mysqli_error($DB->DBconn)."<hr>Query:".$Q_UPDATE."<br><br>"));
 			}
 			else
 			 {
@@ -3180,13 +3197,13 @@ function check_rodin_installation($PROT,$HOST,$PORT,$RODINROOT,$RODINSEGMENT)
 # Exec part: compute RODIN user info
 # debugUtils::callStack(Exception::getTrace());
 
-
-	$POSH_user_info = get_POSH_user_info($USER);
-
-	$rodinuseremail=$POSH_user_info['username'];
-	$rodinuserid=$USER;
-	$rodinuser=$POSH_user_info['long_name'];
-
+	
+		$POSH_user_info = get_POSH_user_info($USER);
+	
+		$rodinuseremail=$POSH_user_info['username'];
+		$rodinuserid=$USER;
+		$rodinuser=$POSH_user_info['long_name'];
+	
 	class debugUtils {
 	    public static function callStack($stacktrace) {
 	        print "<br>".str_repeat("=", 50) ."\n";

@@ -580,6 +580,15 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 		array_splice($NARROWER_DESC,$m);
 		array_splice($RELATED_DESC,$m);
 
+		if ($this->getSrcDebug())
+    {
+    		print "<br><br>DESCRIPTORS:";
+				print "<br>--broaders: ";var_dump($BROADER_DESC);print "<br>";
+				print "<br>--narrowers: ";var_dump($NARROWER_DESC);print "<br>";
+				print "<br>--related: ";var_dump($RELATED_DESC);print "<br>";
+		}
+
+
     // Processing... resolving descriptors... all at once
 
     list ($BROADER_LABELS,
@@ -604,16 +613,22 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
     {
       $NoOfFoundDocs=count($returndocument);
       
-      print "<br><br>$NoOfFoundDocs node return documents: "; var_dump($returndocument);print "<br>";
+      print "<br><br>get_soz_skosxl_nodes_SOLR(): $NoOfFoundDocs node return documents: "; var_dump($returndocument);print "<br>";
     
       print "<br>in get_stw_skos_nodes_SOLR():";
+			print "<br>ID: $ID";
+			print "<br>ID0: $ID0";
+			print "<br>LABEL0: $LABEL0";
+			print "<br>ID1: $ID1";
+			print "<br>LABEL1: $LABEL1";
+			print "<br>mode: $mode";
+			
       print "<br>prepared BROADER_LABELS:<br>"; var_dump($BROADER_LABELS);
       print "<br>prepared NARROWER_LABELS:<br>"; var_dump($NARROWER_LABELS);
       print "<br>prepared RELATED_LABELS:<br>"; var_dump($RELATED_LABELS);
       
       print "<br>ROOT ID: $ID0=$LABEL0, $ID1=$LABEL1";
-
-    } 
+	    } 
   
     if ($mode=='web')
 		{
@@ -756,7 +771,7 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
           print "<br>fieldquery: (($disjunction))";
           print "<br>FIELDS for language=$lang: <br>";
           var_dump($FIELDS);
-          print "<br>$noofresults results found for query: <br>";
+          print "<br>$noofresults results found for query in THESOZ: <br>";
           var_dump($resultset);
           print "<br>";
         }
@@ -773,6 +788,10 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
                 break;
               case 'id':
                 $id=$value;
+								if ($this->getVerbose())
+								{
+									print "<br>ID: $id";
+								}
             }  
           } // each fieldname
           $descriptor_label{$id}=cleanup_comma_in_descr_label($label); // right label to right id
@@ -894,7 +913,7 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
           print "<br>fieldquery: ((id:$descriptor))";
           print "<br>FIELDS for language=$lang: <br>";
           var_dump($FIELDS);
-          print "<br>$noofresults results found for query: <br>";
+          print "<br>$noofresults results found for query in THESOZ: <br>";
           var_dump($resultset);
           print "<br>";
         }
@@ -904,7 +923,6 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
         {
           foreach($document AS $fieldname => $value)
           {
-
             switch($fieldname)
             {
               case $NEEDED_FIELD:
@@ -925,7 +943,7 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 
       if ($this->getSrcDebug())
       {
-        print "<br>in walk_stw_root_path($descriptor): $preflabel";
+        print "<br><br>in walk_stw_root_path($descriptor): $preflabel";
         print "<br>prepared BROADER_DESCR:<br>"; var_dump( $broader ) ;
       } 
 

@@ -95,9 +95,8 @@ EOP;
 
 
 	$DB = new RODIN_DB();
-	$DBconn=$DB->DBconn;
 
-			$resultset= mysql_query($QUERY_RESULTS);
+			$resultset= mysqli_query($DB->DBconn,$QUERY_RESULTS);
 			if ($resultset)
 			{
 				$OLD_LEVEL1_XPOINTER='';
@@ -105,7 +104,7 @@ EOP;
 				$xrescnt=-1;
 				$xrecordcnt=0;
 				$stop = false;
-				while (($row = mysql_fetch_assoc($resultset)) && (!$stop))
+				while (($row = mysqli_fetch_assoc($resultset)) && (!$stop))
 				{
 			
 					$xpointer	=$row['xpointer'];

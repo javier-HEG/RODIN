@@ -2197,7 +2197,7 @@ function get_timestamp_diff_logger(&$last_record,&$first_record)
 	if ($interval_microsecs < 0)
 	{
 		fontprint("<br>get_timestamp_diff_logger() ERROR negative diff $interval_microsecs = $timestamp_microsec_end - $timestamp_microsec_start ",'red');
-		print "<br>start:<br>"; var_dump($timestamp_microsec_start); print "<br>End:<br>";var_dump(&$last_record);
+		print "<br>start:<br>"; var_dump($timestamp_microsec_start); print "<br>End:<br>";var_dump($last_record);
 		
 		$interval_microsecs=0;
 	}

@@ -91,7 +91,16 @@ $want_rdfexpand=$rdfize || $list3page;
 
 //For every interaction case cleanup db
 //Attention: you can destroy database records
-if ($list3page && $rdfize) Logger::remove_db_logger_records($sid);
+//Measure time
+if ($list3page && $rdfize) 
+{
+	Logger::remove_db_logger_records($sid);
+}
+
+if ($rdfize && $listwr)
+{
+	$start_msec =  microtime(true);
+}
 ############
 //print "unlinking $RODIN_PROFILING_PATH";
 if (file_exists($RODIN_PROFILING_PATH)) unlink($RODIN_PROFILING_PATH);
@@ -388,6 +397,12 @@ $STATLINK="../tests/rdf_exec_stat.php?sid=$sid&u=$USER_ID";
 # The following is filled by the programs:
 # $RDFLOG
 ##########################################
+if ($rdfize && $listwr)
+{
+	$end_msec =  microtime(true);
+	$duration_msec = $end_msec - $start_msec;
+	$DURATION_TXT=" - DURATION: $duration_msec sec";
+}
 
 if($listwr)
 print<<<EOP
@@ -433,7 +448,7 @@ print<<<EOP
 				RDFize & display triples:<input type='checkbox' name='list3pls' $checked_list3pls>&nbsp;&nbsp;&nbsp;
 				graphviz search graph:<input type='checkbox' name='viz3search' $checked_viz3search title='Visualize search subgraph for $search_term' >&nbsp;&nbsp;&nbsp;
 				graphviz whole graph:<input type='checkbox' name='viz3pls' $checked_viz3pls title='Visualize all triples graphically' >&nbsp;&nbsp;&nbsp;
-				Search term: '<label><b>$search_term</b></label>'
+				Search term: '<label><b>$search_term</b></label> $DURATION_TXT'
 				</tr>
 				</table>
 		</form>

@@ -451,7 +451,7 @@ EOO;
 				
 			try {
 				$DB = new RODIN_DB();
-				$ret = mysql_query($QUERY_DUPLICATE, $DB->DBconn);
+				$ret = mysqli_query($DB->DBconn, $QUERY_DUPLICATE);
 				$DB->close();
 			}
 			catch (Exception $e) {
@@ -826,7 +826,7 @@ function RDW_COLLECTRESULTS_EPI()
 						datasource = '$datasource' AND
 						application_id = '$APP_ID';";
 
-					$ret = mysql_query($QUERY_UPDATE);
+					$ret = mysqli_query($DB->DBconn,$QUERY_UPDATE);
 				} catch (Exception $e) {
 					$ERROR=1; // return value: 0 results
 					inform_exc($e);
@@ -943,36 +943,36 @@ function RDW_REGISTER_WIDGET_USER_PREFS($action,$d_app_id='')
 
 			if ($action=='save')
 			{
-				$ret = mysql_query($QUERY_CHECK);
+				$ret = mysqli_query($DB->DBconn,$QUERY_CHECK);
 				if ($ret!=null)
 				{
 
 						//print "QUERY_CHECK: $QUERY_CHECK<br>";
 
-						$REC= mysql_fetch_assoc($ret);
+						$REC= mysqli_fetch_assoc($ret);
 				}
 
 				if ($REC['CNT'] > 0 && !$reload) // bereits eintrag da: UPDATE wenn nicht reload
 				{
 
 					//print "<br>TRY $QUERY_UPDATE";
-					$qresult = mysql_query($QUERY_UPDATE);
+					$qresult = mysqli_query($DB->DBconn,$QUERY_UPDATE);
 					// ohne meldung
 					$affected_rows=1;
 				}
 				else // INSERT
 				{
 					//print "<br>TRY $QUERY_INSERT";
-					$qresult = mysql_query($QUERY_INSERT);
-					if (($affected_rows= mysql_affected_rows())<1)
-						throw(New Exception(mysql_error($DB->DBconn)."<hr>Query:".$QUERY_INSERT."<br><br>"));
+					$qresult = mysqli_query($DB->DBconn,$QUERY_INSERT);
+					if (($affected_rows= mysqli_affected_rows())<1)
+						throw(New Exception(mysqli_error($DB->DBconn)."<hr>Query:".$QUERY_INSERT."<br><br>"));
 				}
 			} // save
 			else if ($action=='delete')
 			{
 				print "<br>TRY $QUERY_DELETE";
 
-				$qresult = mysql_query($QUERY_DELETE);
+				$qresult = mysqli_query($DB->DBconn,$QUERY_DELETE);
 				$affected_rows=1;
 			} // delete
 		}

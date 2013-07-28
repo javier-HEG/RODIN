@@ -503,7 +503,7 @@ EOQ;
  	    try {
 	      $DB = new RODIN_DB();
 	      $DBconn = $DB->DBconn;
-	      $resultset = mysql_query($QUERY, $DBconn);
+	      $resultset = mysqli_query($DB->DBconn,$QUERY);
 
 	      $DB->close();
 	    }
@@ -516,7 +516,7 @@ EOQ;
       // feth also Attribute=Title
       // For the same xpointer value!!!
       $old_xpointer='';
-  	  while ($row = mysql_fetch_assoc($resultset))
+  	  while ($row = mysqli_fetch_assoc($resultset))
 			{
 					$xpointer =$row['xpointer']; //must be always the same for get record data
 					$xlevel=compute_XPointerLevel($xpointer);

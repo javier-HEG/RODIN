@@ -54,7 +54,7 @@ function compute_ajax_sid (user)
 	var sec	 =format2pos(now.getSeconds());
 	var msec =parent.format3pos(now.getMilliseconds());
 
-	sid = year+''+mon+''+day+'.'+hour+mins+sec+'.'+msec+"."+user;
+	sid = year+''+mon+''+day+'.'+hour+mins+sec+'.'+msec+".<?php echo $RODINSEGMENT;?>."+user;
 	
 	//alert(sid);
 	
@@ -411,7 +411,7 @@ function format3pos(num)
                                     +'\n\nNo Computation stopped.');
     else
     { 
-      if (detectedLanguage == "un") detectedLanguage = "en";
+      //if (detectedLanguage == "un") detectedLanguage = "en";
 
       var ontofacetLanguage = parent.document.getElementById("ontofacet_center_language");
       ontofacetLanguage.value = detectedLanguage;
@@ -836,14 +836,13 @@ function hide_autocomplete_bruteforce()
 function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 {
 	var src_maxresults = '<?php print $SRC_MAXRESULTS;?>';
-
+  var display_locked = false;
+  
 	if (parent.NOSRC)
 		alert('Problem on finding initialized SRC Modules');
 	else
 	{
-		lock_ontosearch_dialog();
 		var srccallverbosity= ('<?php print $RODINSEGMENT;?>'=='st' && 0);
-		
 		var firstuse = (typeof(gui_refinement_request) == 'undefined');
 	
 		/* Recompute called without ZEN */
@@ -852,7 +851,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 			var this_wid_uniq_id=0;
 			var quickq=terms;
 			//if (quickq=='') alert('fri_rodin_do_onto_search: empty terms found');
-			var maxdur=<?php print $WIDGET_SEARCH_MAX;?>;
+			var maxdur= <?php print $WIDGET_SEARCH_MAX;?>;
 			var c='c';
 	
 			gui_refinement_request=new Object; //global!!
@@ -901,6 +900,12 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 			var temporarily_used = (document.getElementById('tyn_'+service_id).getAttribute('checked')=='true');
 			if (temporarily_used)
 			{
+				if (!display_locked) 
+				{
+					lock_ontosearch_dialog(); // Lock if it comes to at least one call
+					display_locked=true;				
+				}
+
 				var now = new Date();
 				var msec =parent.format3pos(now.getMilliseconds());
 				var sid = compute_ajax_sid (pclass.app.user.id);

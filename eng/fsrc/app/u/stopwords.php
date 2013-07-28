@@ -106,9 +106,9 @@ function get_stopwords_from_db($lang='') {
 		$query = "SELECT word FROM stopwords";
 		if ($lang)
 			$query.=" WHERE Lang='$lang'";
-		$resultset = mysql_query($query, $DBconn);
+		$resultset = mysqli_query($DB->DBconn,$query);
 
-		while ($row = mysql_fetch_array($resultset)) {
+		while ($row = mysqli_fetch_array($resultset)) {
 			$stopWords[] = utf8_encode(strtolower($row["word"]));
 		}
 		
@@ -146,9 +146,18 @@ SELECT count(*)
 from stopwords
 where word = '$stopword'
 EOQ;
-    $resultset = mysql_query($Q);
-		if ($resultset) $word_exists = (mysql_result($resultset,0) > 0);
-
+    $resultset = mysqli_query($DB->DBconn,$Q);
+		if ($resultset) 
+		{
+			/* seek to row no. 0 */
+		  mysqli_data_seek($sid_ret, 0);
+	    /* fetch row */
+	    $row = mysqli_fetch_row($sid_ret);
+			$count_sid=$row[0];
+			$word_exists = (intval($count_sid) > 1);
+			mysqli_free_result($sid_ret);			
+			//$word_exists = (mysql_result($resultset,0) > 0);
+	}
 		if (!$word_exists)
 		{
 		
@@ -159,9 +168,9 @@ EOQ;
 				('$stopword','$lang')
 EOQ;
 	
-			$resultset = mysql_query($Q);
-			if (mysql_affected_rows()<1)
-					throw(New Exception(mysql_error($DBconn)."<hr>Query:".$Q."<br><br>"));
+			$resultset = mysqli_query($DB->DBconn,$Q);
+			if (mysql_affected_rows($DB->DBconn)<1)
+					throw(New Exception(mysql_error($DB->DBconn)."<hr>Query:".$Q."<br><br>"));
 		
 			else print "<br>Stopword added in DB: $stopword/$lang";
 			$DB->close();

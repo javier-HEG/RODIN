@@ -233,7 +233,7 @@ $lodLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/u/rdfize.php?listwr=on";
 
 $WANT_WIDGET_SEARCH =false;
 $WANT_RDF_ANNOTATION=true; 
-$WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=			0    	;
+$WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=			1    	;
 
 $MANTIS_REPORTISSUE=str_replace(" ","+",
 										"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=Please describe the subject of your issue here"
@@ -723,40 +723,33 @@ function getRodinAdminFromDB($name,$purpose)
 	$GETQUERY="SELECT * FROM administration WHERE active=1 AND name = '$name' AND purpose = '$purpose';";
 	//print "<br>$GETQUERY";
 
+	//print "mysqli_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS,$RODINADMIN_DBNAME)";
 	try {
 		$TRIES=0;
 		while ($TRIES++ < $MAX_DB_RETRIES
-					 && (!$conn = mysql_pconnect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS))) usleep($USLEEP_RETRY);
+					 && (!$conn = mysqli_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS,$RODINADMIN_DBNAME))) usleep($USLEEP_RETRY);
 		if (!$conn)
 		{
 			print "<br />Could not connect to $RODINADMIN_HOST with :::$RODINADMIN_USERNAME:::$RODINADMIN_USERPASS:::";
-			print "<br />Reason : " . mysql_error();
+			print "<br />Reason : " . mysqli_error($conn);
 			fontprint("Could not connect to admin database after $MAX_DB_RETRIES retries.\n", "red");
 		}
 
 		if ($verbose)
 		{
-			print "<br>$conn = mysql_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS)";
-			print "<br>mysql_select_db($RODINADMIN_DBNAME)";
+			print "<br>$conn = mysqli_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS)";
+			print "<br>mysqli_select_db($RODINADMIN_DBNAME)";
 		}
 
-		#Try to select database
-		$TRIES=0;
-		while ($TRIES++ < $MAX_DB_RETRIES
-					 && (!$dbselected = mysql_select_db($RODINADMIN_DBNAME, $conn))) usleep($USLEEP_RETRY);
-		if (!$dbselected)
-		{
-			fontprint("Unable to select database $RODINADMIN_DBNAME\n", "red");
-		}
-
+		
 		#Try to get param value from DB
 
 		$TRIES=0;
 		while ($TRIES++ < $MAX_DB_RETRIES
-					 && (!$resultset = mysql_query($GETQUERY))) usleep($USLEEP_RETRY);
+					 && (!$resultset = mysqli_query($conn,$GETQUERY))) usleep($USLEEP_RETRY);
 		if ($resultset)
 		{
-			$row = mysql_fetch_assoc($resultset);
+			$row = mysqli_fetch_assoc($resultset);
 			$value=$row['value'];
 			$type=$row['type'];
 		}
@@ -768,7 +761,7 @@ function getRodinAdminFromDB($name,$purpose)
 						."<br><br>(RODIN terminated here)";
 			exit;
 		}
-		mysql_close($conn);
+		mysqli_close($conn);
 	}
 	catch (Exception $e)
 	{
@@ -810,37 +803,33 @@ function update_admin_key($NEWRODINSEGMENT,$RODINADMIN_USERNAME,$RODINADMIN_USER
 
 	try {
 
-		if (!$conn = mysql_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS))
+		if (!$conn = mysqli_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS,$RODINADMIN_DBNAME))
 		{
 			print "<br />Could not connect to $RODINADMIN_HOST with :::$RODINADMIN_USERNAME:::$RODINADMIN_USERPASS:::";
-			print "<br />Reason : " . mysql_error();
+			print "<br />Reason : " . mysqli_error($conn);
 			fontprint("Could not connect to admin database.\n", "red");
 		}
 
 		if ($verbose)
 		{
-			print "<br>$conn = mysql_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS)";
-			print "<br>mysql_select_db($RODINADMIN_DBNAME)";
+			print "<br>$conn = mysqli_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS,$RODINADMIN_DBNAME)";
 		}
-		if (!mysql_select_db($RODINADMIN_DBNAME, $conn))
-		{
-			fontprint("<br>Unable to select database $RODINADMIN_DBNAME\n", "red");
-		}
-		if (! $resultset = mysql_query($QUERY))
+		
+		if (! $resultset = mysqli_query($conn,$QUERY))
 		{
 			fontprint("<br>Unable to successfully execute query $QUERY using $RODINADMIN_USERNAME\n", "red");
 		}
-		$affected_rows=mysql_affected_rows();
+		$affected_rows=mysqli_affected_rows($conn);
 
 		if ($affected_rows < 0)
 		{
-			fontprint(  "<br> ERROR SETTING ADMIN KEY '$key' in Administration database ($affected_rows rows on query=(($QUERY)) ). mysql_error()= ".mysql_error()
+			fontprint(  "<br> ERROR SETTING ADMIN KEY '$key' in Administration database ($affected_rows rows on query=(($QUERY)) ). mysqli_error()= ".mysqli_error($conn)
 					  ."<br>Please contact your RODIN Administrator."
 						."<br><br>(RODIN terminated here)", 'red');
 			exit;
 		}
 		else $ok=true;
-		mysql_close($conn);
+		mysqli_close($conn);
 	}
 	catch (Exception $e)
 	{

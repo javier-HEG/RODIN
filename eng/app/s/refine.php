@@ -47,9 +47,8 @@ EOT;
 EOQ;
 	
 		$DB = new RODIN_DB();
-		$DBconn=$DB->DBconn;
 	
-		$resultset= mysql_query($QUERY_RESULTS);
+		$resultset= mysqli_query($DB->DBconn,$QUERY_RESULTS);
 		if ($resultset)
 		{
 			$OLD_LEVEL1_XPOINTER='';
@@ -57,7 +56,7 @@ EOQ;
 			$xrescnt=-1;
 			$xrecordcnt=0;
 			$stop = false;
-			while (($row = mysql_fetch_assoc($resultset)) && (!$stop))
+			while (($row = mysqli_fetch_assoc($resultset)) && (!$stop))
 			{
 		
 				$xpointer	=$row['xpointer'];
@@ -100,7 +99,7 @@ EOQ;
 						& w=((Wid))			//Widget  id (see above)
 						& maxdur=((milliseconds))    	// Defines the maximal allowed computation duration
 						& p=((s=syncrhonous call - default, a=asynchronous call))
-						& id=((identifies « this » call – in case of non sinch processing))
+						& id=((identifies ï¿½ this ï¿½ call ï¿½ in case of non sinch processing))
 */
 	
 	
@@ -118,7 +117,7 @@ EOQ;
 												."&w=$widget_id"		//Widget  id (see above)
 												."&maxdur=$MAXDUR_REFINESINGLECALL_msec"    
 												."&p=s" 						// s=syncrhonous call - default, a=asynchronous call))
-												."&id=$call_id" // identifies « this » call – in case of non sinch processing))
+												."&id=$call_id" // identifies ï¿½ this ï¿½ call ï¿½ in case of non sinch processing))
 												;	
 EOU;
 

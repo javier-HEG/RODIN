@@ -73,18 +73,11 @@ EOP;
 		$RODINADMIN_USERNAME 	= limitusernamelength($RODINROOTstr."_root_".$RODINSEGMENT);
 		$RODINADMIN_USERPASS 	= strrev($RODINADMIN_USERNAME);
 			
-		if (! $DBconn = mysql_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS))
+		if (! $DBconn = mysqli_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS,$RODINADMIN_DBNAME))
 		{
-				fontprint("Could not connect to database with given USERS. $RODINADMIN_USERNAME/$RODINADMIN_USERPASS",'red');
+			fontprint("Could not connect to database with given USERS. $RODINADMIN_USERNAME/$RODINADMIN_USERPASS",'red');
 			exit;
 		}
-		//print "<br>SQL:$SQL";
-		if (!mysql_select_db($RODINADMIN_DBNAME))
-		{
-			fontprint("Could not select database $RODINADMIN_DBNAME",'red');
-			exit;
-		}	
-		
 		###############################
 		#
 		# If you do not have a VPN and you must update the db...
@@ -95,10 +88,10 @@ EOP;
 			$QUERY="ALTER TABLE administration ADD mode VARCHAR( 20 ) NOT NULL COMMENT 'Call mode for this SRC: direct|segmented' AFTER Type;";
 			print "<br>ADJUSTING DATABASE...";
 			print "QUERY=$QUERY";
-			$resultset= mysql_query($QUERY);
-			$numrows = mysql_affected_rows();
+			$resultset= mysqli_query($DBconn,$QUERY);
+			$numrows = mysqli_affected_rows($DBconn);
 			 
-			fontprint("<br>$numrows affected rows: ".mysql_error($DBconn),'red');
+			fontprint("<br>$numrows affected rows: ".mysqli_error($DBconn),'red');
 			
 			exit;
 		}
@@ -139,17 +132,11 @@ EOP;
 			$RODINADMIN_USERNAME 	= $adminusername;
 			$RODINADMIN_USERPASS 	= $adminuserpass;
 				
-			if (! $DBconn = mysql_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS))
+			if (! $DBconn = mysqli_connect($RODINADMIN_HOST,$RODINADMIN_USERNAME,$RODINADMIN_USERPASS,$RODINADMIN_DBNAME))
 			{
-					fontprint("Could not connect to database with given USERS. $RODINADMIN_USERNAME/$RODINADMIN_USERPASS",'red');
+				fontprint("Could not connect to database with given USERS. $RODINADMIN_USERNAME/$RODINADMIN_USERPASS",'red');
 				exit;
 			}
-			//print "<br>SQL:$SQL";
-			if (!mysql_select_db($RODINADMIN_DBNAME))
-			{
-				fontprint("Could not select database $RODINADMIN_DBNAME",'red');
-				exit;
-			}	
 		}
 		
 		
@@ -193,8 +180,8 @@ EOP;
 				
 				//print $SQL_UPDATE;
 				
-				$resultset= mysql_query($SQL_UPDATE,$DBconn);
-				$numrows = mysql_affected_rows();
+				$resultset= mysqli_query($DBconn,$SQL_UPDATE);
+				$numrows = mysqli_affected_rows($DBconn);
 				if ($numrows<>1) 
 					fontprint("<br>Problem updating record with id=$ID $numrows lines affected from ($SQL_UPDATE)<br><br>"
 					."PLEASE CHECK YOUR UPDATE RIGHT ON THE DATABASE $RODINADMIN_DBNAME WITH THE GIVEN USER",'red');	
@@ -210,8 +197,8 @@ EOP;
 				
 				//print $SQL_DUP;
 				
-				$resultset= mysql_query($SQL_DUP);
-				$numrows = mysql_affected_rows();
+				$resultset= mysqli_query($DBconn,$SQL_DUP);
+				$numrows = mysqli_affected_rows($DBconn);
 				if ($numrows<>1) 
 					fontprint("<br>Problem duplicating record with id=$ID<br>$numrows lines affected from ($SQL_DUP)<br><br>"
 					."PLEASE CHECK YOUR INSERT RIGHT ON THE DATABASE $RODINADMIN_DBNAME WITH THE GIVEN USER",'red');	
@@ -226,8 +213,8 @@ EOP;
 			$uniq=uniqid();
 			$SQL="INSERT INTO administration 
 						() VALUES() ";
-			$resultset= mysql_query($SQL);
-			$numrows = mysql_affected_rows();
+			$resultset= mysqli_query($DBconn,$SQL);
+			$numrows = mysqli_affected_rows($DBconn);
 			if ($numrows<>1) 
 				fontprint("<br>Problem creating new record <br><br>"
 				."PLEASE CHECK YOUR INSERT RIGHT ON THE DATABASE $RODINADMIN_DBNAME WITH THE GIVEN USER",'red');			
@@ -246,8 +233,8 @@ EOP;
 						
 			//print "SQL: $SQL";			
 						
-			$resultset= mysql_query($SQL);
-			$numrows = mysql_affected_rows();
+			$resultset= mysqli_query($DBconn,$SQL);
+			$numrows = mysqli_affected_rows($DBconn);
 			if ($numrows<>1) 
 				fontprint("<br>Problem deleting record id=$ID! using ($SQL)<br><br>"
 					."PLEASE CHECK YOUR DELETE RIGHT ON THE DATABASE $RODINADMIN_DBNAME WITH THE GIVEN USER",'red');			
@@ -272,15 +259,15 @@ $SQL="
 SELECT * from administration  $USER_EINSCHRAENKUNG ORDER BY POS;
 ";
 
-		if (! $resultset= mysql_query($SQL))
+		if (! $resultset= mysqli_query($DBconn,$SQL))
 		{
 			fontprint("Problem on ($SQL)",'red');
 		}
-		$numrows = mysql_num_rows($resultset);
+		$numrows = mysqli_num_rows($resultset);
 		$start=1;
 		
 		if ($numrows)
-		while (($row = mysql_fetch_assoc($resultset)))
+		while (($row = mysqli_fetch_assoc($resultset)))
 		{	
 			$n++;
 			if ($start)

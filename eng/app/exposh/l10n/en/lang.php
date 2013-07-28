@@ -86,8 +86,8 @@ $GLOBALS['lgMap']["titleLaunchWidgetMLT"]="Search with this document";
 //SRC
 $GLOBALS['lgMap']["lblSTW"]="Economy (STW)";
 $GLOBALS['lgMap']["ttpSTW"]="Economy thesaurus from ZBW - Zentralbibliothek für Wirtschaft";
-$GLOBALS['lgMap']["lblSOZ"]="Sociology (SOZ)";
-$GLOBALS['lgMap']["ttpSOZ"]="Sociology thesaurus from ... ???";
+$GLOBALS['lgMap']["lblTHESOZ"]="Sociology (TheSOZ)";
+$GLOBALS['lgMap']["ttpTHESOZ"]="Sociology thesaurus from ... ???";
 $GLOBALS['lgMap']["lblLOCSH"]="English Subjects (LoCSH)";
 $GLOBALS['lgMap']["ttpLOCSH"]="English Subject Headings";
 $GLOBALS['lgMap']["lblRAMEAU"]="French Subjects (RAMEAU)";

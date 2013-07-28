@@ -922,9 +922,9 @@ EOQ;
 																			$subject_uid_short,
 																			$token )
 	{
-		return get_entity_infos2(	&$NAMESPACES,
+		return get_entity_infos2(	$NAMESPACES,
 															$NAMESPACES_PREFIX,
-															&$store,
+															$store,
 															$subject_uid_short,
 															$token,
 															$direct = false );

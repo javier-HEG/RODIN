@@ -54,17 +54,15 @@ function get_javiers_dbpedia_suggestions($query)
 	$suggestions = array();
 	
 	try {
-		$conn = mysql_connect($SRCDB_DBHOST, $SRCDB_USERNAME, $SRCDB_USERPASS)
-			or die("unable to connect to msql server ($SRCDB_DBHOST, $ARCDB_USERNAME, $ARCDB_USERPASS): " . mysql_error());
-		mysql_select_db($LOCAL_DBPEDIA_DB_NAME, $conn)
-			or die("unable to select database 'db': " . mysql_error());
+		$conn = mysqli_connect($SRCDB_DBHOST, $SRCDB_USERNAME, $SRCDB_USERPASS, $LOCAL_DBPEDIA_DB_NAME)
+			or die("unable to connect to msql server ($SRCDB_DBHOST, $ARCDB_USERNAME, $ARCDB_USERPASS): " . mysqli_error($conn));
 			
-		$resultset = mysql_query($mySqlQuery, $conn);
+		$resultset = mysqli_query($conn, $mySqlQuery);
 		
 		if (!$resultset) {
-	   		die("query failed: " . mysql_error());
+	   		die("query failed: " . mysqli_error($conn));
 		} else {
-			while ($row = mysql_fetch_assoc($resultset)) {
+			while ($row = mysqli_fetch_assoc($resultset)) {
 				$suggestions[] = cleanupDBPediaSyntax(urldecode(substr($row['val'], 28)));
 			}
 		}

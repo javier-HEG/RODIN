@@ -95,7 +95,7 @@ abstract class DBPengine extends SRCengine
 			$TXT=lg('ontodatasourceerror');
 			$RESPONSE=
 					"<error>"
-					."Error initializing data source - Data source may be offline or not responding ..."
+					."Error initializing data source for ontological facets engine - Data source may be offline or not responding ..."
 					."</error>";
 		}
 		else if ($timeout)

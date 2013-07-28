@@ -127,10 +127,10 @@ EOP;
 			$QUERY="ALTER TABLE src_interface ADD mode VARCHAR( 20 ) NOT NULL COMMENT 'Call mode for this SRC: direct|segmented' AFTER Type;";
 			print "<br>ADJUSTING DATABASE...";
 			print "QUERY=$QUERY";
-			$resultset= mysql_query($QUERY);
-			$numrows = mysql_affected_rows();
+			$resultset= mysqli_query($DB->DBconn,$QUERY);
+			$numrows = mysqli_affected_rows($DB->DBconn);
 			 
-			fontprint("<br>$numrows affected rows: ".mysql_error($DBconn),'red');
+			fontprint("<br>$numrows affected rows: ".mysqli_error($DB->DBconn),'red');
 			
 			exit;
 		}
@@ -208,8 +208,8 @@ EOF;
 			WHERE forRODINuser=$showuser
 			$EVT_FILTER
 EOQ;
-			$resultset= mysql_query($DUPSETQUERY);
-			$numrows = mysql_affected_rows();
+			$resultset= mysqli_query($DB->DBconn,$DUPSETQUERY);
+			$numrows = mysqli_affected_rows($DB->DBconn);
 			if ($numrows<1) 
 				fontprint("<br>Problem duplicating SRC configuration SET for user $neuenuser <br>$numrows lines affected <br><br>$DUPSETQUERY",'red');	
 			else {
@@ -224,7 +224,7 @@ EOQ;
 			$Name=$_REQUEST['Name'];
 			$UsedAsThesaurus=$_REQUEST['UsedAsThesaurus'];
 			$UsedForSubjects=$_REQUEST['UsedForSubjects'];
-			$temporarily_used=$_REQUEST['temporarily_used']; // only the user sets it by program
+			$temporarily_used=$_REQUEST['temporarily_used']; if (!$temporarily_used) $temporarily_used=0; // only the user sets it by program
 			$UsedForAutocomplete=$_REQUEST['UsedForAutocomplete'];
 			$UsedForLODRdfExpansion=$_REQUEST['UsedForLODRdfExpansion'];
 			$allow__UsedAsThesaurus=				$_REQUEST['allow__UsedAsThesaurus'];
@@ -274,9 +274,9 @@ EOQ;
 				$allow_query="SELECT allow__UsedAsThesaurus, allow__UsedForSubjects, allow__UsedForLODRdfExpansion, allow__UsedForAutocomplete
 											FROM src_interface
 											WHERE ID=$ID";
-				$resultset= mysql_query($allow_query);
+				$resultset= mysqli_query($DB->DBconn,$allow_query);
 				$allowed__UsedAsThesaurus = $allowed__UsedForSubjects = $allowed__UsedForLODRdfExpansion = $allow__UsedForAutocomplete = 0;
-				if (($row = mysql_fetch_assoc($resultset)))
+				if (($row = mysqli_fetch_assoc($resultset)))
 				{
 					foreach($row as $attr=>$value)
 					{
@@ -380,8 +380,8 @@ EOE;
 				
 				//print "<br><br>". $SQL_UPDATE;
 				
-				$resultset= mysql_query($SQL_UPDATE);
-				$numrows = mysql_affected_rows();
+				$resultset= mysqli_query($DB->DBconn,$SQL_UPDATE);
+				$numrows = mysqli_affected_rows($DB->DBconn);
 				if ($numrows<>1) 
 					fontprint("<br>Problem updating record with id=$ID<br><br>$SQL_UPDATE<br><br>",'red');	
 			}
@@ -396,8 +396,8 @@ EOE;
 				
 				//print $SQL_DUP;
 				
-				$resultset= mysql_query($SQL_DUP);
-				$numrows = mysql_affected_rows();
+				$resultset= mysqli_query($DB->DBconn,$SQL_DUP);
+				$numrows = mysqli_affected_rows($DB->DBconn);
 				if ($numrows<1) 
 					fontprint("<br>Problem duplicating records <br>$numrows lines affected <br><br>$SQL_DUP",'red');	
 				} // duplicate
@@ -411,8 +411,8 @@ EOE;
 			$uniq=uniqid();
 			$SQL="INSERT INTO src_interface 
 						() VALUES() ";
-			$resultset= mysql_query($SQL);
-			$numrows = mysql_affected_rows();
+			$resultset= mysqli_query($DB->DBconn,$SQL);
+			$numrows = mysqli_affected_rows($DB->DBconn);
 			if ($numrows<>1) 
 				fontprint("<br>Problem creating new record ",'red');			
 			
@@ -430,8 +430,8 @@ EOE;
 						
 			//print "SQL: $SQL";			
 						
-			$resultset= mysql_query($SQL);
-			$numrows = mysql_affected_rows();
+			$resultset= mysqli_query($DB->DBconn,$SQL);
+			$numrows = mysqli_affected_rows($DB->DBconn);
 			if ($numrows<>1) 
 				fontprint("<br>Problem deleting record id=$ID!<br>",'red');
 		}
@@ -482,15 +482,15 @@ SELECT * from src_interface  $USER_EINSCHRAENKUNG ORDER BY POS;
 		
 		//print "<br>SQL:$SQL";
 
-		$resultset= mysql_query($SQL);
-		$numrows = mysql_num_rows($resultset);
+		$resultset= mysqli_query($DB->DBconn,$SQL);
+		$numrows = mysqli_num_rows($resultset);
 		$start=1;
 		$FONT_TD=$FONTGUI;
 		
 		
 			
 		if ($numrows)
-		while (($row = mysql_fetch_assoc($resultset)))
+		while (($row = mysqli_fetch_assoc($resultset)))
 		{	
 			$n++;
 			###################################

@@ -82,7 +82,7 @@ $GLOBALS['lgMap']["titleLaunchWidgetMLT"]="Suchen Sie mit diesem Dokument";
 
 //SRC
 $GLOBALS['lgMap']["lableSTW"]="Wirtschaft (STW)";
-$GLOBALS['lgMap']["lableSOZ"]="Soziologie (SOZ)";
+$GLOBALS['lgMap']["lableTHESOZ"]="Soziologie (TheSOZ)";
 $GLOBALS['lgMap']["lableLOCSH"]="Englische Schlagworte (LoCSH)";
 $GLOBALS['lgMap']["lableRAMEAU"]="Französische Schlagworte (RAMEAU)";
 $GLOBALS['lgMap']["lableGND"]="Deutsche Normdatei (GND)";
