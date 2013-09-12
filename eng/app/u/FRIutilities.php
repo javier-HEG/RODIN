@@ -380,6 +380,25 @@ function is_romanic_number($txt)
 }
 
 
+/**
+ * Add $obj in $assoc under $subject
+ * SIDE EFFECT ON $assoc !
+ * @param $assoc
+ * @param $subject
+ * @param $obj 
+ */
+function add_to_assoc_uniquely(&$assoc,$subject,&$obj)
+{
+	if (($X = $assoc{$subject}))
+	{
+		$assoc{$subject} = array_unique(array_merge($X,array($obj)));
+	}
+	else // under subject there is nothing =>
+	{ 
+		$assoc{$subject} = array($obj);
+	}
+} // add_to_assocvector
+
 
 /**
  * Add $obj in $assoc under $subject
@@ -398,8 +417,6 @@ function add_to_assocvector(&$assoc,$subject,&$obj)
 	{ 
 		$assoc{$subject} = array($obj);
 	}
-	
-	
 } // add_to_assocvector
 
 
@@ -581,7 +598,7 @@ function genThumbNail($Grafikdatei, $ThumbnailBreite, $thn_Grafikdatei)
 
   
 
-function compute_sid($datasource,$remoteuser)
+function compute_sid($remoteuser)
 #############################################
 #
 # Computes a string out of
@@ -597,11 +614,11 @@ function compute_sid($datasource,$remoteuser)
 	global $RODINSEGMENT;
 	$timestamp=date("Ymd.Hi.s"); // up till seconds
 	$microsec=substr(microtime(false),2,6);
-	$timestamp.=$microsec.'.'.$RODINSEGMENT;
+	$timestamp.=$microsec.'.'.$RODINSEGMENT.'.'.$remoteuser;
 
-	return "$timestamp.$remoteuser";
+	return "$timestamp";
 
-} //compute_sid($datasource,$remoteuser)
+} //compute_sid($remoteuser)
 
 
 function limit($string,$maxSize,$points=true)
@@ -775,6 +792,10 @@ function fri_file_get_contents($url)
     }
     
 }
+
+
+
+
 
 
 
@@ -1005,11 +1026,10 @@ function get_remote_autocomplete(	$src_name,
  * 
  */
 function get_from_src_directly( $sid,
-																$max_results,
+																$m,
 																$lang,
 																$servicename,
 																$q, // query term
-
 																$src_name,
 																$mode,
 																$DISKenginePATH,
@@ -1020,7 +1040,7 @@ function get_from_src_directly( $sid,
 																$pathClass,
 																$pathSuperClass,
 																$AuthUser,
-																$AuthPasswd  )
+																$AuthPasswd )
 {
 	
 	$DEBUG=0;
@@ -1032,7 +1052,7 @@ function get_from_src_directly( $sid,
 		print "<hr>CALLING $servicename $src_name on query=($q)";
 		print "<br>using: <br>";
 		tell( "sid: $sid" );
-		tell( "max_subjects: $max_results" );
+		tell( "max_results: $m" );
 		tell( "lang: $lang" );
 		tell( "servicename: $servicename");
 		tell( "q: $q" );
@@ -1085,7 +1105,7 @@ function get_from_src_directly( $sid,
 															$vb64='',
 															$w='0',
 															$lang,
-															$max_results,
+															$m,
 															$sortrank='standard',
 															$maxdur=15,
 															$c='',
@@ -1107,15 +1127,88 @@ function get_from_src_directly( $sid,
 
 
 
+	/**
+	 * returns a diskpath of the widget described in $widget_url
+	 * considering a couple of special cases of posh
+	 * 
+	 * A widget url might be:
+	 * 
+	 * /rodin/eng/app/w/RDW_EconBiz.rodin?
+	 * /rodin/eng/app/w/RDW_EconBiz.rodin
+	 * /rodin/eng/app/w/RDW_EconBiz.php?
+	 * /rodin/eng/app/w/RDW_EconBiz.php?
+	 * http://localhost//rodin/eng/app/w/RDW_EconBiz. ...
+	 */
+	function widget_include_path($widget_url)
+	{
+		$DEBUG=0;
+		global $DOCROOT,$RODINUTILITIES_GEN_URL;
+		$diskwidget = $DOCROOT;
+
+		// try http (if any)
+		if (preg_match("/http\:\/\/(\w*)\//",$widget_url,$match))
+		{
+			if ($DEBUG) print "<br>widget_include_path($widget_url) include http://";
+			$widgethost=$match[1];
+			$diskwidget=str_replace('http://'.$widgethost,$DOCROOT,$widget_url);
+			if ($DEBUG) print "<br> diskwidget: $diskwidget";
+		}
+		if ($diskwidget==$DOCROOT)
+		{
+			$diskwidget = $DOCROOT.$widget_url;
+		}
+		
+		$diskwidget = widget_url_cleanup($diskwidget);
+		
+		if ($DEBUG) print "<br>FINAL diskwidget: $diskwidget";
+		
+		return $diskwidget;
+	} // widget_include_path
+	
+	
+
+/**
+	 * 
+	 */
+	function widget_get_class_name($widget_url)
+	{
+		$widget_url = widget_url_cleanup($widget_url);
+		$classname  = str_replace('.php','',basename($widget_url,'base')); 
+		return $classname;
+	} // widget_get_class_name
+	
+	
+	function widget_url_cleanup($url)
+	{
+		$url = str_replace('.rodin?','.php',$url);
+		$url = str_replace('.rodin&','.php',$url);
+		$url = str_replace('.php?',	'.php',$url);
+		$url = str_replace('.php&',	'.php',$url);
+		$url = str_replace('.rodin',	'.php',$url);
+		return $url;
+	}
+	
+
+
 /*
  * url: data source url to be retrieved
  * Author: Fabio Ricci for HEG
  */
-function get_cached_widget_response_curl($url, &$parameters, $options)
+function get_cached_widget_response_curl($url, &$parameters, &$options)
 {
+	$DEBUG=0;
   global $sid; // KEY for this request
   //print "get_cached_content sid: $sid";
   $cacheurl="$url?".implode('&',$parameters);
+  
+  if ($DEBUG) {
+  	print "<br>get_cached_widget_response_curl: <br>url=(($url))";
+  	print "<br>parameters:"; 
+		foreach($parameters as $par=>$val) print "<br>$par=>$val";
+  	print "<br>options:"; 
+		foreach($options as $par=>$val) print "<br>$par=>".print_r($val);
+  	print "<br>cacheurl:(($cacheurl))"; 
+	}
   list($timestamp,$cached_datasource_response) = (get_cached_response($cacheurl));
   
    if (! $cached_datasource_response)
@@ -1151,15 +1244,17 @@ function get_cached_widget_response_curl($url, &$parameters, $options)
  */
 function get_cached_widget_response($url)
 {
+	$DEBUG=0;
   global $sid; // KEY for this request
-  //print "get_cached_content sid: $sid";
- 	
-   list($timestamp,$cached_datasource_response) = get_cached_response($url);
+
+  if ($DEBUG) print "<br>get_cached_widget_response($url)"; 
+		
+  list($timestamp,$cached_datasource_response) = get_cached_response($url);
   
-   if (! $cached_datasource_response)
-   {
+  if (! $cached_datasource_response)
+  {
      //get the resonse from the data source
-     //print "CACHE CONTENT EXPIRED ... CALL AGAIIN";
+     if ($DEBIG) print "<br>CACHE CONTENT EXPIRED OR INVALID ... CALL AGAIIN";
      $timestamp=0;
      $datasource_response=get_file_content($url);
      
@@ -1479,13 +1574,12 @@ function get_cached_response_DB($url)
 
 function get_cached_response_SOLR($url)
 {
-
+	$DEBUG=0;
   global $SOLR_RODIN_CONFIG;
   global $USER;
   global $RODINSEGMENT;
   
   $CACHED_CONTENT='';
-  
   //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
   $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['host'];
   $solr_port=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['port'];
@@ -1528,7 +1622,7 @@ function get_cached_response_SOLR($url)
     
    
    $solr_sxml= simplexml_load_string($cachecontent);
-//    print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
+	if ($DEBUG)    print "<hr>SOLR_QUERY: <a href='$solr_select' target='_blank'>$solr_select</a><br>";
 //      print "<hr>FILE_CONTENT: <br>(((".htmlentities($cachecontent).")))";
 //      print "<hr>SOLR_CONTENT: <br>(((".htmlentities($solr_sxml)."))) "; var_dump($solr_sxml); exit;
 //      print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
@@ -1852,7 +1946,7 @@ function upload_text_to_SOLR($id,$k,$oldscore,$text,$collection,$sid,$user_id)
  */
 function get_solr_mlt2($mltID, $sid, $user_id, &$ranked_doc_infos, $collection, $minimumrank, $positive=true)
 {
-	$DEBUG=1;
+	$DEBUG=0;
 	global $RDFLOG;
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
@@ -2034,7 +2128,7 @@ function get_solr_mlt2($mltID, $sid, $user_id, &$ranked_doc_infos, $collection, 
  */
 function get_solr_mlt($mltID, $sid, $user_id, &$labels, $collection, $minimumrank)
 {
-	$DEBUG=1;
+	$DEBUG=0;
 	global $RDFLOG;
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
@@ -2793,6 +2887,7 @@ function make_uncache_javascript_code($txt)
 	 	parent.refreshCloudBoard('$uid');
 	 	parent.fb_updatefacettermsctxmenuitems4exwr();
 	 	parent.hide_autocomplete_bruteforce();
+	 	parent.METASEARCH_FINISHED=true;
 	 </script>
 EOS;
 	return $UNCACHE;

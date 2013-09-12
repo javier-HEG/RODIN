@@ -20,7 +20,8 @@ global $SEARCHSUBMITACTION;
 
 // Since widgets are loaded inside an iFrame, they need
 // a HTML header.
-print_htmlheader("ARXIV RODIN WIDGET");
+if (!$WEBSERVICE) {
+	print_htmlheader("ARXIV RODIN WIDGET");
 
 $searchsource_baseurl="http://export.arxiv.org/api/query?search_query=";		
 
@@ -52,19 +53,19 @@ $htmldef=<<<EOH
 	<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 add_search_control('ask','','',$htmldef,1);
-}
-
+		}
+	} // $WEBSERVICE
 /* ********************************************************************************
  * Widget functions
  ******************************************************************************* */
-
+class RDW_Arxiv {
 /**
  * 
  * This function is used to create the form for the widget preferences.
  * 
  * @author Javier Belmonte <javier.belmonte@hesge.ch>
  */
-function DEFINITION_RDW_SEARCH_FILTER() {
+public static function DEFINITION_RDW_SEARCH_FILTER() {
 	$title = "Choose in what fields to look for the query.";
 	$fields = $_REQUEST['xfields'];
 	$htmldef = <<<EOH
@@ -99,7 +100,7 @@ EOH;
  * 
  * @deprecated
  */
-function DEFINITION_RDW_DISPLAYHEADER() {
+public static function DEFINITION_RDW_DISPLAYHEADER() {
 	return true;
 }
 
@@ -107,7 +108,7 @@ function DEFINITION_RDW_DISPLAYHEADER() {
  * 
  * ... ?
  */
-function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
+public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
 	return true;
 }
 
@@ -119,15 +120,28 @@ function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
  * 
  * @param string $chaining_url
  */
-function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
+public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') 
+{
+	$DEBUG=0;
 	global $datasource;
 	global $searchsource_baseurl;
 	global $REALNAME;
 	global $RDW_REQUEST;
+	global $WEBSERVICE;
+	
+	if ($WEBSERVICE) //need to set again url:
+	{
+		$searchsource_baseurl="http://export.arxiv.org/api/query?search_query=";		
+	}
 	
 	foreach ($RDW_REQUEST as $querystringparam => $d)
-		eval( "global \${$querystringparam};" );
+	{
+		if ($WEBSERVICE) 
+				 eval( "global \${$querystringparam}; \${$querystringparam} = '$d';" );
+		else eval( "global \${$querystringparam};" );
+	}
 	
+	if ($REALNAME)
 	foreach($REALNAME as $rodin_name=>$needed_name) {
 		if ("${$rodin_name}" <> '') // only if value defined
 			$FILTER_SECTION .= "&$needed_name=${$rodin_name}";
@@ -141,7 +155,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	foreach ($qTokens as $token) {
 		$token = trim($token);
 		if ($token != '') {
-			$parameters .= $searchInFields . ':' . rawurlencode($token) . '+AND+)';
+			$parameters .= ($searchInFields?$searchInFields.':':'')  . rawurlencode($token) . '+AND+)';
 		}
 	}
 	$parameters = substr($parameters, 0, strlen($parameters)-5); // Delete last +AND+
@@ -186,7 +200,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 			$categoryElements = $entry->find('category');
 			if (count($categoryElements) > 0) {
 				foreach ($categoryElements as $category) {
-					$categoryArray[] = decodeCategory($category->getAttribute('term'));
+					$categoryArray[] = RDW_Arxiv::decodeCategory($category->getAttribute('term'));
 				}
 			}
 			$singleResult->setProperty('keywords', implode(', ', $categoryArray));
@@ -209,7 +223,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
  * 
  * ... ?
  */	
-function DEFINITION_RDW_STORERESULTS()
+public static function DEFINITION_RDW_STORERESULTS()
 {
 	return true; // nothing to do here
 }
@@ -219,7 +233,7 @@ function DEFINITION_RDW_STORERESULTS()
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -234,7 +248,7 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
  * Called from RodinWidgetSMachine.RDW_SHOWRESULT_FULL_EPI(), it is asked
  * to print the HTML code corresponding to results.
  */
-function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -248,7 +262,7 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 /* ********************************************************************************
  * Utility functions, mainly widget independent.
  ******************************************************************************* */
-function decodeCategory($category) {
+private static function decodeCategory($category) {
 	switch ($category) {	
 		case 'stat.AP': return 'Statistics (Applications)';
 		case 'stat.CO': return 'Statistics (Computation)';
@@ -381,7 +395,7 @@ function decodeCategory($category) {
 	}
 }
 
-
+} // RDW_Arxiv
 /* ********************************************************************************
  * Decide which function the state machine is on.
  ******************************************************************************* */

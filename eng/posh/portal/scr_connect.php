@@ -24,10 +24,12 @@
 # !! be careful, this file must be saved under uft8 format, and display an e accentuated here : é
 # ***************************************
 
-$user = (isset($_POST["u"])) ? $_POST["u"]
-                             :exit();
-$password = (isset($_POST["pass"])) ? $_POST["pass"]
-                                    : exit();
+$user = (isset($_POST["u"])) ? $_POST["u"]: exit();
+$password = (isset($_POST["pass"])) ? $_POST["pass"]: exit();
+
+// //test
+// $user='rodinuser_http@xxx.ch';
+// $password='rodinuser';
 
 $folder     = "";
 $not_access = 0;
@@ -35,10 +37,13 @@ $isScript   = true;
 $isPortal   = false;
 $pagename   = "portal/scr_connect.php";
 //includes
+
 require_once('includes.php');
 require_once('../../app/exposh/l10n/'.__LANG.'/lang.php');
 require_once('../includes/authentification.inc.php');
 require_once('../includes/xml.inc.php');
+
+
 
 if (user_login($user,$password,false,$user,$errormsg))
 {

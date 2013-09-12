@@ -44,8 +44,8 @@ abstract class SRCengine implements SRCEngineInterface {
 	{
 		global $TERM_SEPARATOR;
 		global $SPARQL_LIMIT_RESULTS;
-		global $VERBOSE;
-		global $SRCDEBUG;
+		global $VERBOSE; 
+		global $SRCDEBUG; 
 		global $SOLRCLIENT;
 		$this->term_separator = $TERM_SEPARATOR;
 		$this->verbose = $VERBOSE;

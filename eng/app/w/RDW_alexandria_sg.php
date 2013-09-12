@@ -2,8 +2,6 @@
 include_once("../u/RodinWidgetBase.php");
 require_once '../u/RodinResult/RodinResultManager.php';
 
-print_htmlheader("ALEXANDRIA RODIN WIDGET");
-
 global $SEARCHSUBMITACTION;
 
 $searchsource_uri = "$WEBROOT$RODINU/xmlsearch.php";
@@ -14,10 +12,18 @@ $basedatadir = "$RODINBASEDATADIR/alexsg";
 $widget_icon_width = 55;
 $widget_icon_height = 20;
 
-$ALEX_SG_URL = array('alexpub_en_MCM.xml' => 'http://www.alexandria.unisg.ch/EXPORT/XML/Publikationen/de/MCM.xml',
-	'alexproj_en_MCM.xml' => 'http://www.alexandria.unisg.ch/EXPORT/XML/Projekte/en/MCM.xml');
+$ALEX_SG_URL = array('alexpub_en_MCM.xml' => 'https://www.alexandria.unisg.ch/EXPORT/XML/Publikationen/de/MCM.xml',
+	'alexproj_en_MCM.xml' => 'https://www.alexandria.unisg.ch/EXPORT/XML/Projekte/en/MCM.xml');
 
+#The following tells the widget state machine to check
+#once for internet connection and warn if no one found
+#(timeout) before collecting results
+$NEED_PHP_INTERNET_ACCESS=false;
 
+if (!$WEBSERVICE)
+{
+	print_htmlheader("ALEXANDRIA RODIN WIDGET");
+	
 ##############################################
 # HTML SEARCH CONTROLS:
 ##############################################
@@ -54,12 +60,15 @@ EOH;
 add_search_control('ask','','',$htmldef,1);
 }
 ##############################################
+} // WEBSERVICE
 
 
 
+
+class RDW_alexandria_sg {
 ##############################################
 ##############################################
-function DEFINITION_RDW_SEARCH_FILTER()
+public static function DEFINITION_RDW_SEARCH_FILTER()
 ##############################################
 ##############################################
 {
@@ -195,7 +204,7 @@ EOH;
 	
 	#######################################
 	// How old is the archive on which the Widget relies?
-	$min_mtime = get_alex_sg_lastupdate();
+	$min_mtime = RDW_alexandria_sg::get_alex_sg_lastupdate();
 	$last_update_date = date ("d.m.Y H:i:s", $min_mtime);
 	$delta_ms = time() - $min_mtime;
 	$delta_days=round($delta_ms / (60 * 60 * 24),0);
@@ -221,7 +230,14 @@ EOH;
 		<label $LABELSTYLEINVISIBLE>$LABELTEXT</label>&nbsp;
 		<label name="$UPDATELABELID2" id="$UPDATELABELID2">$DAYSOLD</label>
 		<br><input name="$AXSG_BUTTON_ID" type="button"
-		 onclick="if (confirm('All catalogues of Alexandria UNI S.Gallen are now downloaded (ca. 5sec time)'))  {this.style.disabled=true;var dateupd = performRequest('$thisSCRIPT', '$dwnl_params'); this.style.background='$BUTTON_BACKGROUNDCOLOR_GREEN';} this.style.disabled=false;document.getElementById('$UPDATELABELID').innerHTML=dateupd;document.getElementById('$UPDATELABELID2').innerHTML='Up to date'; return false;"
+		 onclick="if (confirm('All catalogues of Alexandria UNI S.Gallen are now downloaded (ca. 5sec time)'))  
+	 						{ this.style.disabled=true;
+	 							var dateupd = performRequest('$thisSCRIPT', '$dwnl_params'); 
+	 							this.style.background='$BUTTON_BACKGROUNDCOLOR_GREEN'; } 
+ 							this.style.disabled=false;
+ 							document.getElementById('$UPDATELABELID').innerHTML=dateupd;
+ 							document.getElementById('$UPDATELABELID2').innerHTML='Up to date'; 
+ 							return false;"
 		 value=" Update catalogue "
 		 title='$DWN_TITEL'
 		 $DWN_STYLE_X/>
@@ -245,7 +261,7 @@ EOH;
 
 ##############################################
 ##############################################
-function DEFINITION_RDW_DISPLAYHEADER()
+public static function DEFINITION_RDW_DISPLAYHEADER()
 ##############################################
 ##############################################
 {
@@ -263,7 +279,7 @@ function DEFINITION_RDW_DISPLAYHEADER()
 
 ##############################################
 ##############################################
-function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
+public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
 ##############################################
 ##############################################
 {
@@ -279,7 +295,7 @@ function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
 
 ##############################################
 ##############################################
-function DEFINITION_RDW_DOWNLOAD()
+public static function DEFINITION_RDW_DOWNLOAD()
 ##############################################
 ##############################################
 #
@@ -287,6 +303,7 @@ function DEFINITION_RDW_DOWNLOAD()
 # Performs the download and returns the date
 #
 {
+	$DEBUG=1;
 	global $basedatadir;
 	global $ALEX_SG_URL;
 	date_default_timezone_set('Europe/Rome');
@@ -300,7 +317,11 @@ function DEFINITION_RDW_DOWNLOAD()
 			$xml = get_file_content($url);
 			// save onto $datadir
 			$filename="$basedatadir/$docname";
-			//print "<br>try to update $filename";
+			if ($DEBUG)
+			{
+				print "<br>Alexandria: trying to open ($docname) with $url";
+				print "<br>Alexandria: trying to update $filename";
+			}
 			try {
 				$f = fopen($filename,'w');
 
@@ -336,10 +357,6 @@ function DEFINITION_RDW_DOWNLOAD()
 } //DEFINITION_RDW_DOWNLOAD
 
 
-#The following tells the widget state machine to check
-#once for internet connection and warn if no one found
-#(timeout) before collecting results
-$NEED_PHP_INTERNET_ACCESS=false;
 
 
 /**
@@ -350,17 +367,31 @@ $NEED_PHP_INTERNET_ACCESS=false;
  * 
  * @param string $chaining_url
  */
-function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
+public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') 
+{
+	$DEBUG=0;
 	global $datadir;
 	global $datasource;
 	global $searchsource_uri;
 	global $REALNAME;
 	global $RDW_REQUEST;
-
-	foreach ($RDW_REQUEST as $querystringparam => $d) {
-		eval( "global \${$querystringparam};" );
+	global $WEBROOT,$RODINU;
+	global $WEBSERVICE;
+		
+	if ($WEBSERVICE) //need to set again url:
+	{
+		$searchsource_uri = "$WEBROOT$RODINU/xmlsearch.php";
 	}
 
+	foreach ($RDW_REQUEST as $querystringparam => $d)
+	{
+		if ($DEBUG) print "<br>RDW_REQUEST eval $querystringparam => $d";
+		if ($WEBSERVICE) 
+				 eval( "global \${$querystringparam}; \${$querystringparam} = '$d';" );
+		else eval( "global \${$querystringparam};" );
+	}
+
+	if ($REALNAME)
 	foreach ($REALNAME as $rodin_name => $needed_name) {
 		if ("$rodin_name" != '' && $rodin_name != "xi") {
 			$FILTER_SECTION .= "&$needed_name=${$rodin_name}";
@@ -382,18 +413,18 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
 	if (!strstr($FILTER_SECTION, "creator_par_institute"))
 		$FILTER_SECTION.="&creator_par_institute=";
 	
-	$base = "alexsg";
-	switch ($xp) {
+		$base='alexsg';
+		switch ($xp) {
 		case'publications':
 			$sourceToLook['publications'] = "$base/alexpub_en_MCM.xml";
 			break;
 		case'projects':
-			$sourceToLook['projects'] = "$base/alexproj_en_MCM.xml";
+			$sourceToLook['projects'] = "$base/alexproj_en_MCM.mxl";
 			break;
 		case'both':
 		default:
 			$sourceToLook['publications']="$base/alexpub_en_MCM.xml";
-			$sourceToLook['projects']="$base/alexproj_en_MCM.xml";
+			$sourceToLook['projects']="$base/alexproj_en_MCM.mxl";
 			break;
 	}
 
@@ -404,7 +435,6 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
 		$parameters = "q=" . urlencode($q) . "&m=$m" . "&source=$xmlsource" . $FILTER_SECTION;
 		$url = "$searchsource_uri?$parameters";
 		
-                //$xmlContent = get_file_content($url);
 		list($timestamp,$xmlContent) = get_cached_widget_response($url);
 
     $xml = str_get_html($xmlContent);
@@ -605,7 +635,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
  * 
  * ... ?
  */	
-function DEFINITION_RDW_STORERESULTS()
+public static function DEFINITION_RDW_STORERESULTS()
 {
 	return true; // nothing to do here
 }
@@ -615,7 +645,7 @@ function DEFINITION_RDW_STORERESULTS()
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -630,7 +660,7 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
  * Called from RodinWidgetSMachine.RDW_SHOWRESULT_FULL_EPI(), it is asked
  * to print the HTML code corresponding to results.
  */
-function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
 	global $slrq;
@@ -644,7 +674,7 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 /* ******************************************
  * Utility functions, widget dependent.
  ****************************************** */
-function get_alex_sg_lastupdate() {
+private static function get_alex_sg_lastupdate() {
 	global $datadir;
 	global $ALEX_SG_URL;
 	global $basedatadir;
@@ -655,10 +685,8 @@ function get_alex_sg_lastupdate() {
 	foreach($ALEX_SG_URL as $docname=>$url)
 	{
 		$filename="$basedatadir/$docname";
-
 		if (file_exists($filename))
 		{
-
 			$mtime=filemtime($filename);
 			if ($mtime < $min_mtime)
 				$min_mtime = $mtime;
@@ -673,7 +701,8 @@ function get_alex_sg_lastupdate() {
  * Decide which function the state machine is on.
  ******************************************************************************* */
 
+} // class 
+ 
 include_once("../u/RodinWidgetSMachine.php");
 
 ?>
-

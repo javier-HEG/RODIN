@@ -575,19 +575,14 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 
     }
 
-    //Limit found descriptors to exactely to $m
-    array_splice($BROADER_DESC,$m);
-		array_splice($NARROWER_DESC,$m);
-		array_splice($RELATED_DESC,$m);
-
-		if ($this->getSrcDebug())
-    {
-    		print "<br><br>DESCRIPTORS:";
-				print "<br>--broaders: ";var_dump($BROADER_DESC);print "<br>";
-				print "<br>--narrowers: ";var_dump($NARROWER_DESC);print "<br>";
-				print "<br>--related: ";var_dump($RELATED_DESC);print "<br>";
-		}
-
+    //make found descriptors unique:
+    $BROADER_DESC = array_unique($BROADER_DESC);
+    $NARROWER_DESC = array_unique($NARROWER_DESC);
+		$RELATED_DESC = array_unique($RELATED_DESC);
+		//DO NOT CUT NOW, since for some desc, some label might not be found
+		//array_splice($RELATED_DESC,$m);
+		//array_splice($BROADER_DESC,$m);
+    //array_splice($NARROWER_DESC,$m);
 
     // Processing... resolving descriptors... all at once
 
@@ -613,22 +608,16 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
     {
       $NoOfFoundDocs=count($returndocument);
       
-      print "<br><br>get_soz_skosxl_nodes_SOLR(): $NoOfFoundDocs node return documents: "; var_dump($returndocument);print "<br>";
+      print "<br><br>$NoOfFoundDocs node return documents: "; var_dump($returndocument);print "<br>";
     
       print "<br>in get_stw_skos_nodes_SOLR():";
-			print "<br>ID: $ID";
-			print "<br>ID0: $ID0";
-			print "<br>LABEL0: $LABEL0";
-			print "<br>ID1: $ID1";
-			print "<br>LABEL1: $LABEL1";
-			print "<br>mode: $mode";
-			
       print "<br>prepared BROADER_LABELS:<br>"; var_dump($BROADER_LABELS);
       print "<br>prepared NARROWER_LABELS:<br>"; var_dump($NARROWER_LABELS);
       print "<br>prepared RELATED_LABELS:<br>"; var_dump($RELATED_LABELS);
       
       print "<br>ROOT ID: $ID0=$LABEL0, $ID1=$LABEL1";
-	    } 
+
+    } 
   
     if ($mode=='web')
 		{
@@ -683,14 +672,17 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
   }
 
 
-   /*
+ /**
  * Returns a triples of array of ranked labels
+ * ATTENTION: This method CUT &$BROADER_DESC,&$NARROWER_DESC,&$RELATED_DESC to max $m elements
+ * after having found labels
  */
   private function resolve_skosxl_soz_descriptors(&$BROADER_DESC,&$NARROWER_DESC,&$RELATED_DESC,$m,$lang='en')
   {
     //Merge each descriptor in one array:
     $descriptors=  array_merge($BROADER_DESC,$NARROWER_DESC,$RELATED_DESC);
-    $descriptors_count=count($descriptors);    
+		$max_m = $m * 4; // sum of broaders/narrowers/related + same terms in thesaurus
+    $descriptors_count= min(count($descriptors),$max_m); // limit the retrieval in SOLR to $m labels max
     
     if ($descriptors_count==0)
     {
@@ -771,12 +763,12 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
           print "<br>fieldquery: (($disjunction))";
           print "<br>FIELDS for language=$lang: <br>";
           var_dump($FIELDS);
-          print "<br>$noofresults results found for query in THESOZ: <br>";
+          print "<br>$noofresults results found for query: <br>";
           var_dump($resultset);
           print "<br>";
         }
 
-
+      	$processed_docs=0;
         foreach ($resultset as $document) 
         {
           foreach($document AS $fieldname => $value)
@@ -784,23 +776,24 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
             switch($fieldname)
             {
               case $NEEDED_FIELD:
-                $label = is_array($value)?$value[0]:$value; // take always the first one
+              	$label = trim(is_array($value)?$value[0]:$value); 
                 break;
               case 'id':
                 $id=$value;
-								if ($this->getVerbose())
-								{
-									print "<br>ID: $id";
-								}
             }  
           } // each fieldname
-          $descriptor_label{$id}=cleanup_comma_in_descr_label($label); // right label to right id
-        } // foreach $document
+					if ($label)
+					{
+			      $descriptor_label{$id}=cleanup_comma_in_descr_label($label); // right label to right id
+			      $processed_docs++;
+						if ($processed_docs >= $max_m) 
+						{
+							//print "<br>BREAKING LABELING at $processed_docs >= $m";
+							break;
+						}
+					}        
+				} // foreach $document
       } // $SOLRCLIENT
-
-      /* ATTENTION: IS THE SEQUENCE OF RESULTS THE SAME OF THE DISJUNCTION????? */
-
-      /* TO PROOF: $labels and $descriptors are ALWAYS corresponding */
 
       if ($this->getSrcDebug())
       {
@@ -813,29 +806,67 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
         print "<br>SHOWING $labelcount lables ...";
 
         foreach($descriptor_label as $desc=>$label)
-        {
-           print "<br> found $label for $desc";
-
-           if (in_array($desc, $BROADER_DESC))
-                   print " (broader)";
-           else 
-           if (in_array($desc, $NARROWER_DESC))
-                   print " (narrower)";
-           else 
-           if (in_array($desc, $RELATED_DESC))
-                   print " (related)";
-        }
+	      {
+	         print "<br> found ".(++$l)." $label for $desc";
+	         
+	         if (in_array($desc, $BROADER_DESC))
+	                 print " (broader)";
+	         else 
+	         if (in_array($desc, $NARROWER_DESC))
+	                 print " (narrower)";
+	         else 
+	         if (in_array($desc, $RELATED_DESC))
+	                 print " (related)";
+	      }
       } // debug output
 
       /* reconstruct vectors to give them back as they where: */
+  	  /* cut also the DESCRIPTORS HERE to $m each, that we have the labels */
       /* at this stage we should rank */
       $RANK=100;
-      foreach($BROADER_DESC as $desc)
-        $BROADER_LABELS{$descriptor_label{$desc}}=$RANK;;
-      foreach($NARROWER_DESC as $desc)
-        $NARROWER_LABELS{$descriptor_label{$desc}}=$RANK;;
-      foreach($RELATED_DESC as $desc)
-        $RELATED_LABELS{$descriptor_label{$desc}}=$RANK;;
+      
+			$b=0;
+	    foreach($BROADER_DESC as $desc)
+			{
+				if (($L = $descriptor_label{$desc})) // not null
+				{
+					$b++;
+					//print "<br>$b broader take: $desc -> $L";
+		      $BROADER_LABELS{$L}=$RANK;
+					$NEW_BROADER_DESC[]=$desc;
+					if ($b > $m) break;
+				}
+			}
+			
+			$n=0;
+	    foreach($NARROWER_DESC as $desc)
+	    {
+	    	if (($L = $descriptor_label{$desc})) // not null
+				{
+					$n++;
+					//print "<br>$n narrower take: $desc -> $L";
+	      	$NARROWER_LABELS{$L}=$RANK;
+	      	$NEW_NARROWER_DESC[]=$desc;
+					if ($n > $m) break;
+				}
+			}
+			
+			$r=0;
+	    foreach($RELATED_DESC as $desc)
+			{
+				if (($L = $descriptor_label{$desc})) // not null
+				{
+					$r++;
+					//print "<br>"$r related take: $desc -> $L";
+	      	$RELATED_LABELS{$L}=$RANK;
+	      	$NEW_RELATED_DESC[]=$desc;
+					if ($r > $m) break;
+	      }
+			}
+			$BROADER_DESC = $NEW_BROADER_DESC;
+			$NARROWER_DESC = $NEW_NARROWER_DESC;
+			$RELATED_DESC = $NEW_RELATED_DESC;
+
 
       if ($this->getSrcDebug())
       {
@@ -913,7 +944,7 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
           print "<br>fieldquery: ((id:$descriptor))";
           print "<br>FIELDS for language=$lang: <br>";
           var_dump($FIELDS);
-          print "<br>$noofresults results found for query in THESOZ: <br>";
+          print "<br>$noofresults results found for query: <br>";
           var_dump($resultset);
           print "<br>";
         }
@@ -923,6 +954,7 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
         {
           foreach($document AS $fieldname => $value)
           {
+
             switch($fieldname)
             {
               case $NEEDED_FIELD:
@@ -943,7 +975,7 @@ private function get_soz_skosxl_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 
       if ($this->getSrcDebug())
       {
-        print "<br><br>in walk_stw_root_path($descriptor): $preflabel";
+        print "<br>in walk_stw_root_path($descriptor): $preflabel";
         print "<br>prepared BROADER_DESCR:<br>"; var_dump( $broader ) ;
       } 
 

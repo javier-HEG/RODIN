@@ -1,0 +1,341 @@
+/**
+ * FILE: rodinelib.css
+ * AUTHOR: fabio.ricci@semweb.ch (tel. +41-76-5281961)
+ * CREATION DATE: August 2013
+ */
+
+div#rodin_main_column table {
+	background-color: rgb(247, 247, 247);
+
+}
+
+.resthumbnail td.article {
+	background: url(../img/article.png) no-repeat 0px 0px; cursor: pointer;
+	width:70px;
+	padding-top: 70px;
+	padding-bottom: 0;
+	text-align:center;
+}
+
+tr.whitespace {
+	height:4px;
+	background-color:white;
+}
+td.whitespace {
+	line-height:0px;
+	padding: 4px;
+}
+
+td.resultnumber {
+	padding-left:2px;
+	padding-top: 8px;
+}
+
+td label.score {
+	font-size: x-small;
+	color: #aaa;
+}
+
+
+td.elibrestitle {
+	font-size: 19px;
+	line-height:21px;
+}
+
+
+
+
+td.elibresauth,
+td.elibresdate
+{
+	padding: 3px;
+}
+
+td.elibreshiddenabstract {
+	display: none;
+	visibility:hidden;
+}
+
+td.elibresvisibleabstract {
+	display: table-cell;
+	visibility: visible;
+	padding:3px;
+}
+
+div#buttonshapezoom {
+	width:18px;
+	height:18px;
+	background-color:yellow;
+}
+
+img#whitebuttonimg {
+	width:20px; 
+	height=17px;
+} 
+
+
+a#zoomcontrol {
+	font-size: 20px;
+	position: relative;
+	top: -40px;
+	display: block;
+}
+
+a#zoomcontrol.showingAbstracts {
+	background: url('../../../../gen/u/images/button-all-normal.png'); 
+	background-size:18px 18px;
+	background-position:right;
+	background-repeat:no-repeat;
+}
+
+a#zoomcontrol.showingAbstracts:hover {
+	background: url('../../../../gen/u/images/button-min-hover.png'); 
+	background-size:18px 18px;
+	background-position:right;
+	background-repeat:no-repeat;
+}
+
+
+a#zoomcontrol.hidingAbstracts {
+	background: url('../../../../gen/u/images/button-min-normal.png'); 
+	background-size:18px 18px;
+	background-position:right;
+	background-repeat:no-repeat;
+}
+
+a#zoomcontrol.hidingAbstracts:hover {
+	background: url('../../../../gen/u/images/button-all-hover.png'); 
+	background-size:18px 18px;
+	background-position:right;
+	background-repeat:no-repeat;
+}
+
+h1.maintitle {
+	float: left;
+	width: 25%;
+	margin-right: 5px;
+}
+
+div#filter_notifications {
+	float: left;
+	background-color: #eee;
+	min-width:53%;
+	padding: 10px;
+}
+
+
+table.onotification {
+	visibility:hidden;
+	margin-left: 18px;
+	width: auto;
+}
+
+table.onotification.visible {
+	background-color: #F7F7F7;
+	visibility:visible;
+	width: 93%;
+}
+
+
+a#anotifaction {	
+}
+
+a#anotifaction label#lonotification {
+}
+
+tr.whitetr {
+	height:5px;
+}
+td.whitetd {
+	background-color:white;
+	padding:0;
+	margin:0;
+}
+
+tr.wnotification,
+tr.onotification {
+	
+}
+
+td.onotification,
+td.wnotification {
+	 padding-left: 10px;
+}
+
+div#rodin_top_header {
+	height: 40px;
+}
+
+div#rodin_header {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	height: 40px;
+}
+
+div#rodin_left_column {
+	/*background-color: #FF9900;*/
+	float: left;
+	width: 25%;
+	padding-right:5px;
+	/*background-color: #c00;	*/
+}
+div#facetBoardContent {
+	width:100%;
+}
+
+table.tableA {
+}
+table.tableB {
+}
+table.tableC {
+	width:100%;	
+}
+table.tableD {
+    max-width: 218px;
+    min-width: 218px;
+}
+
+div#rodin_content {
+	
+}
+
+div#rendered_rodinelib {
+	
+}
+
+div#rodin_main_column {
+	/*background-color:#148CD2;*/
+	float: left;
+	width: 55%;
+	min-width: 55%;
+	max-width: 55%;
+	height:100%;
+}
+
+div#rodin_right_column {
+	float: left;
+	width: 20%;
+	/* background-color: blue; */
+}
+
+
+td.fb,
+td.onoff {
+	padding: 0px;
+	white-space:nowrap;
+	max-width: 225px;
+}
+
+td.icons {
+	text-align:right;
+}
+
+
+td.wdocaction {
+	white-space: nowrap;
+}
+
+td.wdocaction:hover {
+	color:#c00;
+	cursor:pointer;
+}
+
+
+div#elib_tooltip {
+	background-color: white;
+	border: 1px solid #ddd;
+	border-radius: 6px 6px 6px 6px;
+	opacity: 0.95;
+	display: block;
+	position: absolute;
+	padding: 3px;
+	min-width: 1px;
+	max-width: 43%;
+	min-height: 1px;
+	z-index: -1;
+	float: left;
+	visibility: hidden;
+	padding: 5px;
+}
+
+div#elib_tooltip.monoline {
+	white-space:nowrap;
+}
+
+div#elib_tooltip.multiline {
+	min-width: 40%;
+}
+
+div#elib_tooltip.pinned {
+	border: 1px solid black;
+}
+
+table.ttp {
+padding:0;
+}
+
+tr.ttp {
+	height:16px;
+}
+
+/*Space filter icons untereinander: */
+td.ttpi {
+	padding: 0 5px 0 0;
+	margin:0;
+}
+td.ttpi.hidden {
+	visibility:hidden;
+	display:none;
+}
+
+/*Space toolbox icons untereinander: */
+td.ttpit {
+	padding: 0 2px 0 0;
+	margin:0;
+}
+td.ttpit img#close {
+	position: relative;
+  top: 1px;
+}
+
+td.ttp {
+	padding:0;
+	margin:0;
+	width: 100%;
+	/*white-space:nowrap;*/
+}
+
+table.ttpleft {
+	width:auto;
+}
+ 
+td.ttpleft {
+    padding-bottom: 0;
+    padding-right: 15px;
+    padding-top: 1px;
+}
+
+td.ttpright {
+	  padding: 1px 0 0;
+	  float: right;
+}
+
+div#elib_tooltip.multiline td.ttp {
+	width: 100%;
+}
+div#elib_tooltip.monoline td.ttp {
+	width: 1px;
+}
+
+
+
+label#ttp.ttp {
+	border-radius: 2px 2px 2px 2px;
+}
+
+.clearfix {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+}

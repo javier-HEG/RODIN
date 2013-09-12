@@ -1,0 +1,720 @@
+/* CSS file for Rodin's control boards */
+/* PARAMETRIZED BY FABIO RICCI */
+/* ADJUST rodinBoards.css.php !!!! */
+
+/******************************/
+/* Global to all Rodin boards */
+/******************************/
+div.singleRodinBoard {
+	width: <?php print $FACETBOARDMINWIDTH_PX; ?>;
+	position:relative;	
+	margin-bottom: 6px;
+	overflow: hidden;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND; ?>;
+	border: 3px solid <?php print $COLOR_BORDERLINE; ?>;
+	font-size: 12px;
+}
+
+div.rodinBoardTitleBar {
+	padding-left: 6px;
+	padding-bottom: 2px;
+	vertical-align: middle;
+}
+
+div.rodinBoardTitleBar img.rodinBoardTitleImage {
+	height: 15px;
+	margin-right: 2px;
+	vertical-align: middle;
+}
+
+div.rodinBoardTitleBar img.toggleBoardIcon {
+	float: right;
+	cursor: pointer;
+	padding: 4px 2px 0px 2px;
+}
+
+div.rodinBoardTitleBar span.rodinBoardTitleLabel {
+	font-size: 13px;
+	font-family:"Arial";
+}
+
+div.allBoards div.collapsedContent 
+{
+	display: none;
+	visibility: hidden;
+}
+
+div.rodinBoardTitleBar
+{
+	cursor:pointer;
+}
+
+div.singleRodinBoard div.boardConfiguration {
+    overflow: hidden;
+	background-color: <?php print $COLOR_BORDERLINE; ?>;
+	padding-top: 2px;
+}
+
+div.singleRodinBoard div.boardConfiguration select {
+	vertical-align: middle;
+	display: inline;
+	font-size: 12px;
+}
+
+div.singleRodinBoard div.boardConfiguration input {
+	vertical-align: middle;
+	display: inline;
+	font-size: 12px;
+}
+
+div.singleRodinBoard div.boardConfiguration label {
+	vertical-align: middle;
+	display: inline;
+	font-size: 12px;
+}
+
+div.singleRodinBoard div.boardConfiguration button {
+	vertical-align: middle;
+	display: inline;
+}
+
+div.singleRodinBoard div.boardConfiguration img {
+	vertical-align: middle;
+	display: inline;
+}
+
+/*******************/
+/* Add Widget only */
+/*******************/
+div#addWidgetBoard div.menuitemcontent {
+	font-size: 0.85em;
+	font-weight: bold;
+	color: <?php print $COLOR_BLACK; ?>;
+}
+
+div#addWidgetBoard div.menuitemcontent a:visited {
+	color: <?php print $COLOR_BLACK; ?>;
+}
+
+div#addWidgetBoard div.menuitemcontent a:hover {
+	text-decoration: none;
+}
+
+
+td.fb.icons.hidden {
+	visibility: hidden;
+	display: none;
+}
+
+td.fb.icons.visible {
+	visibility: visible;
+	display:table-cell;
+}
+
+
+
+/*All icons the same dimensions: */
+img.ontofacetterm,
+img.ontofacetterm4exwr,
+img.ttp
+{
+	cursor:pointer;
+	width:16px;
+}
+
+/*Extra for ontofacetterm: */
+img.ontofacetterm,
+img.ontofacetterm4exwr
+{
+	vertical-align:top;
+	cursor:pointer;
+}
+
+
+
+img.ontofacetterm.hidden
+{
+	display:none;
+	visibiliy:hidden;
+}
+
+
+
+
+/******************/
+/* Tag cloud only */
+/******************/
+div#cloudBoard div#cloudBoardTags {
+	padding: 4px;
+	text-align: center;
+}
+
+div#cloudBoard ul {
+	text-align: left;
+	list-style: none;
+	margin: 0px;
+	padding: 0px 0px 6px 4px;
+}
+
+div#cloudBoard a.cloudTag {
+	cursor: pointer;
+	border-radius: 6px 6px 6px 6px;
+    padding: 2px 4px;
+    background: none;
+    vertical-align: middle;
+}
+
+div#cloudBoard a.color0 {
+	color: <?php print $COLOR1_TAGCLOUD; ?>;
+}
+
+div#cloudBoard a.color1 {
+	color: <?php print $COLOR2_TAGCLOUD; ?>;
+}
+
+div#cloudBoard a.cloudTag:hover {
+	
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	text-decoration: none;
+}
+
+/*******************************/
+/* Only for ontological facets */
+/*******************************/
+div.singleRodinBoard div.boardConfiguration input#ontofacet_center {
+	width: 212px;
+	margin-right: 2px;
+}
+
+div#fb_itemname {
+	position:relative;
+	border-style:hidden;
+	border-width:thin;
+}
+
+.fb_expander-uninit {
+	text-align:left;
+}
+
+.fb-expander {
+	/*background-image:url(<?php print $RODINIMAGESURL; ?>/icon_collapsed_black_h12.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	text-align:left;*/
+	width: 0px;
+	display: none;
+	visibility:hidden;
+}
+
+.fb-expander-temp-off
+{
+	
+}
+
+
+.fb-collapser {
+	/*background-image:url(<?php print $RODINIMAGESURL; ?>/icon_expanded_black_w12.png); 
+	background-repeat:no-repeat;
+	background-position:center;*/
+	width: 0px;
+	display: none;
+	visibility:hidden;
+	padding: 0px;
+}
+
+.facetboard-container {
+	overflow-x:auto;
+	overflow-y:auto;			
+}
+
+.facetcontrol-normal,
+.facetcontrol-active {
+	padding-top: 2px;
+	padding-bottom: 0px;
+	padding-left: 0px;
+	padding-right: 0px;
+	border-top: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+	/*padding-left: 4px;*/
+	/*background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
+	position: relative;	
+	text-align: left;
+	white-space:nowrap;
+}
+
+.facet-result-count {
+    font-size: 10px;
+    font-style: italic;
+    font-weight: normal;
+    padding-right: 6px;
+    text-align: right;
+    vertical-align:top;
+    color: darkgray;
+    padding: 0px;
+    padding-right: 4px;
+}
+
+.facetcontrol-active {
+	border-top-color:#FFF;
+	border-top-style:solid;
+	border-top-width:thin;
+	border-left-color:#FFF;
+	border-left-style:solid;
+	border-left-width:thin;
+	border-bottom-color:#AAA;
+	border-bottom-style:solid;
+	border-bottom-width:thin;
+	padding:0px;
+}
+
+.facetcontrol-td-uninit {
+	font-family:"Arial";
+	font-size: medium; /*like portaneo widgetmenu */
+	font-weight:bold;
+	font-weight:lighter;
+	text-align:left; 
+	color:<?php print $COLOR_LITTLEVISIBLETEXT; ?>;
+	white-space: nowrap;
+	padding: 0px;
+}
+
+
+.cached 
+{
+  font-style: italic;
+  color:#669ad7 ;
+}
+  
+.facetcontrol-td {
+	padding-top: 2px;
+	font-family:"Arial";
+	font-size:14px;
+	font-weight:bold;
+	text-align:left; 
+	white-space: nowrap;
+	padding: 0px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+
+.facetcontrol-td-error, 
+.facetcontrol-td-timeout {
+	color:<?php print $COLOR_WARNINGS; ?>;
+	font-family:"Arial";
+	font-size: medium; /*like portaneo vidgetmenu */
+	font-weight:bold;
+	text-align:left; 
+	white-space: nowrap;
+}
+
+
+.facetcontrol-td-temp-off {
+	color:<?php print $COLOR_ONTOFACET_TEMPOFF; ?>;
+	font-family:"Arial";
+	font-weight:bold;
+	text-align:left; 
+	white-space: nowrap;
+}
+
+.facetgroup-header-broader {
+	padding-top: 0px;
+	padding-left: 2px;
+	border-style:hidden;
+	/*background-color: white;*/
+	position:relative;
+	display:none;
+	visibility:hidden;
+}
+
+.facetgroup-header-narrower, 
+.facetgroup-header-related 
+{
+	padding-top: 4px;
+	padding-left: 2px;
+	border-style:hidden;
+	/*background-color: white;*/
+	position:relative;
+	display:none;
+	visibility:hidden;
+}
+
+td.fb_relationname
+{
+	font-size:10px;
+	font-style:italic;
+	padding:0px;
+}
+
+.facetgroup-active,
+.facetgroup-inactive {
+	padding: 0px 0px;
+	border-style: none;
+	/*background-color:#F0F0E0;*/
+	position: relative;	
+}
+
+.facetgroup-inactive {
+	display:none;
+	visibility:hidden;
+}
+
+.facetlist-active,
+.facetlist-inactive {
+	padding: 0px 4px 0px 8px;
+	border-style: none;
+	/*background-color: white;*/
+	position: relative;
+  min-width: 200px;
+  max-width: 90%;
+}
+
+.facetlist-inactive {
+	display:none;
+	visibility:hidden;
+}
+
+
+.fb-hidden
+{
+	display: none;
+	visibility: hidden;
+}
+
+
+div#fb_container {
+	border-top-style:solid;
+	border-top-color:white;
+	border-top-width:thin;
+}	
+
+.term,
+.first {
+		font-weight: bold;
+}
+
+.fb-content {
+	border-color:black;
+	background:#c00;
+	border-style:solid;
+	border-width:thin;	
+}
+
+.fb-sorting {
+	padding-left:6px;
+	color:<?php print $COLOR_PAGE_BACKGROUND3; ?>;
+	border-bottom-style:solid;
+	border-bottom-color:black;
+	border-bottom-width:thin;
+	font-size:small;
+	font-style:italics;! important;	
+	display: none;
+	visibility: hidden;
+}
+
+.fb-tab-selected {
+	font-family:"Arial";
+	font-size:small; /*like portaneo vidgetmenu */
+	text-decoration:none;	
+	color:white;
+	background-color:<?php print $COLOR_PAGE_BACKGROUND3; ?>;
+}
+
+
+.fb-tab {
+	font-family:"Arial";
+	font-size: small; /*like portaneo vidgetmenu */
+		text-decoration:none;	
+	color:<?php print $COLOR_PAGE_BACKGROUND3; ?>;
+}
+
+
+.fb-inc,
+.fb-exc {
+	color:<?php print $COLOR_PAGE_BACKGROUND3; ?>;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	font-family:"Courier New";
+	font-size: small; 
+}
+
+a.fb-term {
+	color:<?php print $COLOR_FACET_NORMAL; ?>;
+	text-align: left;
+	text-decoration: none;
+	font-family:"Arial";
+	font-size: 12px; /*like portaneo vidgetmenu */
+	font-weight:normal;
+	cursor: pointer;
+	padding: 0px;
+}
+
+a.fb-term:hover,
+a.fb-term-hl:hover{
+	color:#c00;
+}
+
+a.fb-term-hl {
+	color:<?php print $COLOR_BLACK; ?>;
+	font-weight: bold;
+  font-style: oblique;
+  text-align: left;
+	text-decoration: none;
+	font-family:"Arial";
+	font-size: 13px; /*like portaneo vidgetmenu */
+	cursor: pointer;
+	padding: 0px;
+}
+
+/*
+a:hover.fb-term
+{
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+}
+
+a:hover.fb-term-hl
+{
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+}
+*/
+
+table.fb-group-table {
+	padding-left:  0px;
+	padding-right: 2px;
+}
+
+tr.fb-term-row > td {
+	padding: 0px;
+    /*border-bottom: 0px solid <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
+}
+
+
+tr.fb-seemore
+{
+}
+
+td.fb-ismore
+{
+	padding-top:2px;
+}
+
+td a.fb-ismore
+{
+	padding: 1px 4px 1px 4px;
+	background-color:#eFe9dA;
+	color: #6F695A;
+	font-style: italics;
+	font-family: Arial;
+	font-size:small;
+	
+}
+
+td a.fb-ismore:hover
+{
+	background-color:#FeFe9E9; 
+	color:black;
+}
+
+a.fb-ismore
+{
+	text-decoration:none;
+	font-family:Arial;
+	font-size: 12px;
+	color:#999999;
+	cursor:pointer;
+}
+
+
+tr.fb-ismore td
+{
+	background-color:#EFE9DA;
+	border-style: outset;
+	border:1px solid #9a8d7c;
+}
+
+tr.fb-term-row:hover,
+tr.ontotr:hover,
+td.ontotr:hover
+{
+	background-color: #eee;
+	color:#c00;
+}
+
+
+
+/*
+a#srcsearchlink
+{
+	font-weight: bold;
+	text-align: left;
+	text-decoration: none;
+	font-family:"Arial";
+	font-size: 13px; /*like portaneo vidgetmenu
+}
+*/
+
+.facet-recomp-hidden {
+	display:none;
+	visibility:hidden;
+}
+
+.facet-recomp-visible {
+	display:block;
+	visibility:visible;
+}
+
+.facet-nodelabel {
+	color: black;
+    font-family: "Arial";
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.facet-nodelabel-visible {
+	display:block;
+	visibility:visible;
+}
+
+/***************************/
+/* Meta Search Options Bar */
+/***************************/
+div#metaSearchOptionsBar {
+	width:100%;
+	font-size: 12px;
+	border: 2px solid <?php print $COLOR_BORDERLINE; ?>;
+	border-width: 2px 0px 2px 0px;
+	background-color: <?php print $COLOR_PAGE_BACKGROUND2; ?>;
+	float: left;
+	padding: 2px 0px 2px 0px;
+	margin-top: 2px;
+    position: relative;
+    top:-5px;
+}
+
+div#metaSearchOptionsBar .searchOptionDiv {
+	/*border: 1px solid blue;*/
+	float: right;
+	margin-right: 8px;
+	margin-left: 8px;
+	
+	display: table-cell;
+}
+
+div#metaSearchOptionsBar .searchOptionDiv img.optionButton {
+	width: 20px;
+	cursor: pointer;
+	margin: 0px ;
+	padding-top: 2px;
+	position: relative;
+}
+
+div#metaSearchOptionsBar .optionLabel {
+	/*width: 80px;
+	border: 1px solid #c00;*/
+	padding-right: 4px;
+	padding-top: 4px;
+	float: left;
+	height: 20px;
+}
+
+div#metaSearchOptionsBar input {
+	height: 24px;
+	width: 24px;
+	margin-top: 1px;
+}
+
+/**************/
+/* Breadcrumb */
+/**************/
+div#breadcrumbs {
+	/* Same as div#rodinmetasearch in rodin.css */
+	margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 4px;
+    display: block;
+}
+
+div#breadcrumbs.breadCrumbsHidden {
+	display:none;
+	visibility:hidden;
+}
+
+div#breadcrumbs #breadcrumbs_title {
+	font-size:13px;
+	text-align: right;
+	color:<?php print $COLOR_BLACK; ?>;
+	cursor:pointer;
+
+	position: relative;
+	width: 140px;
+	padding-right:6px;
+	float: left;
+}
+
+div#breadcrumbs_terms #subheader .logotext img {
+	float: right;
+}
+
+div#breadcrumbs_terms {
+	position: relative;
+	display: table;
+}
+
+div#breadcrumbs_terms a {
+	background-color: <?php print $COLOR_BORDERLINE;?>;
+	font-size: 12px;
+	font-weight:bold;
+  border-radius: 6px 6px 6px 6px;
+  padding: 2px 8px;
+  margin: 0px 4px 2px 0px;
+	font-family:Arial, Helvetica, sans-serif;
+	text-decoration:none;
+	float: left;
+	top: -1px;
+	position: relative;
+}
+
+div#breadcrumbs_terms a:hover {
+	background-color: #a00;
+	color:white;
+	font-weight:bold;
+}
+
+div#breadcrumbs_terms a img {
+	padding: 0px 2px 0px 2px;
+	position: relative;
+	top: 2px;
+}
+
+a.crumb-meta-normal {
+	color:<?php print $COLOR_METASEARCHTEXT_IN_BC; ?>;
+}
+
+a.crumb-onto-normal {
+	color:<?php print $COLOR_BC_ONTO_TEXT; ?>;
+}
+
+a.crumb-result-normal {
+	color:<?php print $COLOR_BC_RESULT_TEXT; ?>;
+}
+
+a.crumb-survista-normal {
+	color:<?php print $COLOR_BC_SURVISTA_TEXT; ?>;
+}
+
+a.crumb-zen-normal {
+	color:<?php print $COLOR_BC_ZEN_TEXT; ?>;
+}
+
+td.onoff
+{
+	width:18px;
+	margin: 0;
+	padding-top: 2px;
+	vertical-align:middle;
+	text-align:center;	
+	display:block;
+	height:18px;
+	overflow:hidden;
+}
+

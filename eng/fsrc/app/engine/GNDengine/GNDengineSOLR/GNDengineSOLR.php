@@ -626,10 +626,14 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
     else
       print "SYSTEM ERROR: NO ACCESS TO SOLR COLLECTION: ".$this->solr_collection;
 		
-		//Limit found descriptors to exactely to $m
-    array_splice($BROADER_DESC,$m);
-		array_splice($NARROWER_DESC,$m);
-		array_splice($RELATED_DESC,$m);
+		//make found descriptors unique:
+    $BROADER_DESC = array_unique($BROADER_DESC);
+    $NARROWER_DESC = array_unique($NARROWER_DESC);
+		$RELATED_DESC = array_unique($RELATED_DESC);
+		//DO NOT CUT NOW, since for some desc, some label might not be found
+		//array_splice($RELATED_DESC,$m);
+		//array_splice($BROADER_DESC,$m);
+    //array_splice($NARROWER_DESC,$m);
 		
 		
     // Processing... resolving descriptors... all at once
@@ -729,23 +733,29 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
   }
 
 
-   /*
+ /**
  * Returns a triples of array of ranked labels
+ * ATTENTION: This method CUT &$BROADER_DESC,&$NARROWER_DESC,&$RELATED_DESC to max $m elements
+ * after having found labels
  */
   private function resolve_skos_loc_descriptors(&$BROADER_DESC,&$NARROWER_DESC,&$RELATED_DESC,$m,$lang='fr')
   {
      //Merge each descriptor in one array:
     $descriptors=  array_merge($BROADER_DESC,$NARROWER_DESC,$RELATED_DESC);
-    $descriptors_count=count($descriptors);
-    
+		$max_m = $m * 4; // sum of broaders/narrowers/related + same terms in thesaurus
+    $descriptors_count= min(count($descriptors),$max_m); // limit the retrieval in SOLR to $m labels max
+     
     if ($this->getVerbose())
     {
       print "<br>".count($descriptors)." descriptors to resolve:";
       
       if ($this->getSrcDebug()) 
       {
+      	print "<br>".count($BROADER_DESC).' BROADER DESCS:';
         foreach($BROADER_DESC as $d) print "<br>Broader Desc: $d";
+      	print "<br>".count($NARROWER_DESC).' NARROWER DESCS:';
         foreach($NARROWER_DESC as $d) print "<br>Narrower Desc: $d";
+      	print "<br>".count($RELATED_DESC).' RELATED DESCS:';
         foreach($RELATED_DESC as $d) print "<br>Related Desc: $d";
       }
     }
@@ -834,13 +844,22 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
           switch($fieldname)
           {
             case $NEEDED_FIELD:
-              $label = is_array($value)?$value[0]:$value; // take always the first one
+              $label = trim(is_array($value)?$value[0]:$value); 
               break;
             case 'id':
               $id=$value;
           }  
         } // each fieldname
-        $descriptor_label{$id}=cleanup_comma_in_descr_label($label); // right label to right id
+        if ($label)
+				{
+		      $descriptor_label{$id}=cleanup_comma_in_descr_label($label); // right label to right id
+		      $processed_docs++;
+					if ($processed_docs >= $max_m) 
+					{
+						//print "<br>BREAKING LABELING at $processed_docs >= $m";
+						break;
+					}
+				}
       } // foreach $document
     } // $SOLRCLIENT
     
@@ -859,7 +878,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
       
       foreach($descriptor_label as $desc=>$label)
       {
-         print "<br> found $label for $desc";
+         print "<br> found ".(++$l)." $label for $desc";
          
          if (in_array($desc, $BROADER_DESC))
                  print " (broader)";
@@ -875,12 +894,47 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
     /* reconstruct vectors to give them back as they where: */
     /* at this stage we should rank */
     $RANK=100;
+    $b=0;
     foreach($BROADER_DESC as $desc)
-      $BROADER_LABELS{$descriptor_label{$desc}}=$RANK;;
+		{
+			if (($L = $descriptor_label{$desc})) // not null
+			{
+				$b++;
+				//print "<br>$b broader take: $desc -> $L";
+	      $BROADER_LABELS{$L}=$RANK;
+				$NEW_BROADER_DESC[]=$desc;
+				if ($b > $m) break;
+			}
+		}
+		
+		$n=0;
     foreach($NARROWER_DESC as $desc)
-      $NARROWER_LABELS{$descriptor_label{$desc}}=$RANK;;
+    {
+    	if (($L = $descriptor_label{$desc})) // not null
+			{
+				$n++;
+				//print "<br>$n narrower take: $desc -> $L";
+      	$NARROWER_LABELS{$L}=$RANK;
+      	$NEW_NARROWER_DESC[]=$desc;
+				if ($n > $m) break;
+			}
+		}
+		
+		$r=0;
     foreach($RELATED_DESC as $desc)
-      $RELATED_LABELS{$descriptor_label{$desc}}=$RANK;;
+		{
+			if (($L = $descriptor_label{$desc})) // not null
+			{
+				$r++;
+				//print "<br>"$r related take: $desc -> $L";
+      	$RELATED_LABELS{$L}=$RANK;
+      	$NEW_RELATED_DESC[]=$desc;
+				if ($r > $m) break;
+      }
+		}
+		$BROADER_DESC = $NEW_BROADER_DESC;
+		$NARROWER_DESC = $NEW_NARROWER_DESC;
+		$RELATED_DESC = $NEW_RELATED_DESC;
     
     if ($this->getSrcDebug())
     {

@@ -1,14 +1,23 @@
 <?php
 // Load the session used by posh
 
-session_name('myhomepage');
-session_start();
-	if (!isset($_SESSION['lang'])) {
-		if (isset($_REQUEST['l10n']) && $_REQUEST['l10n'] != 'undefined') {
-			$_SESSION['lang'] = $_REQUEST['l10n'] != '' ? $_REQUEST['l10n'] : 'en';
-		}
+//Called by a webservice? no session
+if (!$NOSESSION)
+{
+	session_name('myhomepage');
+	session_start();
+		if (!isset($_SESSION['lang'])) {
+			if (isset($_REQUEST['l10n']) && $_REQUEST['l10n'] != 'undefined') {
+				$_SESSION['lang'] = $_REQUEST['l10n'] != '' ? $_REQUEST['l10n'] : 'en';
+			}
 	}
+} 
 	
+	if ($WEBSERVICE)
+	{
+		//Specific actions here
+	}
+
 	require_once("FRIdbUtilities.php");
 	include_once "$DOCROOT/$RODINUTILITIES_GEN_URL/simplehtmldom/simple_html_dom.php";
 		
@@ -30,6 +39,8 @@ session_start();
 	
 	$thisSCRIPT = $_SERVER['SCRIPT_NAME'];
 	$thisSCRIPT = str_replace(".php", ".rodin", $thisSCRIPT); // cache real url
+	
+	$widget_classname=$widget_classname?$widget_classname:widget_get_class_name($_SERVER['SCRIPT_NAME']);
 	
 	$remoteuser = $_ENV['USER'];
 
@@ -119,7 +130,7 @@ session_start();
 	$ANY = '(Any)';
 
 	// Eval get request using $RDW_REQUEST see below:
-	evalRDW_REQUEST();
+	if (!$WEBSERVICE) evalRDW_REQUEST();
 
 	//Get widget infos from PORTANEO DATABASE:
 	$WIDGET_INFOS = fri_get_dir_infos($thisSCRIPT);
@@ -206,7 +217,7 @@ EOD;
 		if ($RDW_POST) 
 			 $METHODE='POST';
 		else $METHODE='REQUEST';
-		 
+			 
 		foreach ($RDW_REQUEST as $querystringparam => $defaultvalue)
 		{
 			
@@ -303,12 +314,12 @@ EOD;
 	
 	
 	
-	function check_recompute($sid,$datasource,$remoteuser)
+	function check_recompute($sid,$remoteuser)
 	######################################################
 	{
 		if ($sid=='')
 		{
-			$sid= compute_sid($datasource,$remoteuser);
+			$sid= compute_sid($remoteuser);
 			//print "<br><b>FRI: sid recomputed: $sid</b>";
 		}
 		

@@ -260,7 +260,6 @@ EOH;
 		global $RDW_REQUEST;
 		foreach ($RDW_REQUEST as $querystringparam => $d) eval( "global \${$querystringparam};" );
 		# The followin globals here all registered querystring parameters:
-		foreach ($RDW_REQUEST as $querystringparam => $d) eval( "global \${$querystringparam};" );
 		$res=true;
 
 		foreach($REALNAME as $rodin_name=>$needed_name)

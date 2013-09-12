@@ -702,8 +702,9 @@ class RDFprocessor {
 	 * @param $search_uid - the uid of the global search
 	 * @param $result_subjects - assoc defined with $subjectlabel=>$subject_uid
 	 * @param $COUNTTRIPLES - Flag
+	 * @param $THERECORDS - array of SRC records (maybe null)
 	 */
-	public function expand_rdfize_subjects(&$search_subjects,$searchuid,&$result_subjects,$COUNTTRIPLES)
+	public function expand_rdfize_subjects(&$search_subjects,$searchuid,&$result_subjects,$COUNTTRIPLES,&$THERECORDS)
 	{
 		
 		$DEBUG=0;
@@ -719,7 +720,8 @@ class RDFprocessor {
 																																RDFprocessor::$NAMESPACES,
 																																$this->searchtermlang,
 																																$searchuid,
-																																$COUNTTRIPLES  );
+																																$COUNTTRIPLES,
+																																$THERECORDS  );
 				
 		list($skos_result_subjects_expansions,$count_added_triples2) 
 							= $this->get_subjects_expansions_using_thesauri(	$result_subjects,
@@ -729,7 +731,8 @@ class RDFprocessor {
 																																RDFprocessor::$NAMESPACES,
 																																$this->searchtermlang,
 																																null,
-																																$COUNTTRIPLES  );
+																																$COUNTTRIPLES,
+																																$THERECORDS  );
 				
 				
 																														
@@ -760,7 +763,7 @@ class RDFprocessor {
 	 * @param $flattened_skos_result_subject_list - ordered flattened list
 	 * @param $result_subjects - list of currently known under SID produced result subjects
 	 */
-	public function lod_subJ_doc_fetch(&$flattened_skos_result_subject_list,&$result_subjects,$COUNTTRIPLES)
+	public function lod_subJ_doc_fetch(&$flattened_skos_result_subject_list,&$result_subjects,$COUNTTRIPLES,&$LOD_SOURCES_RECORDS)
 	{
 		$DEBUG=0;
 		global $RDFLOG;
@@ -801,8 +804,13 @@ class RDFprocessor {
 		
 		if (is_array($flattened_skos_result_subject_list) && count($flattened_skos_result_subject_list))
 		{
-			$LOD_SOURCES=get_active_LOD_expansion_sources($USER_ID);
-			$LOD_SOURCES_RECORDS= $LOD_SOURCES['records'];
+			//Recompute LOD sources ONLY if unset
+			if (!is_array($LOD_SOURCES_RECORDS))
+			{
+				$LOD_SOURCES=get_active_LOD_expansion_sources($USER_ID);
+				$LOD_SOURCES_RECORDS= $LOD_SOURCES['records'];
+			} 
+				
 			if (is_array($LOD_SOURCES_RECORDS) && count($LOD_SOURCES_RECORDS))
 			{
 				foreach($LOD_SOURCES_RECORDS as $LOD_SOURCES_RECORD)
@@ -1128,7 +1136,7 @@ class RDFprocessor {
 	 */
 	function resume_docs_with_rank( &$rodin_results,&$ranked_docs_ext,&$ranked_docs )
 	{
-		$DEBUG=1;
+		$DEBUG=0;
 		global $RDFLOG;
 		$resumed_docs = array();
 		
@@ -1187,7 +1195,7 @@ class RDFprocessor {
 	public function rerankadd_docs($sid, &$docs_ext, &$ranked_result_subjects, $WANT_USER_RESONANCE)
 	{
 		//Rank documents using ranked subjects.
-		$DEBUG=1;
+		$DEBUG=0;
 		global $RDFLOG;
 		global $txtDefaultSubjectRanked;
 		
@@ -1667,6 +1675,11 @@ class RDFprocessor {
 			{
 				if ($DEBUG || 1)
 				{
+					
+					
+					
+					
+					
 					$subjects_debug=implode(', ',$subjects);
 					$RDFLOG.= htmlprint("<br>Compute subjects from title",'green').", since threshold ".RDFprocessor::$rdfp_THRESHOLD_DATASOURCE_MIN_SUBJECTS." not reached ($c subjects read= (($subjects_debug)))";
 				}
@@ -2125,54 +2138,52 @@ class RDFprocessor {
 				}
 			}
 		} // Swissbib
-		else // if (strstr($datasource,'alexandria'))
-		{
-			
-		} // alexandria
 		
 		$title_cleaned_arr=array_unique(cleanup_stopwords(explode(' ',strtolower(clean_spechalchars($title))),$this->stopwords));
-		$title_cleaned=implode(' ',$title_cleaned_arr); //separate into chunks
+		$title_cleaned=implode(' ',$title_cleaned_arr); //separate into chunks if sth remains
 	  
-		if($DEBUG)
+	  if ($title_cleaned)
 		{
-			$RDFLOG.= "<br><b>compute_title_subjects</b>((($search)),(($title))):";
-			$RDFLOG.= "<br>title_cleaned: (($title_cleaned))";
-		}
-		$subjects=array();	
-		//Add as subject the whole title - without colons...
-		if (($langt=detectLanguageAndLog($title_cleaned,'compute_title_subjects',$this->sid))==$lang)
-		{
-			$subjects[]=  capital_noun(trim(preg_replace("/[:;]/",'',$title_cleaned)));
-			if($DEBUG)  $RDFLOG.= "<br>TAKE($langt==$lang) SUBJ($title_cleaned):";
-		} else {
-			if($DEBUG)  $RDFLOG.= htmlprint("<br>DISC SUBJ($langt<>$lang) SUBJ($title_cleaned)",'red');
-		}
-			
-		//Try to build complex compund and validate them in vikipedia
-		//each validated vikipedia term is a subject.
-		//use also RODIN's thesauri 
-		//Use also EUROPEANA's thesaurus
-		//Try to build biggest sub-compounds
-		//A sub-compound is validated in at least one given LODstore
-		//and must be matched without need of disambiguation!
-		
-		//$allTermLabels = $this->get_validated_english_candidate_compounds($title_cleaned,$remoteLODstores=array($nix));
-			
-		//Returns as speedup 1. the subject as is, 2. every single segment separated by nonblank of the $title_cleaned
-		
-		$segments=preg_split("/[,:;\+\s*]+/",$title_cleaned);
-		
-		$tolerated_lang = 'en';
-		if (count($segments))
-		{
-			foreach($segments as $segment)
+			if($DEBUG)
 			{
-				if ($DEBUG) $RDFLOG.="<br>Consider subject segment $segment";
-				$segment=put_to_singular($segment);
-				insert_filtered_once($segment,$subjects,$lang,$tolerated_lang);
-			} // foreach
-		}
-		
+				$RDFLOG.= "<br><b>compute_title_subjects</b>((($search)),(($title))):";
+				$RDFLOG.= "<br>title_cleaned: (($title_cleaned))";
+			}
+			$subjects=array();	
+			//Add as subject the whole title - without colons...
+			if (($langt=detectLanguageAndLog($title_cleaned,'compute_title_subjects',$this->sid))==$lang)
+			{
+				$subjects[]=  capital_noun(trim(preg_replace("/[:;]/",'',$title_cleaned)));
+				if($DEBUG)  $RDFLOG.= "<br>TAKE($langt==$lang) SUBJ($title_cleaned):";
+			} else {
+				if($DEBUG)  $RDFLOG.= htmlprint("<br>DISC SUBJ($langt<>$lang) SUBJ($title_cleaned)",'red');
+			}
+				
+			//Try to build complex compund and validate them in vikipedia
+			//each validated vikipedia term is a subject.
+			//use also RODIN's thesauri 
+			//Use also EUROPEANA's thesaurus
+			//Try to build biggest sub-compounds
+			//A sub-compound is validated in at least one given LODstore
+			//and must be matched without need of disambiguation!
+			
+			//$allTermLabels = $this->get_validated_english_candidate_compounds($title_cleaned,$remoteLODstores=array($nix));
+				
+			//Returns as speedup 1. the subject as is, 2. every single segment separated by nonblank of the $title_cleaned
+			
+			$segments=preg_split("/[,:;\+\s*]+/",$title_cleaned);
+			
+			$tolerated_lang = 'en';
+			if (count($segments))
+			{
+				foreach($segments as $segment)
+				{
+					if ($DEBUG) $RDFLOG.="<br>Consider subject segment $segment";
+					$segment=put_to_singular($segment);
+					insert_filtered_once($segment,$subjects,$lang,$tolerated_lang);
+				} // foreach
+			}
+		} // $title_cleaned
 		return $subjects;
 	} // compute_subjects
 	
@@ -2799,8 +2810,23 @@ class RDFprocessor {
 	 * @param string $lang
 	 * @param $searchuid - the main search uid (maybe null)
 	 * @param $COUNTTRIPLES - if set, several ARC count triple calls are made
+	 * @param $INITALIZED_SRCs - array of (prepared) SRC records
+	 * @param $max_s - forces $max_subjects
+	 * @param $max_m - forces $max_results
+	 * @param $single_subject_expansion - one subject expanded prevent other SRCs from expanding it
 	 */
-	public function get_subjects_expansions_using_thesauri(&$subjects,$sid,$servicename,$USER_ID,&$NAMESPACES,$lang,$searchuid,$COUNTTRIPLES)
+	public function get_subjects_expansions_using_thesauri(&$subjects,
+																													$sid,
+																													$servicename,
+																													$USER_ID,
+																												 &$NAMESPACES,
+																													$lang,
+																													$searchuid, // notused ?
+																													$COUNTTRIPLES,
+																												 &$INITIALISED_SRCs,
+																												 $max_s=null,
+																												 $max_m=100000,
+																												 $single_subject_expansion=true )
 	{
 		global $RDFLOG;
 		global $VERBOSE;
@@ -2835,7 +2861,9 @@ class RDFprocessor {
 			$processed_subjects=array();
 			$processed_subjects_pro_src=array();
 			//print "<hr>get_SRC_THESAURI_RECORDS(null,$USER_ID,$lang)...";
-			$INITIALISED_SRCs = get_SRC_THESAURI_RECORDS($SRCS=null,$USER_ID,$lang);
+			$INITIALISED_SRCs = is_array($INITIALISED_SRCs)? 
+													$INITIALISED_SRCs:
+													get_SRC_THESAURI_RECORDS($SRCS=null,$USER_ID,$lang);
 	
 			if ($DEBUG) 
 			{
@@ -2876,14 +2904,22 @@ class RDFprocessor {
 							$src_parameters,
 							$autocomplete_uri ) = $INITIALISED_SRC;
 				
+				if ($DEBUG) {
+					print "<br>SRC $src_name (LOCALSRC: $LOCAL_SRC)<br>";
+					var_dump($INITIALISED_SRC);
+				}
+				
 				//unset($SRCINSTANCE->refine_skosxl_solr);
 				//unset($SRCINSTANCE->refine_skos_solr);
-				
+				if ($DEBUG) $RDFLOG.="<br>CALLING SRC $src_name ... ";
 				###################################
 				#
 				# VALIDATION $src_parameters from SRC_management record:
 				#
-				eval($src_parameters); // $max_triples=11; $max_docs=5; $max_subjects=5;
+				if ($max_s)
+					$max_subjects=$max_s;
+				else 
+					eval($src_parameters); // $max_triples=11; $max_docs=5; $max_subjects=5;
 				$valid_src_parameters=true;
 				if (!$max_subjects)
 				{
@@ -2945,7 +2981,10 @@ class RDFprocessor {
 								{
 									if ($MONITORCALLS) print "<br>monitor ".($monitorcall_stp++)." call stp? remote endpoint $src_name on $s ($count_processed_subjects succesfully processed subjects)";
 	
-									list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($s,$processed_subjects);
+									if ($single_subject_expansion)
+										list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($s,$processed_subjects);
+									else
+										$still_to_process=true;
 									if ($still_to_process)
 									{
 										##########################################
@@ -3057,7 +3096,7 @@ class RDFprocessor {
 						{
 							$counter++;
 							Logger::logAction(27, array('from'=>'get_subjects_expansions_using_thesauri','msg'=>$msg="CALLING $servicename SRC $src_name on subject $s with max $max_subjects subjects"),$this->sid);
-							
+							if ($DEBUG) $RDFLOG.="<br>$msg";
 							if (trim($s))
 							{
 								###############################################################################
@@ -3086,8 +3125,10 @@ class RDFprocessor {
 								//print "<br>using subject for SRC subexp: ($s)";
 								//Incase some SRC had already answered for a subsuming subject ... break it there.
 								if ($MONITORCALLS) print "<br>monitor ".($monitorcall_stp++)." call (LOCAL_SRC=$LOCAL_SRC) stp? SRC $src_name on $s ($count_processed_subjects succesfully processed subjects)";
-								
-								list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($s,$processed_subjects);
+								if ($single_subject_expansion)
+									list($still_to_process,$subsuming_subject,$numdocs) = $this->subject_is_still_to_process($s,$processed_subjects);
+								else
+									$still_to_process=true;
 								if ($still_to_process)
 								{
 									##########################################
@@ -3151,10 +3192,10 @@ class RDFprocessor {
 										{
 											if($LOCAL_SRC)
 											{
-												if ($DEBUG) $RDFLOG.="<br>CALL SRC $src_name locally";
+												if ($DEBUG) $RDFLOG.="<br>CALL SRC $src_name locally with m($max_m,$max_subjects)=".($max_m?$max_m:$max_subjects);
  												$CONTENT = get_from_src_directly( 
 																													$sid,
-																													$max_subjects,
+																													$max_m?$max_m:$max_subjects,
 																													$lang,
 																													$servicename,
 																													$s, // query
@@ -3169,7 +3210,8 @@ class RDFprocessor {
 																													$pathClass,
 																													$pathSuperClass,
 																													$AuthUser,
-																													$AuthPasswd  );
+																													$AuthPasswd,
+																													$max_m  );
 											}
 											else
 											{
@@ -3256,6 +3298,11 @@ class RDFprocessor {
 		return array($skos_subject_expansion,$count_all_added_triples);
 		
 	} // get_subject_related_to_from_thesauri
+	
+	
+	
+	
+	
 	
 	
 	

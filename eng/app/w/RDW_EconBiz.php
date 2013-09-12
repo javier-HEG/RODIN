@@ -10,13 +10,16 @@
 include_once("../u/RodinWidgetBase.php");
 require_once('../u/RodinResult/RodinResultManager.php');
 
-global $SEARCHSUBMITACTION;
 
 // Since widgets are loaded inside an iFrame, they need
 // a HTML header.
-print_htmlheader("EconBiz RODIN Widget");
+if (!$WEBSERVICE) 
+{
+	global $SEARCHSUBMITACTION;
+	
+	print_htmlheader("EconBiz RODIN Widget");
 
-$searchsource_baseurl="http://metamat.zbw-kiel.de/v1/";		
+	$searchsource_baseurl="http://metamat.zbw-kiel.de/v1/";		
 
 
 /* ********************************************************************************
@@ -47,7 +50,8 @@ $htmldef=<<<EOH
 	<input name="ask" class="localSearchButton" type="button" onclick="$SEARCHSUBMITACTION" value="$label" title='$title'/>
 EOH;
 add_search_control('ask','','',$htmldef,1);
-}
+}	
+	} // WEBSERVICE
 
 /* ********************************************************************************
  * Widget functions
@@ -94,13 +98,16 @@ EOS;
 	return true;		
 }		 	
 
+
+class RDW_EconBiz {
+
 /** 
  * 
  * This function was used to diplay a header containing a logo for the service.
  * 
  * @deprecated
  */
-function DEFINITION_RDW_DISPLAYHEADER()
+public static function DEFINITION_RDW_DISPLAYHEADER()
 {
 	return true;
 }
@@ -109,7 +116,7 @@ function DEFINITION_RDW_DISPLAYHEADER()
  * 
  * ... ?
  */
-function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
+public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
 {
 	return true;
 }
@@ -122,13 +129,24 @@ function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
  * 
  * @param string $chaining_url
  */
-function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
+public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') 
+{
+	$DEBUG=0;
 	global $datasource;
 	global $searchsource_baseurl;
 	global $RDW_REQUEST;
+	global $WEBSERVICE;
+	
+	
+	if ($WEBSERVICE) //need to reset url:
+			$searchsource_baseurl="http://metamat.zbw-kiel.de/v1/";		
 	
 	foreach ($RDW_REQUEST as $querystringparam => $d)
-		eval( "global \${$querystringparam};" );
+	{
+		if ($WEBSERVICE) 
+				 eval( "global \${$querystringparam}; \${$querystringparam} = '$d';" );
+		else eval( "global \${$querystringparam};" );
+	}
 	
 	$qTokens = explode(',', trim($q, ' ,'));
 	
@@ -136,10 +154,15 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	$parameters['q'] = $query = implode('+OR+', $qTokens) . ' (type:article OR type:book)';
 	$parameters['size'] = $m;
 						
+	if ($DEBUG) {
+		print "<br> query ($q) :(($query))";
+	}				
 	$options = array(	CURLOPT_HTTPHEADER => array('Accept:application/json','Accept-Charset: ISO-8859-1'));
 //Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
 
 	list($timestamp,$jsonString) = get_cached_widget_response_curl($searchsource_baseurl . 'search', $parameters, $options);
+	
+	if ($DEBUG) print "<br>econbiz - RESULT to query '$query': <br>".htmlentities($jsonString);
 	
   //$jsonString = parametrizable_curl($searchsource_baseurl . 'search', $parameters, $options);
         
@@ -261,7 +284,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
  * 
  * ... ?
  */	
-function DEFINITION_RDW_STORERESULTS()
+public static function DEFINITION_RDW_STORERESULTS()
 {
 	return true; // nothing to do here
 }
@@ -271,7 +294,7 @@ function DEFINITION_RDW_STORERESULTS()
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -287,7 +310,7 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -433,7 +456,7 @@ function decodeCategory($category) {
 	}
 }
 
-
+} // RDW_EconBiz
 /* ********************************************************************************
  * Decide which function the state machine is on.
  ******************************************************************************* */

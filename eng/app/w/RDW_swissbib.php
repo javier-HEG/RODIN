@@ -22,7 +22,9 @@ global $SEARCHSUBMITACTION;
 $NEED_PHP_INTERNET_ACCESS = true;
 
 // Since widgets are loaded inside an iFrame, they need a HTML header.
-print_htmlheader("SWISSBIB RODIN WIDGET");
+if (!$WEBSERVICE) {
+		
+	print_htmlheader("SWISSBIB RODIN WIDGET");
 	
 $searchsource_baseurl = "http://sru.swissbib.ch/SRW/search/";
 $swissbib_permalink_baseurl = "http://www.swissbib.ch/TouchPoint/perma.do?v=nose&l=en&q=35="; // Add MARC field 035
@@ -57,6 +59,10 @@ $htmldef=<<<EOH
 EOH;
 add_search_control('ask','','',$htmldef,1);
 }
+	} // WEBSERVICE
+
+
+class RDW_swissbib {
 
 /* ********************************************************************************
  * Widget functions
@@ -67,14 +73,14 @@ add_search_control('ask','','',$htmldef,1);
  *
  * @deprecated
  */
-function DEFINITION_RDW_DISPLAYHEADER() {
+public static function DEFINITION_RDW_DISPLAYHEADER() {
 	return true;
 }
 
 /**
  * ... ?
  */
-function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
+public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
 	return true;
 }
 
@@ -86,16 +92,31 @@ function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
  * 
  * @param string $chaining_url
  */
-function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {	
+public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') 
+{
+	$DEBUG = 0;	
 	global $datasource;
 	global $searchsource_baseurl;
 	global $swissbib_permalink_baseurl;
 	global $REALNAME;
 	global $RDW_REQUEST;
+	global $WEBSERVICE;
+	
+	if ($WEBSERVICE) //need to set again url:
+	{
+		$searchsource_baseurl = "http://sru.swissbib.ch/SRW/search/";
+		$swissbib_permalink_baseurl = "http://www.swissbib.ch/TouchPoint/perma.do?v=nose&l=en&q=35="; // Add MARC field 035
+		$swissbib_record_url = "http://www.swissbib.ch/TouchPoint/start.do?Language=de&View=nose&Query=35="; // ."%22".<marc035>."%22" 
+	}
 	
 	foreach ($RDW_REQUEST as $querystringparam => $d)
-		eval( "global \${$querystringparam};" );
+	{
+		if ($WEBSERVICE) 
+				 eval( "global \${$querystringparam}; \${$querystringparam} = '$d';" );
+		else eval( "global \${$querystringparam};" );
+	}
 
+	if ($REALNAME)
 	foreach ($REALNAME as $rodin_name=>$needed_name) {
 		if ("${$rodin_name}" <> '') // only if value defined
 			$FILTER_SECTION .= "&$needed_name=${$rodin_name}";
@@ -106,8 +127,8 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 		. '&version=1.1&operation=searchRetrieve&recordSchema=info%3Asrw%2Fschema%2F1%2Fmarcxml-v1.1'
 		. '&maximumRecords=' . $m . '&startRecord=1&resultSetTTL=300&recordPacking=xml';
 	
-  
-  
+	if ($DEBUG) print "<br> SWISSBIB url: (($url))";
+	
 	//TomaNota::deEsto($_SERVER[PHP_SELF], "search url : $url");
 
 	//$xml = get_file_content($url);
@@ -126,40 +147,40 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 		$recordData = $record->find('recordData srw_marc:record', 0);
 
 		// Build single result with the right sub-class
-		$formatRaw = getDataFromRecord($recordData, array('898' => 'a'));
-		$format = decodeMarcFormat($formatRaw);
+		$formatRaw = RDW_swissbib::getDataFromRecord($recordData, array('898' => 'a'));
+		$format = RDW_swissbib::decodeMarcFormat($formatRaw);
 		$singleResult = RodinResultManager::buildRodinResultByType($format);
 
 		// Set general fields
-		$singleResult->setTitle(getDataFromRecord($recordData, array('245' => array('a', 'b'))));
+		$singleResult->setTitle(RDW_swissbib::getDataFromRecord($recordData, array('245' => array('a', 'b'))));
 		
-		$controlNumber = getDataFromRecord($recordData, array('035' => 'a'));
+		$controlNumber = RDW_swissbib::getDataFromRecord($recordData, array('035' => 'a'));
 		$controlNumber= preg_replace("/\)vtls/",'',$controlNumber); // O. Schinin 6.3.2013: No vtls (virtual systems)
 		$controlNumber= preg_replace("/[\(\)]/",'',$controlNumber); // G.Hipler 6.3.2013: No round brakets anymore since SOLR Q3/2012
 			
 			//print "<br>controllNumber ($oldc): xxx$controlNumber".'xxx'; exit;
 		$singleResult->setUrlPage($swissbib_permalink_baseurl . urlencode('"' . $controlNumber . '"'));
     
-		$date = getDataFromRecord($recordData, array('260' => 'c'));
+		$date = RDW_swissbib::getDataFromRecord($recordData, array('260' => 'c'));
 		if (preg_match("/\d{4}/", $date, $match))
 			$date = '01.01.' . $match[0];
 		else
 			$date = '';
 		$singleResult->setDate($date);
 		
-		$singleResult->setAuthors(getDataFromRecord($recordData, array('*100' => array('D', 'a'), '*700' => array('D', 'a'))));
+		$singleResult->setAuthors(RDW_swissbib::getDataFromRecord($recordData, array('*100' => array('D', 'a'), '*700' => array('D', 'a'))));
 
 		// Result type specific fields
 		switch ($format) {
 			case RodinResultManager::RESULT_TYPE_BOOK:
 				// Book specific fields: description, subjects, publisher, review, cover, isbn
-				$singleResult->setProperty('subjects', getDataFromRecord($recordData, array('*650' => array('a', '*x'), '*691' => array('a', '*x'))));
-				$singleResult->setProperty('publisher', getDataFromRecord($recordData, array('260' => array('a', 'b'))));
-				$singleResult->setProperty('isbn', getDataFromRecord($recordData, array('020' => array('a'))));
+				$singleResult->setProperty('subjects', RDW_swissbib::getDataFromRecord($recordData, array('*650' => array('a', '*x'), '*691' => array('a', '*x'))));
+				$singleResult->setProperty('publisher', RDW_swissbib::getDataFromRecord($recordData, array('260' => array('a', 'b'))));
+				$singleResult->setProperty('isbn', RDW_swissbib::getDataFromRecord($recordData, array('020' => array('a'))));
 				break;
 			case RodinResultManager::RESULT_TYPE_ARTICLE:
 				// Article specific fields: abstract, full-text, keywords, review, doi
-				$singleResult->setProperty('keywords', getDataFromRecord($recordData, array('*650' => array('a', '*x'), '*691' => array('a', '*x'))));
+				$singleResult->setProperty('keywords', RDW_swissbib::getDataFromRecord($recordData, array('*650' => array('a', '*x'), '*691' => array('a', '*x'))));
 				break;
 			default:
 				break;
@@ -183,7 +204,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
  * 
  * ... ?
  */	
-function DEFINITION_RDW_STORERESULTS()
+public static function DEFINITION_RDW_STORERESULTS()
 {
 	return true; // nothing to do here
 }
@@ -193,7 +214,7 @@ function DEFINITION_RDW_STORERESULTS()
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -208,7 +229,7 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
  * Called from RodinWidgetSMachine.RDW_SHOWRESULT_FULL_EPI(), it is asked
  * to print the HTML code corresponding to results.
  */
-function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -221,7 +242,7 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 /* ********************************************************************************
  * Utility functions, mainly widget independent.
  ******************************************************************************* */
-function strip_cdata($string) {
+private static function strip_cdata($string) {
 	preg_match_all('/<!\[cdata\[(.*?)\]\]>/is', $string, $matches); 
 	return str_replace($matches[0], $matches[1], $string); 
 } 
@@ -234,7 +255,7 @@ function strip_cdata($string) {
  * @param  Array $fields [description]
  * @return [type]
  */
-function getDataFromRecord($record, $fields) {
+private static function getDataFromRecord($record, $fields) {
 	$textArray = array();
 	foreach ($fields as $tag => $codes) {
 		if (substr($tag, 0, 1) == '*') {
@@ -242,11 +263,11 @@ function getDataFromRecord($record, $fields) {
 			
 			if ($datafields = $record->find('marc:datafield[tag=' . $tag . ']'))
 				foreach ($datafields as $datafield)
-					$textArray[] = getSubfieldFromData($datafield, $codes);
+					$textArray[] = RDW_swissbib::getSubfieldFromData($datafield, $codes);
 		} else {
 			if ($record->find('marc:datafield[tag=' . $tag . ']')) {
 				$datafield = $record->find('marc:datafield[tag=' . $tag . ']', 0);
-				$textArray[] = getSubfieldFromData($datafield, $codes);
+				$textArray[] = RDW_swissbib::getSubfieldFromData($datafield, $codes);
 			}
 		}
 	}
@@ -256,7 +277,7 @@ function getDataFromRecord($record, $fields) {
 /**
  * Returns a string representation of a datafield subfields.
  */
-function getSubfieldFromData($data, $subfields) {
+private static function getSubfieldFromData($data, $subfields) {
 	if (!is_array($subfields))
 		$subfields = array($subfields);
 
@@ -267,16 +288,16 @@ function getSubfieldFromData($data, $subfields) {
 
 			if ($fields = $data->find('marc:subfield[code=' . $code . ']'))
 				foreach ($fields as $field)
-					$textArray[] = strip_cdata($field->innertext);
+					$textArray[] = RDW_swissbib::strip_cdata($field->innertext);
 		} else
 			if ($data->find('marc:subfield[code=' . $code . ']'))
-				$textArray[] = strip_cdata($data->find('marc:subfield[code=' . $code . ']', 0)->innertext);
+				$textArray[] = RDW_swissbib::strip_cdata($data->find('marc:subfield[code=' . $code . ']', 0)->innertext);
 	}
 
 	return implode(' ', $textArray);
 }
 
-function decodeMarcFormat($format) {
+private static function decodeMarcFormat($format) {
 	switch ($format) {
 		#Book
 		case 'BK000006000': return RodinResultManager::RESULT_TYPE_BOOK; // Buch auf Mikrofiche
@@ -369,6 +390,8 @@ function decodeMarcFormat($format) {
 		default: return RodinResultManager::RESULT_TYPE_BASIC;
 	}
 }
+
+} // RDW_swissbib
 
 /* ********************************************************************************
  * Decide which function the state machine is on.

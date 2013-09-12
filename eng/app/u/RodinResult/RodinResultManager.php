@@ -407,7 +407,7 @@ public static function getRodinResultsFromResultsTable($sid, $datasource) {
  */
 public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$external,$slrq_base64) 
 {
-		$debug=0;
+		$DEBUG=0;
 		$max=10;
 		$filenamex='/u/SOLRinterface/solr_interface.php';
 		
@@ -441,15 +441,18 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
     $solr_port= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['port']; //=$SOLR_PORT;
     $solr_path= $SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['path']; //='/solr/rodin_result/';
 
-//    print "<br>solr_user: $solr_user";
-//    print "<br>solr_host: $solr_host";
-//    print "<br>solr_port: $solr_port";
-//    print "<br>solr_path: $solr_path";
-//    print "<br>RODINSEGMENT: $RODINSEGMENT";
-//    print "<br>datasource: $datasource";
-//    print "<br>sid: $sid";
-//    print "<br>USER: $USER";
-    
+    if ($DEBUG)
+		{
+		   print "\n<br>solr_user: $solr_user";
+		   print "\n<br>solr_host: $solr_host";
+		   print "\n<br>solr_port: $solr_port";
+		   print "\n<br>solr_path: $solr_path";
+		   print "\n<br>RODINSEGMENT: $RODINSEGMENT";
+		   print "\n<br>datasource: $datasource";
+		   print "\n<br>sid: $sid";
+		   print "\n<br>USER: $USER";
+		   print "\n<br>USER_ID: $USER_ID";
+		}
     #Fetch result from SOLR using even $slrq (handler and some parameters) if set instead of the standard Handler
     $EVTL_datasource=($datasource<>'')?"%20wdatasource:$datasource":'';
 		
@@ -941,4 +944,264 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 		return $singleResult;
 	} // create_rodinResult
 	
+	
+	
+	/**
+	 * Calls and code search results
+	 * Returns a json representation of them
+	 */
+	public static function get_json_searchresults($sid, $internalresults, $externalresults)
+	{
+		$DEBUG=0;
+		$ok_to_retrieve=true;
+		
+		if (!$sid)
+		{
+			$errortxt='get_json_searchresults() - fatal - no sid provided!';
+			$ok_to_retrieve=false;
+		}
+		if ($DEBUG)
+			print "\n<br> get_json_searchresults($sid, $internalresults, $externalresults)";
+		
+		if ($ok_to_retrieve)
+		{
+			$allResults = RodinResultManager::getRodinResultsForASearch($sid,'',$internalresults, $externalresults); 
+			$resultCount = count($allResults);
+			
+			if ($DEBUG) print "<br>$resultCount results read...";
+			
+			// Both a maximum size and a maximum number of results are set
+			$resultMaxSetSize = 4;
+			$resultMaxLength = 131072;
+			$fromResult = 0;
+			$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
+			
+			$i = $fromResult;
+			while ($i < $uptoResult) 
+			{
+				$result = $allResults[$i];
+				if ($result)
+				{
+					$resultCounter = $i + 1;
+				
+					$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
+				
+					$jsonSingleResult = array();
+				
+					$jsonSingleResult['count'] = $resultCounter;
+					$jsonSingleResult['url'] = $result->getUrlPage();
+					$jsonSingleResult['resultIdentifier'] = $resultIdentifier;
+				
+					$jsonSingleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
+					$jsonSingleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
+				
+					$jsonSingleResult['header'] = json_encode($result->htmlHeader($jsonSingleResult['resultIdentifier'], $resultCounter, $sid, true));
+					$jsonSingleResult['minHeader'] = json_encode($resultCounter . '<br />');
+				
+					$jsonSingleResult['minContent'] = json_encode($result->toInWidgetHtml('min'));
+					$jsonSingleResult['tokenContent'] = json_encode($result->toInWidgetHtml('token'));
+					$jsonSingleResult['allContent'] = json_encode($result->toInWidgetHtml('all'));
+				
+					// Check the size of the response if this result was added
+					$tmpAllResults = $jsonAllResults;
+					$tmpAllResults[] = $jsonSingleResult;
+					$tmpJsonResponse = json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $uptoResult, 'results' => $tmpAllResults));
+					$tmpJsonResponseLength = strlen($tmpJsonResponse);
+				
+					if ($tmpJsonResponseLength > $resultMaxLength)
+						break;
+					
+					$jsonAllResults[] = $jsonSingleResult;
+					}
+				$i++;
+			}
+		} // $ok_to_retrieve
+		return json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $i, 'results' => $jsonAllResults, 'error'=>$errortxt));
+	} // get_json_searchresults
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Calls and code onto (thesaurus) search results
+	 * Returns a text json representation of them
+	 * To be used in a webservice for a javaserver
+	 */
+	public static function get_json_thesearchresults4webservice($query, $userid, $m, $the_records)
+	{
+		$DEBUG=0;
+		
+		global $RDFLOG, $HOST;
+		$errortxt='';
+		$subjects{$query}=0; // take compound as is (0 is just dummy)
+		if (strstr($query,' '))
+		{
+			foreach(explode(' ',$query) as $qsegment)
+				$subjects{$qsegment}=0;
+		}
+				
+		if ($DEBUG) {print "<br>USING the foll subjects: "; var_dump($subjects);}
+		//$sid=uniqid('thesearch');
+		$sid=null;
+		$NAMESPACES = array(); // not used but needed
+		$servicename = ''; // not used
+		$lang=detectLanguageAndLog($query,'get_json_thesearchresults4webservice',$sid);
+		$searchuid = ''; // not used
+		$COUNTTRIPLES = false; 
+		$max_s = 100000; // =no limit
+
+		if (($rdfprocessor = new RDFprocessor(null, 2, $HOST)))
+		{
+			
+			RDFprocessor::$rdfp_MAX_SRC_SUBJECT_EXPANSION_PRO_SRC = 1000000; // no limit
+			RDFprocessor::$rdfp_MAX_SRC_SUBJECT_EXPANSION = 1000000; // no limit
+			RDFprocessor::$rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC = RDFprocessor::$rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC; // no change (for now)
+			
+			list($skos_subject_expansion,$count_all_added_triples) =
+					$rdfprocessor->get_subjects_expansions_using_thesauri(  $subjects,
+																																	$sid,
+																																	$servicename,
+																																	$userid,
+																																	$NAMESPACES,
+																																	$lang,
+																																	$searchuid,
+																																	$COUNTTRIPLES,
+																																	$the_records,
+																																	$max_s,
+																																	$m,
+																																	$single_subject_expansion=false  );
+																																	
+			/**Collect/refactorize every item so we have only one THESAURUS record
+			 * with its content (skos node)
+			 * STW 
+			 *  broaders (for subject "digital economy")
+			 *  broaders (for subject "digital")
+			 *  broaders (for subject "economy")
+			 *  Narrowers (for subject "digital economy")
+			 *  Narrowers (for subject "digital")
+			 *  Narrowers (for subject "economy")
+			 *  Related (for subject "digital economy")
+			 *  Related (for subject "digital")
+			 *  Related (for subject "economy")
+			 */ 
+			 
+				$refactorized_skos_subject_expansion
+			 					= refactorize_uniquely_skos_subject_expansion($skos_subject_expansion);
+			 
+		}		
+		if($DEBUG) {
+			print "<hr>get_subjects_expansions_using_thesauri($query) returning: <br>";
+			var_dump($skos_subject_expansion);
+			tell_skos_subjects($skos_subject_expansion, 'RESULTS expand_subjects');
+			
+			print "<hr>refactorize_uniquely_skos_subject_expansion() returning: <br>";
+			var_dump($refactorized_skos_subject_expansion);
+			print "<hr>";
+			tell_skos_subjects($refactorized_skos_subject_expansion, 'RESULTS refactorized');
+			
+			
+			print $RDFLOG;
+			$RDFLOG='';
+		}
+		
+		
+		return json_encode(array('query' => $query, 'skostheresults' => $refactorized_skos_subject_expansion,'error'=>$errortxt));
+	} // get_json_thesearchresults4webservice
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Calls and code search results
+	 * Returns a text json representation of them
+	 * To be used in a webservice for a javaserver
+	 */
+	public static function get_json_searchresults4webservice($sid, $internalresults, $externalresults)
+	{
+		$DEBUG=0;
+		$ok_to_retrieve=true;
+		
+		if (!$sid)
+		{
+			$errortxt='get_json_searchresults() - fatal - no sid provided!';
+			$ok_to_retrieve=false;
+		}
+		if ($DEBUG)
+			print "\n<br> get_json_searchresults($sid, $internalresults, $externalresults)";
+		
+		if ($ok_to_retrieve)
+		{
+			$allResults = RodinResultManager::getRodinResultsForASearch($sid,'',$internalresults, $externalresults); 
+			$resultCount = count($allResults);
+			
+			if ($DEBUG) print "<br>\n$resultCount results read...";
+			
+			// Both a maximum size and a maximum number of results are set
+			$resultMaxSetSize = 4;
+			$resultMaxLength = 131072;
+			$fromResult = 0;
+			$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
+			
+			$i = $fromResult;
+			while ($i < $uptoResult) 
+			{
+				$result = $allResults[$i];
+				if ($result)
+				{
+					$resultCounter = $i + 1;
+				
+					if ($DEBUG)
+					{
+						print "<hr>\n\nRESULT: <br>\n"; var_dump($result);
+					}
+				
+				
+					$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
+				
+					$jsonSingleResult = array();
+				
+					$jsonSingleResult['count'] = $resultCounter;
+					$jsonSingleResult['url'] = $result->getUrlPage();
+					$jsonSingleResult['resultIdentifier'] = $resultIdentifier;
+				
+					//$jsonSingleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
+					//$jsonSingleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
+				
+					//$jsonSingleResult['header'] = json_encode($result->htmlHeader($jsonSingleResult['resultIdentifier'], $resultCounter, $sid, true));
+					//$jsonSingleResult['minHeader'] = json_encode($resultCounter . '<br />');
+				
+					$jsonSingleResult['toString'] = $result->__toString();
+					$jsonSingleResult['toDetails'] = json_encode($result->__toDetails());
+				
+					// Check the size of the response if this result was added
+					//$tmpAllResults = $jsonAllResults;
+					$tmpAllResults[] = $jsonSingleResult;
+					$tmpJsonResponse = json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $uptoResult, 'results' => $tmpAllResults));
+					$tmpJsonResponseLength = strlen($tmpJsonResponse);
+				
+					if ($tmpJsonResponseLength > $resultMaxLength)
+						break;
+					
+					$jsonAllResults[] = $jsonSingleResult;
+					}
+				$i++;
+			}
+		} // $ok_to_retrieve
+		return json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $i, 'results' => $jsonAllResults, 'error'=>$errortxt));
+	} // get_json_searchresults4webservice
+	
+	
+	
 }
+
+?>

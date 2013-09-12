@@ -8,14 +8,12 @@ include_once("../u/RodinWidgetBase.php");
 include_once "$DOCROOT/$RODINUTILITIES_GEN_URL/bibsonomy/bibsonomy_api.php";
 require_once '../u/RodinResult/RodinResultManager.php';
 
-$BIBSONOMY_APPLICATION_ID = getWK('BIBSONOMY_APPLICATION_ID');
-$BIBSONOMY_USER = getWK('BIBSONOMY_USER');
 
 // Since widgets are loaded inside an iFrame, they need
 // a HTML header.
-print_htmlheader("BIBSONOMY RODIN WIDGET");
-		
-
+if (!$WEBSERVICE) {
+	print_htmlheader("BIBSONOMY RODIN WIDGET");
+	
 /* ********************************************************************************
  * Generate the HTML search input fields and controls
  ******************************************************************************* */
@@ -45,11 +43,11 @@ $htmldef=<<<EOH
 EOH;
 add_search_control('ask', '', '', $htmldef, 2);
 }
-
+} // WEBSERVICE
 /* ********************************************************************************
  * Widget functions
  ******************************************************************************* */
-
+class RDW_bibsonomy {
 /**
  * This function is used to create the form for the widget preferences.
  * 
@@ -57,7 +55,7 @@ add_search_control('ask', '', '', $htmldef, 2);
  * name also. If called 'xcc' here, real name is 'cc' (Rerodoc). Please
  * insert value=''.
  */
-function DEFINITION_RDW_SEARCH_FILTER() {
+public static function DEFINITION_RDW_SEARCH_FILTER() {
 	 // Fix width in accordance to Widget desired width	
 	global $_w;
 	$w = $_w - 80;
@@ -107,7 +105,7 @@ EOH;
  * 
  * @deprecated
  */
-function DEFINITION_RDW_DISPLAYHEADER() {
+public static function DEFINITION_RDW_DISPLAYHEADER() {
 	return true;
 }
 
@@ -115,7 +113,7 @@ function DEFINITION_RDW_DISPLAYHEADER() {
  * 
  * ... ?
  */
-function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
+public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
 	return true;
 }
 
@@ -127,18 +125,27 @@ function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
  * 
  * @param string $chaining_url
  */
-function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
+public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 
 	global $BIBSONOMY_USER, $BIBSONOMY_APPLICATION_ID;
 
 	global $datasource;
 	global $REALNAME;
 	global $RDW_REQUEST;
+	global $WEBSERVICE;
 	
-	foreach ($RDW_REQUEST as $querystringparam => $d) {
-		eval( "global \${$querystringparam};" );
+	$BIBSONOMY_APPLICATION_ID = getWK('BIBSONOMY_APPLICATION_ID');
+	$BIBSONOMY_USER = getWK('BIBSONOMY_USER');
+	
+	foreach ($RDW_REQUEST as $querystringparam => $d)
+	{
+		if ($DEBUG) print "<br>RDW_REQUEST eval $querystringparam => $d";
+		if ($WEBSERVICE) 
+				 eval( "global \${$querystringparam}; \${$querystringparam} = '$d';" );
+		else eval( "global \${$querystringparam};" );
 	}
-		
+
+	if ($REALNAME)
 	foreach ($REALNAME as $rodin_name=>$needed_name) {
 		if ("${$rodin_name}" <> '') { // only if value defined
 			$FILTER_SECTION.="&$needed_name=${$rodin_name}";
@@ -162,7 +169,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	// Instantiate BibSonomy accessor
 	$bib = new BibSonomy($BIBSONOMY_USER, $BIBSONOMY_APPLICATION_ID );
   
-  list($timestamp,$sxml) = getAllPublicPosts_cached($bib, $r, $tags, $q, $u);
+  list($timestamp,$sxml) = RDW_bibsonomy::getAllPublicPosts_cached($bib, $r, $tags, $q, $u);
   //$sxml = $bib->getAllPublicPosts($r, $tags, $u);
 	
 	// Parse results creating results
@@ -230,7 +237,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 						}
 						$singleResult->setProperty('keywords', implode(', ', $tagArray));
 						
-						$miscData = decodeMiscProperty($xmlPost->bibtex['misc']);
+						$miscData = RDW_bibsonomy::decodeMiscProperty($xmlPost->bibtex['misc']);
 						$singleResult->setProperty('doi', $miscData['ee']);
 						
 						break;
@@ -238,7 +245,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 						// Book specific fields
 						// $singleResult->setProperty('description', '');
 
-						$miscData = decodeMiscProperty($xmlPost->bibtex['misc']);
+						$miscData = RDW_bibsonomy::decodeMiscProperty($xmlPost->bibtex['misc']);
 						$singleResult->setProperty('isbn', $miscData['isbn']);
 						
 						$tagArray = array();
@@ -273,7 +280,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
  * 
  * ... ?
  */	
-function DEFINITION_RDW_STORERESULTS()
+public static function DEFINITION_RDW_STORERESULTS()
 {
 	return true; // nothing to do here
 }
@@ -284,7 +291,7 @@ function DEFINITION_RDW_STORERESULTS()
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -299,7 +306,7 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
  * use rodin_cache - calls bibsonomy proc to get data
  * and store it into cache.
  */
-function getAllPublicPosts_cached(&$bibsonomy_interface,$r, &$tags, $q, $u)
+private static function getAllPublicPosts_cached(&$bibsonomy_interface,$r, &$tags, $q, $u)
 {
   //	$sxml = $bibsonomy_interface->getAllPublicPosts($r, $tags, $u);
   $cacheid = "$r-$q-$u";
@@ -325,7 +332,7 @@ function getAllPublicPosts_cached(&$bibsonomy_interface,$r, &$tags, $q, $u)
  * Called from RodinWidgetSMachine.RDW_SHOWRESULT_FULL_EPI(), it is asked
  * to print the HTML code corresponding to results.
  */
-function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -341,7 +348,7 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 /**
  * Decodes the 'misc' attribute in bookmarks and bibtext records
  */
-function decodeMiscProperty($misc) {
+private static function decodeMiscProperty($misc) {
 	$miscArray = array();
 	
 	if (trim($misc) != '') {
@@ -363,6 +370,8 @@ function decodeMiscProperty($misc) {
 	return $miscArray;
 }
 
+} // RDW_bibsonomy
+
 /* ********************************************************************************
  * Decide which function the state machine is on.
  ******************************************************************************* */
@@ -370,4 +379,3 @@ function decodeMiscProperty($misc) {
 include_once("../u/RodinWidgetSMachine.php");
 
 ?>
-

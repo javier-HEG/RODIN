@@ -1,12 +1,11 @@
 // HEG - RODIN
 // Javascript Functions
 // Autor: Fabio Ricci
-// fabio.ricci@ggaweb.ch
+// fabio.ricci@semweb.ch - for HEG Geneve
 // Date : 1.1.2010
 
 // THIS AJAX File must be included 
 // form inside a php script with root variables
-
 
 SRC_REFINE_INTERFACE = new Array;
 SRC_CURRENT_INTERFACE_ID =-1;
@@ -621,6 +620,7 @@ function format3pos(num)
 				+'\n'+'pclass='+pclass);
 				
 		hide_autocomplete_bruteforce();
+ 		METASEARCH_FINISHED=true //Instruct autocomplete;
 
 		var searchtxt = '';
 		var setversion=SETVERSION;

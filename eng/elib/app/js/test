@@ -1,0 +1,16 @@
+make_tooltip_visible_delayed(
+'elib_tooltip',
+418,333,
+'<table class='ttp' cellpadding=0 cellspacing=0 border=1 width='100%'> 
+<tr class='ttp'> <td class='ttp' width=17>  
+<a onclick='bc_add_breadcrumb_unique("Pricing","result")' title='Click to add this word to additional search terms'>
+<img src='../../../../gen/u/images/add-to-breadcrumb.png' /></a> 
+</td> <td class='ttp' width=17>  <a onclick='' title='Click to filter results with this word'><img src='../../../../gen/u/images/funnel.png' /></a> 
+</td> <td/> <td class='ttp' width=17>  <a onclick='toggle_pin_tooltip(this,"result")' title='Click to pin this context menu'><img src='../../../../gen/u/images/pin20.png' /></a> 
+</td> </tr> 
+<tr class='ttp'> 
+<td class='ttp' colspan=4>  
+<label id='ttp' class='ttp'>Pricing</label> </tr> </table>',
+'c2ltcGxlX2hpZ2hsaWdodF9zZW1maWx0ZXJyZXN1bHRzKCdQcmljaW5nJyx0cnVlKTt0cmFuc2Zlcl9iZ2NfdG9fdHRwKCdlbGliX3Rvb2x0aXAnKQ==',
+'cHVoKCdQcmljaW5nJyk=',
+'elib_tooltip_obj')

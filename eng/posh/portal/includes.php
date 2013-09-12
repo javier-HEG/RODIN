@@ -19,25 +19,14 @@
 */
 # !! be careful, this file must be saved under uft8 format, and display an e accentuated here : é
 	
-
+	
 require_once('../includes/config.inc.php');
 require_once('../includes/connection_'.__DBTYPE.'.inc.php');
 require_once('../includes/session.inc.php');
-
-
-
 require_once('../includes/plugin.api.php');
-
-
-
 require_once('../db_layer/'.__DBTYPE.'/portal.php');
-
-
-
 if (file_exists('../includes/plugins.inc.php'))
 include_once('../includes/plugins.inc.php');
-
-
 
 global $DB;
 $DB = new connection(__SERVER,__LOGIN,__PASS,__DB);

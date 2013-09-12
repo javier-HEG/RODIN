@@ -324,41 +324,126 @@ EOX;
 			global $RDFLOG;
 	 		if (is_array($skos_subjects) && ($c=count($skos_subjects)))
 			{
-				
-				$RDFLOG.="<hr><i>$c $TITLE</i>";
+				$LOCALLOG.="<hr><i>$c $TITLE</i>";
 				foreach($skos_subjects as $s=>$EXPANSIONS)
 				{
 					
 					foreach($EXPANSIONS as $SKOS)
 					{
-						list($src_name,$srcuid,$src_data_fresh,$broaders,$narrowers,$related)=$SKOS;
-						$RDFLOG.= "<br><b>$src_name</b> ($srcuid).SKOS ($s):";
+						list($src_name,$srcuid,$src_data_fresh,
+														$broaders,$narrowers,$related)=$SKOS;
+						$LOCALLOG.= "<br><b>$src_name</b> ($srcuid).SKOS ($s):";
 						
 						if (($bc=is_array($broaders) * count($broaders))>0)
 						{
-							$RDFLOG.="<br><i>$bc Broaders:</i>";
+							$LOCALLOG.="<br><i>$bc Broaders:</i>";
 							foreach($broaders as $b)
-							$RDFLOG.="<br>&nbsp;&nbsp; $b";
+							$LOCALLOG.="<br>&nbsp;&nbsp; $b";
 						}
 						
 						if (($nc=is_array($narrowers) * count($narrowers))>0)
 						{
-							$RDFLOG.="<br><i>$nc Narrowers:</i>";
+							$LOCALLOG.="<br><i>$nc Narrowers:</i>";
 							foreach($narrowers as $n)
-							$RDFLOG.="<br>&nbsp;&nbsp; $n";
+							$LOCALLOG.="<br>&nbsp;&nbsp; $n";
 						}
 	
 						if (($rc=is_array($related) * count($related))>0)
 						{
-							$RDFLOG.="<br><i>$rc Related:</i>";
+							$LOCALLOG.="<br><i>$rc Related:</i>";
 							foreach($related as $r)
-							$RDFLOG.="<br>&nbsp;&nbsp; $r";
+							$LOCALLOG.="<br>&nbsp;&nbsp; $r";
 						}
 					}
 				} // EXPANSIONS
-				$RDFLOG.="<hr>";
+				$LOCALLOG.="<hr>";
 			}
+			$RDFLOG=$LOCALLOG;
+			return $LOCALLOG;
 		}
+		
+		
+		
+	/**Collect/refactorize every item so we have only one THESAURUS record
+	 * with its content (skos node)
+	 * STW 
+	 *  broaders (for subject "digital economy")
+	 *  broaders (for subject "digital")
+	 *  broaders (for subject "economy")
+	 *  Narrowers (for subject "digital economy")
+	 *  Narrowers (for subject "digital")
+	 *  Narrowers (for subject "economy")
+	 *  Related (for subject "digital economy")
+	 *  Related (for subject "digital")
+	 *  Related (for subject "economy")
+	 */ 
+	 function refactorize_uniquely_skos_subject_expansion($skos_subject_expansion)
+	 {
+	 		$DEBUG=0;
+			$skos = array();
+	 		if (is_array($skos_subject_expansion) && ($c=count($skos_subject_expansion)))
+			{
+				foreach($skos_subject_expansion as $s=>$EXPANSIONS)
+				{
+					foreach($EXPANSIONS as $SKOS)
+					{
+						
+						list($src_name,$srcuid,$src_data_fresh,
+														$broaders,$narrowers,$related)=$SKOS;
+						$SRCID= get_srcid_from_srcuid($srcuid); 
+						add_to_assoc_uniquely($skos{$src_name},'id',$SRCID);
+						
+						if (($bc=is_array($broaders) * count($broaders))>0)
+						{
+							foreach($broaders as $b)
+							{
+								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name B $b: ";var_dump($skos{$src_name});}
+								add_to_assoc_uniquely($skos{$src_name},'b',$b);
+								if ($DEBUG) {print "<br>2 add_to_assoc_uniquely $b: ";var_dump($skos{$src_name});}
+							}
+						}
+						
+						if (($nc=is_array($narrowers) * count($narrowers))>0)
+						{
+							foreach($narrowers as $n)
+							{
+								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name N $n: ";var_dump($skos{$src_name});}
+								add_to_assoc_uniquely($skos{$src_name},'n',$n);
+								if ($DEBUG) {print "<br>2 add_to_assoc_uniquely $n: ";var_dump($skos{$src_name});}
+							}
+						}
+	
+						if (($rc=is_array($related) * count($related))>0)
+						{
+							foreach($related as $r)
+							{
+								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name R $r: ";var_dump($skos{$src_name});}
+								add_to_assoc_uniquely($skos{$src_name},'r',$r);
+								if ($DEBUG) {print "<br>2 add_to_assoc_uniquely $n: ";var_dump($skos{$src_name});}
+							}
+						}
+					}
+				} // EXPANSIONS
+			}
+		
+			return $skos;
+			
+		} // refactorize_uniquely_skos_subject_expansion
+		
+
+				
+	function get_srcid_from_srcuid($srcuid)
+	{
+		//= rodin_a:src_$SRCID__1377785428_96
+		$SRCID='?';
+		$PATTERN="/\:src_(\d+)_/";
+		if (preg_match($PATTERN,$srcuid,$match))
+		{
+			$SRCID=$match[1];
+		}
+		return $SRCID;
+	} // get_srcid_from_srcuid
+	
 		
 		
 	
@@ -1843,8 +1928,10 @@ EOQ;
 	
 		$xml_content=get_file_content($url_endpoint_query);
 		//$xml_content=utf8_encode(html_entity_decode($xml_content));
-		if ($DEBUG) $RDFLOG.= "<br>XML GOT FROM $src_name:<br>".htmlentities((($sparqlquery)));
+		if ($DEBUG) $RDFLOG.= "<br>query LOD: ($url_endpoint_query):<br>".htmlentities((($sparqlquery)));
 		$xml_content_len=strlen($xml_content);
+		if ($DEBUG) $RDFLOG.= "<br>XML RECEIVED FROM LOD source: <br>".htmlentities((($xml_content)));
+		
 		$valid_xml=true;
 		if (datasource_error($xml_content,$src_name))
 		{
@@ -2365,7 +2452,7 @@ EOQ;
 	 * returns lists of marked results
 	 * @param $query 
 	 */
-	function get_rodin_src_suggestions($query,$USER_ID,$max_suggestions=10)
+	function get_rodin_src_suggestions($query,$USER_ID,$max_suggestions_each_rsc=30)
 	{
 		$DEBUG=0;
 		if (!$USER_ID) print "ERROR - NO USER_ID GIVEN";
@@ -2374,15 +2461,16 @@ EOQ;
 		$suggestions_data=array();
 		$descriptions=array();
 	
-		$max_retrieval_results=12; // Limit search engine to n results each SRC
+		$max_retrieval_results=$max_suggestions_each_rsc; // Limit search engine to n results each SRC
 		$max_displayed_results=2; // Limit display in autocomplete to n results
 			
 		$servicename='autocomplete';
 		$SRCS = get_active_SRC_autocomplete_sources( $USER_ID );
 		
-		if ($DEBUG) print "<br>".count($SRCS)." SRCs ready for autocomplete... on ($query):\n";
+		if ($DEBUG) print "<br>".count($SRCS)." SRCs ready for autocomplete... on ($query): USER: $USER_ID\n";
 		$PREPARED_AUTOCOMPLETE_SOURCES =  get_SRC_THESAURI_RECORDS($SRCS,$USER_ID,$lang='');
-
+		if ($DEBUG) print "<br>".count($PREPARED_AUTOCOMPLETE_SOURCES)." PREPARED_AUTOCOMPLETE_SOURCES ready for autocomplete... on ($query): USER: $USER_ID\n";
+		
 		if (count($PREPARED_AUTOCOMPLETE_SOURCES))
 		{
 			include_once('LanguageDetection.php');
@@ -2468,7 +2556,8 @@ EOQ;
 																						$pathClass,
 																						$pathSuperClass,
 																						$AuthUser,
-																						$AuthPasswd  );
+																						$AuthPasswd,
+																						$m=$max_suggestions_each_rsc  );
 					####################################################
 					#
 					# Beautify SRC name and insert uniquely suggestions
@@ -2735,104 +2824,157 @@ EOQ;
 		 * 
 	 * @param $USER_ID - the user id for which some SRC's are activated
 	 * @param &$SRCS - if set, a result from a call like $SRCS = get_active_THESAURI_expansion_sources( $USER_ID );
+	 * @param $restricttotheseSRCnames - a list of commaseparated thesauri names
 	 */
-	function get_SRC_THESAURI_RECORDS(&$SRCS,$USER_ID,$lang)
+	function get_SRC_THESAURI_RECORDS(&$SRCS,$USER_ID,$lang_notused,$restricttotheseSRCnames='')
 	{
 		$DEBUG=0;
 		global $DOCROOT,$HOST;
 		$initialised_src=0;
+		
+				if ($restricttotheseSRCnames<>'' && $restricttotheseSRCnames<>'*')
+			$restricttotheseSRCname_arr=explode(',',$restricttotheseSRCnames);
+		else 
+			$restricttotheseSRCname_arr=null;
+			
+			
 		if (!$SRCS)
 		{
 			if ($DEBUG) $RDFLOG.="<br>RENEW SRCs for user id $US";
 			$SRCS = get_active_THESAURI_expansion_sources( $USER_ID );
 		}
+		else {
+			if ($DEBUG) {print "<br>USE CURRENT SRCS"; var_dump($SRCS);}
+		}
 		$SRCrecords = $SRCS['records'];
 		
 		$NoOfUsableSRC=count($SRCrecords);
-		
+	
+		if ($DEBUG)	print "<br>get_SRC_THESAURI_RECORDS($USER_ID) $NoOfUsableSRC retrieved thrsauri for host $HOST";
 		$i=0;
 		if(is_array($SRCrecords) && count($SRCrecords))
 		foreach($SRCrecords as $SRC)
 		{
 			$i++;
 			$src_name=$SRC['Name'];
-			$src_path=trim($SRC['Path_Refine']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
-			$src_sparql_endpoint=trim($SRC['sparql_endpoint']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
-			$src_sparql_endpoint_params=trim($SRC['sparql_endpoint_params']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
-						
-			//print "<br>src_path: ($src_path)";
-			$CLASS=basename($src_path);
-			$SUPERCLASS=basename(dirname($src_path));
-			$DISKenginePATH=$DOCROOT.str_replace("$SUPERCLASS/$CLASS",'',$src_path);
-			$DISKfsrcPATH=dirname($DISKenginePATH);
 			
-			// Include class paths for SRC ENGINES
-			$pathSuperClass=$DISKenginePATH.$SUPERCLASS."/$SUPERCLASS.php";
-			$pathClass=$DISKenginePATH.$SUPERCLASS."/$CLASS/$CLASS.php";
-			
-			$AuthUser				=$SRC['AuthUser'];
-			$AuthPasswd			=$SRC['AuthPasswd'];
-			$ID							=$SRC['ID'];
-			$Protocol				=$SRC['Protocol'];
-			$Server					=$SRC['Server'];
-			$Port						=$SRC['Port'];
-			$Path_Start			=$SRC['Path_Start'];
-			$Path_Refine		=$SRC['Path_Refine'];
-			$Path_Test			=$SRC['Path_Test'];
-			$Servlet_Start	=$SRC['Servlet_Start'];
-			$Servlet_Refine	=$SRC['Servlet_Refine'];
-			$src_parameters	  =$SRC['src_parameters'];
-			$autocomplete_uri	=$SRC['autocomplete_uri'];
-
-			//Is this a classical SRC or nonSKOS a sparql endpoint ?
-			$IS_REMOTE_SPARQL_ENDPOINT=(($src_sparql_endpoint_params<>'' || $autocomplete_uri<>'' ));
-			
-			$basic_path_sroot=str_replace('//','/',$DISKfsrcPATH."/sroot.php");
-			$basic_path_SRCengine=str_replace('//','/',$DISKenginePATH.'/SRCengine.php');
-			$basic_path_SRCengineInterface=str_replace('//','/',$DISKenginePATH.'/SRCengineInterface.php');
-				
-			$LOCAL_SRC = ($Server == $HOST);
-			
-			$initialised_src++;
-			if ($DEBUG)
+			//Is this SRC really wanted or already filtered?
+			$oktoSRC = (! $restricttotheseSRCname_arr)
+			 						|| checkMatchingSRCName(strtolower($src_name),$restricttotheseSRCname_arr);
+			if ($oktoSRC)
 			{
-				print "<hr> Name:".$src_name;
-				print "<br> CLASS: ".$CLASS;
-				print "<br> SUPERCLASS: ".$SUPERCLASS;
-				print "<br> PATH: ".$src_path;
-				print "<br> DISKfsrcPATH: ".$DISKfsrcPATH;
-				print "<br> DISKenginePATH: ".$DISKenginePATH;
-			}
-			
-			$INITIALISED_SRCs[]= array(	$src_name,
-																	$IS_REMOTE_SPARQL_ENDPOINT,
-																	$src_sparql_endpoint,
-																	$src_sparql_endpoint_params,
-																	$LOCAL_SRC,
-																	$DISKenginePATH,
-																	$basic_path_sroot,
-																	$basic_path_SRCengineInterface,
-																	$basic_path_SRCengine,
-																	$CLASS,
-																	$pathClass,
-																	$pathSuperClass,
-																	$AuthUser,
-																	$AuthPasswd,
-																	$ID,
-																	$Protocol,
-																	$Server,
-																	$Port,
-																	$Path_Start,
-																	$Path_Refine,
-																	$Servlet_Start,
-																	$Servlet_Refine,
-																	$src_parameters,
-																	$autocomplete_uri
-																	);
-			
+				$src_path=trim($SRC['Path_Refine']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+				$src_sparql_endpoint=trim($SRC['sparql_endpoint']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+				$src_sparql_endpoint_params=trim($SRC['sparql_endpoint_params']); // = /rodin/eng/fsrc/app/engine/SOZengine/SOZengineSOLR
+							
+				//print "<br>src_path: ($src_path)";
+				$CLASS=basename($src_path);
+				$SUPERCLASS=basename(dirname($src_path));
+				$DISKenginePATH=$DOCROOT.str_replace("$SUPERCLASS/$CLASS",'',$src_path);
+				$DISKfsrcPATH=dirname($DISKenginePATH);
+				
+				// Include class paths for SRC ENGINES
+				$pathSuperClass=$DISKenginePATH.$SUPERCLASS."/$SUPERCLASS.php";
+				$pathClass=$DISKenginePATH.$SUPERCLASS."/$CLASS/$CLASS.php";
+				
+				$AuthUser					=$SRC['AuthUser'];
+				$AuthPasswd				=$SRC['AuthPasswd'];
+				$ID								=$SRC['ID'];
+				$Protocol					=$SRC['Protocol'];
+				$Server						=$SRC['Server'];
+				$Port							=$SRC['Port'];
+				$Path_Start				=$SRC['Path_Start'];
+				$Path_Refine			=$SRC['Path_Refine'];
+				$Path_Test				=$SRC['Path_Test'];
+				$Servlet_Start		=$SRC['Servlet_Start'];
+				$Servlet_Refine		=$SRC['Servlet_Refine'];
+				$src_parameters	  =$SRC['src_parameters'];
+				$autocomplete_uri	=$SRC['autocomplete_uri'];
+	
+				//Is this a classical SRC or nonSKOS a sparql endpoint ?
+				$IS_REMOTE_SPARQL_ENDPOINT=(($src_sparql_endpoint_params<>'' || $autocomplete_uri<>'' ));
+				
+				$basic_path_sroot=str_replace('//','/',$DISKfsrcPATH."/sroot.php");
+				$basic_path_SRCengine=str_replace('//','/',$DISKenginePATH.'/SRCengine.php');
+				$basic_path_SRCengineInterface=str_replace('//','/',$DISKenginePATH.'/SRCengineInterface.php');
+					
+				$LOCAL_SRC = ($Server == $HOST);
+				
+				$initialised_src++;
+				if ($DEBUG)
+				{
+					print "<hr> Name:".$src_name;
+					print "<br> CLASS: ".$CLASS;
+					print "<br> SUPERCLASS: ".$SUPERCLASS;
+					print "<br> PATH: ".$src_path;
+					print "<br> DISKfsrcPATH: ".$DISKfsrcPATH;
+					print "<br> DISKenginePATH: ".$DISKenginePATH;
+				}
+				
+				$INITIALISED_SRCs[]= array(	$src_name,
+																		$IS_REMOTE_SPARQL_ENDPOINT,
+																		$src_sparql_endpoint,
+																		$src_sparql_endpoint_params,
+																		$LOCAL_SRC,
+																		$DISKenginePATH,
+																		$basic_path_sroot,
+																		$basic_path_SRCengineInterface,
+																		$basic_path_SRCengine,
+																		$CLASS,
+																		$pathClass,
+																		$pathSuperClass,
+																		$AuthUser,
+																		$AuthPasswd,
+																		$ID,
+																		$Protocol,
+																		$Server,
+																		$Port,
+																		$Path_Start,
+																		$Path_Refine,
+																		$Servlet_Start,
+																		$Servlet_Refine,
+																		$src_parameters,
+																		$autocomplete_uri
+																		);
+			} // oktoRSC
 		} // foreach $SRC
 		return $INITIALISED_SRCs;
 	} // get_SRC_THESAURI_RECORDS
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 
+	 * @param $src_name - in lowercase
+	 * @param $restricttotheseSRCname_arr (each item in lowercase)
+	 */
+	function checkMatchingSRCName($src_name,$restricttotheseSRCname_arr)
+	{
+		$DEBUG=0;
+		$matching=false;
+		foreach($restricttotheseSRCname_arr as $restricttotheseSRCname)
+		{
+			if ($DEBUG) print "<br>checkMatchingSRCName matching $src_name --- $restricttotheseSRCname ?";
+			if (strstr($src_name,$restricttotheseSRCname) 
+			|| strstr($restricttotheseSRCname,$src_name))
+			{
+				$matching=true; 
+				if ($DEBUG) print " YES ";
+				break;
+			}
+			else {
+				if ($DEBUG) print "NO";
+			}
+		}
+		return $matching;
+	} // checkMatchingSRCName
+	
+	
 	
 	
 	

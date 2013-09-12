@@ -60,13 +60,17 @@ $NEED_AJAX_INTERNET_ACCESS=true;
 $SEARCH_RESULTS	= $_REQUEST['sr' ];
 
 
+
+
+class RDW_googlebooks {
+
 /**
  * 
  * This function is used to create the form for the widget preferences.
  * 
  * @author Javier Belmonte <javier.belmonte@hesge.ch>
  */
-function DEFINITION_RDW_SEARCH_FILTER() {	
+public static function DEFINITION_RDW_SEARCH_FILTER() {	
 	$title = "Search only full Books.";
 	$publications = $_REQUEST['xBooks'];
 	$htmldef = <<<EOH
@@ -92,7 +96,7 @@ EOH;
  * 
  * @deprecated
  */
-function DEFINITION_RDW_DISPLAYHEADER() {
+public static function DEFINITION_RDW_DISPLAYHEADER() {
 	return true;
 }
 
@@ -101,7 +105,7 @@ function DEFINITION_RDW_DISPLAYHEADER() {
  * 
  * ... ?
  */
-function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
+public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
 	return true;
 }
 
@@ -137,7 +141,7 @@ function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
  * 
  * @param string $chaining_url
  */
-function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
+public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
    include_once("../tests/Logger.php");
     global $datasource;
     global $RDW_REQUEST;
@@ -218,9 +222,9 @@ EOP;
         else
         {
             if ($_REQUEST['xBooks'] != "'fullOnly'")
-                    $restriction = "google.search.BookSearch.TYPE_FULL_VIEW_BOOKS";
+              $restriction = "google.search.BookSearch.TYPE_FULL_VIEW_BOOKS";
             else
-                    $restriction = "google.search.BookSearch.TYPE_ALL_BOOKS";
+              $restriction = "google.search.BookSearch.TYPE_ALL_BOOKS";
 
             echo <<< EOAPIR
 <script src="http://www.google.com/jsapi?key=$GOOGLEAPIKEY" type="text/javascript"></script>
@@ -324,14 +328,14 @@ EOAPIR;
 * there a POST is detected and holds parameters 'sr' and '_p'. It is
 * responsible for saving the results passed as a JSON object
 */
-function DEFINITION_RDW_STORERESULTS() {
+public static function DEFINITION_RDW_STORERESULTS() {
   
 	global $cachetimestamp; if (!$cachetimestamp) $cachetimestamp=0;
 	
 	$DecodedSearchresults = json_decode($_REQUEST['sr']);
   // we must use this current sid for storing the results:
   $DecodedSearchresults->search->sid= $_REQUEST['sid'];
-	$cnt = saveGoogleBooksResults($DecodedSearchresults,$cachetimestamp);
+	$cnt = RDW_googlebooks::saveGoogleBooksResults($DecodedSearchresults,$cachetimestamp);
 
 	// This output is not visible since it's made by an AJAX query
 	//print "$cnt results for $sid stored in DB";
@@ -346,7 +350,7 @@ function DEFINITION_RDW_STORERESULTS() {
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_WIDGET($w, $h) {
+public static function DEFINITION_RDW_SHOWRESULT_WIDGET($w, $h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -361,7 +365,7 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w, $h) {
  * Called from RodinWidgetSMachine.RDW_SHOWRESULT_FULL_EPI(), it is asked
  * to print the HTML code corresponding to results.
  */
-function DEFINITION_RDW_SHOWRESULT_FULL($w, $h) {
+public static function DEFINITION_RDW_SHOWRESULT_FULL($w, $h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -384,7 +388,7 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w, $h) {
 * 
 * @param mixed $decodedResults the JSON decoded results
 */
-function saveGoogleBooksResults($decodedResults,$cachetimestamp) {
+private static function saveGoogleBooksResults($decodedResults,$cachetimestamp) {
 	global $datasource;
 
 	$allResults = array();
@@ -434,7 +438,7 @@ function saveGoogleBooksResults($decodedResults,$cachetimestamp) {
 	return count($allResults);
 }
 
-
+} // }
 ##################################################
 ##################################################
 # Decide what to run:

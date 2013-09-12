@@ -1,5 +1,11 @@
 <?php
-
+	#############################################
+	#
+	# Fabio Ricci (fabio.ricci@semweb.ch) for HEG
+	# WARNING - this search is obsolete
+	# it should be replaced by SOLR
+	#
+	$DEBUG=2;
 	include_once("FRIutilities.php");
 	
 	//z.b. ?q=blabla&m=10&source=			
@@ -30,7 +36,7 @@
 	
 	
 	$uri="$RODINDATAURI/$source";
-  	$url="$WEBROOT$uri";
+  $url="$WEBROOT$uri";
 
 	//print "<br>suche $m Ergebnisse nach $q in $url";
 
@@ -39,9 +45,9 @@
 	
 	
 	//$C = getcontent_authenticated($url);	
-	//print "get content $url";
+	//if ($DEBUG) print "<br> xmlsearc(): get content $url";
 	$XMLcontent =	file_get_contents($url,false);
-	//print "<br>XMICONTENT: ((($XMLcontent)))";
+	//if ($DEBUG) print "<br>XMICONTENT: ((($XMLcontent)))";
 	
 	
 	if ($XMLcontent<>'')
@@ -49,10 +55,10 @@
 		$sxml = simplexml_load_string($XMLcontent);
 		$namespaces = $sxml->getDocNamespaces(true);
 		$namespaces[]=''; // even the empty space (for fulltext items)
-		
+		//if ($DEBUG) var_dump($XMLcontent);
 		
 		$cntres=0;
-		$qq = explode(' ',($q)); // in case there were several args
+		$qq = explode(' ',($q)); // in case there were several token in query
 	
 		//search for q inside 
 	
@@ -72,7 +78,7 @@
 	$cnt_candidateresults=0;
 	foreach( $candidateresults as $sxmlele )
 	{			
-		//print "<br>$cnt_candidateresults $h($q)";
+		//if ($DEBUG) print "<br>$cnt_candidateresults $h($q)";
 		$selected=false;
 		$cnt_candidateresults++;
 		if ($cntres == $m) break;
@@ -80,6 +86,8 @@
 		{
 			//print "<hr>bearbeite Result nr. $cnt_candidateresults";
 			$xmlele=$sxmlele[0]->asXML();
+			//if ($DEBUG) print "<br>xmlele= ($xmlele)";
+			
 			$found=false;
 			$selected=true;	// suppose	
 			#########################################################################					
@@ -114,7 +122,7 @@
 			#########################################################################					
 				
 				
-			if ($selected)
+			//if ($selected)
 			{
 	
 				if ($h == 'or')
@@ -165,7 +173,7 @@
 header ("content-type: text/xml");
 print  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			."<!--RODIN XML Search (HEG)-->"
-			."<!--fabio.fr.ricci@hesge.ch -->"
+			."<!--fabio.ricci@semweb.ch -->"
 			."<!--$cntres Results to Query: $h($q) i=$institutes -->"
 			."<$firsttagname>"
 			;

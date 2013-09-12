@@ -1475,6 +1475,7 @@ EOQ;
 function fetch_record($Q,$DBID='rodin')
 ##########################
 {
+	$resultset=null;
 	try {
 		$DB = new RODIN_DB($DBID);
 		$DBconn = $DB->DBconn;
@@ -1494,6 +1495,33 @@ function fetch_record($Q,$DBID='rodin')
 	return $resultset;
 
 } // fetch_record
+
+
+
+function fetch_records($Q,$DBID='rodin')
+##########################
+{
+	$resultset=null;
+	try {
+		$DB = new RODIN_DB($DBID);
+		$DBconn = $DB->DBconn;
+
+		$ret = mysqli_query($DBconn,$Q);
+	
+		if ($ret!=null)
+		{
+			while ($record = mysqli_fetch_assoc($ret))
+					$records[] = $record;
+			;
+		}
+		$DB->close();
+	}
+	catch (Exception $e)
+	{
+		inform_bad_db($e);
+	}
+	return $records;
+} // fetch_records
 
 
 
@@ -1615,13 +1643,106 @@ function get_query_DB($sid) {
 
 
 
+/**
+ * lookup in posh db
+ * returns for each matching widgets the inforecord 
+ */
+function get_matching_widget_records($widgetslabels)
+{
+	$wds = explode(',',$widgetslabels);
+	foreach ($wds as $labelsegment)
+	{
+		$WWS.=$WWS?' OR ':'';
+		$WWS.= 'url like "%'.$labelsegment.'%"';
+	}
+	
+	$Q=<<<EOQ
+SELECT id, url, name 
+FROM dir_item 
+WHERE $WWS 
+EOQ;
+
+	$records = get_posh_records($Q);
+	
+	return $records;	
+} // get_matching_widget_records
+
+
+
+/**
+ * Searches in the DB for SRC's which matches $as_service 
+ * returns a triple ($ok,$records,$errortxt)
+ * 
+ * Author: Fabio Ricci for HEG
+ * fabio.ricci@semweb.ch
+ * 
+ * @param $srcsources - string: comma separated SRC name (segments)
+ * @param $userid - int: id of the user to which the src should correspond
+ * @param $as_service - string: name corresponding to the services the SRC should be allowed to 
+ * Allowed service names are:
+ * UsedAsThesaurus 				(allow__UsedAsThesaurus)
+ * UsedForAutocomplete 		(allow__UsedForAutocomplete)
+ * UsedForSubjects 				(allow__UsedForSubjects)
+ * UsedForLODRdfExpansion (allow__UsedForLODRdfExpansion)
+ *  
+ */
+function get_matching_SRC_records($srcsources, $userid, $as_service='')
+{
+	$DEBUG=0;
+	$errortxt='';
+	$ok=
+		//Servicename correct?
+	$servicename_correct = 
+		(	$as_service=='UsedAsThesaurus'
+		||$as_service=='UsedForAutocomplete'
+		||$as_service=='UsedForSubjects'
+		||$as_service=='UsedForLODRdfExpansion'
+		);
+	
+	if ($servicename_correct)
+	{
+		$ids=array();
+		$records = array();
+		if (trim($srcsources) && $userid)
+		{
+			$wds = explode(',',$srcsources);
+			foreach ($wds as $labelsegment)
+			{
+				$WWS.=$WWS?' OR ':'';
+				$WWS.= 'Name like "%'.$labelsegment.'%"';
+			}
+$Q=<<<EOQ
+SELECT * 
+FROM src_interface 
+WHERE ($WWS) 
+AND forRODINuser = $userid 
+AND $as_service = 1
+EOQ;
+			$records = get_rodin_records($Q);
+		}
+	} // $servicename_correct
+	else {
+		$errortxt="as_service ($as_service) unknown - possible values are: [UsedAsThesaurus, UsedForAutocomplete, UsedForSubjects, UsedForLODRdfExpansion]";
+		$ok=false;
+	}	
+	
+	if ($DEBUG) {
+		print "<br> get_matching_SRC_records($srcsources, $userid, $as_service) => (($Q)) ".count($records). ' records returned <br><br>';
+		var_dump($records);
+	}
+	return array($ok,$records,$errortxt);	
+} // get_matching_SRC_records
+
+
+
+
 
 function get_POSH_user_info($USER_ID ='')
 ####################################################
 {
 	global $CAN_ACCESS_ADMIN_VAR;
 	
-	$DEBUG=1; 
+	$DEBUG=0; 
 	
 	if ($CAN_ACCESS_ADMIN_VAR)
 	{
@@ -1749,9 +1870,8 @@ function fri_get_tab_id($TABNAME,$user_id)
 {
 	$tab_id= -1; // default
 
-
     $Q=<<<EOQ
-SELECT seq, id
+SELECT id
 FROM profile
 WHERE name='$TABNAME' AND user_id=$user_id
 EOQ;
@@ -1759,7 +1879,7 @@ EOQ;
 	$row = fri_fetch_assoc($Q);
 	$tab_id =$row['id'];
 
-	//print "<hr>fri_get_tab_id($TABNAME) ($Q) returns tab_id=$tab_id";
+	if ($DEBUG) print "<hr>fri_get_tab_id($TABNAME,$user_id) ($Q) returns tab_id=$tab_id";
 
 	return $tab_id;
 }
@@ -1912,6 +2032,58 @@ function fri_fetch_assoc($Q)
 
 	return $row;
 }
+
+
+function get_posh_records($query)
+{
+	try {
+			$DB = new RODIN_DB('posh');
+			$DBconn=$DB->DBconn;
+			$resultset = mysqli_query($DB->DBconn,$query);
+			$DB->close();
+
+		  if ($resultset)
+				while ($row = mysqli_fetch_assoc($resultset))
+					$rows[]=$row;
+
+	}
+	catch (Exception $e)
+	{
+		inform_bad_db($e);
+	}
+
+	return $rows;
+} // get_posh_records
+
+
+
+
+
+
+function get_rodin_records($query)
+{
+	try {
+			$DB = new RODIN_DB('rodin');
+			$DBconn=$DB->DBconn;
+			$resultset = mysqli_query($DB->DBconn,$query);
+			$DB->close();
+
+		  if ($resultset)
+				while ($row = mysqli_fetch_assoc($resultset))
+					$rows[]=$row;
+
+	}
+	catch (Exception $e)
+	{
+		inform_bad_db($e);
+	}
+
+	return $rows;
+} // get_rodin_records
+
+
+
+
 
 
 
@@ -2301,24 +2473,56 @@ function get_attribute_displays_str($prefs)
 	return trim($attributes_str);
 }
 
-
-function get_prefs($USER_ID,$REQ_APP_ID,$datasource)
+/**
+ * Returns a string with the prefs of a widgetinstance
+ * In case $REQ_APP_ID is not set (-1) - $widget_id must be set!
+ * Searches and (if found) returns the prefs
+ * of the first widget instance inside the tab "javaserver" for $USER_ID
+ */
+function get_prefs($USER_ID,$REQ_APP_ID,$datasource,$widget_id=-1)
 {
+	$DEBUG=0;
 	//FETCH PREFS FROM DB
+	
+	//In case $REQ_APP_ID is not set, try to discover a widget 
+	//For datasource inside a tab named "javaserver"
+	if($REQ_APP_ID == -1)
+	{
+		$tab_id = fri_get_tab_id($TABNAME='javaserver', $USER_ID);
+		$widget_uniq = fri_get_widget_uniq_in_tab($tab_id,$widget_id);
+		$REQ_APP_ID= $USER_ID.':'.$tab_id.':'.$widget_uniq; // partial!! We do NOT have the WIDGET UNIQUE ID
+		if ($DEBUG) print "<br>get_prefs: REQ_APP_ID $REQ_APP_ID ";
+	}
+		
 	$QUERY_GET="
 		SELECT queryprefs
 		FROM userRDWprefs
 		WHERE
 		prefsuser = '$USER_ID' AND
-		datasource = '$datasource' AND
-		application_id = '$REQ_APP_ID';";
+		datasource like '$datasource%' 
+		AND application_id = '$REQ_APP_ID' ;";
 
+	if ($DEBUG) print "<br>get_prefs($USER_ID,$REQ_APP_ID,$datasource): ($QUERY_GET)";
 	$REC=fetch_record($QUERY_GET);
 
 	$prefs= $REC['queryprefs'];
 	
 	return $prefs;
 }
+
+
+function fri_get_widget_uniq_in_tab($tab_id,$widget_id)
+{
+	$Q_SELECT=<<<EOQ
+SELECT uniq
+FROM `module`
+WHERE profile_id = $tab_id
+AND item_id = $widget_id
+EOQ;
+	$REC = fri_fetch_assoc($Q_SELECT);
+	
+	return $REC['uniq'];
+} // fri_get_widget_uniq_in_tab
 
 
 
@@ -2436,6 +2640,15 @@ function get_active_THESAURI_expansion_sources($USER_ID)
 {
 	return initialize_SRC_MODULES( $USER_ID , ' AND UsedForSubjects=1 AND temporarily_used=1');
 }
+
+
+/**
+ * Returns Records actevated for UsedAsThesaurus iff temporarily_used
+ */
+function get_active_THESAURI_sources($USER_ID)
+{
+	return initialize_SRC_MODULES( $USER_ID , ' AND UsedAsThesaurus=1 AND temporarily_used=1');
+}
 		
 /**
  * Returns Records actevated for UsedForSubjects
@@ -2453,9 +2666,10 @@ function get_active_THESAURI_expansion_sources($USER_ID)
  */
 function get_active_SRC_autocomplete_sources($USER_ID)
 {
+	$DEBUG=0;
 	//print "<br>get_active_SRC_autocomplete_sources for user id $USER_ID:";
-	$SRCM= initialize_SRC_MODULES( $USER_ID , ' AND UsedForAutocomplete=1  AND temporarily_used=1');
-	//var_dump($SRCM);
+	$SRCM= initialize_SRC_MODULES( $USER_ID , ' AND UsedForAutocomplete=1 ');
+	if($DEBUG) {print "<br>get_active_SRC_autocomplete_sources($USER_ID):  "; var_dump($SRCM);}
 	return $SRCM;
 }
 
@@ -2472,7 +2686,7 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 # to be executed
 # at the main level (index_connected)
 {
-	
+		$DEBUG=0;
 		$LOCALCONDITION=" AND UsedAsThesaurus=1 ";
 		$LOCALCONDITION=$CONDITION?$CONDITION:$LOCALCONDITION;
 		if (!$USER_ID) fontprint("initialize_SRC_MODULES called with empty USER",'red');
@@ -2485,6 +2699,8 @@ function initialize_SRC_MODULES( $USER_ID, $CONDITION='' )
 					$LOCALCONDITION
 				ORDER BY POS ASC
 			";
+			
+			if ($DEBUG) print "<br>initialize_SRC_MODULES($USER_ID, $CONDITION) = ($QUERY_GET)";
 			$DB = new RODIN_DB('rodin');
 			$DBconn=$DB->DBconn;
 			//print "<br>$QUERY_GET";

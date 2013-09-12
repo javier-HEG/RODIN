@@ -99,7 +99,7 @@ $availableSegmentsRE = "eng|heg|st|p|d|x|xxl";
 $thisScriptPath = $_SERVER['SCRIPT_NAME'];
 $thisScriptDirname = dirname($thisScriptPath);
 
-if ($rodinsegment) // Trick to make the visualization work
+if ($rodinsegment) // Use what is pre-set
 	$RODINSEGMENT =	$rodinsegment;
 else
 if ($thisScriptPath<>'' && preg_match("/install_rodin.php/",$thisScriptPath)) {
@@ -147,6 +147,7 @@ if (preg_match("/(.\S+)\/$RODINSEGMENT\/(posh|app)/",$candidatePath,$match))
 else if (preg_match("/(.\S+)\/makeinstall\/admin/",$candidatePath,$match)
 			|| preg_match("/(.\S+)\/install\/osx\/install_rodin.php/",$_SERVER['SCRIPT_NAME'],$match)
 			|| preg_match("/(.+)\/(.+)\/fsrc\/app/",$candidatePath,$match)
+			|| preg_match("/(.+)\/(.+)\/elib\/app/",$candidatePath,$match)
 			|| preg_match("/(.\S+)\/(.\S+)\/fsrc\/app/",$_SERVER['SCRIPT_NAME'],$match)
 			|| preg_match("/(.\S+)\/gen\/u/",$_SERVER['SCRIPT_NAME'],$match))
 	$RODINROOT = $match[1];
@@ -862,8 +863,7 @@ function limitusernamelength($uname, $limitlen=16)
 }
 
 
-$ADMIN_USING=0;
-
+$ADMIN_USING=$_ENV['USER'] == 'fabio';
 
 $ROOT=1;
 

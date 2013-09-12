@@ -6,7 +6,7 @@
  * @author Fabio Ricci <fabio.fr.ricci@hesge.ch>
  * @author Javier Belmonte, refactoring on 10.09.2012
  ******************************************************************************** */
-
+ 
 include_once("../u/RodinWidgetBase.php");
 require_once '../u/RodinResult/RodinResultManager.php';
 include_once("$DOCROOT/$RODINUTILITIES_GEN_URL/flickr/phpFlickr-2.3.0.1/phpFlickr.php");
@@ -19,7 +19,9 @@ $NEED_PHP_INTERNET_ACCESS = true;
 
 // Since widgets are loaded inside an iFrame, they need
 // a HTML header.
-print_htmlheader("FLICKR RODIN WIDGET");
+if (!$WEBSERVICE) {
+		
+	print_htmlheader("FLICKR RODIN WIDGET");
 
 /* ********************************************************************************
  * Generate the HTML search input fields and controls
@@ -51,6 +53,10 @@ EOH;
 add_search_control('ask','','',$htmldef,1);
 }
 
+} // WEBSERVICE
+
+
+class RDW_flickr {
 
 /**
  * Method called from RodinWidgetSMachine.RDW_COLLECTRESULTS_EPI() to collect
@@ -60,16 +66,28 @@ add_search_control('ask','','',$htmldef,1);
  * 
  * @param string $chaining_url
  */
-function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
+public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') 
+{
 	global $PROXY_NAME, $PROXY_PORT, $PROXY_AUTH_USERNAME, $PROXY_AUTH_PASSWD;
 	global $FLICKR_AUTH_KEY;
 	global $datasource;
 	global $RDW_REQUEST;
-
+	global $WEBSERVICE;
+			
+	if ($WEBSERVICE) //need to set again url:
+	{
+		$FLICKR_AUTH_KEY = getWK('FLICKR_AUTH_KEY');
+	}
 
 
 	foreach ($RDW_REQUEST as $querystringparam => $d)
-		eval( "global \${$querystringparam};" );
+	{
+		if ($DEBUG) print "<br>RDW_REQUEST eval $querystringparam => $d";
+		if ($WEBSERVICE) 
+				 eval( "global \${$querystringparam}; \${$querystringparam} = '$d';" );
+		else eval( "global \${$querystringparam};" );
+	}
+
 
 	// Create new phpFlickr
 	$flickr = new phpFlickr($FLICKR_AUTH_KEY);
@@ -140,7 +158,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url = '') {
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -155,7 +173,7 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
  * Called from RodinWidgetSMachine.RDW_SHOWRESULT_FULL_EPI(), it is asked
  * to print the HTML code corresponding to results.
  */
-function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -169,7 +187,7 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
  * 
  * ... ?
  */
-function DEFINITION_RDW_STORERESULTS() {
+public static function DEFINITION_RDW_STORERESULTS() {
 	return true; // nothing to do here
 }
 
@@ -179,7 +197,7 @@ function DEFINITION_RDW_STORERESULTS() {
  * 
  * @deprecated
  */
-function DEFINITION_RDW_DISPLAYHEADER() {
+public static function DEFINITION_RDW_DISPLAYHEADER() {
 	return true;
 }
 
@@ -187,17 +205,19 @@ function DEFINITION_RDW_DISPLAYHEADER() {
  * ... ?
  * Check ZBZ Widget, it is the only one returning 'true'
  */
-function WANT_RENDERBUTTONS() {
+public static function WANT_RENDERBUTTONS() {
 	return false;
 }
 
 /**
  * ... ?
  */
-function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
+public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS() {
 	return true;
 }
 
+
+} // RDF_flickr
 /* ********************************************************************************
  * Decide which function the state machine is on.
  ******************************************************************************* */

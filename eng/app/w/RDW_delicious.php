@@ -2,17 +2,23 @@
 include_once("../u/RodinWidgetBase.php");
 require_once '../u/RodinResult/RodinResultManager.php';
 
-		##############################################
-		##############################################
+	##############################################
+	##############################################
+	if (!$WEBSERVICE) 
+	{
 		print_htmlheader("DELICIOUS RODIN WIDGET");
-		##############################################
-		##############################################
+	##############################################
+	##############################################
+
 	
-	
-		global $SEARCHSUBMITACTION;
+	global $SEARCHSUBMITACTION;
+	#The following tells the widget state machine to check 
+	#once for internet connection and warn if no one found
+	#(timeout) before collecting results
+	$NEED_PHP_INTERNET_ACCESS=true;
 
 
-$DELICIOUS_search_baseFEED="http://feeds.delicious.com/v2/rss/tag/";
+
 
 $widget_icon_width=55;
 $widget_icon_height=20;
@@ -23,7 +29,7 @@ $widget_icon_height=20;
 
 		// add_search_control($nale,$leftlable, $rightlable, $defaultvalueQS,$htmldef,$pos)
 
-	
+		
 			
 		// QUERY TAG: q (rodin internal query tag)
 		##############################################
@@ -33,7 +39,7 @@ if ($WANT_WIDGET_SEARCH)
 		$htmldef=<<<EOH
 			<input class="localSearch" name="q" type="text" value="$qx" title='$title' onchange="$SEARCHSUBMITACTION">
 EOH;
-		add_search_control('q',$qx,'$q',$htmldef,1);
+		if (!$WEBSERVICE) add_search_control('q',$qx,'$q',$htmldef,1);
 		##############################################
 
 
@@ -45,11 +51,11 @@ EOH;
 		$htmldef=<<<EOH
 			<input class="localMaxResults" name="m" type="text" value="$m" title='$title'/>
 EOH;
-		add_search_control('m',$m,20,$htmldef,1);
+		if (!$WEBSERVICE) add_search_control('m',$m,20,$htmldef,1);
 		##############################################
 		
-		if (1)
-		{
+	if (!$WEBSERVICE) 
+	{
 		// Button ask (default)
 		##############################################
 		$title=lg("titleWidgetButtonAsk");
@@ -62,13 +68,13 @@ EOH;
 		##############################################
 }
 
-
+}
 
 
 	/*
 	##############################################
 	##############################################
-	function DEFINITION_RDW_SEARCH_FILTER()
+	public static function DEFINITION_RDW_SEARCH_FILTER()
 	##############################################
 	##############################################
 	{	
@@ -83,11 +89,11 @@ EOH;
 
 	
 	
-	
+class RDW_delicious {	
 	
 	##############################################
 	##############################################
-	function DEFINITION_RDW_DISPLAYHEADER()
+	public static function DEFINITION_RDW_DISPLAYHEADER()
 	##############################################
 	##############################################
 	{
@@ -110,7 +116,7 @@ EOH;
 
 	##############################################
 	##############################################
-	function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
+	public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
 	##############################################
 	##############################################
 	{
@@ -129,11 +135,6 @@ EOH;
 
 
 
-	#The following tells the widget state machine to check 
-	#once for internet connection and warn if no one found
-	#(timeout) before collecting results
-	$NEED_PHP_INTERNET_ACCESS=true;
-
 
 /**
  * Method called from RodinWidgetSMachine.RDW_COLLECTRESULTS_EPI() to collect
@@ -143,18 +144,30 @@ EOH;
  * 
  * @param string $chaining_url
  */
-function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
+public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') 
+{
+	$DEBUG=0;
 	global $datasource;
 	global $DELICIOUS_search_baseFEED;
 	global $REALNAME;
 	global $RDW_REQUEST;
 	global $RODINBASEDATADIR; // for testing from fixed file
-
-	foreach ($RDW_REQUEST as $querystringparam => $d) {
-		eval("global \${$querystringparam};");
-	}
+	global $WEBSERVICE;
 	
+	$DELICIOUS_search_baseFEED="http://feeds.delicious.com/v2/rss/tag/";
+	
+	
+	foreach ($RDW_REQUEST as $querystringparam => $d)
+	{
+		if ($DEBUG) print "<br>RDW_REQUEST eval $querystringparam => $d";
+		if ($WEBSERVICE) 
+				 eval( "global \${$querystringparam}; \${$querystringparam} = '$d';" );
+		else eval( "global \${$querystringparam};" );
+	}
+
 	$FILTER_SECTION = '';
+
+	if ($REALNAME)
 	foreach($REALNAME as $rodin_name => $needed_name) {
 		if ("${$rodin_name}" != '') {
 			$FILTER_SECTION .= "&$needed_name=${$rodin_name}";
@@ -164,50 +177,58 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
 	$parameters = urlencode(deletequote(stripslashes($q))) . "?count=$m" . $FILTER_SECTION;
 	$feed = "$DELICIOUS_search_baseFEED$parameters";
 
-	//$rssContent = file_get_contents($feed);
-        $rssContent = get_cached_widget_response($feed);
 
-	$rss = str_get_html($rssContent);
+	if ($DEBUG) print "<br>Feed: $feed";
+ 	//$rssContent = file_get_contents($feed);
+	list($timestamp,$rssContent) = get_cached_widget_response($feed);
+
+	if ($DEBUG) 
+		{ print "<br>GOT FROM SSOURCE (cached): (((".htmlentities($rssContent)."))) exit";
+			exit; }
 	
-	// Browse RSS content looking for results 
-	$allResults = array();
+	if ($rssContent)
+		{
+		$rss = str_get_html($rssContent);
+		
+		// Browse RSS content looking for results 
+		$allResults = array();
+		
+		$channel = $rss->find('channel', 0);
+		foreach ($channel->find('item') as $item) {
+			// Create the result object
+			$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_URL);
 	
-	$channel = $rss->find('channel', 0);
-	foreach ($channel->find('item') as $item) {
-		// Create the result object
-		$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_URL);
-
-		// General fields
-		$singleResult->setTitle($item->find('title', 0)->innertext);
-		$singleResult->setUrlPage($item->find('guid', 0)->innertext);
-		$singleResult->setDate($item->find('pubDate', 0)->innertext);
-
-		// URL specific fields
-		// - Link, can't be obtained using SimpleHtmlDom library
-		$item->setAttribute("xmlns:dc", "http://purl.org/dc/elements/1.1/");
-		$item->setAttribute("xmlns:wfw", "http://wellformedweb.org/CommentAPI/");
-		$itemSimpleXml = simplexml_load_string((string) $item);
-		$itemAsArray = json_decode(json_encode($itemSimpleXml), true);
-		$singleResult->setProperty('url', $itemAsArray['link']);
-		// - Description
-		$singleResult->setProperty('description', $item->find('description', 0)->innertext);
-		// - Tags
-		$tagArray = array();
-		foreach ($item->find('category') as $category) {
-			$tagArray[] = $category->innertext;
+			// General fields
+			$singleResult->setTitle($item->find('title', 0)->innertext);
+			$singleResult->setUrlPage($item->find('guid', 0)->innertext);
+			$singleResult->setDate($item->find('pubDate', 0)->innertext);
+	
+			// URL specific fields
+			// - Link, can't be obtained using SimpleHtmlDom library
+			$item->setAttribute("xmlns:dc", "http://purl.org/dc/elements/1.1/");
+			$item->setAttribute("xmlns:wfw", "http://wellformedweb.org/CommentAPI/");
+			$itemSimpleXml = simplexml_load_string((string) $item);
+			$itemAsArray = json_decode(json_encode($itemSimpleXml), true);
+			$singleResult->setProperty('url', $itemAsArray['link']);
+			// - Description
+			$singleResult->setProperty('description', $item->find('description', 0)->innertext);
+			// - Tags
+			$tagArray = array();
+			foreach ($item->find('category') as $category) {
+				$tagArray[] = $category->innertext;
+			}
+			$singleResult->setProperty('tags', implode(', ', $tagArray));
+	
+			// Add single result to table
+			$allResults[] = $singleResult;
 		}
-		$singleResult->setProperty('tags', implode(', ', $tagArray));
-
-		// Add single result to table
-		$allResults[] = $singleResult;
+		
+		// Save search to DB
+		RodinResultManager::saveRodinSearch($sid, $q);
+		
+		// Save all articles found to DB
+		RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
 	}
-	
-	// Save search to DB
-	RodinResultManager::saveRodinSearch($sid, $q);
-	
-	// Save all articles found to DB
-	RodinResultManager::saveRodinResults($allResults, $sid, $datasource);
-	
 	return count($allResults);
 }
 
@@ -215,7 +236,7 @@ function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') {
  * 
  * ... ?
  */	
-function DEFINITION_RDW_STORERESULTS()
+public static function DEFINITION_RDW_STORERESULTS()
 {
 	return true; // nothing to do here
 }
@@ -225,7 +246,7 @@ function DEFINITION_RDW_STORERESULTS()
  * to print the HTML code corresponding to results. The caller method already
  * creates the necessary DIV for all the results.
  */
-function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -240,7 +261,7 @@ function DEFINITION_RDW_SHOWRESULT_WIDGET($w,$h) {
  * Called from RodinWidgetSMachine.RDW_SHOWRESULT_FULL_EPI(), it is asked
  * to print the HTML code corresponding to results.
  */
-function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
+public static function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	global $sid;
 	global $datasource;
   global $slrq;
@@ -250,7 +271,7 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	return true; 
 }
 
-
+} // RDW_delicious
 /* ********************************************************************************
  * Decide which function the state machine is on.
  ******************************************************************************* */
@@ -258,4 +279,3 @@ function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 include_once("../u/RodinWidgetSMachine.php");
 
 ?>
-

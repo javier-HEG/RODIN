@@ -2,7 +2,6 @@
 // In case this script was called outside of a widget
 include_once('RodinWidgetBase.php');
 
-	 
 
 $STATEMACHINE_DEBUG = $_GET['smdebug'];
 if ($STATEMACHINE_DEBUG)
@@ -21,15 +20,19 @@ $RDW_STORERESULTS 			= is_a_value($_GET['sr']); // Request should be handled as 
 $RDW_GENERICAJAXREQUEST	=(is_a_value($_REQUEST['ajax'])|| $RDW_POST || $RDW_SAVE_PREFS || $RDW_DELETE_PREFS ||
 $RDW_GENERICAJAXREQUEST); // respond with a number or 0
 	//if ($RDW_POST) $STATEMACHINE_DEBUG=0; //in post mode we answer as php server to an ajax client=> reduce verbosity
-
+	
 #######################################################################################
 // RDODIN WIDGET STATE MACHINE
 // Used as running decision after widget def
 // and together with RodinWidgetBase.php
+//
+// NOTE - if called with $WEBSERVICE set - no widget display is performed
+//
 //print "<br>\nRODIN WIDGET STATE MACHINE\n";
-evalRDW_REQUEST(); // get all (needed) parameter from Querystring
+if (!$WEBSERVICE) evalRDW_REQUEST(); // get all (needed) parameter from Querystring
 #######################################################################################
 
+if (!$widget_classname) {print "FATAL ERROR: class name for widget not provided - exit"; exit;}
 
 //Decide witch procedure to be run
 
@@ -42,7 +45,7 @@ define ($RDW_SHOWRESULT_WIDGET,		4); // --> DEFINITION_RDW_SHOWRESULT_WIDGET
 define ($RDW_SHOWRESULT_FULL,		5); // --> DEFINITION_RDW_SHOWRESULT_FULL
 */
 
-if (! $RDW_GENERICAJAXREQUEST )
+if (! $RDW_GENERICAJAXREQUEST && !$SEBSERVICE)
 {
 	$RDW_DISPLAYHEADER 			= true; // always
 	$RDW_DISPLAYSEARCHCONTROLS 	= true; // always
@@ -108,7 +111,7 @@ if ($STATEMACHINE_DEBUG)
 
 //------------------------------------------------------------
 
-if ($STATEMACHINE_DEBUG && !RDW_GENERICAJAXREQUEST)
+if ($STATEMACHINE_DEBUG && !$RDW_GENERICAJAXREQUEST)
 {
 	$qs_params=makeRDW_qs_params();
 	$selfredirect ="$thisSCRIPT?$qs_params";
@@ -124,24 +127,29 @@ $widgetresultdivid="results_".uniqid();
 ##########################################
 $res=true;
 // Execution of the Widget Segments
-if ($res && $RDW_DISPLAYHEADER)
-	$res = DEFINITION_RDW_DISPLAYHEADER();
-
-if ($res && $RDW_DISPLAYSEARCHCONTROLS)
-	$res = RDW_DISPLAYSEARCHCONTROLS_EPI();
-
-if ($res && $RDW_COLLECTRESULTS)
-	$res = RDW_COLLECTRESULTS_EPI();
-
-if ($res && $RDW_STORERESULTS)
-	$res = RDW_STORERESULTS_EPI();
-
-if ($res && $RDW_SHOWRESULT_WIDGET)
-	$res = RDW_SHOWRESULT_WIDGET_EPI();
-
-else if ($res && $RDW_SHOWRESULT_FULL)
-	$res = RDW_SHOWRESULT_FULL_EPI();
-
+// Do NOT exec state machine on $WEBSERVICE
+if (!$WEBSERVICE)
+{
+	$WIDGET = new $widget_classname();
+	
+	if ($res && $RDW_DISPLAYHEADER)
+		$res = $WIDGET::DEFINITION_RDW_DISPLAYHEADER();
+	
+	if ($res && $RDW_DISPLAYSEARCHCONTROLS)
+		$res = RDW_DISPLAYSEARCHCONTROLS_EPI();
+	
+	if ($res && $RDW_COLLECTRESULTS)
+		$res = RDW_COLLECTRESULTS_EPI();
+	
+	if ($res && $RDW_STORERESULTS)
+		$res = RDW_STORERESULTS_EPI();
+	
+	if ($res && $RDW_SHOWRESULT_WIDGET)
+		$res = RDW_SHOWRESULT_WIDGET_EPI();
+	
+	else if ($res && $RDW_SHOWRESULT_FULL)
+		$res = RDW_SHOWRESULT_FULL_EPI();
+}
 ##########################################
 ##########################################
 ##########################################
@@ -177,6 +185,8 @@ function RDW_DISPLAYSEARCHCONTROLS_EPI()
 	global $FRAMENAME;
 	global $render;
 	global $setversion;
+	global $WEBSERVICE; // widget is used inside a web service
+	global $WIDGET;
 	
 	global $RDW_REQUEST;
 	foreach ($RDW_REQUEST as $querystringparam => $defaultvalue)
@@ -186,12 +196,12 @@ function RDW_DISPLAYSEARCHCONTROLS_EPI()
 		print "<br>DEFINITION_RDW_DISPLAYSEARCHCONTROLS";
 
 	$oldsid=$sid;
-	$sid = check_recompute($sid,$datasource,$remoteuser);
+	$sid = check_recompute($sid,$remoteuser);
 	if ($sid <> $oldsid)
 	{
 		$QS_VALUE{'sid'}=$sid; //register
 	}
-	$res = DEFINITION_RDW_DISPLAYSEARCHCONTROLS();  // exec user definitions if any
+	$res = $WIDGET::DEFINITION_RDW_DISPLAYSEARCHCONTROLS();  // exec user definitions if any
 
 
 	//Display form and default search control:
@@ -339,10 +349,10 @@ EOH;
 
 
 	#####################################
-	if (function_exists('DEFINITION_RDW_SEARCH_FILTER')) // in RODINWidget
+	if (method_exists($WIDGET,'DEFINITION_RDW_SEARCH_FILTER')) // in RODINWidget
 	#####################################
 	{
-		$resDEFINITION_RDW_SEARCH_FILTER = DEFINITION_RDW_SEARCH_FILTER(); // add search filter controls
+		$resDEFINITION_RDW_SEARCH_FILTER = $WIDGET::DEFINITION_RDW_SEARCH_FILTER(); // add search filter controls
 		$WANTFILTER=true;
 		/* If the user has not defined this function, he/she does not want any special search filter
 		   making the following useless */
@@ -651,6 +661,7 @@ function RDW_COLLECTRESULTS_EPI()
 	global $_w, $_h;
   global $sid;
   global $setversion;
+  global $WIDGET;
 
 	// Include global parameters with exactly the same names
 	// as the RDW_REQUEST parameters
@@ -742,7 +753,7 @@ function RDW_COLLECTRESULTS_EPI()
 		if ($qe)
 			$q=$qe;
 
-		$sr = DEFINITION_RDW_COLLECTRESULTS($selfredirect);
+		$sr = $WIDGET::DEFINITION_RDW_COLLECTRESULTS($selfredirect);
 
     if ($STATEMACHINE_DEBUG && $RDW_COLLECTRESULTS )
     {
@@ -868,10 +879,11 @@ function RDW_REGISTER_WIDGET_USER_PREFS($action,$d_app_id='')
 	global $datasource;
 	global $DBconn;
 	global $USER_ID;
+	global $WIDGET;
 
 	//print "RDW_REGISTER_WIDGET_USER_PREFS: ($action,$d_app_id)";
 
-    foreach($_REQUEST as $name=>$value)
+  foreach($_REQUEST as $name=>$value)
 	{
 
 		//print "<br> _REQUEST $name=>$value";
@@ -1009,8 +1021,9 @@ function RDW_STORERESULTS_EPI()
 ##########################################
 {
 	global $STATEMACHINE_DEBUG;
+	global $WIDGET;
 
-	$res = DEFINITION_RDW_STORERESULTS();
+	$res = $WIDGET::DEFINITION_RDW_STORERESULTS();
 
 	return $res;
 
@@ -1044,6 +1057,7 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 	global $widgetresultdivid;
 	global $attributes_str;
 	global $APP_ID;
+	global $WIDGET;
 	global $_w, $_h;
 
 	global $RDW_REQUEST;
@@ -1061,7 +1075,7 @@ function RDW_SHOWRESULT_WIDGET_EPI()
 
 	print make_widget_div($widgetresultdivid, $_h, $headerAreaHeight);
 
-	$res = DEFINITION_RDW_SHOWRESULT_WIDGET($_w, $_h);
+	$res = $WIDGET::DEFINITION_RDW_SHOWRESULT_WIDGET($_w, $_h);
 
 	print "</div>";
 
@@ -1110,6 +1124,7 @@ function RDW_SHOWRESULT_FULL_EPI()
 	global $RDW_REQUEST;
 	global $widgetresultdivid;
 	global $headerAreaHeight;
+	global $WIDGET;
 	global $_w, $_h;
 
 	foreach ($RDW_REQUEST as $querystringparam => $defaultvalue) eval( "global \${$querystringparam};" );
@@ -1121,7 +1136,7 @@ function RDW_SHOWRESULT_FULL_EPI()
 
 	print make_widget_div($widgetresultdivid, $_h, $headerAreaHeight);
 
-	$res = DEFINITION_RDW_SHOWRESULT_FULL($_w, $_h);
+	$res = $WIDGET::DEFINITION_RDW_SHOWRESULT_FULL($_w, $_h);
 
 	print "\n</div>";
 	return $res;
@@ -1220,14 +1235,10 @@ function inject_current_filter_value($HTMLCONTROL,$name)
 
 
 
-
-
-
 ################################################
-if (!$RDW_POST && !$RDW_SAVE_PREFS)
+if (!$RDW_POST && !$RDW_SAVE_PREFS && !$WEBSERVICE)
 print <<<EOP
 </body>
 </html>
 EOP;
-
 ?>

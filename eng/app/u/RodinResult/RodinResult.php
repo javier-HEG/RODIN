@@ -417,6 +417,7 @@ class BasicRodinResult {
 	public function __toString() {
 		$string = '[' . strtoupper(RodinResultManager::getRodinResultTypeName($this->resultType)) . ' ';
 		$string .= '[Title: "' . $this->getTitle() . '" ] ';
+		$string .= '[Abstract: "' . $this->getProperty('abstract') . '" ] ';
 		$string .= '[Score: "' . $this->getScore() . '" ] ';
 		$string .= '[Authors: "' . $this->getAuthors() . '" ] ';
 		$string .= '[Date: "' . $this->getDate() . '" ] ';
@@ -424,6 +425,18 @@ class BasicRodinResult {
 		$string .= '[Properties: ' . var_export($this->getValidProperties(), true) . ']]';
 		
 		return $string;
+	}
+
+	public function __toDetails() {
+		$arr{'type'} = strtoupper(RodinResultManager::getRodinResultTypeName($this->resultType));
+		$arr{'title'} = $this->getTitle();
+		$arr{'abstract'} = $this->getProperty('abstract') ;
+		$arr{'score'} = $this->getScore();
+		$arr{'authors'} = $this->getAuthors();
+		$arr{'date'} =  $this->getDate();
+		$arr{'url'} =  $this->getUrlPage();
+		$arr{'properties'} = var_export($this->getValidProperties(), true);
+		return $arr;
 	}
 
 	
@@ -584,6 +597,13 @@ class BasicRodinResult {
 	public function getTitle() {
 		return $this->title;
 	}
+	
+	public function getAbstract() 
+	{
+		return $this->getProperty($propertyName['abstract']);
+	}
+	
+	
 	
 	public function setAuthors($authors) {
 		$this->authors = $authors;

@@ -7,8 +7,8 @@
  
  				
 class Logger {
-	const LOGGER_ACTIVATED = false;
-	const LOG_INTO_DB = false;
+	const LOGGER_ACTIVATED = true;
+	const LOG_INTO_DB = true;
 
   const LOGIN_ACTION = 0;
 	const LOGOUT_ACTION = 1;

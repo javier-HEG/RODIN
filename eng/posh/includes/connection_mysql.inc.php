@@ -149,8 +149,6 @@ class connection
 		{
 			$this->sql=$sql;
 		}
-		
-        	
 		return mysql_query($this->sql,$this->id);
 	}
 	/*
@@ -276,7 +274,7 @@ class connection
 	}
 	function setUtf8()
 	{
-		$this->execute("SET NAMES 'utf-8' ");
+		//$this->execute("SET NAMES 'utf-8' "); // NOT FOR MYSQL 5.6.12
 		$this->execute("SET CHARACTER SET 'utf8' ");
 	}
 	
