@@ -13,8 +13,19 @@
 <script type="text/javascript" src="../../app/exposh/includes/ajax<?php if (!__debugmode) echo '_compressed';?>.js?v=<?php echo __POSHVERSION;?>"></script>
 <script type="text/javascript" src="../includes/php/ajax-urls.js?v=<?php echo __POSHVERSION;?>"></script>
 <?php 
-	launch_hook('userinterface_header',$pagename);
+
+
+	$filename="app/u/RODINfirewall.php"; $maxretries=5;
+	#######################################
+	for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	{
+		if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+	}
+	#######################################
+	check_registered_ip_access_or_die_here();
+	#######################################
 	
+	launch_hook('userinterface_header',$pagename);
 	$chaos_toggle_uniq=time() ;
 	$chaos_toggle=fmod($chaos_toggle_uniq , 2);
 	if ($chaos_toggle)
@@ -44,7 +55,6 @@
 	#$BG_IMAGE= "$RODINIMAGES/rodin_bg_{$RODINSEGMENT}.png";
 	//print "<br>RODINSEGMENT=$RODINSEGMENT";
 	$BG_IMAGE= get_RODINIMAGE($RODINSEGMENT);
-
 ?>
 <style>
 

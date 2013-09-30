@@ -320,11 +320,14 @@ EOQ;
 	
 	if ($QUERY)
 	$rows = $store->query($QUERY, 'rows'); 
-  if (($errs = $store->getErrors())) {
-      foreach($errs as $err)
-      fontprint("<br>ARC ERROR: $err",'red');
-			print "<br>";
-  }
+	
+	if (0) {
+	  if (($errs = $store->getErrors())) {
+	      foreach($errs as $err)
+	      fontprint("<br>ARC ERROR: $err",'red');
+				print "<br>";
+	  }
+	}
 	
 	if (strstr($QUERY,'ASK'))
 	{

@@ -683,7 +683,7 @@ EOQ;
 			try {
 			  $DB = new RODIN_DB();
 			  $DBconn=$DB->DBconn;
-			  $resultset = mysqli_query($DB->DBconn,$QUERY);
+			  $resultset = mysql_query($QUERY);
 
 			  $DB->close();
 			}
@@ -700,7 +700,7 @@ EOQ;
 
 			//else
 			{	$numres= -1;
-				while ($row = mysqli_fetch_assoc($resultset))
+				while ($row = mysql_fetch_assoc($resultset))
 				{
 				  $i++;
 				  $numres++;

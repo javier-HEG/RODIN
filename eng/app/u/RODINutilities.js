@@ -680,7 +680,7 @@ function format3pos(num)
 		var html_message='';
 		var msgtxt = '<div style="padding-left: 6px; padding-right: 28px;">'
 			+ '<img src="<?php print $RODINUTILITIES_GEN_URL; ?>/images/ico_waiting.gif"'
-			+ 'style="position: absolute; bottom: 18px; right:16px;">'
+			+ 'style="padding-right:5px;position:absolute;top:15px">'
 			+ parent.lg('lblCollectingResultsUpTo', maxresults)
 			+ parent.lg('lblCollectingResultsWait', searchtxt) + '</div>';
 		
@@ -2026,7 +2026,7 @@ if (response!=null) {
 	 */
 	function initialize_aggregated_view_before_user_search()
 	{
-		if (typeof(tabAggregatedStatusTabId)!='undefined')
+		if (typeof(tabAggregatedStatusTabId)!='undefined' && tabAggregatedStatusTabId.length > 0)
 		{
 			var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
 			if (index > -1)	
@@ -2071,7 +2071,7 @@ if (response!=null) {
 	
 	function show_widgets_content_in_aggregated_view()
 	{
-		if (typeof(tabAggregatedStatusTabId)!='undefined')
+		if (typeof(tabAggregatedStatusTabId)!='undefined' && tabAggregatedStatusTabId.length>0)
 		{
 			var index = tabAggregatedStatusTabId.indexOf(tab[$p.app.tabs.sel].id);
 			if (index > -1)	
@@ -2782,8 +2782,60 @@ function getFormular(formname)
 	
 	
 	
-	 
+function exec_rdfize(user_id,sid,wps,username,reqhost)
+{
+	//alert('exec_rdfize');
+	var params = {
+						user_id : user_id,
+						sid : sid,
+						wps : wps,
+						username: username,
+						reqhost: reqhost,
+						rdfize: 'on'
+	};
+	
+	
+	var msgtxt = '<div style="padding-left: 6px; padding-right: 28px;">'
+			+ '<img src="<?php print $RODINUTILITIES_GEN_URL; ?>/images/ico_waiting.gif"'
+			+ 'style="padding-right:5px;position:absolute;top:15px">'
+			+ parent.lg('lblRDFizing') + '</div>';
+		
+	$p.app.popup.fadeinFRI(msgtxt,500,100,'');
+	
+	jQuery.get('../../app/u/rdfize.php', params, function(data) {
+		post_rdfize(data);
+	});	
+}
 
+
+
+function post_rdfize(txtdata)
+{
+	
+	//alert('post_rdfize returns: '+txtdata);
+	
+	var expr_404 = /400\sBad\sRequest/; 
+	var expr_added = /rdfized:\s(\d+)\sadded_triples\sand\s(\d+)\sadded_documents/; 
+	var error = 0;
+	var added_docs=0;
+	var added_triples=0;
+	
+	if (expr_404.exec(txtdata))
+	{
+		error=true;
+		alert('Server warns: Bad request 404');
+	}
+	else if (expr_added.exec(txtdata))
+	{
+		if (RegExp.$2!='') added_docs = RegExp.$2;
+		if (RegExp.$1!='') added_triples = RegExp.$1;
+		//alert('added_docs: '+added_docs+' added_triples:'+added_triples);
+	}
+		
+	show_widgets_content_in_aggregated_view();
+	FRIdarkProtectionUncache('');
+	// hide RODIN search cover
+}
 	
 	
 	

@@ -2482,13 +2482,14 @@ function get_attribute_displays_str($prefs)
 function get_prefs($USER_ID,$REQ_APP_ID,$datasource,$widget_id=-1)
 {
 	$DEBUG=0;
+	global $WEBSERVICE_USERID, $WEBSERVICE_TABNAME;
 	//FETCH PREFS FROM DB
 	
 	//In case $REQ_APP_ID is not set, try to discover a widget 
 	//For datasource inside a tab named "javaserver"
 	if($REQ_APP_ID == -1)
 	{
-		$tab_id = fri_get_tab_id($TABNAME='javaserver', $USER_ID);
+		$tab_id = fri_get_tab_id($WEBSERVICE_TABNAME, $WEBSERVICE_USERID);
 		$widget_uniq = fri_get_widget_uniq_in_tab($tab_id,$widget_id);
 		$REQ_APP_ID= $USER_ID.':'.$tab_id.':'.$widget_uniq; // partial!! We do NOT have the WIDGET UNIQUE ID
 		if ($DEBUG) print "<br>get_prefs: REQ_APP_ID $REQ_APP_ID ";

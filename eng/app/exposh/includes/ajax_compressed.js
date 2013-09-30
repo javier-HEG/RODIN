@@ -13599,17 +13599,21 @@ $p.app.widgets={
 				
 				var resultsContainer = jQuery('#' + id);
 				resultsContainer.empty();
-		
-				var params = {
-					sid : getLastSidForTab(tabId),
-					suffix: tabId,
-					user: $p.app.user.id
-				};
-		
-				jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
-					$p.app.widgets.addRestustsToAggregatedView(data);
-			});
-			}
+				var sid=getLastSidForTab(tabId);
+				if (sid)
+				{
+					var params = {
+						sid : getLastSidForTab(tabId),
+						suffix: tabId,
+						user: $p.app.user.id
+					};
+			
+					jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
+						$p.app.widgets.addResultsToAggregatedView(data);
+				});
+				}
+			} // sid
+			//else alert('axxx: empty sid')
 		}
 	},
 	/**
@@ -13626,9 +13630,9 @@ $p.app.widgets={
 		}
 	},
 	/**
-	 * $p.app.widgets.addRestustsToAggregatedView
+	 * $p.app.widgets.addResultsToAggregatedView
 	 */
-	addRestustsToAggregatedView:function(data) {
+	addResultsToAggregatedView:function(data) {
 		var tabId = tab[$p.app.tabs.sel].id;
 		var index = allWidgetsResultsSetsTabId.indexOf(tabId);
 		
@@ -13651,19 +13655,19 @@ $p.app.widgets={
 				allWidgetsResultSets[index].addResultAndRender(resultObj, jQuery("#selectedTextZoom").val());
 			}
 	
-			if (data.upto < data.count) {
-				var params = {
-					sid : data.sid,
-					from: data.upto,
-					suffix: tabId,
-					user: $p.app.user.id
-				};
-	
-				jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
-					$p.app.widgets.addRestustsToAggregatedView(data);
-				});
-	
-			}
+			// if (data.upto < data.count) {
+// 				
+				// var params = {
+					// sid : data.sid,
+					// from: data.upto,
+					// suffix: tabId,
+					// user: $p.app.user.id
+				// };
+// 	
+				// jQuery.post('../../app/u/RodinResult/RodinResultResponder.php', params, function(data) {
+					// $p.app.widgets.addResultsToAggregatedView(data);
+				// });
+			// }
 		}
 	},
 	/**
@@ -22888,7 +22892,7 @@ $p.html={
 			+ '<b class="b2" style="background: '+v_bgColor+';"></b>'
 			+ '<b class="b3" style="background: '+v_bgColor+';"></b>'
 			+ '<b class="b4" style="background: '+v_bgColor+';"></b>'
-			+ '<div class="boxcontent" style="background: '+v_bgColor+';">'
+			+ '<div class="boxcontent" style="background: '+v_bgColor+'; min-width: 600px;">'
 			+ v_content
 			+ '</div>'
 			+ '<b class="b4b" style="background: '+v_bgColor+';"></b>'

@@ -961,28 +961,33 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			$ok_to_retrieve=false;
 		}
 		if ($DEBUG)
-			print "\n<br> get_json_searchresults($sid, $internalresults, $externalresults)";
+			print "\n\n\n<br> get_json_searchresults($sid, $internalresults, $externalresults)";
 		
 		if ($ok_to_retrieve)
 		{
 			$allResults = RodinResultManager::getRodinResultsForASearch($sid,'',$internalresults, $externalresults); 
 			$resultCount = count($allResults);
 			
-			if ($DEBUG) print "<br>$resultCount results read...";
-			
 			// Both a maximum size and a maximum number of results are set
 			$resultMaxSetSize = 4;
 			$resultMaxLength = 131072;
 			$fromResult = 0;
 			$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
+			if ($DEBUG) print "<br>$resultCount results read... SHOW from $fromResult to < $uptoResult";
 			
 			$i = $fromResult;
 			while ($i < $uptoResult) 
 			{
 				$result = $allResults[$i];
-				if ($result)
+				
+				if($result)
 				{
-					$resultCounter = $i + 1;
+				$resultCounter = $i + 1;
+			
+				if ($DEBUG) 
+				{
+					print "\n\n\n-------\n\nRes nr. $resultCounter \n\n"; var_dump($result); print "\n\n";
+				}
 				
 					$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
 				
@@ -1002,6 +1007,23 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					$jsonSingleResult['tokenContent'] = json_encode($result->toInWidgetHtml('token'));
 					$jsonSingleResult['allContent'] = json_encode($result->toInWidgetHtml('all'));
 				
+				
+					if ($DEBUG) {
+						
+						print "\n\n jsonSingleResult['count']: ".$jsonSingleResult['count'];
+						print "\n\n jsonSingleResult['url']: ".$jsonSingleResult['url'];
+						print "\n\n jsonSingleResult['resultIdentifier']: ".$jsonSingleResult['resultIdentifier'];
+						print "\n\n jsonSingleResult['headerDiv']: ".$jsonSingleResult['headerDiv'];
+						print "\n\n jsonSingleResult['contentDiv']: ".$jsonSingleResult['contentDiv'];
+						print "\n\n jsonSingleResult['header']: ".$jsonSingleResult['header'];
+						print "\n\n jsonSingleResult['minHeader']: ".$jsonSingleResult['minHeader'];
+						print "\n\n jsonSingleResult['minContent']: ".$jsonSingleResult['minContent'];
+						print "\n\n jsonSingleResult['tokenContent']: ".$jsonSingleResult['tokenContent'];
+						print "\n\n jsonSingleResult['allContent']: ".$jsonSingleResult['allContent'];
+					}
+				
+				
+				
 					// Check the size of the response if this result was added
 					$tmpAllResults = $jsonAllResults;
 					$tmpAllResults[] = $jsonSingleResult;
@@ -1009,11 +1031,13 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					$tmpJsonResponseLength = strlen($tmpJsonResponse);
 				
 					if ($tmpJsonResponseLength > $resultMaxLength)
+					{
+						if ($DEBUG) print "\n\n\nBREAKING!!! length($tmpJsonResponseLength > $resultMaxLength)";
 						break;
-					
-					$jsonAllResults[] = $jsonSingleResult;
 					}
-				$i++;
+					$jsonAllResults[] = $jsonSingleResult;
+					$i++;
+				}
 			}
 		} // $ok_to_retrieve
 		return json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $i, 'results' => $jsonAllResults, 'error'=>$errortxt));

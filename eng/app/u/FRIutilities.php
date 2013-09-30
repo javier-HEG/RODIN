@@ -1036,21 +1036,25 @@ function get_from_src_directly( $sid,
 																$basic_path_sroot,
 																$basic_path_SRCengineInterface,
 																$basic_path_SRCengine,
-																$CLASS,
+																$CLASSNAME,
+																$SRCOBJS, // maybenull object array
 																$pathClass,
 																$pathSuperClass,
 																$AuthUser,
 																$AuthPasswd )
 {
-	
+	//global $SPECIALDEBUG;
 	$DEBUG=0;
 	global $SOLRCLIENT;
+	global $SRCOBJECT;
 	
 	
 	if ($DEBUG) 
 	{
 		print "<hr>CALLING $servicename $src_name on query=($q)";
 		print "<br>using: <br>";
+		print "<hr>SRCOBJECT: <br>";var_dump($SRCOBJS); print "<hr>";
+		tell("memory_get_peak_usage: ".memory_get_peak_usage());
 		tell( "sid: $sid" );
 		tell( "max_results: $m" );
 		tell( "lang: $lang" );
@@ -1061,7 +1065,7 @@ function get_from_src_directly( $sid,
 		tell( "basic_path_sroot: $basic_path_sroot" );
 		tell( "basic_path_SRCengineInterface: $basic_path_SRCengineInterface" );
 		tell( "basic_path_SRCengine: $basic_path_SRCengine" );
-		tell( "CLASS: $CLASS" );
+		tell( "CLASS: $CLASSNAME" );
 		tell( "pathClass: $pathClass" );
 		tell( "pathSuperClass: $pathSuperClass" );
 	}
@@ -1086,41 +1090,58 @@ function get_from_src_directly( $sid,
 	include_once($pathClass);
 	
 	// CHECK THE RIGHT CLASS IS LOADED
-	
-	if ($DEBUG) tell("INSTANTIATING CLASS $CLASS:<br>");
-	$SRC = new $CLASS();
-	
-	if ($DEBUG) tell("");
-	
-	if ($DEBUG) var_dump($SRC);
-	
-	if ($DEBUG) tell("<br>USING SRC $src_name with q=($q) and mode=$mode");
-	
-	// CALL THE SRC SERVICE
-	
-	//$SOLRCLIENT = null; // avoid reuse
-	
-	$CONTENT= $SRC->webRefine(	$sid,
-															$qb64=base64_encode($q),
-															$vb64='',
-															$w='0',
-															$lang,
-															$m,
-															$sortrank='standard',
-															$maxdur=15,
-															$c='',
-															$cid='',
-															$action='preall',
-															$CLASS,
-															$mode );
+	$SRC = $SRCOBJS{$src_name};
+	if ($SRC)
+	{
+		if ($DEBUG) tell(htmlprint("USING CLASS $CLASSNAME:<br>",'green'));
+	}	
+	else
+	{
+		if ($DEBUG) tell(htmlprint("INSTANTIATING CLASS $CLASSNAME:<br>",'orange'));
+		$SRC = new $CLASSNAME();
+		if($SRC) 
+			$SRCOBJS{$src_name} = $SRC;
+	}
 
+	if ($SRC==null)	
+	{
+		if ($DEBUG) tell(htmlprint("PROBLEM USING/INSTANTIATING CLASS $CLASSNAME:<br>",'red'));
+		$CONTENT=null;
+	}		
+	else {
+		
+		if ($DEBUG) tell("");
+		
+		if ($DEBUG) var_dump($SRC);
+		
+		if ($DEBUG) tell("<br>USING SRC $src_name with q=($q) and mode=$mode");
+		
+		// CALL THE SRC SERVICE
+		
+		//$SOLRCLIENT = null; // avoid reuse
+		$CONTENT= $SRC->webRefine(	$sid,
+																$qb64=base64_encode($q),
+																$vb64='',
+																$w='0',
+																$lang,
+																$m,
+																$sortrank='standard',
+																$maxdur=15,
+																$c='',
+																$cid='',
+																$action='preall',
+																$CLASS,
+																$mode );
 	
-	if ($DEBUG) tell("<br>OUTPUT:<br>");
-	if ($DEBUG) tell(str_replace("\n","<br>",htmlentities(print_r($CONTENT))));
-	
-	if (!chdir($cwd)) fontprint("Problem re-chdir $cwd" , 'red');
-	
-	return $CONTENT;
+		
+		if ($DEBUG) tell("<br>OUTPUT:<br>");
+		if ($DEBUG) tell(str_replace("\n","<br>",htmlentities(print_r($CONTENT))));
+		
+		if (!chdir($cwd)) fontprint("Problem re-chdir $cwd" , 'red');
+		if ($DEBUG) tell("<br>EXITING get_from_src_directly<br>");
+}
+		
+	return array($CONTENT,$SRCOBJS);
 } // get_from_src_directly
 
 
@@ -2813,7 +2834,7 @@ function perform_server_actions_after_last_widget_rendering()
 	
 	$go=$_GET['go'];
 	$rdfize=($go=='');
-	global $PROT,$HOST,$RODINROOT,$RODINSEGMENT;
+	global $PROT,$HOST,$PORT,$RODINROOT,$RODINSEGMENT;
 	global $USER_ID;
 	$username = $_SESSION['longname']; 
 	global $sid, $datasource;
@@ -2822,14 +2843,17 @@ function perform_server_actions_after_last_widget_rendering()
 	
 	if ($rdfize && intval($setversion) >'2012')
 	{
-		$RDFIZING="$PROT://localhost$RODINROOT/$RODINSEGMENT/app/u/rdfize.php"
-								."?user_id=$USER_ID"
-								."&username=".str_replace(" ","%20",$username)
-								."&sid=$sid"
-								."&rdfize=on"
-								."&wps=$wps"
-								."&reqhost=$HOST"
-							;
+		//We are here inside a widget (server side)
+		//Prepare URL to exec RDFIZING
+		$username4exec=str_replace(" ","%20",$username);
+		// $RDFIZING="$PROT://$HOST:$PORT$RODINROOT/$RODINSEGMENT/app/u/rdfize.php"
+								// ."?user_id=$USER_ID"
+								// ."&username=".str_replace(" ","%20",$username)
+								// ."&sid=$sid"
+								// ."&rdfize=on"
+								// ."&wps=$wps"
+								// ."&reqhost=$HOST"
+							// ;
 		$QUERYSTRING=$_SERVER['QUERY_STRING'];
 	
 		Logger::logAction(27, array('from'=>'widget','msg'=>"RDFIZING U $RDFIZING"),$sid);
@@ -2837,17 +2861,17 @@ function perform_server_actions_after_last_widget_rendering()
 		
 		$SCRIPT =<<<EOS
 		 <script type='text/javascript'>
+		 parent.exec_rdfize($USER_ID,'$sid','$wps','$username4exec','$HOST');
 		 //alert('$RDFIZING')
-		 parent.signal_rdfizing_done();
 		 </script>
 EOS;
 
-		//if($RODINSEGMENT=='eng') 
-		//print $SCRIPT;
+		print $SCRIPT;
 		
 		//ATTENTION: THIS WIDGET RENDERING IS EXECUTED TWICE ????
 		//call this to produce rdfizing
-		$res = file_get_contents($RDFIZING);
+		//Using an internal script URL with the current server
+		//$res = get_file_content($RDFIZING);
 		if (strstr($res,'400 Bad Request'))
 			$res='400 Bad Request';
 		else if (preg_match("/rdfized:\s(\d+)\sadded_triples\sand\s(\d+)\sadded_documents/",$res,$match))
@@ -2875,19 +2899,24 @@ function make_uncache_javascript_code($txt)
    * informing about the state of meta search
    * and start filtering highlighting
    */
-   if(intval($setversion) >'2012')
-   $EVTL_SIGNAL="parent.signal_rdfizing();";
-   
+   if(intval($setversion) == '2012')
+	 {
+		 $EVTL_UNCACHE="parent.FRIdarkProtectionUncache('$txt');"; // otherwise uncache started inside post_rdfize() (js)
+		 $EVTL_REFRESH_AGGVIEW="parent.show_widgets_content_in_aggregated_view();";
+	 }
+	 //In cas of 2013 - we let the rdfizing module uncache
+	 else if(intval($setversion) > '2012') {
+	   $EVTL_SIGNAL="parent.signal_rdfizing();";
+	 }
 	$UNCACHE =<<<EOS
 	 <script type='text/javascript'>
 	 	$EVTL_SIGNAL
 	  parent.show_widgets_content_in_aggregated_view();
 	 	parent.adapt_widgetsareas_on_openclose_widgetmenu();
-	 	parent.FRIdarkProtectionUncache('$txt');
 	 	parent.refreshCloudBoard('$uid');
 	 	parent.fb_updatefacettermsctxmenuitems4exwr();
 	 	parent.hide_autocomplete_bruteforce();
-	 	parent.METASEARCH_FINISHED=true;
+	 	$EVTL_UNCACHE
 	 </script>
 EOS;
 	return $UNCACHE;

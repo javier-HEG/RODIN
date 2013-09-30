@@ -69,10 +69,10 @@ class Logger {
 				$scr_filename= $_SERVER['SCRIPT_FILENAME'];
 				// $server_root = $_SERVER['DOCUMENT_ROOT'];
 				// $filename = $server_root . "/rodin/usabilityLogFile.txt";
-				//$basedir=path_ix(path_ix($scr_filename,'dirname'),'dirname');
-				$basedir=substr($basedir,0,strrpos($basedir,'/'));
-				$basedir=substr($basedir,0,strrpos($basedir,'/'));
-				$filename = $basedir . "/usabilityLogFile.txt";
+				// $basedir=substr($basedir,0,strrpos($basedir,'/'));
+				// $basedir=substr($basedir,0,strrpos($basedir,'/'));
+				//$filename = $basedir . "/usabilityLogFile.txt";
+				$filename = "usabilityLogFile.txt";
 				
 				$segment = substr($_SESSION['RODINDB_DBNAME'], 6);
 				$segment = $segment != '' ? $segment : '?';

@@ -358,7 +358,7 @@ EOX;
 				} // EXPANSIONS
 				$LOCALLOG.="<hr>";
 			}
-			$RDFLOG=$LOCALLOG;
+			$RDFLOG.=$LOCALLOG;
 			return $LOCALLOG;
 		}
 		
@@ -2136,7 +2136,8 @@ EOQ;
 			$RDFLOG.="<br>EXIT";
 		}
 		
-		arsort($ranked_docs);
+		if (count($ranked_docs))
+			arsort($ranked_docs);
 		
 		return $ranked_docs;
 	} // rank_doc_with_its_subjects
@@ -2540,7 +2541,8 @@ EOQ;
 					// SRCEngineSKOSResult
 					$SOLRCLIENT=null; //koll SOLRCLIENT to be sure it is reconstructed as it needs
 					$lang=detectLanguage($query); // we hope we can establish a language here, otherwise no SKOS
-					$CONTENT = get_from_src_directly( $sid='',
+					list($CONTENT,$SRCOBJS) = 
+										 get_from_src_directly( $sid='',
 																						$max_retrieval_results, //SKOS results read one more (if possible)
 																						$lang, //we have no language here: autocomplete
 																						$servicename,
@@ -2553,7 +2555,7 @@ EOQ;
 																						$basic_path_SRCengineInterface,
 																						$basic_path_SRCengine,
 																						$CLASS,
-																						$pathClass,
+																						&$SRCOBJS,
 																						$pathSuperClass,
 																						$AuthUser,
 																						$AuthPasswd,

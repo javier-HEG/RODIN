@@ -32,7 +32,6 @@
 			}
 		}
 	}
-	
 	$setversion=$_GET['setversion'];
 	if (!$setversion) $setversion=2013;
 ?>
@@ -247,7 +246,7 @@ EOAM;
 		 . "return fri_parallel_metasearch(get_search_text(),document.getElementById('rodinsearch_m').value,-1,-1,{$_SESSION['user_id']},true,false,window.\$p)"
 		 ;
 	
-	$onKeyUpSearchFAction=" bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode } else {METASEARCH_FINISHED=false;}";
+	$onKeyUpSearchFAction=" bc_clearBreadcrumbIfNeeded(this.value); if (event.keyCode==13) { $launchMetaSearchCode }";
 
 	$SOLR_LOGO='';
   if ($RESULTS_STORE_METHOD=='solr')
@@ -573,10 +572,11 @@ EOP;
 		//Simulate click on onto (speedup for dev)
 		//document.getElementById('ontofacet_center').value='Social Policy'; //Search for Time
 		SETVERSION='<?php print $setversion ?>';
-		
+		METASEARCH_FINISHED=false;
+
 		POSITEXT='<?php print $_SESSION['positext']; ?>';
 		NEGATEXT='<?php print $_SESSION['negatext']; ?>';
-		METASEARCH_FINISHED=false;
+		
     if (! DIAGNOSTIC_OK)
     {
       var d = $("crashwarning");

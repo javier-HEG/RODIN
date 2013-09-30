@@ -36,7 +36,7 @@ input {
 textarea {
 	border: 1px solid #c6c3c6;
 	background-color: #f6f6f6;
-	font-size: 0.95em;
+	font-size: 15px;
 	font-family: Tahoma,Arial,Verdana,sans-serif;
 }
 
@@ -786,12 +786,17 @@ a.b {
 	line-height: 20px;
 	display: block;
 	padding: 0px;
+	padding-right:1px;
 	padding-top:2px;
+	padding-left:4px;
 	opacity: 1;
 	filter: alpha(opacity=100);
 }
 .optmod_share {
     background: url(../images/ico_bar_share.gif) no-repeat;
+}
+.optmod_prefs { /*FRI*/
+    background: url(../../../gen/u/images/famfamfam/cog.png) no-repeat;
 }
 .optmod_refresh {
     background: url(../images/ico_refresh.gif) no-repeat;
@@ -1446,6 +1451,7 @@ ul.tablist li.tabsel a:hover {
 	display:block;  
 	border-left:1px solid #efefef; 
 	border-right:1px solid #999;
+	min-width: 600px;
 }
 /** end style for login page/popup connection **/
 

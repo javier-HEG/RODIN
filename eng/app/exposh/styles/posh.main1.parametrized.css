@@ -3,12 +3,18 @@
 
 /* Overiding main.css */
 .optmod {
-	width: 70px;
+	width: 80px;/*FRI*/
 }
 .optmodhide {
 	display: block;
 	visibility: hidden;
-	width: 70px;
+	width: 80px;/*FRI*/
+}
+
+a.widgeticon
+{
+	position:relative;
+	top:-2px;	
 }
 
 .popuphdr {
@@ -641,7 +647,7 @@ a.sellist {
 /*====== HEADER LINKS =====*/
 
 #headlink {
-	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
 	font-size: 14px;
 	text-align: right;
 	line-height: 27px;
@@ -653,7 +659,7 @@ a.sellist {
 }
 
 #headlink a:link,#headlink a:visited {
-	color: <?php print $COLOR_MOREVISIBLETEXT; ?>;
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>;
 	text-decoration: underline;
 }
 
@@ -673,7 +679,7 @@ a.sellist {
 	overflow: hidden;
 	z-index:100;
 	background-color: #fff;
-	color: <?php print $COLOR_MOREVISIBLETEXT; ?>
+	color: <?php print $COLOR_LITTLEVISIBLETEXT; ?>
 	padding: 2px;
 	font-size: 12px;
 }

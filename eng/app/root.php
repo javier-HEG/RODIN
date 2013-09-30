@@ -275,6 +275,10 @@ $RODINDB_DBNAME = getA('RODINDB_DBNAME');
 $RODINDB_USERNAME = getA('RODINDB_USERNAME');
 $RODINDB_PASSWD = getA('RODINDB_PASSWD');
 
+
+$WEBSERVICE_USERID = getA('WEBSERVICE_USERID');
+$WEBSERVICE_TABNAME = getA('WEBSERVICE_TABNAME');
+
 if(0)
 {
 print "<br>RODINDB_HOST:$RODINDB_HOST";
@@ -863,7 +867,8 @@ function limitusernamelength($uname, $limitlen=16)
 }
 
 
-$ADMIN_USING=$_ENV['USER'] == 'fabio';
+$ADMIN_USING=0;
+
 
 $ROOT=1;
 
