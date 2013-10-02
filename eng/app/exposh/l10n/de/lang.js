@@ -21,7 +21,8 @@ lang["lblmetasearchrodinbuttonTitle"]="Klicken Sie, um die Suche zu starten";
 lang["lblmetasearchrodinbuttonValue"]="Suche";
 lang["lblCollectingResultsUpTo"]="Es werden bis zu $$ Ergebnisse je offenes Widget ";
 lang["lblCollectingResultsWait"]="fuer Ihre Suche nach:<br>\"<b>$$</b>\"<br>gesammelt, bitte warten.";
-lang["lblRDFizing"]="RDF-isierung und Suche nach mehr Ergebnissen im LOD-Raum";
+lang["lblRDFizingAndSEARCH"]="RDF-isierung und Suche nach mehr Ergebnissen im äusseren LOD-Raum";
+lang["lblRDFizing"]="RDF-isierung der Ergebnissen im eigenen LOD-Raum";
 lang["msgPleaseAddWidgetsToTab"]="Fügen Sie bitte ein Widget hinzu und versuchen Sie es erneut";
 
 //TagCloud

@@ -484,7 +484,7 @@ EOP;
 	<title>$windowtitle ($RODINSEGMENT)</title>
 	
 	<!-- JB : For idle timer & contextMenu -->
-	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.7.1.min.js'></script>
+	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.8.3.min.js'></script>
 	<script type="text/javascript" src='../../../gen/u/idletimer/jquery.idle-timer.js'></script>
 	<script type="text/javascript" src='$RODINU/contextmenu/jquery.contextMenu.js'></script>
 	<script type="text/javascript">

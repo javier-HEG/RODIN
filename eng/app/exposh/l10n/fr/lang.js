@@ -21,7 +21,8 @@ lang["lblmetasearchrodinbuttonTitle"]="Cliquez pour démarrer la recherche";
 lang["lblmetasearchrodinbuttonValue"]="Rechercher";
 lang["lblCollectingResultsUpTo"]="Recherche jusqu'à $$ résultats par widget ouvert ";
 lang["lblCollectingResultsWait"]="pour votre requête:<br>\"<b>$$</b>\"<br>... veuillez patienter.";
-lang["lblRDFizing"]="RDF-isation et recherche pour plus des resultats dans l'espace LOD";
+lang["lblRDFizingAndSEARCH"]="RDF-isation et recherche pour plus des resultats dans l'espace LOD exterieure";
+lang["lblRDFizing"]="RDF-isation des resultats dans l'espace LOD interne";
 lang["msgPleaseAddWidgetsToTab"]="Ajoutez des widgets sur cette page et réessayez votre recherche";
 
 //Breadcrumb

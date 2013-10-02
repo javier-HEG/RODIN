@@ -556,7 +556,34 @@ div#metaSearchOptionsBar .searchOptionDiv img.optionButton {
 	margin: 0px ;
 	padding-top: 2px;
 	position: relative;
+	top:2px;
 }
+
+div#metaSearchOptionsBar .searchOptionDiv img.optionButton.lodsearch_on
+{
+	border-radius: 15px 15px 15px 15px;
+	background-image:url(<?php print $RODINIMAGESURL; ?>/switchGreenLOD.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	background-size: 150px 100px;
+  padding-left: 5px;
+  padding-right: 5px;
+  top: 3px;
+}
+
+div#metaSearchOptionsBar .searchOptionDiv img.optionButton.lodsearch_off
+{
+	border-radius: 15px 15px 15px 15px;
+	background-image:url(<?php print $RODINIMAGESURL; ?>/switchRed.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	background-size: 150px 100px;
+  padding-left: 5px;
+  padding-right: 5px;
+  top: 3px;
+}
+
+
 
 div#metaSearchOptionsBar .optionLabel {
 	/*width: 80px;

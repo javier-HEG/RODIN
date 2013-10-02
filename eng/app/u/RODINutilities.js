@@ -265,10 +265,14 @@ function format3pos(num)
 	function open_rdfize(url,tabname)
 	{
 		var wps = document.getElementById('psortCB').checked?1:0;
+		var lodsearch_switch = jQuery('#lodsearchswitch.lodsearch_on');
+		var want_lodsearch = lodsearch_switch.length; //0 or 1
+
 		var params= typeof(SID) == 'undefined'
 							?  ''
 							: 'sid='+SID
 							+'&wps='+wps
+							+'&lodsearch='+want_lodsearch
 							;
 							 	
 		var realurl=url+'&'+params;
@@ -321,6 +325,7 @@ function format3pos(num)
 		detectLanguage_launchMetaSearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass);
 	}
 	
+	
 	function detectLanguage_launchMetaSearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass) {
     ONTOTERMS_REDO_HIGHLIGHTING=true;
     LANGUAGE_OF_RESULT = '';
@@ -365,10 +370,10 @@ function format3pos(num)
 		var search = variables['search'];
 		var maxresults = variables['maxresults'];
 		var db_tab_id = variables['db_tab_id'];
-		var usr = variables['usr']
-		var interactive = variables['interactive']
-		var nbcol = variables['nbcol']
-		var cloud = variables['cloud']
+		var usr = variables['usr'];
+		var interactive = variables['interactive'];
+		var nbcol = variables['nbcol'];
+		var cloud = variables['cloud'];
 		var pclass = variables['pclass'];
 		
 		fri_rodin_metasearch(search,maxresults,db_tab_id,nbcol,usr,interactive,cloud,pclass);
@@ -589,12 +594,12 @@ function format3pos(num)
 		var search			=variables['search'];
 		var maxresults	=variables['maxresults'];
 		var db_tab_id		=variables['db_tab_id'];
-		var nbcol 			=variables['nbcol']
-		var usr         =variables['usr']
-		var interactive =variables['interactive']
-		var nbcol 			=variables['nbcol']
-		var nbcol 			=variables['nbcol']
-		var cloud 			=variables['cloud']
+		var nbcol 			=variables['nbcol'];
+		var usr         =variables['usr'];
+		var interactive =variables['interactive'];
+		var nbcol 			=variables['nbcol'];
+		var nbcol 			=variables['nbcol'];
+		var cloud 			=variables['cloud'];
 		var pclass			=variables['pclass'];
 		
 		hide_autocomplete_bruteforce();
@@ -620,7 +625,7 @@ function format3pos(num)
 				+'\n'+'pclass='+pclass);
 				
 		hide_autocomplete_bruteforce();
- 		METASEARCH_FINISHED=true //Instruct autocomplete;
+ 		METASEARCH_FINISHED=true; //Instruct autocomplete;
 
 		var searchtxt = '';
 		var setversion=SETVERSION;
@@ -659,6 +664,7 @@ function format3pos(num)
 		
 		if (nbcol == -1)
 			nbcol = parent.tab[tab_id].cols.length - 1;
+	
 		
 		// TODO Check why is this here.
 		pclass.app.tabs.select(tab_id);
@@ -678,9 +684,9 @@ function format3pos(num)
 		
 		// Launch the protective pop-up
 		var html_message='';
-		var msgtxt = '<div style="padding-left: 6px; padding-right: 28px;">'
+		var msgtxt = '<div style="padding-left: 6px; padding-right: 28px; white-space:nowrap">'
 			+ '<img src="<?php print $RODINUTILITIES_GEN_URL; ?>/images/ico_waiting.gif"'
-			+ 'style="padding-right:5px;position:absolute;top:15px">'
+			+ 'style="padding-right:5px;position:absolute;top:15px;">'
 			+ parent.lg('lblCollectingResultsUpTo', maxresults)
 			+ parent.lg('lblCollectingResultsWait', searchtxt) + '</div>';
 		
@@ -2780,10 +2786,117 @@ function getFormular(formname)
 	
 	
 	
+/**
+ * Source Connectivity Responsiveness Detection
+ * 
+ * Test if LOD sources are speedy and warn user if not
+ */
+function scrd(userid)
+{
+	//maximumallowedserviceduration masd_msec
+	var masd_msec = 700;
+	//Check speed of web 2.0/3.0 components
+		//warn if too long / suspect
+		var warning='';
+		var obj_speed_check_lod = speedcheck_lodcomponents(userid, masd_msec);
+		if (obj_speed_check_lod)
+		{
+			
+			for(var lodsource in obj_speed_check_lod)
+			{
+				alert('lodsource: '+lodsource);
+				alert('warning: '+obj_speed_check_lod[lodsource]['warning']);
+				if (! obj_speed_check_lod[lodsource]['ok'])
+				{
+					warning+=warning?"\n":'';
+					warning+=obj_speed_check_lod[lodsource]['warning'];
+				}
+			}			
+			if (warning && confirm(warning))
+			{
+				alert('action on warning');
+			}
+		}
+}	//scrd
 	
 	
+	
+/**
+ * @returns nothing
+ * @sideeffect: Attach info to CRMON
+ */
+function speedcheck_lodcomponents(userid, maxcallmsecduration)
+{
+	var params = {
+						userid : userid,
+						maxcallmsecduration : maxcallmsecduration
+	};
+	
+	jQuery.get("../../app/webs/lodspeedcheck.php", params, function(objx) 
+	{
+		var lodswitch_on = jQuery('#lodsearchswitch.lodsearch_on');
+		var lodswitch_set = (lodswitch_on.length);
+		
+		//Attach current info to Connectivity&responsivenessmonitor
+		for( var lodsname in objx)
+		{
+			if (! objx[lodsname]['ok'])
+			{
+				if (lodswitch_set)
+				{
+					if(confirm('LOD responsiveness check for LOD source \''+lodsname+'\': '
+										+"\n\n"+objx[lodsname]['warning'] 
+										+"\n\nConfirm to deactivate the LOD search"))
+					{
+						lodswitch_on.removeClass('lodsearch_on').addClass('lodsearch_off');
+					}
+				}
+			}
+			if (! CRMON.lod) CRMON.lod = new Object;
+			var CRMONlod= CRMON.lod;
+			var tmplods = new Object;
+			tmplods.name=lodsname;
+			tmplods.id=objx[lodsname]['id'];
+			tmplods.ok=objx[lodsname]['ok'];
+			tmplods.warning=objx[lodsname]['warning'];
+			tmplods.resp_ms=objx[lodsname]['resp_ms'];
+			tmplods.pts=objx[lodsname]['ts'];
+			tmplods.jts=new Date().getTime();
+			tmplods.used_url=objx[lodsname]['used_url'];
+			CRMONlod[lodsname]=tmplods;
+			var x=1; /*DEBUG LINE*/
+		}
+	});
+
+}	
+	
+	
+	
+function toggle_lod_search(imgid)
+{
+	var img_on = jQuery('#'+imgid+'.lodsearch_on');
+	var img_off = jQuery('#'+imgid+'.lodsearch_off');
+	var txt_off ="RDFize only your results?\n\nRODIN will only RDFize search results and merge them into the internal LOD space."
+	+"\nIt will not expand subjects, nor search for suggested documents in the outside LOD space"
+	+"\n\nPlease confirm";
+	
+	if (img_on.length)
+	{
+		if (confirm(txt_off))
+			img_on.removeClass('lodsearch_on').addClass('lodsearch_off');
+	}
+
+	else 
+	if (img_off.length)
+		img_off.removeClass('lodsearch_off').addClass('lodsearch_on');
+}
+	
+
 function exec_rdfize(user_id,sid,wps,username,reqhost)
 {
+	var lodsearch_switch = jQuery('#lodsearchswitch.lodsearch_on');
+	var want_lodsearch = lodsearch_switch.length; //0 or 1
+	
 	//alert('exec_rdfize');
 	var params = {
 						user_id : user_id,
@@ -2791,14 +2904,15 @@ function exec_rdfize(user_id,sid,wps,username,reqhost)
 						wps : wps,
 						username: username,
 						reqhost: reqhost,
+						lodsearch: want_lodsearch,
 						rdfize: 'on'
 	};
 	
-	
+	var lodsearchingtxt= want_lodsearch?lg('lblRDFizingAndSEARCH'):lg('lblRDFizing');
 	var msgtxt = '<div style="padding-left: 6px; padding-right: 28px;">'
 			+ '<img src="<?php print $RODINUTILITIES_GEN_URL; ?>/images/ico_waiting.gif"'
 			+ 'style="padding-right:5px;position:absolute;top:15px">'
-			+ parent.lg('lblRDFizing') + '</div>';
+			+ lodsearchingtxt + '</div>';
 		
 	$p.app.popup.fadeinFRI(msgtxt,500,100,'');
 	

@@ -78,7 +78,7 @@
 		var lastSid = new Array();
 	</script>
 	<!-- For idle timer and context menus -->
-	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.7.1.min.js'></script>
+	<script type="text/javascript" src='../../../gen/u/jquery/jquery-1.8.3.min.js'></script>
 	<script type="text/javascript" src='../../../gen/u/idletimer/jquery.idle-timer.js'></script>
 	<script type="text/javascript" src='<?php print $RODINU; ?>/contextmenu/jquery.contextMenu.js'></script>
 	<link rel="stylesheet" type="text/css" href="../../../gen/u/autocomplete/styles.css" />
@@ -194,26 +194,33 @@ EOH;
 		
 //------------------ LOD SPACE control ----------------
 		
-  $DBRODIN_LOGO="<img id='dbrodinlogo' src='$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png' title=''/>";
+  $LODSEARCHTITLE='Click to toggle on/off LOD search for suggested results';
+	
+	$DBRODIN_LOGO="<img id='dbrodinlogo' src='$RODINUTILITIES_GEN_URL/images/icon_arrow_right2.png' title=''/>";
 	$OPENDBRODINLODBROWSER="open_lod_browser('$WEBROOT$RODINROOT/$RODINSEGMENT/app/lod/resource/a/','_blank');return false;";
   $DBRODIN_HREF="<a href='' onclick=\" $OPENDBRODINLODBROWSER\" target='_blank' title='Click to open dbRODIN LoD browser (on your last search) in a new tab'>$DBRODIN_LOGO</a>";
   $LODTITLE=lg('ttpOpenLOD');
-	
+		
   $RDFIZE_LOGO="<img id='rdfizelogo' src='$RODINUTILITIES_GEN_URL/images/white.PNG' title=''/>";
  	$LABPARAMS="?listwr=on&user_id=".$_SESSION['user_id']."&username=".$_SESSION['username'];  
 	$OPENRDFIZELAB="open_rdfize('$RDFIZEURL$LABPARAMS','_blank');return false;";
   $RDFIZE_HREF= "<a href='#' onclick=\" $OPENRDFIZELAB\" target='_blank' title='Click to open RDFIZE LAB (new efficient prototype)  (on your last search) in a new TAB'>$RDFIZE_LOGO</a>";
 	$RDFLABTITLE= lg('ttpOpenRdfLab');
 		
+	$lodSearchSwitch = '<div id="lodButtonDiv" class="searchOptionDiv" style="min-width:40px">' . "\n"
+		. '<img id="lodsearchswitch" class="optionButton lodsearch_on" src="'.$RODINUTILITIES_GEN_URL.'/images/white.PNG" style="float:right;padding-left:10px;" ' . "\n"
+		. 'onClick="toggle_lod_search(\'lodsearchswitch\')" title="'.$LODSEARCHTITLE.'" />' . "\n"
+		. '</div>' . "\n";
+
 	$lodViewStart = '<div id="lodButtonDiv" class="searchOptionDiv">' . "\n"
-		. '<span class="optionLabel" id="lodButtonLabel">' . lg("lblOpenLOD") . ':</span>' . "\n"
+		. '<span class="optionLabel" id="lodButtonLabel">' . lg("lblOpenLOD") . '</span>' . "\n"
 		. '<img id="lodButton" class="optionButton" src="'.$RODINUTILITIES_GEN_URL.'/images/icon_arrow_right2.png"' . "\n"
 		. 'onClick=" '.$OPENDBRODINLODBROWSER.'" title="'.$LODTITLE.'" />' . "\n"
 		. '</div>' . "\n";
 
 	if ($USED_BY_ADMIN)
 	$rdfLabStart = '<div id="rdflabButtonDiv" class="searchOptionDiv">' . "\n"
-		. '<span class="optionLabel" id="rdflabButtonLabel">' . lg("lblOpenRdfLab") . ':</span>' . "\n"
+		. '<span class="optionLabel" id="rdflabButtonLabel">' . lg("lblOpenRdfLab") . '</span>' . "\n"
 		. '<img id="lodButton" class="optionButton" src="'.$RODINUTILITIES_GEN_URL.'/images/semantic_web.png"' . "\n"
 		. 'onClick=" '.$OPENRDFIZELAB.'" title="'.$RDFLABTITLE.'" />' . "\n"
 		. '</div>' . "\n";
@@ -307,6 +314,7 @@ EOP;
 
 	<?php echo $rdfLabStart; ?>
 	<?php echo $lodViewStart; ?>
+	<?php echo $lodSearchSwitch; ?>
 	<?php echo $aggregatedViewSwitch; ?>
 	<?php echo $textZoomButtons; ?>
 	<?php echo $personalSortCBOX; ?>
@@ -574,8 +582,8 @@ EOP;
 		SETVERSION='<?php print $setversion ?>';
 		METASEARCH_FINISHED=false;
 
-		POSITEXT='<?php print $_SESSION['positext']; ?>';
-		NEGATEXT='<?php print $_SESSION['negatext']; ?>';
+		POSITEXT='<?php echo $_SESSION['positext']; ?>';
+		NEGATEXT='<?php echo $_SESSION['negatext']; ?>';
 		
     if (! DIAGNOSTIC_OK)
     {
@@ -587,6 +595,17 @@ EOP;
       d.style.visibility='visible';
       d.style.display='inline-block';
     }  
+
+		//CONNECTIVITY & RESPONSIVENESS Monitor every 10 minutes
+		CRMON = new Object;
+	  scrd( <?php echo $_SESSION['user_id'] ?> );
+		//Check every 10 minutes (10*60*1000)
+		window.setInterval(function(){
+			//Check connectivity responsiveness duration
+		  scrd( <?php echo $_SESSION['user_id'] ?> );
+		}, 10*60000);
+
+
 	</script>
 
 </body>

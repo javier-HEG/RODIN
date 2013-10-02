@@ -474,8 +474,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
                               ."&fl=score,*"
                             //  ."&omitHeader=true"
                               ; 
-      //print "<hr>SOLR SELECT: <br>(((".htmlentities($solr_select).")))";
-      //print "<hr>SOLR QUERY: <br>(((".htmlentities($solr_result_query_url).")))";
+      if ($DEBUG) print "<hr>SOLR SELECT: <br>(((".htmlentities($solr_select).")))";
+      if ($DEBUG) print "<hr>SOLR QUERY: <br>(((".htmlentities($solr_result_query_url).")))";
  
       $filecontent=file_get_contents($solr_result_query_url);
       $solr_sxml= simplexml_load_string($filecontent);
@@ -950,7 +950,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	 * Calls and code search results
 	 * Returns a json representation of them
 	 */
-	public static function get_json_searchresults($sid, $internalresults, $externalresults)
+	public static function get_json_searchresults($sid, $internalresults, $externalresults, $fromResult = 0, $uptoResult = 0)
 	{
 		$DEBUG=0;
 		$ok_to_retrieve=true;
@@ -969,25 +969,28 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			$resultCount = count($allResults);
 			
 			// Both a maximum size and a maximum number of results are set
-			$resultMaxSetSize = 4;
-			$resultMaxLength = 131072;
-			$fromResult = 0;
-			$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
+			if ($fromResult==0 && $uptoResult==0 )
+			{
+				$resultMaxSetSize = 4;
+				$resultMaxLength = 1000000;
+				$fromResult = 0;
+				$uptoResult = $resultCount;
+			}
 			if ($DEBUG) print "<br>$resultCount results read... SHOW from $fromResult to < $uptoResult";
 			
 			$i = $fromResult;
-			while ($i < $uptoResult) 
+			while ($i <= $uptoResult) 
 			{
 				$result = $allResults[$i];
 				
 				if($result)
 				{
-				$resultCounter = $i + 1;
-			
-				if ($DEBUG) 
-				{
-					print "\n\n\n-------\n\nRes nr. $resultCounter \n\n"; var_dump($result); print "\n\n";
-				}
+					$resultCounter = $i + 1;
+				
+					if ($DEBUG) 
+					{
+						print "\n\n\n-------\n\nRes nr. $resultCounter \n\n"; var_dump($result); print "\n\n";
+					}
 				
 					$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
 				
@@ -1036,11 +1039,11 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 						break;
 					}
 					$jsonAllResults[] = $jsonSingleResult;
-					$i++;
-				}
-			}
+				} // result!=null
+				$i++;
+			} // while
 		} // $ok_to_retrieve
-		return json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $i, 'results' => $jsonAllResults, 'error'=>$errortxt));
+		return json_encode(array('sid' => $sid, 'count' => $resultCount+1, 'from' => $fromResult, 'upto' => $uptoResult, 'results' => $jsonAllResults, 'error'=>$errortxt));
 	} // get_json_searchresults
 	
 	
@@ -1172,7 +1175,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			
 			// Both a maximum size and a maximum number of results are set
 			$resultMaxSetSize = 4;
-			$resultMaxLength = 131072;
+			$resultMaxLength = 1000000;
 			$fromResult = 0;
 			$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
 			

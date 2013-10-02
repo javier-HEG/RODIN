@@ -698,13 +698,14 @@ class RDFprocessor {
 	
 	
 	/**
+	 * @param $rdfize_only - suppresses thesauri expansion
 	 * @param $search_subjects - assoc defined with $subjectlabel=>$subject_uid
 	 * @param $search_uid - the uid of the global search
 	 * @param $result_subjects - assoc defined with $subjectlabel=>$subject_uid
 	 * @param $COUNTTRIPLES - Flag
 	 * @param $THERECORDS - array of SRC records (maybe null)
 	 */
-	public function expand_rdfize_subjects(&$search_subjects,$searchuid,&$result_subjects,$COUNTTRIPLES,&$THERECORDS)
+	public function expand_rdfize_subjects($rdfize_only,&$search_subjects,$searchuid,&$result_subjects,$COUNTTRIPLES,&$THERECORDS)
 	{
 		
 		$DEBUG=1;
@@ -712,7 +713,8 @@ class RDFprocessor {
 		global $WANT_RDF_ANNOTATION;
 		$count_added_triples=0;
 		
-		list($skos_search_subjects_expansions,$count_added_triples1) 
+		if ($rdfize_only==false)
+			list($skos_search_subjects_expansions,$count_added_triples1) 
 							= $this->get_subjects_expansions_using_thesauri(	$search_subjects,
 																																$this->sid,
 																																RDFprocessor::$querysubjects_servicename,
@@ -723,7 +725,8 @@ class RDFprocessor {
 																																$COUNTTRIPLES,
 																																$THERECORDS  );
 				
-		list($skos_result_subjects_expansions,$count_added_triples2) 
+		if ($rdfize_only==false)
+			list($skos_result_subjects_expansions,$count_added_triples2) 
 							= $this->get_subjects_expansions_using_thesauri(	$result_subjects,
 																																$this->sid,
 																																RDFprocessor::$relatedsubjects_servicename,

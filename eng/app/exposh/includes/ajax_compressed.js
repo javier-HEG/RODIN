@@ -21120,7 +21120,7 @@ $p.app.popup={
 		else
 			var l_popup=$('popup');
 
-		if (v_width==indef) v_width=500;
+		if (v_width==indef) v_width=600;
 		if (v_height==indef) v_height=200;
 
 		l_popup.style.width = v_width+"px";

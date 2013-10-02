@@ -16,6 +16,8 @@
 	$WEBSERVICE = true; //Prevent other modules to make output to stdin
 	$userid=trim($_REQUEST['userid']);
 	$sid=trim($_REQUEST['sid']);
+	$lodsearch=trim($_REQUEST['lodsearch']);
+	
 	$m = $_REQUEST['m'];
 	$thesauries=$_REQUEST['thesauries']; // List of THESAURI sources separated by comma
 	$lodsources=$_REQUEST['lodsources']; // List of LOD sources separated by comma
@@ -114,7 +116,7 @@
 			if (count($lod_records)) 
 			{
 				global $USER; $USER=$userid;
-				rdfize_and_expand($sid, $the_records, $lod_records);
+				rdfize_and_expand($sid, $lodsearch, $the_records, $lod_records);
 			}
 		
 		//Get all results and send them as json

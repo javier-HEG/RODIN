@@ -1832,7 +1832,69 @@ EOQ;
 	}	// get_cached_triples_on_subject_from_sparql_endpoint
 			
 		
+		
+		
+		
+	/**
+	 * 
+	 * @return array($duration_msec,$used_url)
+	 */
+	function checkresponsespeed_lod_source($src_name,$src_id,$sds_sparql_endpoint,$sds_sparql_endpoint_params)
+	{
+		$DEBUG=0;
 
+		switch($src_name)
+		{
+			case 'Europeana':
+		$sparqlquery_test=<<<EOQ
+select ?s 
+{
+ ?s ?p ?o .
+} limit 1
+EOQ;
+
+
+			//$sds_sparql_endpoint = str_replace("europeana",'boh',$sds_sparql_endpoint); // TEST
+
+			$used_url =
+			$url_endpoint_test= $sds_sparql_endpoint
+								 	.'?query='.urlencode($sparqlquery_test)
+									.'&'.$sds_sparql_endpoint_params;
+			$microtime_start=microtime();				
+			$xml_response=get_file_content($url_endpoint_test);
+			$microtime_end=microtime();					
+
+			//Check response from LOD source
+			if ($DEBUG)
+			print "<br>RESPONSE (((".htmlentities($xml_response).")))";
+
+			if (	 strstr($xml_response,"internal error")
+					|| strstr($xml_response,"Error report")
+					|| (trim($xml_response) == ''))
+			{
+				$response_ok=false;
+				$duration_msec = ($microtime_end - $microtime_start) / 1000;
+			}
+			
+			else {
+				$response_ok=true;
+				$duration_msec = ($microtime_end - $microtime_start) / 1000;
+			}
+
+
+			break;
+			default:
+				$response_ok=false;
+				$used_url = 'UNKNOWN SRC: '.$src_name;
+				$duration_msec = 100000000;
+		} // switch
+
+
+		return array($used_url, $duration_msec, $response_ok); // dummy
+	}
+		
+		
+		
 		
 		
 		

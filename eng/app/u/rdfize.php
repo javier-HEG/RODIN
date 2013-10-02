@@ -22,6 +22,7 @@ for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
 
 
 $sid=$_GET['sid'];
+$lodsearch=$_GET['lodsearch']; // 1 or 0
 $reqhost=$_GET['reqhost']; //important - defines the store!
 if (!$reqhost) $reqhost=$_SERVER['SERVER_NAME'];
 $USER_ID=$_GET['user_id']; 
@@ -115,7 +116,7 @@ if (file_exists($RODIN_PROFILING_PATH)) unlink($RODIN_PROFILING_PATH);
 //TomaNota::vaciar();
 if ($sid<>'') 
 {
-	rdfize_and_expand($sid,$THERECORDS=null, $LODSRCRECORDS=null);
+	rdfize_and_expand($sid,$lodsearch,$THERECORDS=null, $LODSRCRECORDS=null);
 	
 	if ($list3pls && $deakt)
 	{
@@ -255,18 +256,21 @@ EOP;
  * 3. Expands results using expanded subjects and LOD sources
  * 
  * @param $sid - string: the key for the search to be processed
+ * @param $lodsearch - 1 or 0 - triggers LOD search (suppresses subject expansion and lod search)
  * @param $THERECORDS - array: SRC records to be used for subject expansion
  * @param $LODRECORDS - array: SRC records to be used for doc expansion
  * 
  * Note: This function was developped experimentally and it uses also some global flags to display content.
  */
-function rdfize_and_expand($sid, &$THESRCRECORDS, &$LODSRCRECORDS)
+function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 {
-	$DEBUG=1;
+	$DEBUG=0;
 	global $RDFLOG;
 	global $rdfize, $listwr, $list3pls, $USER_ID, $reqhost, $WANT_USER_RESONANCE;
 	global $WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH;
 	global $WEBSERVICE;
+	
+	$rdfize_only = ! $lodsearch;
 	
 	if ($DEBUG) {
 		
@@ -278,6 +282,10 @@ function rdfize_and_expand($sid, &$THESRCRECORDS, &$LODSRCRECORDS)
 		
 		if ($countTHE==0) fontprint("<br>rdfize_and_expand THESRCRECORDS is NULL",'orange');
 		if ($countLOD==0) fontprint("<br>rdfize_and_expand LODSRCRECORDS is NULL",'orange');
+		if (! $lodsearch) 
+					 	fontprint("<br>LOD search and subject expansion suppressed by user",'red');
+						
+		
 		print "<br>rdfize_and_expand($sid,$countTHE THE records, $countLOD LOD records)";
 	}
 	$fromResult = 0;
@@ -380,7 +388,7 @@ function rdfize_and_expand($sid, &$THESRCRECORDS, &$LODSRCRECORDS)
 					list(	$skos_search_subjects_expansions,
 								$skos_result_subjects_expansions,
 								$count_added_triples_expand_rdfize_subjects ) = 
-									$rdfprocessor->expand_rdfize_subjects($search_subjects,$searchuid,$limited_result_subjects,$COUNTTRIPLES,$THESRCRECORDS);
+									$rdfprocessor->expand_rdfize_subjects($rdfize_only,$search_subjects,$searchuid,$limited_result_subjects,$COUNTTRIPLES,$THESRCRECORDS);
 															
 					if ($COUNTTRIPLES) print "<br>expand_rdfize_subjects: globally $count_added_triples_expand_rdfize_subjects added triples";
 					
@@ -423,9 +431,13 @@ function rdfize_and_expand($sid, &$THESRCRECORDS, &$LODSRCRECORDS)
 						
 						if($DEBUG) {
 							 fontprint("<hr> BEFORE lod_subJ_doc_fetch ...",'green');
+							
 						}				
+
+					 if (!$lodsearch) 
+					 	$RDFLOG.=htmlprint("LOD search and subject expansion suppressed by user",'red');
 						
-						if(1)
+						if($lodsearch)
 						list(	$expandeddocs,
 									$expanded_new_subjects,
 									$expanded_old_subjects,
