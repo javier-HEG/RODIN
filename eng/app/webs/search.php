@@ -13,7 +13,8 @@
 	
 	$userid=trim($_REQUEST['userid']);
 	$query=trim($_REQUEST['query']);
-	$m = $_REQUEST['m'];
+	$k = $_REQUEST['k']; // start outputting results from k
+	$rm = $_REQUEST['m']; // return first $rm results - tell me how many results there are at all
 	$query=trim($_REQUEST['query']);
 	$widgets=$_REQUEST['widgets']; // List of widgets names separated by comma
 		
@@ -65,9 +66,10 @@
 		$errornotification = "Syntax: ?query=Information+Economy"
 											."&widgets=econbiz,swissbib,alexandria"
 											."&userid=6"
+											."{&k=0}"
 											."{&m=3}";
 											
-		$allResultsJson = json_encode(array('sid' => 0, 'count' => 0, 'upto' => 0, 'results' => null,
+		$allResultsJson = json_encode(array('sid' => 0, 'count' => 0, 'from' => $k, 'upto' => ($k+$m-1), 'all' => $all, 'results' => null,
 																	'error'=>$errornotification));									
 											
 	}									
@@ -80,17 +82,18 @@
 						
 			foreach($widgets_records as $widget_record)
 				print "<br>".$widget_record['name'].': '.$widget_record['url'];
-			print "<br><br>LOD sources:"; 
-			foreach($lod_records as $lod_record)
-				print "<br>".$lod_record['Name'];
 		}
+		
+		
+		
 		//compute $sid
 		$sid = compute_sid($userid);
 		//search in each widget -> results in sid
-		search_in_each_widget($widgets_records,$userid,$sid,$query,$m);
-				
+		//$wm = $DEFAULT_M; // in db for segment
+		search_in_each_widget($widgets_records,$userid,$sid,$query,$wm=10);
+		
 		//Get all results and send them as json
-		$allResultsJson = RodinResultManager::get_json_searchresults4webservice($sid, true, true);
+		$allResultsJson = RodinResultManager::get_json_searchresults4webservice($sid, $k, $rm, true, true);
 	} // $search_could_start
 	
 	//Output results in JSON:
@@ -104,14 +107,14 @@
 	 * Stores results in SOLR/DB under $sid
 	 * Returns NOTHING 
 	 */
-	function search_in_each_widget($widgets_records,$userid,$sid,$query,$m=3)
+	function search_in_each_widget($widgets_records,$userid,$sid,$query,$wm)
 	{
 		$DEBUG=0;
 		global $DOCROOT,$RODINUTILITIES_GEN_URL;
 		global $RDW_REQUEST;
 		global $WEBSERVICE;
 		global $USER; $USER=$userid;
-		if ($m==0) $m=3; // default
+		if ($wm==0) $wm=10; // default
 
 		if (!$userid) print "<br>ERROR: NO userid provided!";
 		
@@ -152,7 +155,7 @@
 			}
 			
 			$RDW_REQUEST['q']=$query;
-			$RDW_REQUEST['m']=$m;
+			$RDW_REQUEST['m']=$wm;
 			$RDW_REQUEST['sid']=$sid;
 			
 			//Execute widget:

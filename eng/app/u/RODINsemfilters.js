@@ -621,11 +621,14 @@ function get_all_elems_by_class(contentdoc,classname)
 function highlight_and_filter_results(flag)
 {
   var t=document.getElementById('facetContextMenuLabel').innerHTML;
-  simple_highlight_semfilterresults(t,flag)
+  simple_highlight_semfilterresults(t,flag);
 }
 
 
 
+/**
+ * Scans onto terms and adds highlight facility
+ */
 function mark_ontoterms_on_resultmatch()
 {
   eclog('mark_ontoterms_on_resultmatch Start refreshing onto matches ...');

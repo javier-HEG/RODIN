@@ -1021,8 +1021,8 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 		var module				=variables['module'];
 		var newsid				=variables['newsid'];
 		var service_id		=variables['service_id'];
-		var src_service_name 	=variables['src_service_name']
-		var src_service_url 	=variables['src_service_url']
+		var src_service_name 	=variables['src_service_name'];
+		var src_service_url 	=variables['src_service_url'];
     var this_wid_uniq_id	=variables['this_wid_uniq_id'];
 		var calledfromoutsideiframe=variables['calledfromoutsideiframe'];
 		var lang				=variables['l'];
@@ -1093,7 +1093,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 				var cid = sid +'.'+msec +'.' + this_wid_uniq_id;
 				var newsid=sid; 
 				
-				var url_bridge='<?php print "$SRC_INTERFACE_BASE_URL/refine/index.php"; ?>' 
+				var url_bridge='<?php print "$SRC_INTERFACE_BASE_URL/refine/index.php"; ?>' ;
 				
 				 if (response_xmlwellformed_exists)
 				 {

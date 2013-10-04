@@ -5,6 +5,7 @@
  */
 function show_rodin_search_results(querytext,debug)
 {
+	LASTUSERQUERY=querytext;
 	var url="./rodinelib_search_and_render.php?query="+querytext+"&DEBUG="+debug;
 	clear_mainsearch();
 	set_busy();
@@ -23,6 +24,39 @@ function show_rodin_search_results(querytext,debug)
   });
 }
 
+
+/**
+ * get data and put it into rodin_main_column (basta)
+ */
+function show_rodin_mlt(id_wdoc, sid, debug)
+{
+	//alert('show_rodin_mlt');
+	var url="./rodinelib_search_mlt_and_render.php?sid="+sid+"&rid="+id_wdoc+"&DEBUG="+debug;
+	if(debug) {
+		var url2="http://localhost/rodin/eng/elib/app/src/rodinelib_search_mlt_and_render.php?sid="+sid+"&rid="+id_wdoc+"&DEBUG=1";
+		alert(url2);
+	}
+	clear_mainsearch();
+	set_busy();
+	//alert('show_rodin_search_results('+querytext+')');
+	jQuery.ajax({
+		context: document.body,
+    type: "GET",
+    url: url,
+    cache: true
+  }).done(function( resultdata ) {
+     //alert(querytext+" --> "+resultdata);
+     jQuery('#rodin_main_column').html(resultdata);
+     init_mainsearch();
+     unset_busy();
+     METASEARCH_FINISHED=true;
+  });
+}
+
+
+
+
+
 function show_rodin_thesearch_results(querytext,debug)
 {
 	//return; // debug
@@ -38,9 +72,37 @@ function show_rodin_thesearch_results(querytext,debug)
   }).done(function( resultdata ) {
      //alert(querytext+" --> "+resultdata);
      jQuery('#rodin_left_column').html(resultdata);
+     //The following disabled - toomuch
+     //mark_ontoterms_on_resultmatch();
      unset_busy();
   });
 }
+
+
+
+function show_rodinelib_pseudofacets(querytext,debug)
+{
+	return;
+	//return; // debug
+	//alert('show_rodin_thesearch_results('+querytext+')');
+	if (!debug) debug='';
+	var url="./rodinelib_thesearch_and_render.php?query="+querytext+"&DEBUG="+debug;
+	set_busy();
+	jQuery.ajax({
+		context: document.body,
+    type: "GET",
+    url: url,
+    cache: true
+  }).done(function( resultdata ) {
+     //alert(querytext+" --> "+resultdata);
+     jQuery('#rodin_right_column').html(resultdata);
+     unset_busy();
+  });
+}
+
+
+
+
 
 /**
  * same as show_rodin_thesearch_results
@@ -157,7 +219,7 @@ function toggle_show_abstracts_in_results(imgButton)
 
 function launch_query_for_debug()
 {
-	set_query('Digital Economy');
+	set_query('Information'); 
 	launch_query();
 }
 
@@ -272,6 +334,13 @@ function construct_elib_actions_tooltip(txt,objs)
 function htmlDecode(value) {
    return (typeof value === 'undefined') ? '' : $('<div/>').html(value).text();
 }
+
+
+
+function eclog(txt)
+{
+	if (WANTCONSOLELOG) console.log(Date() + ' '+ txt);
+}	
 
 
 
@@ -643,4 +712,9 @@ function randomUUID() {
   return s.join('');
 }
 
-
+/* foreach extension to Array */
+Array.prototype.foreach = function( callback ) {
+	  for( var k=0; k<this .length; k++ ) {
+	    callback( k, this[ k ] );
+	  }
+}

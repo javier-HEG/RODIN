@@ -18,7 +18,8 @@
 	$sid=trim($_REQUEST['sid']);
 	$lodsearch=trim($_REQUEST['lodsearch']);
 	
-	$m = $_REQUEST['m'];
+	$k = $_REQUEST['k']; // start outputting results from k
+	$rm = $_REQUEST['m']; // output rm results from k
 	$thesauries=$_REQUEST['thesauries']; // List of THESAURI sources separated by comma
 	$lodsources=$_REQUEST['lodsources']; // List of LOD sources separated by comma
 		
@@ -96,9 +97,10 @@
 												."&thesauries=thesoz,stw,rameau"
 												."&lodsources=europeana"
 												."&userid=6"
+												."{&k=0}"
 												."{&m=3}";
 											
-		$allResultsJson = json_encode(array('sid' => 0, 'count' => 0, 'upto' => 0, 'results' => null, 'error'=>$errornotification));									
+		$allResultsJson = json_encode(array('sid' => 0, 'count' => 0, 'from'=>$k, 'upto' => ($k+$m-1), 'all'=>$all, 'results' => null, 'error'=>$errornotification));									
 	}									
 	else // $search_could_start
 	{
@@ -120,7 +122,7 @@
 			}
 		
 		//Get all results and send them as json
-		$allResultsJson = RodinResultManager::get_json_searchresults4webservice($sid, true, true);
+		$allResultsJson = RodinResultManager::get_json_searchresults4webservice($sid, $k, $rm, true, true);
 	} // $search_could_start
 	
 	//Output results in JSON:

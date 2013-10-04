@@ -6,7 +6,7 @@
  * ON BEHALF OF: HEG - Haute Ecole de Gestion, Geneva
  * DATE: August 2013
  * 
- * This script searches in the thesauries of RODIN, and shows the results (semantic facetts) e-lib-like
+ * This script detects the language of query and searches in the thesauries of RODIN, and shows the results (semantic facetts) e-lib-like
  * It returns an HTML content which should be rendered in a DIV inside another HTML page
  */
  
@@ -22,6 +22,10 @@ $max=10; for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 { if (file_exists("$updir$filenamex")) 
 	{	require_once("$updir$filenamex"); break;}	}
 ###############################################################
+$filename="app/u/LanguageDetection.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 ###############################################################
 
 $NOTIFY=$_REQUEST['notify'];
@@ -56,12 +60,20 @@ $jsonResultsDecoded = json_decode(file_get_contents($url), true);
 $query 					= $jsonResultsDecoded{'query'};
 $skostheresults = $jsonResultsDecoded{'skostheresults'};
 $errortxt				= $jsonResultsDecoded{'error'};
+$languages   		= array('en','fr','de','it','es');
 
 ###############################################################
 #
 # TODO: Cambiare i Links (dinamici !!! Server !!!) /-/rodin/gen/u/images ....
 #
 ###############################################################
+
+$searchtermlang	=detectLanguage($query);
+if (in_array($searchtermlang, $languages))
+	$stopwords =get_stopwords_from_db($searchtermlang);
+else 
+	$stopwords =get_stopwords_from_db();
+
 
 
 if ($DEBUG)
@@ -128,7 +140,7 @@ EOH;
 			print "<br>end broaders<br>";
 		}
 		$LOCALLOG.= "<br><b>$srcname</b> ($SRCID).SKOS:";
-		$SRCTERMSCOUNT = "32";
+		$SRCTERMSCOUNT = count($broaders) + count($narrowers) + count($related);
 		
 		
 		$HTML.=<<<EOH
@@ -179,7 +191,7 @@ EOH;
 						<div id="fb_itemcontent_$SRCID" class="facetgroup-active">
 EOH;
 		
-		
+		$counter=1;
 		
 		####################################################
 		#
@@ -195,10 +207,10 @@ EOH;
 						<div id="fb_itemcontent_b_$SRCID" class="facetlist-active">
 							<table class='tableD' cellspacing="0" cellpadding="0" border="0" ><!--table D-->
 EOH;
-			$counter=0;
 			foreach($broaders as $b)
 			{
 				$b=trim($b);
+				
 				$rootbase46=''; // siehe javascript:src_widget_morelikethis in RODIN
 				$LOCALLOG.="<br>&nbsp;&nbsp; $b";
 				//Construct one table line (tr) for term $b:
@@ -344,8 +356,17 @@ return $HTML;
 }
 
 
-
-
+/**
+ * @return a string without stop words
+ */
+function clean_facet_term($s)
+{
+	global $stopwords;
+	$s_words=explode(' ',$s);
+	$s_words_cleaned = array_unique(cleanup_stopwords($s_words, $stopwords));
+	$s_cleaned=implode(' ',$s_words_cleaned);
+	return $s_cleaned;
+}
 
 
 
@@ -365,6 +386,8 @@ function make_ontofacet_tr($bnr,$term,$counter,$SRCID)
 	global $ELIBIMAGESDIR;
 	global $TTPNEWLINE;
 	$TERM_ID='ft'.$SRCID.'_'.$bnr.$counter;
+	$term_cleaned=clean_facet_term($term);
+	
 /*
  * 	<tr onmouseover="document.getElementById('ricons_{$bnr}_{$SRCID}_$counter').style.visibility='visible'" 
 			onmouseout="document.getElementById('ricons_{$bnr}_{$SRCID}_$counter').style.visibility='hidden'" 
@@ -380,6 +403,7 @@ function make_ontofacet_tr($bnr,$term,$counter,$SRCID)
 			onmouseup="fomu('$bnr',$SRCID,$counter,this,event)" 
 			id='$TERM_ID'
 			st = '$term'
+			stc= '$term_cleaned'
 			class="fb-term-row"
 	>
 		<td align="left" class='fb'>

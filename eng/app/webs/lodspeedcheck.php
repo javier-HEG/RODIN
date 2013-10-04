@@ -81,7 +81,7 @@
 			}
 			
 			$warning_explanation="\nThis might happen due to mantainance works at the LOD source site or to other connectivity problems."
-													."\nThis might therefore currently delay or compromise the RDF-ization of this search!"
+													."\nThis might therefore currently delay or compromise the RDF-ization of your next search!"
 													."\n\nRODIN recommends you to temporarily deactivate the LOD SEARCH or to retry later";
 			
 			$date = new DateTime();
@@ -102,7 +102,7 @@
 			else if (! $response_ok)
 			{
 				$ok = 0;
-				$warning = "The connected LOD source '$src_name' appears not to respond correctely to a preliminary connectivity check."
+				$warning = "The connected LOD source '$src_name' appears not to respond correctly to a preliminary connectivity check."
 									.$warning_explanation;
 
 			} 
@@ -126,27 +126,5 @@
 	if ($DEBUG && $speedckeckJson) {print "<hr>"; var_dump($speedckeckJson); print "<hr>";}
 	echo $speedckeckJson;
 
-// 
-	// ##################################################################################
-	// ##################################################################################
-	// ##################################################################################
-// 	
-	// function check_lod_source()
-	// {
-			// $sparqlquery_documents=<<<EOQ
-// PREFIX dce: <$dce_ns_url>
-// select distinct ?docid
-// {
-// ?docid dce:subject "$subject" .
-// ?docid dce:language ?lang . 
-// FILTER regex(?lang, "$lang") .
-// } limit $docslimit
-// EOQ;
-			// $url_endpoint_docs= $sds_sparql_endpoint
-								 	// .'?query='.urlencode($sparqlquery_documents)
-									// .'&'.$sds_sparql_endpoint_params;
-// 		
-	// } // check_lod_source
-	
-	
+
 ?>

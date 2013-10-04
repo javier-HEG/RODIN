@@ -21,7 +21,7 @@ lang["lblmetasearchrodinbuttonTitle"]="Start search";
 lang["lblmetasearchrodinbuttonValue"]="Search";
 lang["lblCollectingResultsUpTo"]="Collecting maximal $$ results for each restored widget ";
 lang["lblCollectingResultsWait"]="of your search for:<br>\"<b>$$</b>\"<br>... please wait.";
-lang["lblRDFizingAndSEARCH"]="RDF-izing and searching for more results from outer LOD space";
+lang["lblRDFizingAndSEARCH"]="RDF-izing and searching for more results in outer LOD space";
 lang["lblRDFizing"]="RDF-izing results into internal LOD space";
 lang["msgPleaseAddWidgetsToTab"]="Please add some widgets to this tab and retry your search";
 

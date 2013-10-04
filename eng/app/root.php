@@ -234,7 +234,7 @@ $lodLABHOMEPAGEURL="$RODINROOT/$RODINSEGMENT/app/u/rdfize.php?listwr=on";
 
 $WANT_WIDGET_SEARCH =false;
 $WANT_RDF_ANNOTATION=true; 
-$WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=			1    	;
+$WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH=			0    	;
 
 $MANTIS_REPORTISSUE=str_replace(" ","+",
 										"http://195.176.237.62/mantis/bug_report_advanced_page.php?summary=Please describe the subject of your issue here"

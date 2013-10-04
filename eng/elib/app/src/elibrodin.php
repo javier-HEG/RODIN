@@ -23,7 +23,7 @@
     <!--[if lt IE 9]>
         <style type="text/css">@import url(../js/stylesie.css);</style>
     <![endif]-->
-    <script type="text/javascript" src="../js/jquery-1.6.3.min.js"></script>
+    <script type="text/javascript" src="../../../../gen/u/jquery/jquery-1.8.3.min.js"></script>
     <script type="text/javascript" src="../js/jquery.tools.min.js"></script>
     <script type="text/javascript" src="../js/functions.js.php"></script>
     <script type="text/javascript" src="../js/jquery.jqtransform.js"></script>
@@ -39,11 +39,14 @@
 <!-- begin swissmetrix for e-lib.ch -->
 <script type="text/javascript">
 
+	WANTCONSOLELOG=true;
+	LASTUSERQUERY='';
 	EXECSEMAPHOR=0;
 	METASEARCH_FINISHED=false;
 	AUTOCOMPLETECONTAINER_ID=false;
 	SELECTEDWORDS=new Array();
 	BUTTONLEFT=false;
+	ONTOTERMS_REDO_HIGHLIGHTING=true;
 	//RIGHT MOUSE HANDLER:
 	//SUPPOSES elements of RODINutilities.js:
 	if (false)

@@ -14,7 +14,7 @@ include_once("u/arcUtilities.php");
 <br />
 <br /><b>DEVELOPMENT / RELEASE INFOS </b>
 <br />
-<br />12.7.2013 
+<br />1.10.2013 
 <br />By Fabio Ricci (FRI) - Tel. 076-5281961
 <br />and Javier Belmonte (BEL)
 <br />Please report any issue using <?php echo $MANTIS ?> 
@@ -39,6 +39,7 @@ include_once("u/arcUtilities.php");
 <br />WIDGET e-lib.ch
 <br />RESONANCE FILTERING (personal filter)
 <br />PORTED TO LATEST MYSQL (5.6.12)/PHP(5.5)
+<br />LODSEARCH automatical warnings on malfunction of LOD requests
 
 
 </p>

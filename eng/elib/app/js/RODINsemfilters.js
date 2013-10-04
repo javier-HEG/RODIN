@@ -242,39 +242,11 @@ function check_semfilterresults(txt,min_occurrences,concerning_menuitem_idx)
 }
 
 
-
-function toggle_highlight_semfilterresults(elem,txt,highlight)
-/* Elem ist the base from which a highlicht action should start */
-{
-	return;
-  var eleclass=elem.classList[0];
-
-  //Which morphological filter should be used?
-
-  if (eleclass.indexOf('-hl')>-1)
-  {
-    if (elem.highlighted)
-    {
-      highlight_semfilterresults(txt,elem.hl_color,false);
-      elem.highlighted=false;
-      elem.style.backgroundColor='';
-    }
-    else
-    {
-      elem.hl_color=compute_highlightcolor(txt);
-      elem.highlighted=true;
-      highlight_semfilterresults(txt,elem.hl_color,true);
-      elem.style.backgroundColor=elem.hl_color;
-    }
-  }
-}
-
-
 //Shortcuts to speedup load
 
 //highlight filter results: USED?
 function hf(txt)
-{simple_highlight_semfilterresults(txt,true);}
+{simple_highlight_semfilterresults(txt,true,true,true);}
 
 
 
@@ -305,7 +277,7 @@ function omo(obj,event,msdelay)
 	else if (!event.shiftKey) // only coloring (stanrard)
 	{
 		allow_obj_onmouseout(obj);
-		simple_highlight_semfilterresults(obj.innerHTML,true);
+		simple_highlight_semfilterresults(obj.innerHTML,true,true,true);
 	}
 }
 
@@ -369,7 +341,7 @@ function omu(obj,event,msdelay)
 function mut(obj,event)
 {
 	if(! obj.onmouseout_forbidden)
-		simple_highlight_semfilterresults(obj.innerHTML,false);
+		simple_highlight_semfilterresults(obj.innerHTML,false,true,true);
 }
 
 function forbid_obj_onmouseout(obj)
@@ -391,15 +363,15 @@ function fomh(bnr,SRCID,counter,tr)
 	var token="ricons";
 	var id = token+"_"+bnr+"_"+SRCID+"_"+counter;
 
-	/*(re)customize title if facet term selected :*/
-	fomu_adapt_title_and_img_action_on_selection_txt(bnr,SRCID,counter,tr);
-
 	/* control breadcrumb_display: */
 	fb_check_bc_control_on_breadcrumb_matching(tr,true);
-	
 	reduce_fbtermwidth_onhover(tr);
+	/* highlight matching widget terms */
+	simple_highlight_semfilterresults(tr.getAttribute('stc'),true,true,true);
+
+	/*(re)customize title if facet term selected :*/
+	fomu_adapt_title_and_img_action_on_selection_txt(bnr,SRCID,counter,tr);
 	jQuery('#'+id).removeClass('hidden').show();	
-	
 } // fomh
 
 /* onmouseout: */
@@ -409,6 +381,7 @@ function fomo(bnr,SRCID,counter,tr)
 	var id = token+"_"+bnr+"_"+SRCID+"_"+counter;
 	jQuery('#'+id).addClass('hidden').hide();	
 	unreduce_fbtermwidth_onhover(tr);
+	simple_highlight_semfilterresults(tr.getAttribute('stc'),false,true,true);
 	//alert('mouseout')
 	//ERASE selection text (if any)
 	//reinit_ontofacet_selection(tr);
@@ -474,7 +447,9 @@ function reinit_ontofacet_selection(tr)
 	jQuery(tr).attr('st',original_selection_txt);
 }
 
-/* adapt title and functioncalls to selection txt: */
+/**
+ * Adapt facet length on hover to make place for the facet icons
+ */
 function fomu_adapt_title_and_img_action_on_selection_txt(bnr,SRCID,counter,tr)
 {
 	/*(re)customize title if facet term selected :*/
@@ -484,58 +459,62 @@ function fomu_adapt_title_and_img_action_on_selection_txt(bnr,SRCID,counter,tr)
 	var imgtitle= '';
 	var imgselector='';
 	var current_selection_txt = jQuery(tr).attr('st');
-	var original_selection_txt = $('td.fb a', tr).text();
+	var current_selection_txt_stripped = cleanup4semfiltering(current_selection_txt);
+	var facet_term_a = jQuery('td.fb a', tr).get(0);
+	var original_selection_txt = facet_term_a.innerHTML;
+	var original_selection_txt_stripped = cleanup4semfiltering(facet_term_a.innerHTML);
 	
 		
-	if (original_selection_txt != current_selection_txt)
+	if (original_selection_txt_stripped != current_selection_txt_stripped)
 	{
 		/* adapt tr title */
-		title=basetitle.replace(/___/,htmlDecode('Selection: &#171;'+current_selection_txt+'&#187; inside term &#171;'+original_selection_txt+'&#187;'));
+		title=basetitle.replace(/___/,htmlDecode('Selection: &#171;'+current_selection_txt_stripped+'&#187; inside term &#171;'+original_selection_txt_stripped+'&#187;'));
 		
 		/* adapt img title for ontofacetterm bc*/ 
 		imgselector="td.icons img.bc";
 		imgbasistitle= jQuery(imgselector, tr).attr('tt');
-		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+current_selection_txt+'&#187;')));
+		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+current_selection_txt_stripped+'&#187;')));
 		
 		/* adapt img title for ontofacetterm mlt*/ imgselector="td.icons img.mlt";
 		imgbasistitle= jQuery(imgselector, tr).attr('tt');
-		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+current_selection_txt+'&#187;')));
+		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+current_selection_txt_stripped+'&#187;')));
 
 		/* adapt img title for ontofacetterm xp*/ imgselector="td.icons img.xp";
 		imgbasistitle= jQuery(imgselector, tr).attr('tt');
-		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+current_selection_txt+'&#187;')));
+		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+current_selection_txt_stripped+'&#187;')));
 
 		/* adapt img title for ontofacetterm sc*/ imgselector="td.icons img.sc";
 		imgbasistitle= jQuery(imgselector, tr).attr('tt');
-		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+current_selection_txt+'&#187;')));
+		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+current_selection_txt_stripped+'&#187;')));
 
 	}
 	else
 	{
 		/* adapt title */
-		title=basetitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt+'&#187;'));
+		title=basetitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt_stripped+'&#187;'));
 		/* adapt img title for ontofacetterm bc*/ 
 		imgselector="td.icons img.ontofacetterm.bc";
 		imgbasistitle= jQuery(imgselector, tr).attr('tt');
-		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt+'&#187;')));
+		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt_stripped+'&#187;')));
 		
 		/* adapt img title for ontofacetterm mlt*/ 
 		imgselector="td.icons img.mlt";
 		imgbasistitle= jQuery(imgselector, tr).attr('tt');
-		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt+'&#187;')));
+		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt_stripped+'&#187;')));
 
 		/* adapt img title for ontofacetterm xp*/ 
 		imgselector="td.icons img.xp";
 		imgbasistitle= jQuery(imgselector, tr).attr('tt');
-		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt+'&#187;')));
+		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt_stripped+'&#187;')));
 
 		/* adapt img title for ontofacetterm sc*/ 
 		imgselector="td.icons img.sc";
 		imgbasistitle= jQuery(imgselector, tr).attr('tt');
-		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt+'&#187;')));
+		jQuery(imgselector, tr).attr('title', imgbasistitle.replace(/___/,htmlDecode('&#171;'+original_selection_txt_stripped+'&#187;')));
 	}
-	jQuery(tr).get(0).title=title;
-
+	
+	//eclog('settitle: '+title);
+	jQuery(tr).attr('title',title);
 } // fomu_adapt_title_and_img_action_on_selection_txt
 
 
@@ -547,7 +526,7 @@ function reduce_fbtermwidth_onhover(tr)
 {
 	var limit_len_px=150;
 	jQuery('td.fb a',tr).each(function(){
-		var txt = $(this).text();
+		var txt = $(this).html();
 		var len = $(this).width();
 		
 		if (len > limit_len_px) {
@@ -560,7 +539,7 @@ function reduce_fbtermwidth_onhover(tr)
 			{
 				delta+=reducingstep;
 				tmp= txt.substr(0,txt.length - 1 - delta);
-				$(this).text(tmp+' ...');
+				$(this).html(tmp+' ...');
 			}
 		}
 	});
@@ -576,7 +555,7 @@ function unreduce_fbtermwidth_onhover(tr)
 	jQuery('td.fb a',tr).each(function(){
 		var orig_txt= $(this).attr('ot');
 		if (orig_txt) {
-			$(this).text(orig_txt);
+			$(this).html(orig_txt);
 		}
 	});
 } //unreduce_fbtermwidth_onhover
@@ -638,7 +617,7 @@ function phf(objs,txt,event,delaymsecs)
 
 //undo_highlight:
 function puh(txt)
-{simple_highlight_semfilterresults(txt,false);}
+{simple_highlight_semfilterresults(txt,false,true,true);}
 
 /** 
  * Transfer bgcolor from obj to tooltip label
@@ -661,12 +640,12 @@ function transfer_bgc_to_ttp(tooltipId)
 	}
 }
 
-function simple_highlight_semfilterresults(txt,highlight)
+function simple_highlight_semfilterresults(txt,highlight,in_widgets,in_facets)
 {
 	if (txt) // we accept only text (no null)
 	{
 		var hl_color=compute_highlightcolor(txt);
-	  highlight_semfilterresults(txt,hl_color,highlight);
+		highlight_semfilterresults(txt,hl_color,highlight,in_widgets,in_facets);
  	}
  	//else alert('System error: simple_highlight_semfilterresults called with no txt to highlight !! ');
 }
@@ -779,64 +758,100 @@ function compute_highlightcolor(txt)
 
 function cleanup4semfiltering(txt)
 {
-	//Eliminate .,:;/\&%
-  txt=txt.toLowerCase().replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+	if (txt)
+	//Eliminate Yellow marking tags <y></y> and special punctuation chars like .,:;/\&%
+  txt=txt.toLowerCase()
+  				.replace("<y>","")
+  				.replace("</y>","")
+  				.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
   
 	return txt;	
 }
 
-function highlight_semfilterresults(txt,bgcolor,highlight)
-{
-   txt=cleanup4semfiltering(txt)
-   // alert('highlight_semfilterresults: txt=('+txt+' bgcolor='+bgcolor+')');
 
+
+
+/**
+ * Highlight every widget result word
+ * starting from any matching subtoken in txt_in
+ */
+function highlight_semfilterresults(txt_in,bgcolor,highlight,in_wresults,in_facets)
+{
+  var cleaned_txt_in=cleanup4semfiltering(txt_in);
+  // alert('highlight_semfilterresults: txt=('+txt+' bgcolor='+bgcolor+')');
+  //In case of blanks - separate and handle singularly each subtoken
+	var txt_tokens = cleaned_txt_in.split(/[ ]+/);
+	var txt_token  = '';
   var match = false;
   var resulttermclassmame="result-word";
+  var facettermclassmame="fb-term";
   var occurrences_in_results=0;
   var widgets=0;
   var obj=null;
   var pertinentIframes=null;
-  var arrALL_RESULT_TERMS = null;
+  var arrALL_RESULT_TERMS = new Array;
+  var arrALL_FACET_TERMS = new Array;
   var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
-
-  arrALL_RESULT_TERMS = get_all_elems_by_hlclass(obj,resulttermclassmame);
+	var arrALL_TERMS = new Array;
+  if (in_wresults) 
+  		arrALL_RESULT_TERMS = get_all_elems_by_hlclass(obj,resulttermclassmame);
+  if (in_facets)
+  		arrALL_FACET_TERMS = get_all_elems_by_hlclass(obj,facettermclassmame);
+  		
+  //Merge arrays
+  if (arrALL_RESULT_TERMS.length && arrALL_FACET_TERMS.length)
+  	arrALL_TERMS = arrALL_RESULT_TERMS.concat(arrALL_FACET_TERMS);
+  else if (arrALL_RESULT_TERMS.length)
+  	arrALL_TERMS = arrALL_RESULT_TERMS;
+  else if (arrALL_FACET_TERMS.length)
+  	arrALL_TERMS = arrALL_FACET_TERMS;
+  	
+  		
   
-	//arrALL_RESULT_TERMS = jQuery().get();
-	//Use into arrALL_RESULT_TERMS:
-	for(var i=0;i<arrALL_RESULT_TERMS.length;i++)
-  {
-    var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
-    var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
-
-    //eval morphofilter on cleaned up tokens
-    RESULT_TERM_TXT=cleanup4semfiltering(RESULT_TERM_TXT);
-    
-    if (use_morpho_filter(RESULT_TERM_TXT,txt))
-    {
-      occurrences_in_results++;
-
-      /*EVTL HIGHLIGHT WORD IN RESULTS*/
-      if (highlight)
-      {
-        if (RESULT_TERM.getAttribute('class')==resulttermclassmame)
-        {
-          RESULT_TERM.setAttribute('class',resulttermclassmame+'-hl');
-          RESULT_TERM.style.backgroundColor=bgcolor;
-        }
-      }
-      else
-      { //We need that EVERY result be unhiglighted:
-        //if (RESULT_TERM.getAttribute('class')==resulttermclassmame+'-hl')
-        {
-          RESULT_TERM.setAttribute('class',resulttermclassmame);
-          RESULT_TERM.style.backgroundColor='';
-        }
-      }
-    }
- } //for
+  for(var t=0; t < txt_tokens.length; t++) {
+		txt_token=txt_tokens[t];
+		if (txt_token) // not empty!
+		{
+			for(var i=0;i<arrALL_TERMS.length;i++)
+		  {
+		    var TERM= (arrALL_TERMS[i]);
+		    var TERM_TXT= TERM.innerHTML;
+		
+		    //eval morphofilter on cleaned up tokens
+		    TERM_TXT=cleanup4semfiltering(TERM_TXT);
+		    
+		    if (use_morpho_filter(TERM_TXT,txt_token))
+		    {
+		      occurrences_in_results++;
+		
+		      /*EVTL HIGHLIGHT WORD IN RESULTS*/
+		      if (highlight)
+		      {
+		        if (TERM.getAttribute('class')==resulttermclassmame)
+		          TERM.setAttribute('class',resulttermclassmame+'-hl');
+		        else 
+		        if (TERM.getAttribute('class')==facettermclassmame)
+		          TERM.setAttribute('class',facettermclassmame+'-hl');
+	          TERM.style.backgroundColor=bgcolor;
+		      }
+		      else
+		      { //We need that EVERY result be unhiglighted:
+		        if (TERM.getAttribute('class')==resulttermclassmame+'-hl')
+		          TERM.setAttribute('class',resulttermclassmame);
+		         else 
+		        if (TERM.getAttribute('class')==facettermclassmame+'-hl')
+		          TERM.setAttribute('class',facettermclassmame);  
+	          TERM.style.backgroundColor='';
+		      }
+		    }
+		  } //for TERM
+	  } // not empty txt_token
+	}// foreach txt_token
   this.occurrences= occurrences_in_results;
   this.widgets= widgets;
 }
+
+
 
 
 function filter_resultdocuments_on(ele)
@@ -850,50 +865,32 @@ function filter_resultdocuments_back_on(ele)
 }
 
 
+/**
+ * Count/collect matching terms from widgets
+ * starting from txt
+ */
 function count_matching_results(txt,classname)
 {
-  txt=cleanup4semfiltering(txt)
+  txt=cleanup4semfiltering(txt);
 
   var match = false;
   var occurrences_in_results=0;
-  var widgets=0;
+  var obj=jQuery('#rodin_main_column').get(0);
   var parentIsIndexConnected = ! (typeof parent.isIndexConnected == 'undefined');
 
-  var tab_id = parentIsIndexConnected ?
-      parent.tab[parent.$p.app.tabs.sel].id :
-        window.opener.tab[window.opener.$p.app.tabs.sel].id;
-
-  var pertinentIframes = parent.getPertinentIframesInfos(tab_id);
-  for(var f=0;f<pertinentIframes.length;f++)
+  arrALL_RESULT_TERMS = get_all_elems_by_hlclass(obj,classname);
+	for(var i=0;i<arrALL_RESULT_TERMS.length;i++)
   {
-      var in_widget=false;
-      var iframe=pertinentIframes[f][0];
-      //alert('check in iframe with selector '+selector);
-      /* Here the conversion from nodelist to array is used for concat */
-      var obj=(iframe.localName=='div')?iframe:iframe.contentDocument;
-      var arrALL_RESULT_TERMS = get_all_elems_by_hlclass(obj,classname);
+    var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
+    var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
 
-      for(var i=0;i<arrALL_RESULT_TERMS.length;i++)
-      {
-        var RESULT_TERM= (arrALL_RESULT_TERMS[i]);
-        var RESULT_TERM_TXT= RESULT_TERM.innerHTML;
-
-        //eval morphofilter on cleaned up tokens
-    		if (use_morpho_filter(RESULT_TERM_TXT,txt))
-        {
-          occurrences_in_results++;
-
-          if (!in_widget)
-          {
-            in_widget=true;
-            widgets++; /*Count widgets in wich results occurs*/
-          }
-        }
-      } //for
+    //eval morphofilter on cleaned up tokens
+		if (use_morpho_filter(RESULT_TERM_TXT,txt))
+    {
+      occurrences_in_results++;
+    }
   } //for
-
   this.occurrences= occurrences_in_results;
-  this.widgets= widgets;
 }
 
 
@@ -977,8 +974,40 @@ function hide_un_highlighted_results(hide_hl)
 
 
 
+/**
+ * get_all_elems_by_hlclass(iframe.contentDocument,"result-word")
+ * in facets
+ */
+function get_all_facetterms_by_hlclass(contentdoc,classname)
+{
+  var i;
+  var RESULT_TERMS    ; var arrRESULT_TERMS = [];
+  var RESULT_TERMS_HL ; var arrRESULT_TERMS_HL = [];
+  var arrALL_RESULT_TERMS;
+  if (contentdoc)
+  	RESULT_TERMS =jQuery('.'+classname,contentdoc).get();
+  else 
+  	RESULT_TERMS =jQuery('.'+classname).get();
+  
+  for(i = RESULT_TERMS.length; i--; arrRESULT_TERMS.unshift(RESULT_TERMS[i]));
+  
+  if (contentdoc)
+	  RESULT_TERMS_HL =jQuery('.'+classname+"-hl",contentdoc).get();
+	 else
+	  RESULT_TERMS_HL =jQuery('.'+classname+"-hl").get();
+  //contentdoc.getElementsByClassName(classname+"-hl",null);
+  
+  for(i = RESULT_TERMS_HL.length; i--; arrRESULT_TERMS_HL.unshift(RESULT_TERMS_HL[i]));
 
-// get_all_elems_by_hlclass(iframe.contentDocument,"result-word")
+  arrALL_RESULT_TERMS = arrRESULT_TERMS.concat(arrRESULT_TERMS_HL);
+  return arrALL_RESULT_TERMS;
+}
+
+
+/**
+ * get_all_elems_by_hlclass(iframe.contentDocument,"result-word")
+ * in widgets
+ */
 function get_all_elems_by_hlclass(contentdoc,classname)
 {
   var i;
@@ -1005,6 +1034,7 @@ function get_all_elems_by_hlclass(contentdoc,classname)
 }
 
 
+
 // get_all_elems_by_hlclass(iframe.contentDocument,"result-word")
 function get_all_elems_by_class(contentdoc,classname)
 {
@@ -1022,76 +1052,97 @@ function get_all_elems_by_class(contentdoc,classname)
 
 
 
-function highlight_and_filter_results(flag)
-{
-  var t=document.getElementById('facetContextMenuLabel').innerHTML;
-  simple_highlight_semfilterresults(t,flag);
-}
-
-
-
+/**
+ * Scans onto terms and adds highlight facility
+ */
 function mark_ontoterms_on_resultmatch()
 {
-  eclog('mark_ontoterms_on_resultmatch Start refreshing onto matches ...');
-
-  if (ONTOTERMS_REDO_HIGHLIGHTING) //Need do do it?
-  {
     var facetclassmame="fb-term";
+    var ftt_is_in_query_term =false;
     var resulttermclassmame="result-word";
     var arrALL_FACET_TERMS = get_all_elems_by_hlclass(document,facetclassmame);
-
+		var user_query_terms = LASTUSERQUERY.split(/[ ]+/);
+		for(q=0;q<user_query_terms.length;q++)
+				  user_query_terms[q]=cleanup4semfiltering(user_query_terms[q]);
+		
+		
     for(var i=0;i<arrALL_FACET_TERMS.length;i++)
     {
       var FACET_TERM= (arrALL_FACET_TERMS[i]);
       var FACET_TERM_TXT= FACET_TERM.innerHTML;
-
-      //eclog('Considering facet term '+FACET_TERM_TXT+' ...');
-      //Match with some result?
-      var HL = new count_matching_results(FACET_TERM_TXT,resulttermclassmame);
-      //eclog('Got '+HL.occurrences+' mathing results for term '+FACET_TERM_TXT+' using '+resulttermclassmame);
-      if (HL.occurrences > 0)
-      {
-        eclog('Marking facet term '+FACET_TERM_TXT+' as matching');
-        if (FACET_TERM.getAttribute('class')==facetclassmame)
-        {
-          FACET_TERM.setAttribute('class',facetclassmame+'-hl');
-          FACET_TERM.setAttribute("title", lg('lblOntoFacetsTermActions2'));
-          //hover-->higlight
-          FACET_TERM.setAttribute('onmouseover',"hf(this.innerHTML)");
-          FACET_TERM.setAttribute('onmouseout',"uh(this.innerHTML)");
-          //click-->filter
-          FACET_TERM.setAttribute('onclick',
-          												'this.clicked=!this.clicked; hide_un_highlighted_results(this.clicked);');
-        }
-      }
-      else
-      { /*renormalize display*/
-        if (FACET_TERM.getAttribute('class')==facetclassmame+'-hl')
-          {
-            FACET_TERM.setAttribute('class',facetclassmame);
-            FACET_TERM.setAttribute("title", lg('lblOntoFacetsTermActions'));
-            FACET_TERM.setAttribute('onclick','#');
-            FACET_TERM.setAttribute('onmouseover',"");
-            FACET_TERM.setAttribute('onmouseout',"");
-          //click-->filter
-          }
-      }
-    } //for
-
-    ONTOTERMS_REDO_HIGHLIGHTING=false;
-    eclog('mark_ontoterms_on_resultmatch Ended refreshing onto matches ...');
-
-  }
-  else
-      eclog('mark_ontoterms_on_resultmatch DONOTNEEDTO refresh onto matches (NOTHING DONE)');
+			
+			//split into token by blank
+			var FACET_TERM_TOKENS = FACET_TERM_TXT.split(/[ ()-]+/);
+			
+			for(var s=0;s<FACET_TERM_TOKENS.length;s++)
+			{
+				var FACET_TERM_TOKEN=FACET_TERM_TOKENS[s];
+				if (FACET_TERM_TOKEN)
+				{
+					ftt_is_in_query_term =false;
+					for(q=0;q<user_query_terms.length;q++)
+					{ 
+						if(user_query_terms[q])
+						{
+							if (morphodirect_match(user_query_terms[q],cleanup4semfiltering(FACET_TERM_TOKEN)))
+							{
+								ftt_is_in_query_term = true;
+								var new_FACET_TERM_TOKEN='<y>'+FACET_TERM_TOKEN+'</y>';
+								//Substitute new_ in FACET_TERM
+								FACET_TERM.innerHTML=FACET_TERM.innerHTML.replace(FACET_TERM_TOKEN,new_FACET_TERM_TOKEN);
+								adapt_st_value_in_ft(FACET_TERM);
+							}
+						}
+					}
+				}
+	      //eclog('Considering facet term '+FACET_TERM_TXT+' ...');
+	      //Match with some result?
+	      var HL = new count_matching_results(FACET_TERM_TOKEN,resulttermclassmame);
+	      //eclog('Got '+HL.occurrences+' mathing results for term '+FACET_TERM_TXT+' using '+resulttermclassmame);
+	      if (HL.occurrences > 0)
+	      {
+	        eclog('Marking facet term '+FACET_TERM_TXT+' as matching');
+	        if (FACET_TERM.getAttribute('class')==facetclassmame)
+	        {
+	          FACET_TERM.setAttribute('class',facetclassmame+'-hl');
+	          //FACET_TERM.setAttribute("title", lg('lblOntoFacetsTermActions2'));
+	          //hover-->higlight
+	          FACET_TERM.setAttribute('onmouseover',"hf(this.innerHTML)");
+	          FACET_TERM.setAttribute('onmouseout',"puh(this.innerHTML)");
+	          //click-->filter
+	          FACET_TERM.setAttribute('onclick',
+	          												'this.clicked=!this.clicked; hide_un_highlighted_results(this.clicked);');
+	        }
+	      }
+	      else
+	      { /*renormalize display*/
+	        if (FACET_TERM.getAttribute('class')==facetclassmame+'-hl')
+	          {
+	            FACET_TERM.setAttribute('class',facetclassmame);
+	            //FACET_TERM.setAttribute("title", lg('lblOntoFacetsTermActions'));
+	            FACET_TERM.setAttribute('onclick','#');
+	            FACET_TERM.setAttribute('onmouseover',"");
+	            FACET_TERM.setAttribute('onmouseout',"");
+	          //click-->filter
+	          }
+	      }
+	    } //for facet token s
+   } //for FACET
+ 
 }
 
 
-
-function mlt_wdoc(id_wdoc)
+function adapt_st_value_in_ft(FACET_TERM)
 {
-	alert('TBD mlt_wdoc('+id_wdoc+')');
+	//select tr of facet-term and update its st value
+	FACET_TERM.parentNode.parentNode.setAttribute('st',FACET_TERM.innerHTML);
+	var tr = FACET_TERM.parentNode.parentNode;
+  jQuery('td.fb a', tr).html(FACET_TERM.innerHTML);
 }
+
+
+
+
 
 
 function mlt_fb(id_tr)
@@ -1389,15 +1440,7 @@ function handle_post_solr_doc_update(response,vars) {
   function widget_morelikethis(solr_id,solr_path) {
     /*Search considering words from 3 letters on*/
     var slrq='mlt?q=id:'+solr_id+'&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1';
-    var generic_solr_call=solr_path+slrq;
-    //alert('widget_morelikethis generic_solr_call: '+generic_solr_call);
-    /* // we do not ask - we do:
-    if (confirm("This will show ranked widget results accordingly to similarity with this result."
-      //+" \n\n using "+generic_solr_call
-      +"\n\nContinue?")) */
-    {
       slrq_to_widgets(slrq);
-    }
   } // widget_morelikethis
   
   

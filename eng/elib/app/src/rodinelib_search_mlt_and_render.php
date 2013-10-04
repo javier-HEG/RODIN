@@ -1,15 +1,13 @@
 <?php
 
 /**
- * FILE: rodinelib_search_and_render
+ * FILE: rodinelib_search_mlt_and_render
  * AUTHOR: Fabio Ricci, fabio.ricci@semweb.ch, Tel. +41-76-5821961
  * ON BEHALF OF: HEG - Haute Ecole de Gestion, Geneva
  * DATE: August 2013
  * 
- * THis script searches in RODIN, and shows the results e-lib-like
- * adding RODIN's semantic facetts
- * 
- * It returns an HTML content which should be rendered in a DIV inside another HTML page
+ * THis script searches in RODIN, and shows all results similar to the one with rid e-lib-like
+ * only content for rodin_main_column
  */
 
 $filenamex="app/elibroot.php";
@@ -21,10 +19,9 @@ $max=10; for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 ###############################################################
 ###############################################################
  
- 
 $DEBUG=$_REQUEST['DEBUG']; if (!$DEBUG) $DEBUG=0;
-$QUERY=str_replace(' ','%20',$_REQUEST['query']);
-$QUERYTERMS=explode(' ', $_REQUEST['query']);
+$sid= $_REQUEST['sid'];
+$rid= $_REQUEST['rid'];
 
 $WIDGETS=$ELIB_WIDGET_TO_USE;
 $M			=$ELIB_WIDGET_S_M; 
@@ -32,21 +29,20 @@ $USERID	=$ELIB_USERID;
 
 if ($DEBUG)
 {
-	print "<br>USING Param QUERY: $QUERY";
-	print "<br>USING Param WIDGETS: $WIDGETS";
-	print "<br>USING Param ELIB_WIDGET_S_M: $ELIB_WIDGET_S_M";
-	print "<br>USING Param ELIB_USERID: $ELIB_USERID";
+	print "<br>USING Param sid: $sid";
+	print "<br>USING Param rid: $rid";
 	print "<br>";
 }
 
 
-$base_url="$WEBROOT$RODINROOT/$RODINSEGMENT/app/webs/search.php";
-$url = "$base_url?query=$QUERY&widgets=$WIDGETS&userid=$USERID&m=$M&DEBUG=$DEBUG";
+$base_url="$WEBROOT$RODINROOT/$RODINSEGMENT/app/webs/mlt_search.php";
+$url = "$base_url?rid=$rid&sid=$sid&userid=$USERID&m=$M&DEBUG=$DEBUG";
+$urlj = "$base_url?rid=$rid&sid=$sid&userid=$USERID&m=$M";
 
 // Call $url
 
 if ($DEBUG) print "<a href='$url' target='blank'>$url</a>";
-$jsonResultsDecoded = json_decode(file_get_contents($url));
+$jsonResultsDecoded = json_decode(file_get_contents($urlj));
 
 $sid 						= $jsonResultsDecoded->sid;
 $resultCount		= $jsonResultsDecoded->resultCOunt;
@@ -64,6 +60,8 @@ $TITLExEACHWORD = "Highlight actions"
 								. "starting from within a word and ending within a word."
 								;
 
+
+
 		
 if ($DEBUG)
 {
@@ -77,8 +75,7 @@ if ($DEBUG)
 if (is_array($jsonAllResults) && count($jsonAllResults))
 foreach ($jsonAllResults as $jsonResult)
 {
-	if ($DEBUG && 0) 
-	{
+	if ($DEBUG && 0) {
 			print "<hr>\n\nRESULT: <br>\n\n";
 			var_dump($jsonResult);
 	}
@@ -96,6 +93,7 @@ foreach ($jsonAllResults as $jsonResult)
 	$url2								= $toDetails->url;
 	$properties					= ($toDetails->properties);
 	$solr_result_id			= $jsonResult->rid;
+	
 		
 	if ($score) 
 	{
@@ -108,7 +106,7 @@ foreach ($jsonAllResults as $jsonResult)
 
 	if ($DEBUG)
 	{
-		print "<hr><br>resultNr: $resultNr";
+		print "<br>resultNr: $resultNr";
 		print "<br>solr_result_id: $solr_result_id";
 		print "<br>resultUrl: $resultUrl";
 		print "<br>resultIdentifier: $resultIdentifier";
@@ -125,8 +123,9 @@ foreach ($jsonAllResults as $jsonResult)
 	
 	$abstractclass=$DISPLAY_ABSTRACT?'elibresvisibleabstract':'elibreshiddenabstract';
 	$CLICKTOSEERECORD="title=\"Click to see original information in a new tab\" onclick=\"window.open('$resultUrl')\"";
-	
 	$CLICKTOSEARCHMLT=" title=\"Click to search with this document\" onclick=\"show_rodin_mlt('$solr_result_id','$sid',$DEBUG);\" ";
+	
+	$jsMLT = "widget_morelikethis('$id','$sid','$solr_mlt');";
 	
 	
 	$ONCLICKABSTRACT_DEACKT = " title=\"Click to display/hide abstract section below\" 
@@ -182,27 +181,10 @@ EON;
 
 
 $OUTPUT=<<<EOO
-<div id='rendered_rodinelib'>
-	<div id='rodin_top_header'></div>
-	<div id='rodin_header'>
-		<h1 class='maintitle'> RESULTS for your SEARCH </h1>
-	</div id='rodin_header'>
-	<div id='rodin_content'>
-		<div id='rodin_left_column'>
-				<script type="text/javascript">show_rodin_thesearch_results('$QUERY', $DEBUG );</script>
-				&nbsp;
-		</div>
-		<div id='rodin_main_column'>   
 			<table cellspacing='5'>
 				$WRNOTIFICATION_SECTION
 				$RESULTS_HTML
 			</table>
-		  </div>
-		<div id='rodin_right_column'> 
-				<script type="text/javascript">show_rodinelib_pseudofacets('$QUERY', $DEBUG );</script>
-		</div>
-	</div>
-</div>
 EOO;
 
 
@@ -239,6 +221,7 @@ EOO;
 		$result= preg_replace($pattern, $replace, $text);
 
 		//highlight fix yellow words matching $QUERYTERMS
+		if ($QUERYTERMS)
 		foreach($QUERYTERMS as $keyword)
 			$result=preg_replace("/\w*?$keyword\w*/i", "<y>$0</y>", $result);
 		

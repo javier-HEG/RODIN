@@ -442,12 +442,14 @@ a.fb-term {
 	color:<?php print $COLOR_FACET_NORMAL; ?>;
 	text-align: left;
 	text-decoration: none;
+	font-weight: normal;
 	font-family:"Arial";
 	font-size: 12px; /*like portaneo vidgetmenu */
 	font-weight:normal;
 	cursor: pointer;
 	padding: 0px;
 }
+
 
 a.fb-term:hover,
 a.fb-term-hl:hover{
@@ -456,12 +458,12 @@ a.fb-term-hl:hover{
 
 a.fb-term-hl {
 	color:<?php print $COLOR_BLACK; ?>;
-	font-weight: bold;
-  font-style: oblique;
+	font-weight: normal;
+  /*font-style: oblique;*/
   text-align: left;
 	text-decoration: none;
 	font-family:"Arial";
-	font-size: 13px; /*like portaneo vidgetmenu */
+	font-size: 12px; /*like portaneo vidgetmenu */
 	cursor: pointer;
 	padding: 0px;
 }
@@ -484,6 +486,8 @@ table.fb-group-table {
 }
 
 tr.fb-term-row > td {
+	max-width: 140px;
+	overflow: hidden;
 	padding: 0px;
     /*border-bottom: 0px solid <?php print $COLOR_PAGE_BACKGROUND2; ?>;*/
 }

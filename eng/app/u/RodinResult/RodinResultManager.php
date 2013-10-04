@@ -409,6 +409,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 {
 		$DEBUG=0;
 		$max=10;
+		
 		$filenamex='/u/SOLRinterface/solr_interface.php';
 		
 		for ($x=1,$updir='';$x<=$max;$x++,$updir.="../"){ 
@@ -416,6 +417,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			{require_once("$updir$filenamex"); break;}}
 		
     global $aggView;
+		global $webservice;
 		global $WANT_RFLAB, $RDFSEMEXPLABURL, $RDFIZEURL ; // DEBUG
 		global $SOLR_RODIN_CONFIG;
 		global $RODINUTILITIES_GEN_URL;
@@ -480,6 +482,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
       $filecontent=file_get_contents($solr_result_query_url);
       $solr_sxml= simplexml_load_string($filecontent);
 			
+			
       if (0 && (!$aggView) &&
       		(($RODINSEGMENT=='eng' || $RODINSEGMENT=='x') 
               || ( $RODINSEGMENT=='p' && $USER==4) ) ) //fabio=developer on p, x, st 
@@ -505,12 +508,13 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	     	$needbr=true;
 			}
 			if ($needbr) print "<br>";
-      //print "<hr>SOLR_CONTENT: <br>(((".htmlentities($filecontent).")))";
-      //print "<hr>SOLR_RESULT: <br>"; var_dump($solr_sxml);
       
+      if ($DEBUG) print "<hr>Got from SOLR: (((".htmlentities($filecontent).")))";
+			if ($DEBUG) {print "<hr>XML: "; var_dump($solr_sxml);}
+			
       //if (!$owner) $PRECISATION="[@name='response']";
       $DOCS = $solr_sxml->xpath("/response/result$PRECISATION/doc"); //find the doc list results
-      //print "<hr>".count($DOCS)." SOLR_DOCS: <br>"; var_dump($solr_sxml);
+      if ($DEBUG) {print "<hr>".count($DOCS)." SOLR_DOCS: <br>"; var_dump($solr_sxml);}
        
       $CNT=0;
       $NO_OF_DISPLAYED_RESULTS=0;
@@ -528,8 +532,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
         $FORGET_RESULT=false;
         $id='';
         $row=array();
-       // print "<hr>DOC:";
-       // print "<hr> SOLR_DOC: <br>"; var_dump($DOC);
+	      if ($DEBUG) {print "<hr>DOC:"; print "<hr> SOLR_DOC: <br>"; var_dump($DOC);}
 
         foreach($DOC->children() as $ATTRVAL)
         {
@@ -542,7 +545,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
           {
             foreach($ATTRVAL->children() as $AC)
             {
-              //print "<br> CHILD: <br>"; var_dump($AC);
+              if($DEBUG) {print "<br> CHILD: <br>"; var_dump($AC);}
               $value=$AC;
             }
           }
@@ -570,15 +573,19 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
             if ($MLT)
             {
               $md5_body=md5($value);
-//              print "<hr>$value";
-//              print "<br>$CNT: $md5_body";
+							if ($DEBUG)
+							{
+		            print "<hr>$value";
+		            print "<br>$CNT: $md5_body";
+							}
               if (! ($dedup_hash{$md5_body})) // still a new body value?
               {
-                //print " NEW";
+                if($DEBUG) print "<br> NEW RESULT";
                 $dedup_hash{$md5_body}=true;
+								$FORGET_RESULT=false;
               } 
               else // known body -> cancel result display
-              {  //print " OLD";
+              {  if($DEBUG)  print "<br> OLD RESULT -> FORGET IT";
                  $FORGET_RESULT=true; 
               }
             }
@@ -598,7 +605,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
           #####################################################
         } // foreach DOC->Children()
 
-        // print "<hr>ROW: <br>"; var_dump($row);
+        if($DEBUG) {print "<hr>ENDLOOP ROW: <br>"; var_dump($row);}
 
         #################################
         #
@@ -608,9 +615,10 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
         $pointerBase = intval($pointer[0]);
         $pointerRemainder = count($pointer) > 1 ? intval($pointer[1]) : -1;
         
-        if ($owner || $aggView)
-        {  
+        if ($owner || $aggView || $webservice)
+        {
           $result = RodinResultManager::buildRodinResultByType(intval($row['type']));
+        	if ($DEBUG) print "<hr> SETTING RES TYPE to ".print_r($result);  
 
           $result->setSid($sid);
           $result->setId($id);
@@ -624,7 +632,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
           	//print "<br>$attribute=>$value";
             //$result = $allResults[$pointerBase];
             switch ($attribute) {
-              case 'score': //print "<br>Score: $value reference=$reference MLT:$MLT";
+              case 'score': 
+              	if ($DEBUG) print "<br>Score: $value reference=$reference MLT:$MLT";
                 if ($MLT) // only on mlt we are interested in scoring
                 {
                   if ($reference)
@@ -666,7 +675,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
            //print "<br>Setting new result to pointerBase=$pointerBase";
           if (!$FORGET_RESULT)
           {
-          	//print "<hr>RESULT: <br>"; var_dump($result);
+          	if($DEBUG) {print "<hr>RESULT: <br>"; var_dump($result);}
           	//Create an ID which keeps tracks of the ranking
           	$rank = number_format($rank,6); // take 6 decimals pad 12 padded positions
           	$rank_formatted=str_pad(floor($rank * 1000000), 12, '0', STR_PAD_LEFT);
@@ -676,44 +685,66 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 						$tmp_allResults{$result_show_id} = $result;						
             $NO_OF_DISPLAYED_RESULTS++;
           }
+					else {
+						if ($DEBUG) {
+							print "<hr>FORGOTTEN RESULT: <br>"; var_dump($result);
+						}
+					}
         } // owner
       } // foreach DOCS
      
       //foreach($dedup_hash as $k=>$v) print "<br>$k=>$v"; //debug - show hash
       //Since $allResults should be read both from javascript and php
       //reorder the dataset so that it is already sorted when looped.
-      if($debug&&0)
+      if($DEBUG)
 			{
-	      print "<hr>PRESORT results:";
+	      print "<hr>PRESORT results:<br> "; var_dump($tmp_allResults); 
 				while (list($rrrank, $result) = each($tmp_allResults))
 				{
-					print "<br>$rrrank for (".$result->getTitle()."): ".$result->getRank();
+					print "<hr>RRRR Result: "; var_dump($result);
+					print "<hr>RRRR $rrrank for (".$result->getTitle()."): ".$result->getScore();
 				}
 	    }
 
       //Sort results on score top biggest
-	    if (count($tmp_allResults))
-			{krsort($tmp_allResults);
+	    if (count($tmp_allResults) > 1)
+			{
+				if ($DEBUG) print "<hr>RESORTING<hr>";
+				krsort($tmp_allResults);
       	//reset($tmp_allResults);
 			}
 			
-			if($debug&&0)
+			if($DEBUG)
 			{
-	    	print "\n<!-- AFTERSORT results:-->";
-				while (list($rrrank, $result) = each($tmp_allResults))
+	      print "<hr>AFTERSORT results:<br> "; var_dump($tmp_allResults); 
+	      while (list($rrrank, $result) = each($tmp_allResults))
 				{
-					print "\n<!--result_show_id (rank=".$result->getRank()." / $rrrank): $result_show_id (".$result->getTitle().")-->";
+					print "<hr>AAAA Result: "; var_dump($result);
+					print "<hr>AAAA $rrrank for (".$result->getTitle()."): ".$result->getScore();
 				}
 			}
 			
 			if (count($tmp_allResults))
-			while (list($rrrank, $result) = each($tmp_allResults))
-  	    $allResults[]=$result;
-	     
+			{
+				if ($DEBUG) {print "<br> FINALLY:<br>"; var_dump($tmp_allResults);print "<br>";}
+				foreach($tmp_allResults as $rrrank=>$result)
+				{
+					if ($DEBUG) {print "<hr>FFFF ADDING Result: "; var_dump($result);}
+					
+	  	    $allResults[]=$result;
+				}
+			}
 			 
 		} catch (Exception $e) {
 			print "RodinResultManager EXCEPTION: $e";
 		}
+		
+		
+		if ($DEBUG)
+		{
+			print "<hr> RETURNING: "; var_dump($allResults);
+		} 
+			 
 		//exit;
 		return $allResults;
 	}
@@ -994,42 +1025,42 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 				
 					$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
 				
-					$jsonSingleResult = array();
+					$singleResult = array();
 				
-					$jsonSingleResult['count'] = $resultCounter;
-					$jsonSingleResult['url'] = $result->getUrlPage();
-					$jsonSingleResult['resultIdentifier'] = $resultIdentifier;
+					$singleResult['count'] = $resultCounter;
+					$singleResult['url'] = $result->getUrlPage();
+					$singleResult['resultIdentifier'] = $resultIdentifier;
 				
-					$jsonSingleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
-					$jsonSingleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
+					$singleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
+					$singleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
 				
-					$jsonSingleResult['header'] = json_encode($result->htmlHeader($jsonSingleResult['resultIdentifier'], $resultCounter, $sid, true));
-					$jsonSingleResult['minHeader'] = json_encode($resultCounter . '<br />');
+					$singleResult['header'] = json_encode($result->htmlHeader($singleResult['resultIdentifier'], $resultCounter, $sid, true));
+					$singleResult['minHeader'] = json_encode($resultCounter . '<br />');
 				
-					$jsonSingleResult['minContent'] = json_encode($result->toInWidgetHtml('min'));
-					$jsonSingleResult['tokenContent'] = json_encode($result->toInWidgetHtml('token'));
-					$jsonSingleResult['allContent'] = json_encode($result->toInWidgetHtml('all'));
+					$singleResult['minContent'] = json_encode($result->toInWidgetHtml('min'));
+					$singleResult['tokenContent'] = json_encode($result->toInWidgetHtml('token'));
+					$singleResult['allContent'] = json_encode($result->toInWidgetHtml('all'));
 				
 				
 					if ($DEBUG) {
 						
-						print "\n\n jsonSingleResult['count']: ".$jsonSingleResult['count'];
-						print "\n\n jsonSingleResult['url']: ".$jsonSingleResult['url'];
-						print "\n\n jsonSingleResult['resultIdentifier']: ".$jsonSingleResult['resultIdentifier'];
-						print "\n\n jsonSingleResult['headerDiv']: ".$jsonSingleResult['headerDiv'];
-						print "\n\n jsonSingleResult['contentDiv']: ".$jsonSingleResult['contentDiv'];
-						print "\n\n jsonSingleResult['header']: ".$jsonSingleResult['header'];
-						print "\n\n jsonSingleResult['minHeader']: ".$jsonSingleResult['minHeader'];
-						print "\n\n jsonSingleResult['minContent']: ".$jsonSingleResult['minContent'];
-						print "\n\n jsonSingleResult['tokenContent']: ".$jsonSingleResult['tokenContent'];
-						print "\n\n jsonSingleResult['allContent']: ".$jsonSingleResult['allContent'];
+						print "\n\n jsonSingleResult['count']: ".$singleResult['count'];
+						print "\n\n jsonSingleResult['url']: ".$singleResult['url'];
+						print "\n\n jsonSingleResult['resultIdentifier']: ".$singleResult['resultIdentifier'];
+						print "\n\n jsonSingleResult['headerDiv']: ".$singleResult['headerDiv'];
+						print "\n\n jsonSingleResult['contentDiv']: ".$singleResult['contentDiv'];
+						print "\n\n jsonSingleResult['header']: ".$singleResult['header'];
+						print "\n\n jsonSingleResult['minHeader']: ".$singleResult['minHeader'];
+						print "\n\n jsonSingleResult['minContent']: ".$singleResult['minContent'];
+						print "\n\n jsonSingleResult['tokenContent']: ".$singleResult['tokenContent'];
+						print "\n\n jsonSingleResult['allContent']: ".$singleResult['allContent'];
 					}
 				
 				
 				
 					// Check the size of the response if this result was added
 					$tmpAllResults = $jsonAllResults;
-					$tmpAllResults[] = $jsonSingleResult;
+					$tmpAllResults[] = $singleResult;
 					$tmpJsonResponse = json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $uptoResult, 'results' => $tmpAllResults));
 					$tmpJsonResponseLength = strlen($tmpJsonResponse);
 				
@@ -1038,7 +1069,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 						if ($DEBUG) print "\n\n\nBREAKING!!! length($tmpJsonResponseLength > $resultMaxLength)";
 						break;
 					}
-					$jsonAllResults[] = $jsonSingleResult;
+					$jsonAllResults[] = $singleResult;
 				} // result!=null
 				$i++;
 			} // while
@@ -1148,19 +1179,33 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	
 	
 	
+	
 	/**
-	 * Calls and code search results
-	 * Returns a text json representation of them
-	 * To be used in a webservice for a javaserver
+	 * MLT result for a given result
+	 * @param  $rid - solr id for widget result
+	 * @param  $sid - search id
+	 * @param  $fromResult - starting index for displaying results
+	 * @param  $m - Number of results to be output
+	 * @param  $internalresults - whether to use only
+	 * @param  $externalresults - whether to use only
+	 * @return JSON results
 	 */
-	public static function get_json_searchresults4webservice($sid, $internalresults, $externalresults)
+	public static function get_json_mltresults4webservice($rid, $sid, $fromResult, $m, $internalresults, $externalresults)
 	{
 		$DEBUG=0;
+		global $SOLR_RODIN_CONFIG;
+		global $webservice;
+		$webservice = true;
 		$ok_to_retrieve=true;
 		
-		if (!$sid)
+		if (!$rid)
 		{
-			$errortxt='get_json_searchresults() - fatal - no sid provided!';
+			$errortxt='get_json_searchresults() - fatal - no rid provided!';
+			$ok_to_retrieve=false;
+		} 
+		else if($m==0)
+		{
+			$errortxt='get_json_searchresults() - fatal - no m provided!';
 			$ok_to_retrieve=false;
 		}
 		if ($DEBUG)
@@ -1168,16 +1213,16 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 		
 		if ($ok_to_retrieve)
 		{
-			$allResults = RodinResultManager::getRodinResultsForASearch($sid,'',$internalresults, $externalresults); 
+			$slrq='mlt?q=id:'.$rid.'&mlt.fl=body&fl=score,*&mlt.minwl=3&mlt.mintf=1';
+			$slrq_base64 = base64_encode($slrq);
+			$allResults = RodinResultManager::getRodinResultsFromSOLR($sid,'',$internalresults, $externalresults,$slrq_base64); 
 			$resultCount = count($allResults);
-			
-			if ($DEBUG) print "<br>\n$resultCount results read...";
-			
+			if (!$fromResult) $fromResult=0;
 			// Both a maximum size and a maximum number of results are set
-			$resultMaxSetSize = 4;
-			$resultMaxLength = 1000000;
-			$fromResult = 0;
-			$uptoResult = min($resultCount, $fromResult + $resultMaxSetSize);
+			$uptoResult = min($resultCount, $fromResult + $m);
+		
+			if ($DEBUG) print "<br>\n$resultCount results read..."
+												."<br>Showing $m results from $fromResult upto $uptoResult";
 			
 			$i = $fromResult;
 			while ($i < $uptoResult) 
@@ -1192,39 +1237,131 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 						print "<hr>\n\nRESULT: <br>\n"; var_dump($result);
 					}
 				
-				
 					$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
 				
-					$jsonSingleResult = array();
+					$singleResult = array();
 				
-					$jsonSingleResult['count'] = $resultCounter;
-					$jsonSingleResult['url'] = $result->getUrlPage();
-					$jsonSingleResult['resultIdentifier'] = $resultIdentifier;
+					$singleResult['count'] = $resultCounter;
+					$singleResult['url'] = $result->getUrlPage();
+					$singleResult['rid'] = $result->getId() ."";  if ($DEBUG) print "<br>SOLR ID: ".$singleResult['rid'];
+					$singleResult['resultIdentifier'] = $resultIdentifier;
 				
-					//$jsonSingleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
-					//$jsonSingleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
+					//$singleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
+					//$singleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
 				
-					//$jsonSingleResult['header'] = json_encode($result->htmlHeader($jsonSingleResult['resultIdentifier'], $resultCounter, $sid, true));
-					//$jsonSingleResult['minHeader'] = json_encode($resultCounter . '<br />');
+					//$singleResult['header'] = json_encode($result->htmlHeader($singleResult['resultIdentifier'], $resultCounter, $sid, true));
+					//$singleResult['minHeader'] = json_encode($resultCounter . '<br />');
 				
-					$jsonSingleResult['toString'] = $result->__toString();
-					$jsonSingleResult['toDetails'] = json_encode($result->__toDetails());
+					$singleResult['toString'] = $result->__toString();
+					$singleResult['toDetails'] = json_encode($result->__toDetails());
 				
 					// Check the size of the response if this result was added
 					//$tmpAllResults = $jsonAllResults;
-					$tmpAllResults[] = $jsonSingleResult;
-					$tmpJsonResponse = json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $uptoResult, 'results' => $tmpAllResults));
-					$tmpJsonResponseLength = strlen($tmpJsonResponse);
-				
-					if ($tmpJsonResponseLength > $resultMaxLength)
-						break;
 					
-					$jsonAllResults[] = $jsonSingleResult;
+					$jsonAllResults[] = $singleResult;
 					}
 				$i++;
 			}
 		} // $ok_to_retrieve
-		return json_encode(array('sid' => $sid, 'count' => $resultCount, 'upto' => $i, 'results' => $jsonAllResults, 'error'=>$errortxt));
+		if ($DEBUG) print "<hr>";
+		return json_encode(array( 'sid' => $sid, 
+															'count' => count($jsonAllResults), 
+															'from'=>$fromResult, 
+															'upto' => $uptoResult - 1, 
+															'all'=>$resultCount, 
+															'results' => $jsonAllResults, 
+															'error'=>$errortxt ) );
+	} // get_json_mltresults4webservice
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Calls and code search results
+	 * Returns a text json representation of them
+	 * To be used in a webservice for a javaserver
+	 * Returns first $m results from $fromResult
+	 */
+	public static function get_json_searchresults4webservice($sid, $fromResult, $m, $internalresults, $externalresults)
+	{
+		$DEBUG=0;
+		$ok_to_retrieve=true;
+		
+		if (!$sid)
+		{
+			$errortxt='get_json_searchresults() - fatal - no sid provided!';
+			$ok_to_retrieve=false;
+		} 
+		else if($m==0)
+		{
+			$errortxt='get_json_searchresults() - fatal - no m provided!';
+			$ok_to_retrieve=false;
+		}
+		if ($DEBUG)
+			print "\n<br> get_json_searchresults($sid, $internalresults, $externalresults)";
+		
+		if ($ok_to_retrieve)
+		{
+			$allResults = RodinResultManager::getRodinResultsForASearch($sid,'',$internalresults, $externalresults); 
+			$resultCount = count($allResults);
+			
+			// Both a maximum size and a maximum number of results are set
+			$uptoResult = min($resultCount, $fromResult + $m);
+		
+			if ($DEBUG) print "<br>\n$resultCount results read..."
+												."<br>Showing $m results from $fromResult upto $uptoResult";
+			
+			$i = $fromResult;
+			while ($i < $uptoResult) 
+			{
+				$result = $allResults[$i];
+				if ($result)
+				{
+					$resultCounter = $i + 1;
+				
+					if ($DEBUG)
+					{
+						print "<hr>\n\nRESULT: <br>\n"; var_dump($result);
+					}
+				
+					$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
+				
+					$singleResult = array();
+				
+					$singleResult['count'] = $resultCounter;
+					$singleResult['rid'] = $result->getId() ."";  if ($DEBUG) print "<br>SOLR ID: ".$singleResult['rid'];
+					$singleResult['url'] = $result->getUrlPage();
+					$singleResult['resultIdentifier'] = $resultIdentifier;
+				
+					//$singleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
+					//$singleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
+				
+					//$singleResult['header'] = json_encode($result->htmlHeader($singleResult['resultIdentifier'], $resultCounter, $sid, true));
+					//$singleResult['minHeader'] = json_encode($resultCounter . '<br />');
+				
+					$singleResult['toString'] = $result->__toString();
+					$singleResult['toDetails'] = json_encode($result->__toDetails());
+				
+					// Check the size of the response if this result was added
+					//$tmpAllResults = $jsonAllResults;
+					
+					$jsonAllResults[] = $singleResult;
+					}
+				$i++;
+			}
+		} // $ok_to_retrieve
+		if ($DEBUG) print "<hr>";
+		return json_encode(array( 'sid' => $sid, 
+															'count' => count($jsonAllResults), 
+															'from'=>$fromResult, 
+															'upto' => $uptoResult - 1, 
+															'all'=>$resultCount, 
+															'results' => $jsonAllResults, 
+															'error'=>$errortxt ) );
 	} // get_json_searchresults4webservice
 	
 	

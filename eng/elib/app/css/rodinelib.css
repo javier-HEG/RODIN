@@ -6,7 +6,10 @@
 
 div#rodin_main_column table {
 	background-color: rgb(247, 247, 247);
+}
 
+y {
+	background-color: #FFFBC3;
 }
 
 .resthumbnail td.article {
@@ -213,6 +216,8 @@ div#rodin_main_column {
 }
 
 div#rodin_right_column {
+  position: absolute;
+  left: 980px;
 	float: left;
 	width: 20%;
 	/* background-color: blue; */
