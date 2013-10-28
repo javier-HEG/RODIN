@@ -1,12 +1,12 @@
 <?php
-
-//siehe http://arc.semsol.org/docs/v2/getting_started
+$format = $_GET['format']; 
 
 include("../sroot.php");
 include("FRIutilities.php");
 include_once("../../../../gen/u/arc/ARC2.php");
 
-$PAGETITLE= "dbRODIN LoD SPARQL endpoint ($RODINSEGMENT)"; 
+$PAGETITLE= "dbRODIN LoD SPARQL endpoint ($RODINSEGMENT)";
+if (!$format) {
 ?>
 <html>
 <head>
@@ -19,6 +19,11 @@ $PAGETITLE= "dbRODIN LoD SPARQL endpoint ($RODINSEGMENT)";
 <body>
 
 <?php
+}
+else {
+	$downloadfilename='myrodinloddownload.'.$format;
+}
+
 $filename="app/tests/Logger.php"; $maxretries=10;
 #######################################
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
@@ -33,6 +38,9 @@ $limit = $_GET['limit']; if (!$limit) $limit=0;
 $token = $_GET['token']; 
 $QUERY = $_GET['QUERY']; 
 $verb = $_GET['verb']; 
+
+
+
 $LOCALARCCONFIG = $ARCCONFIG;
 $LOCALARCCONFIG{'store_name'} = $storename;
 
@@ -52,9 +60,31 @@ $NAMESPACES=RDFprocessor::$NAMESPACES;
 $LOCALARCCONFIG{'ns'}=$NAMESPACES;
 $store=$RDFobj->store;
 $storename=$RDFobj->storename;
+
+if (!$format) {
+	
+$downloadurl=$WEBROOT.$thislink
+						."?QUERY=".urlencode($QUERY)
+						."&limit=$limit"
+						."&token=$token"
+						."&verb=$verb"
+						."&format"
+						;
+$dtitle="Download your records as";
+
 $PAGETITLE=str_replace("($RODINSEGMENT)","<span title='$storename'>($RODINSEGMENT)</span>",$PAGETITLE);
+$on_turtle="window.open('$downloadurl=turtle','_self'); return false;";
+$on_ntriples="window.open('$downloadurl=n-triples','_self'); return false;";
+$on_rdfjson="window.open('$downloadurl=rdfjson','_self'); return false;";
+$on_rdfxml="window.open('$downloadurl=rdfxml','_self'); return false;";
 
 
+$DOWNLOAD_AS="<table cellspacing='2' cellpadding='0'><tr><td style='color:gray'>Download qualified records as </td>"
+						."<td> <input type='button' value='TURTLE' title='$dtitle turtle' onclick=\"$on_turtle\"> </td>"
+						."<td> <input type='button' value='N-TRIPLES' title='$dtitle turtle' onclick=\"$on_ntriples\"> </td>"
+						."<td> <input type='button' value='RDF/JSON' title='$dtitle turtle' onclick=\"$on_rdfjson\"> </td>"
+						."<td> <input type='button' value='RDF/XML' title='$dtitle turtle' onclick=\"$on_rdfxml\"> </td>"
+						."</tr></table>";
 
 if ($token)
 print "<h3> Matching $token</h3>";
@@ -66,6 +96,9 @@ print <<<EOP
 		<tr height="5">
 			<td align='left' valign='top'>
 				<span class='lodsparqlendpointtitle'>$PAGETITLE</span>
+				<br>
+				<br>
+				$DOWNLOAD_AS
 			</td><td/>
 			<td align='right' valign='top'>
 				<span class='$TRIPLEPAGECLASS'>$URL_MANTIS</span>
@@ -94,13 +127,35 @@ print <<<EOP
 </form>
 </table>
 EOP;
-
+}
 
 
 //Show triples
-list($ITEMKIND,$triples) = exec_print_sparql_xyz($limit,$token,$verb,$QUERY);
+list($ITEMKIND,$triples) = exec_print_sparql_xyz($doprint=!$format, $limit, $token, $verb, $QUERY);
 
-
+if ($format)
+{
+	header('Content-Disposition: attachment; filename="'. $downloadfilename . '";');
+	switch($format)
+	{
+		case 'turtle':
+			header('Content-type: text/turtle');
+			output_as_turtle($store,$triples);
+			break;
+		case 'n-triples':
+			header('Content-type: text/plain');
+			output_as_ntriples($store,$triples);
+			break;
+		case 'rdfjson':
+			header('Content-type: application/rdf+json');
+			output_as_rdfjson($store,$triples);
+			break;
+		case 'rdfxml':
+			header('Content-type: application/rdf+xml');
+			output_as_rdfxml($store,$triples);
+			break;
+	}
+}
 #Get namespaces from RDF class
 
 
@@ -137,7 +192,7 @@ print '<img src="data:image/png;base64,' . $png . '"/>';
  * Computes the query to SKOS $verb
  * $verb= related, broader, narrower
  */
-function exec_print_sparql_xyz($limit,$token='',$verb='',$QUERY='')
+function exec_print_sparql_xyz($doprint,$limit,$token='',$verb='',$QUERY='')
 {
 	global $store;
 	global $storename;
@@ -203,6 +258,7 @@ SUBTREE(rodin_a:src_81_lodfetch_1366815014_024512,3)
 		$ENTITY_ID=$match[1];
 		$DEPTH=$match[2];
 		
+		if($doprint)
 		print "<br>SHOWING <b>SUBTREE(depth=$DEPTH)</b> from ENTITY $ENTITY_ID "
 					."<br><br>Using:<br>".str_replace("\n","<br>",htmlentities($PREFIX))."<br><br>";
 					
@@ -320,8 +376,8 @@ EOQ;
 	
 	if ($QUERY)
 	$rows = $store->query($QUERY, 'rows'); 
-	
-	if (0) {
+	if (0)
+	{
 	  if (($errs = $store->getErrors())) {
 	      foreach($errs as $err)
 	      fontprint("<br>ARC ERROR: $err",'red');
@@ -331,6 +387,7 @@ EOQ;
 	
 	if (strstr($QUERY,'ASK'))
 	{
+		if($doprint)
 		print "<br>ASK returns: "; var_dump($rows);
 	}
 		
@@ -356,9 +413,11 @@ EOQ;
 		}
 		$EVTL_TRIPLEGRAPH=($c==3)?"<br><span style='color:green'> - See also graph below (if triples selected), after displayed RECORDS</span>":"";
 		
+		if($doprint)
 		print "<br>$NRECORDS $ITEMS $EXPL selected from STORE <b>'$storename'</b> ($triplesinstore triples) "
 					 .$EVTL_TRIPLEGRAPH;
 		;
+		if($doprint)
 		print '<table bgcolor=gray border=1 cellspacing=0 cellpadding=1>';
     $i=-1;
 		
@@ -368,7 +427,7 @@ EOQ;
 			$r.="<th align=left>?$var:</th>";
 		}
 		$r."</tr>";
-		print $r;
+		if($doprint) print $r;
 					
 			
 		foreach($rows as $row) {
@@ -402,14 +461,88 @@ EOX;
 
 			}
   		$r."</tr>";
-			print $r;
+			if($doprint) print $r;
 		}
 		
-		print '</table>';
+		if($doprint) print '</table>';
 
 	}
 	return array($ITEMS,$rows);
 }
+
+
+
+
+
+
+
+/**
+ * @return a serialisation of triples 
+ */
+function output_as_turtle(&$store,&$triples)
+{
+	/* Serializer instantiation */
+	$ser = ARC2::getTurtleSerializer();
+	
+	/* Serialize a triples array */
+	$doc = $ser->getSerializedTriples($triples);
+	
+	print $doc;
+} // get_turtle
+
+
+
+
+/**
+ * @return a serialisation of triples 
+ */
+function output_as_ntriples(&$store,&$triples)
+{
+	/* Serializer instantiation */
+	$ser = ARC2::getNTriplesSerializer();
+	
+	/* Serialize a triples array */
+	$doc = $ser->getSerializedTriples($triples);
+	
+	print $doc;
+} // output_as_ntriples
+
+
+
+
+
+/**
+ * @return a serialisation of triples 
+ */
+function output_as_rdfjson(&$store,&$triples)
+{
+	/* Serializer instantiation */
+	$ser = ARC2::getRDFJSONSerializer();
+	
+	/* Serialize a triples array */
+	$doc = $ser->getSerializedTriples($triples);
+	
+	print $doc;
+} // output_as_rdfjson
+
+
+
+
+/**
+ * @return a serialisation of triples 
+ */
+function output_as_rdfxml(&$store,&$triples)
+{
+	/* Serializer instantiation */
+	$ser = ARC2::getRDFXMLSerializer();
+	
+	/* Serialize a triples array */
+	$doc = $ser->getSerializedTriples($triples);
+	
+	print $doc;
+} // output_as_rdfxml
+
+
 
 
 
@@ -436,7 +569,8 @@ function get_sparql_selection_vars($QUERY)
 	}
 	return array();
 }
-
+if (!$format) {
 ?>
 </body>
 </html>
+<?php } ?>

@@ -130,7 +130,8 @@ class STWengineSOLR extends STWengine
                 .count($narrower_terms)." narrower terms"
                 .count($related_terms)." related terms"
                   ;
-
+			
+					//Fiction RANK (TBD):
           if (count($broader_terms))
           foreach($broader_terms as $term=>$RANK)
             print "<br>Broader: ".$term." ($RANK)";
@@ -160,9 +161,9 @@ class STWengineSOLR extends STWengine
         print "<br> ".count($related_CANDIDATES)." related_CANDIDATES (m=$m):";
 			}
 			
-      list($broader_refined_terms,  $broader_refined_terms_raw)   = $this->scrumble_cut_and_process_raw_results($broader_CANDIDATES,$broader_descriptors,$m,$sortrank);
-      list($narrower_refined_terms, $narrower_refined_terms_raw)  = $this->scrumble_cut_and_process_raw_results($narrower_CANDIDATES,$narrower_descriptors,$m,$sortrank);
-      list($related_refined_terms,  $related_refined_terms_raw)   = $this->scrumble_cut_and_process_raw_results($related_CANDIDATES,$related_descriptors,$m,$sortrank);
+      list($broader_refined_terms,  $broader_refined_terms_raw,  $B_ROOTPATHS)  = $this->cut_and_process_raw_results($broader_CANDIDATES,$broader_descriptors,$B_ROOTPATHS,$m,$sortrank);
+      list($narrower_refined_terms, $narrower_refined_terms_raw, $N_ROOTPATHS)  = $this->cut_and_process_raw_results($narrower_CANDIDATES,$narrower_descriptors,$N_ROOTPATHS,$m,$sortrank);
+      list($related_refined_terms,  $related_refined_terms_raw,  $R_ROOTPATHS)  = $this->cut_and_process_raw_results($related_CANDIDATES,$related_descriptors,$R_ROOTPATHS,$m,$sortrank);
 
 		} // ok
     
@@ -240,9 +241,6 @@ class STWengineSOLR extends STWengine
 			}
 		} // text
     
-    
-    
-    
 		return $STW_SKOSResult; // Information block for every skos relation
 	
 	} // refine_skos_solr_method
@@ -276,7 +274,7 @@ class STWengineSOLR extends STWengine
          && !preg_match("/$patternterm/",$q))
         {
           if ($refined_terms) $refined_terms.="$TERM_SEPARATOR\n"; 
-            $refined_terms.=trim($term);
+          $refined_terms.=trim($term);
           $CANDIDATES{$term}=$RANK;
           if ($this->srcdebug) print "<br> Adding <b>$term</b> to candidates";
         }
@@ -291,89 +289,7 @@ class STWengineSOLR extends STWengine
   
   
   
-  /*
-   * Sorts and cut labels ... according to $sortrank
-   * Returns the descriptors base64 encoded
-   * @param $CANDIDATE_LABELS
-   * @param $CANDIDATE_DESCS
-   * @param $m
-   * @param $sortrank
-   */
-  private function scrumble_cut_and_process_raw_results(&$CANDIDATE_LABELS,&$CANDIDATE_DESCS,$m,$sortrank='standard')
- 	#############################################################################
-  {
-    global $TERM_SEPARATOR;
-    
-    if(count($CANDIDATE_LABELS))
-    {
-      // Create label-term map
-      foreach($CANDIDATE_LABELS as $term=>$rank)
-      {
-        $TERMS_RAW{$term}=$CANDIDATE_DESCS[$i++];
-      }
-      
-      // START OF SORT RANK SECTION
-      if ($sortrank='standard') 
-      {
-        arsort($CANDIDATE_LABELS); // sort using values - top value first
-        array_splice($CANDIDATE_LABELS, $m); // keep the first $m 
-     
-     
-        if($this->srcdebug) { 
-           print "<br>m = $m";
-           print "<br>CANDIDATE LABELS: (binding=".$this->getWordbinding().")";
-           var_dump($CANDIDATE_LABELS);
-           print "<br>";
-           foreach($CANDIDATE_LABELS as $C=>$R)
-           {
-             print "<br>Candidade label: $C=>$R";
-           } 
-           print "<br>CANDIDATE DESCS: (binding=".$this->getWordbinding().")";
-           var_dump($CANDIDATE_DESCS);
-           print "<br>";
-           foreach($CANDIDATE_DESCS as $C=>$R)
-           {
-             print "<br>Candidade desc: $C=>$R";
-           } 
-        }
-     }
-     // END OF SORT RANK SECTION
-     
-     
-     $refined_terms=''; //reset
-     $refined_terms_raw='';
-     
-     foreach($CANDIDATE_LABELS as $term=>$RANK)
-     {
-       if($this->srcdebug) {
-         print "<br>Considering candidate $term ...";
-       } 
-        $nextterm=$term; // we do not need to cut off stop words ... here anymore
-//       $nextterm=trim(cleanup_stopwords_str($term));
-//       if ($nextterm) // term is non stopword
-       {
-         if ($this->getWordbinding() == 'STW')
-         {
-           //Construct a sequence of terms separated by $TERM_SEPARATOR
-           if ($refined_terms) $refined_terms.="$TERM_SEPARATOR"; 
-           $refined_terms.=$nextterm;
-           // construct a sequence of base64coded terms separated by $TERM_SEPARATOR
-           if ($refined_terms_raw) $refined_terms_raw.="$TERM_SEPARATOR\n"; 
-           $refined_terms_raw.=base64_encode($TERMS_RAW{$term});	 // encode its descriptor						
-         }
-         //prepare_solr_mlt_context($nextterm);
-       }
-     }
-   }
-   
-   if($this->srcdebug) {
-         print "<br>process_raw_results() Delivering refined_terms_raw:<br>";
-         var_dump($refined_terms_raw);
-       } 
-   
-   return array($refined_terms,$refined_terms_raw);
- } // process_raw_results
-  
+
   
    /**
 	 * STW implementation of the function, since the data is held
@@ -682,33 +598,75 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
       print "<br>ROOT ID: $ID0=$LABEL0, $ID1=$LABEL1";
 
     } 
-  
-    
     //Compute each ID the path
-    if ($mode=='web') // standard way, if other mode: no walk
+    if ($this->getVerbose()) print "<hr>SRC use mode is '$mode', ID0=($ID0)";
+    if ($mode=='web' || strstr($mode,'context')) // standard way, if other mode: no walk
 		{
 	    if (trim($ID0)<>null)
-	 		   $LOCALrootPATH = $this->walk_stw_root_path($ID0,$lang,$recursion=0);
-	    if ($this->getSrcDebug())
-	    {
-	      print "<br>Result of LOCALrootPATH: (($LOCALrootPATH))";
-	    }
+			{
+				if ($this->getVerbose()) print "<br>CALLING walk_stw_root_path('$ID0 = $LABEL0', lang=$lang)";
+	 		  if ($this->getVerbose()) {
+	 				  print "<br>";
+						fontprint("<br>'$LABEL0': <br>",'orange');
+				}
+				
+				//Add local label to ontopath to make path distinct:
+	 		  $LOCALrootPATH = $this->walk_stw_root_path($ID0,$lang,$recursion=0);
+				if ($this->getVerbose()) {
+						fontprint("<br>$LABEL0 ($ID0): <br>",'orange');
+						foreach(explode(',',$LOCALrootPATH) as $seg)
+						{
+							fontprint(base64_decode($seg)." < ",'orange');
+						}
+				}
+			}
+	    
 			$LRP_B= $this->rootpaths($LOCALrootPATH,$BROADER_LABELS);
 			$LRP_N= $this->rootpaths($LOCALrootPATH,$NARROWER_LABELS);
-			$this->rootpaths($LOCALrootPATH,$RELATED_LABELS);
+			$LRP_R= $this->rootpaths($LOCALrootPATH,$RELATED_LABELS);
+			
+			if ($this->getVerbose()) {
+				tell("<hr><b>roopath variants for broader</b> labels (".implode(', ',array_keys($BROADER_LABELS)).")");
+				tell($LRP_B);
+				foreach(explode('|',$LRP_B) as $VARIANT)
+				{
+					print "<br>Variant: ";
+					foreach(explode(',',$VARIANT) as $LABEL)
+						print base64_decode($LABEL)." > ";
+				}
+				
+				tell("<hr><b>roopath variants for narrower</b> labels (".implode(', ',array_keys($NARROWER_LABELS)).")");
+				tell($LRP_N);
+				foreach(explode('|',$LRP_N) as $VARIANT)
+				{
+					print "<br>Variant: ";
+					foreach(explode(',',$VARIANT) as $LABEL)
+						print base64_decode($LABEL)." > ";
+				}
+					
+				tell("<hr><b>roopath variants for related</b> labels (".implode(', ',array_keys($RELATED_LABELS)).")");
+				tell($LRP_R);
+				foreach(explode('|',$LRP_R) as $VARIANT)
+				{
+					print "<br>Variant: ";
+					foreach(explode(',',$VARIANT) as $LABEL)
+						print base64_decode($LABEL)." > ";
+				}
+			}
+			
 	    Logger::logAction(25, array('from'=>'STWengineSOLR->WebRefine','LOCALrootPATH'=>$LOCALrootPATH));
 		}
     //Compute all other paths by using $LOCALrootPATH adding the current label.
     
-   $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'stw') ,$LRP_B); 
-   $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'stw'),$LRP_N); 
-   $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'stw') ,$LRP_R); 
-  
-  
-  
+  $B= array($BROADER_LABELS, $this->denormalize_descriptor($BROADER_DESC,'stw') ,$LRP_B); 
+  $N= array($NARROWER_LABELS,$this->denormalize_descriptor($NARROWER_DESC,'stw'),$LRP_N); 
+  $R= array($RELATED_LABELS, $this->denormalize_descriptor($RELATED_DESC,'stw') ,$LRP_R); 
   
 	return new SRCEngineSKOSResult ( $suggestions, $B, $N, $R );
 } // get_stw_skos_nodes_SOLR
+
+
+
 
 
 
@@ -955,7 +913,7 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
     $ROOTPATHSEP=',';
     if ($this->getSrcDebug())
     {
-      print "<br>walk_stw_root_path called with lang=$lang and descriptor: ";var_dump($descriptor);print "<br>";
+      print "<br><b>walk_stw_root_path</b> called with lang=$lang and descriptor: ";var_dump($descriptor);print "<br>";
     }
 
     static $MAXRECURSION=100; // allow maximum 100 recursions
@@ -1003,7 +961,6 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
       {
         foreach($document AS $fieldname => $value)
         {
-
           switch($fieldname)
           {
             case $NEEDED_FIELD:
@@ -1042,12 +999,12 @@ private function get_stw_skos_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
           ;
         else
         { 
-          //print "<br>PROCESS SKOSCONTEXT TO ($singlebroader_descriptor)";
+          if ($this->getSrcDebug()) print "<br>PROCESS SKOSCONTEXT TO ($singlebroader_descriptor)";
           
           $pathremote = $this->walk_stw_root_path($singlebroader_descriptor,$lang,$recursion);
-          // Add:
-          if ($pathremote)
-          $path_to_root.=$ROOTPATHSEP.$pathremote;
+          // Append to path:
+          if (trim($pathremote))
+          			$path_to_root.= $ROOTPATHSEP.$pathremote;
         }
       }
     }

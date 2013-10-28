@@ -3243,6 +3243,134 @@ function unstrip_php($filecontent)
 ##############################################
 
 
+###############################################################################################
+###############################################################################################
+###############################################################################################
+
+
+
+/**
+ * Scans and separates words in txt up to spans with menuactions
+ * eliminate stop words spans menuactions if token is stopword
+ * used in ELIBRODIN
+ * 
+ * Highlight terms if contained (see css)
+ * - in $QUERYTERMS - <y>...</y> yellow
+ * - in $SEMFACETTERMS - <r>...</r> red
+ * - in $WDGFACETTERMS - <g>...</g> green
+ * - in $ELIBFACETTERMS - <e>...</e> blue
+ *  *  */
+	function separateWordsInSpans($text) 
+	{
+		$DEBUG=0;
+		global $QUERYTERMS;
+		global $SEMFACETTERMS;
+		global $WDGFACETTERMS;
+		global $stopwords;
+		global $TITLExEACHSTOPWORD;
+		
+		if ($DEBUG) {
+			print "<br>separateWordsInSpans stopwords: "; var_dump($stopwords);
+		}
+		$use_stop_words=is_array($stopwords) && count($stopwords);
+		//print "<br><b>enter.separateWordsInSpans</b>($text) ";
+		//Filter bad chars as nl or tabs
+		$pattern = '/[\n\t\b]/';
+		$text = (trim(preg_replace($pattern, ' ', $text)));
+
+		//Filter in order to separate
+		$language_specialchars='ßÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
+		$pattern = '/[A-Za-z0-9'.$language_specialchars.'\-_]+/u'; //unicode
+		$msdelay = 300; //only for onmouseover
+		$replace = '|$0|';
+		$result_candidate_txt= preg_replace($pattern, $replace, $text);
+		$result_candidate_txt_arr=explode('|',$result_candidate_txt);
+		if ($DEBUG) print "<br>SEPARATED: (((".htmlentities($result_candidate_txt).")))";
+		//loop in $result_candidate_txt_arr and subst only non stopwords in it
+		foreach($result_candidate_txt_arr as $candidate_chunk_orig)
+		{
+			$candidate_chunk=trim($candidate_chunk_orig);
+			if ($candidate_chunk)
+			{
+				$SPACE=$last_char_was_punctuation?'':' ';
+				if ($DEBUG) print "<br>separateWordsInSpans(<b>$candidate_chunk</b>) test on stopwords ($use_stop_words)";
+				//In case after the filter there are any interpunction symbols, separate them
+				if (preg_match('/[\[\]\^\.\,\:\;\(\)\@\#\!\?]/',$candidate_chunk)) // test interpunction=not a word
+				{
+					$last_char_was_punctuation=true;
+					$result.='<span class="result-word">'.$candidate_chunk_orig.'</span>'; //Add simply to show it in visualized result
+					if ($DEBUG) fontprint("...INTERPUNCTION Chars:".strlen($candidate_chunk),'orange');
+				}
+				else if ($use_stop_words && 
+									in_array(strtolower($candidate_chunk), $stopwords))
+				{
+					$result.=$SPACE.'<span class="result-word" title="'.$TITLExEACHSTOPWORD.'">'.$candidate_chunk.'</span>'; //Add simply to show it in visualized result
+					if ($DEBUG) fontprint("...STOPWORD",'red');
+					$last_char_was_punctuation=false;
+				}
+				else
+				{
+					if ($DEBUG) print "... NORMAL";
+					//Add the operative action menu events handlers:
+					$result.=$SPACE
+									.'<span class="result-word" '
+									." onmousedown=\"omd(this,event); \" "
+									." onmouseover=\"omo(this,event,$msdelay); \" "
+									." onmouseup=\"omu(this,event); \" "
+									." onmouseout=\"mut(this,event); \" "
+									.'>'.$candidate_chunk.'</span>';
+					$last_char_was_punctuation=false;
+				}
+			}
+		} // foreach $result_candidate_txt_arr
+		
+		
+		if($DEBUG) {
+			print "<br>QUERYTERMS: <br>"; var_dump($QUERYTERMS);
+		}
+		
+		$result = surround_if_contained($QUERYTERMS,$result,'y');
+		$result = surround_if_contained($SEMFACETTERMS,$result,'r'); //red
+		$result = surround_if_contained($WDGFACETTERMS,$result,'g'); //green
+		
+		//print "<br><b>exit.separateWordsInSpans</b>($text):<br>(((".htmlentities($result).')))';
+		return $result;
+	}	
+
+
+
+
+
+/**
+ * @return the same string $response
+ * with surrounded terms
+ * else $response (identity)
+ */
+function surround_if_contained(&$TERMS,$result,$tag)
+{
+	$DEBUG=0;
+	if ($DEBUG) print "<br>surround_if_contained using tag=$tag";
+ 	if ($TERMS && is_array($TERMS) && count($TERMS))
+	{
+		//highlight fix yellow words matching $QUERYTERMS
+		foreach($TERMS as $keyword)
+		{
+			if (strstr($keyword,' '))
+				$KEYWORDS=explode(' ',$keyword);
+			else $KEYWORDS=array($keyword);
+			
+			foreach($KEYWORDS as $kw)
+			{
+				if (strlen($kw)>0) //deny to narrow strings
+				{
+					if ($DEBUG) print " Checking word $kw (from $keyword) for tag $tag in (($result))";
+					$result=preg_replace("/$kw/is", "<$tag>$0</$tag>", $result);
+				}
+			}
+		}
+	}
+	return $result;
+}
 
 
 

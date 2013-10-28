@@ -4,13 +4,39 @@
  * CREATION DATE: August 2013
  */
 
-div#rodin_main_column table {
-	background-color: rgb(247, 247, 247);
+
+div#block_on_busy {
+	min-width:100%;
+	min-height:500%;
+	background-color:white;
+	position:absolute;
+  z-index:1000;	
+	opacity:0.8;
+	filter:alpha(opacity=80); /* For IE8 and earlier */
 }
 
-y {
+div#rodin_main_column table {
+	background-color: rgb(247, 247, 247);
+	margin-top: -10px;
+}
+
+y { /*yellow*/
 	background-color: #FFFBC3;
 }
+
+r { /*red*/
+	background-color: #FFC8C8;
+}
+
+g { /*green*/
+	background-color: #C8FFC8;
+}
+
+e { /*blue*/
+	background-color: #C8C8FF;
+}
+
+
 
 .resthumbnail td.article {
 	background: url(../img/article.png) no-repeat 0px 0px; cursor: pointer;
@@ -19,6 +45,33 @@ y {
 	padding-bottom: 0;
 	text-align:center;
 }
+
+.resthumbnail td.book {
+	background: url(../img/book.png) no-repeat 0px 0px; cursor: pointer;
+	width:70px;
+	padding-top: 70px;
+	padding-bottom: 0;
+	text-align:center;
+}
+
+.resthumbnail td.audio {
+	background: url(../img/audio.png) no-repeat 0px 0px; cursor: pointer;
+	width:70px;
+	padding-top: 70px;
+	padding-bottom: 0;
+	text-align:center;
+}
+
+.resthumbnail td.video {
+	background: url(../img/video.png) no-repeat 0px 0px; cursor: pointer;
+	width:70px;
+	padding-top: 70px;
+	padding-bottom: 0;
+	text-align:center;
+}
+
+
+
 
 tr.whitespace {
 	height:4px;
@@ -68,7 +121,6 @@ td.elibresvisibleabstract {
 div#buttonshapezoom {
 	width:18px;
 	height:18px;
-	background-color:yellow;
 }
 
 img#whitebuttonimg {
@@ -76,22 +128,43 @@ img#whitebuttonimg {
 	height=17px;
 } 
 
+td.zoombuttontd {
+	padding:0;
+	margin:0;
+	width:10px;
+}
 
-a#zoomcontrol {
+
+
+a#zoomcontrol_light {
 	font-size: 20px;
 	position: relative;
 	top: -40px;
 	display: block;
 }
 
-a#zoomcontrol.showingAbstracts {
-	background: url('../../../../gen/u/images/button-all-normal.png'); 
+a#zoomcontrol_full {
+	font-size: 20px;
+	position: relative;
+	top: -40px;
+	display: block;
+}
+
+a#zoomcontrol_light.hidingAbstracts {
+	background: url('../../../../gen/u/images/button-min-normal.png'); 
 	background-size:18px 18px;
 	background-position:right;
 	background-repeat:no-repeat;
 }
 
-a#zoomcontrol.showingAbstracts:hover {
+a#zoomcontrol_light.hidingAbstracts:hover {
+	background: url('../../../../gen/u/images/button-min-hover.png'); 
+	background-size:18px 18px;
+	background-position:right;
+	background-repeat:no-repeat;
+}
+
+a#zoomcontrol_light.hiddenAbstracts {
 	background: url('../../../../gen/u/images/button-min-hover.png'); 
 	background-size:18px 18px;
 	background-position:right;
@@ -99,19 +172,32 @@ a#zoomcontrol.showingAbstracts:hover {
 }
 
 
-a#zoomcontrol.hidingAbstracts {
-	background: url('../../../../gen/u/images/button-min-normal.png'); 
+
+
+
+
+
+a#zoomcontrol_full.showingAbstracts {
+	background: url('../../../../gen/u/images/button-all-normal.png'); 
 	background-size:18px 18px;
 	background-position:right;
 	background-repeat:no-repeat;
 }
 
-a#zoomcontrol.hidingAbstracts:hover {
+a#zoomcontrol_full.showingAbstracts:hover {
 	background: url('../../../../gen/u/images/button-all-hover.png'); 
 	background-size:18px 18px;
 	background-position:right;
 	background-repeat:no-repeat;
 }
+
+a#zoomcontrol_full.shownAbstracts {
+	background: url('../../../../gen/u/images/button-all-hover.png'); 
+	background-size:18px 18px;
+	background-position:right;
+	background-repeat:no-repeat;
+}
+
 
 h1.maintitle {
 	float: left;
@@ -126,6 +212,13 @@ div#filter_notifications {
 	padding: 10px;
 }
 
+
+table.pnotification {
+	visibility:hidden;
+	display:none;
+	margin-left: 0px;
+	width: auto;
+}
 
 table.onotification {
 	visibility:hidden;
@@ -177,12 +270,14 @@ div#rodin_header {
 
 div#rodin_left_column {
 	/*background-color: #FF9900;*/
-	float: left;
-	width: 25%;
+	min-width: 200px;
 	padding-right:5px;
 	/*background-color: #c00;	*/
 }
 div#facetBoardContent {
+	width:100%;
+}
+div#facetBoardContentElib {
 	width:100%;
 }
 
@@ -208,19 +303,12 @@ div#rendered_rodinelib {
 
 div#rodin_main_column {
 	/*background-color:#148CD2;*/
-	float: left;
-	width: 55%;
 	min-width: 55%;
-	max-width: 55%;
 	height:100%;
 }
 
 div#rodin_right_column {
-  position: absolute;
-  left: 980px;
-	float: left;
-	width: 20%;
-	/* background-color: blue; */
+	min-width: 200px;
 }
 
 

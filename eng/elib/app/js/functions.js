@@ -2,43 +2,130 @@
  * fabio.ricci@semweb.ch
  * calls and sets the result of RODIN/web
  * into the content div
+ * involve also semantical and elib facets
  */
 function show_rodin_search_results(querytext,debug)
 {
+	//querytext = querytext.trim();
 	LASTUSERQUERY=querytext;
-	var url="./rodinelib_search_and_render.php?query="+querytext+"&DEBUG="+debug;
+	var url="./rodinelib_search_and_render.php"
+					+"?query="+encodeURIComponent(querytext)
+					+"&DEBUG="+debug;
 	clear_mainsearch();
 	set_busy();
-	//alert('show_rodin_search_results('+querytext+')');
+
+	//alert(url);
 	jQuery.ajax({
 		context: document.body,
     type: "GET",
     url: url,
     cache: true
-  }).done(function( resultdata ) {
+	}).done(function( resultdata ) {
      //alert(querytext+" --> "+resultdata);
      jQuery('#content').html(resultdata);
      init_mainsearch();
      unset_busy();
      METASEARCH_FINISHED=true;
-  });
+	});
 }
 
 
 /**
  * get data and put it into rodin_main_column (basta)
  */
-function show_rodin_mlt(id_wdoc, sid, debug)
+function show_rodin_mlt(id_wdoc, sid, txt, oldqueery, debug)
 {
-	//alert('show_rodin_mlt');
-	var url="./rodinelib_search_mlt_and_render.php?sid="+sid+"&rid="+id_wdoc+"&DEBUG="+debug;
-	if(debug) {
-		var url2="http://localhost/rodin/eng/elib/app/src/rodinelib_search_mlt_and_render.php?sid="+sid+"&rid="+id_wdoc+"&DEBUG=1";
-		alert(url2);
+	//alert('show_rodin_mlt txt=('+txt+')');
+	var url="./rodinelib_result_filter_and_rerender.php?sid="+sid
+															+"&rid="+id_wdoc
+															+"&notify=1"
+															+"&txt="+txt
+															+"&previousquery="+oldqueery
+															+"&DEBUG="+debug;
+	widgets_refilter_and_display(url);
+}
+
+
+
+
+function refilter_widgets()
+{
+	filter_rodin_widgets_using_facets(getSid(), getSearchTerm(), 0);
+}
+
+
+function getSid()
+{
+	return jQuery('#sid').val();
+}
+
+function getSearchTerm()
+{
+	return jQuery('#elibsearchinput').val();
+}
+
+
+
+/**
+ * get data and put it into rodin_main_column (basta)
+ */
+function filter_rodin_widgets_using_facets(sid, oldquery, debug)
+{
+	//collect all semantical facets:
+	var semfacets_txts=collect_facets_terms('semfacet');
+	//collect all widget facets:
+	var wdgfacets_txts=collect_facets_terms('wsearchfacet');
+	//collect all elib facets:
+	var elibfacets_txts=collect_facets_terms('elibfacet');
+	//alert('show_rodin_mlt txt=('+txt+')');
+	
+	var txt = 'Results found on current search using additionally ';
+	
+	if (semfacets_txts.length + wdgfacets_txts.length + elibfacets_txts.length == 0)
+	txt = 'Normal results';
+	
+	if (semfacets_txts.length)
+		txt+='semantical facet(s) '+semfacets_txts;
+	if (wdgfacets_txts.length)
+	{ 
+		txt+=semfacets_txts?' and ':'';
+		txt+='search term(s) '+wdgfacets_txts;
 	}
+	if (elibfacets_txts.length)
+	{ 
+		txt+=semfacets_txts?' and ':'';
+		txt+='elib facet(s) '+elibfacets_txts;
+	}
+	
+	var url="./rodinelib_result_filter_and_rerender.php"
+											+"?sid="+sid
+											+"&sfacets="+semfacets_txts	.join('|')
+											+"&wfacets="+wdgfacets_txts	.join('|')
+											+"&efacets="+elibfacets_txts.join('|')
+											+"&notify=1"
+											+"&txt="+encodeURIComponent(txt)
+											+"&previousquery="+encodeURIComponent(oldquery)
+											+"&DEBUG="+debug;
+	widgets_refilter_and_display(url);
+}
+
+
+
+
+
+
+/**
+ *  refilter widget area using url
+ */
+function widgets_refilter_and_display(url)
+{
+	var debug=0;
+	if(debug) {
+		alert('widgets_refilter_and_display:\n\n'+url);
+	}
+	
 	clear_mainsearch();
 	set_busy();
-	//alert('show_rodin_search_results('+querytext+')');
 	jQuery.ajax({
 		context: document.body,
     type: "GET",
@@ -50,9 +137,12 @@ function show_rodin_mlt(id_wdoc, sid, debug)
      init_mainsearch();
      unset_busy();
      METASEARCH_FINISHED=true;
+     
+     jQuery('tr.wnotification').show();
+		jQuery('table.onotification').show();
+
   });
 }
-
 
 
 
@@ -63,6 +153,8 @@ function show_rodin_thesearch_results(querytext,debug)
 	//alert('show_rodin_thesearch_results('+querytext+')');
 	if (!debug) debug='';
 	var url="./rodinelib_thesearch_and_render.php?query="+querytext+"&DEBUG="+debug;
+	
+	//alert(url);
 	set_busy();
 	jQuery.ajax({
 		context: document.body,
@@ -80,13 +172,16 @@ function show_rodin_thesearch_results(querytext,debug)
 
 
 
-function show_rodinelib_pseudofacets(querytext,debug)
+
+
+
+
+function show_rodinelib_elib_facets(querytext,debug)
 {
-	return;
 	//return; // debug
 	//alert('show_rodin_thesearch_results('+querytext+')');
 	if (!debug) debug='';
-	var url="./rodinelib_thesearch_and_render.php?query="+querytext+"&DEBUG="+debug;
+	var url="./rodinelib_elib_facets_search_and_render.php?query="+querytext+"&DEBUG="+debug;
 	set_busy();
 	jQuery.ajax({
 		context: document.body,
@@ -100,30 +195,6 @@ function show_rodinelib_pseudofacets(querytext,debug)
   });
 }
 
-
-
-
-
-/**
- * same as show_rodin_thesearch_results
- * plus notification
- */
-function extra_rodin_thesearch_results(querytext,debug)
-{
-	if (!debug) debug='';
-	var url="./rodinelib_thesearch_and_render.php?notify=1&query="+querytext+"&DEBUG="+debug;
-	set_busy();
-	jQuery.ajax({
-		context: document.body,
-    type: "GET",
-    url: url,
-    cache: true
-  }).done(function( resultdata ) {
-     //alert(querytext+" --> "+resultdata);
-     jQuery('#rodin_left_column').html(resultdata);
-     unset_busy();
-  });
-}
 
 
 
@@ -148,6 +219,7 @@ function init_mainsearch()
 	jQuery('table.onotification').hide();
 	
 	hide_autocomplete();
+	show_results_light();
 }
 
 
@@ -158,6 +230,7 @@ function set_busy()
 	EXECSEMAPHOR-= 1;
 	$('#header div.searchlupe').removeClass('wait4userinput').addClass('denyuserinput');
 	$('#elibsearchinput').removeClass('wait4userinput').addClass('denyuserinput');
+	$('#block_on_busy').fadeIn();;
 }
 
 function unset_busy()
@@ -167,6 +240,7 @@ function unset_busy()
 	if (EXECSEMAPHOR==0)	{ 
 		$('#header div.searchlupe').removeClass('denyuserinput').addClass('wait4userinput');
 		$('#elibsearchinput').removeClass('denyuserinput').addClass('wait4userinput');
+		$('#block_on_busy').fadeOut();;
 	}
 }
 
@@ -201,17 +275,55 @@ function toggle_show_abstracts_in_results(imgButton)
 	
 	if (imgButton.getAttribute('class')=='showingAbstracts')
 	{
-		//alert('SHOWING -> HIDE!');
-		imgButton.setAttribute('class','hidingAbstracts');
-		$('.elibresvisibleabstract')
-			.toggleClass('elibresvisibleabstract elibreshiddenabstract');
-		imgButton.setAttribute('title','Click to show abstracts in results');
+		//Set imgButton to shownAbstract
+		//Set other button to hidingAbstract
+		//Show abstracts
+		// ----------------------------
+		// Set button to shownAbstracts
+		imgButton.setAttribute('class','shownAbstracts');
+		//Set other button to hidingAbstracts
+		$('#zoomcontrol_light')
+			.addClass('hidingAbstracts')
+			.removeClass('hiddenAbstracts');
+		//Show abstracts
+		show_results_full();
 	}
-	else {
-		//alert('HIDING -> SHOW!');
-		imgButton.setAttribute('class','showingAbstracts');
-		$('.elibreshiddenabstract').toggleClass('elibresvisibleabstract elibreshiddenabstract');
-		imgButton.setAttribute('title','Click to hide abstracts in results');
+}
+
+function show_results_full()
+{
+	$('.elibreshiddenabstract')
+		.addClass('elibresvisibleabstract')
+		.removeClass('elibreshiddenabstract');
+}
+
+function show_results_light()
+{
+	$('.elibresvisibleabstract')
+			.removeClass('elibresvisibleabstract')
+			.addClass('elibreshiddenabstract');
+}
+
+
+function toggle_hide_abstracts_in_results(imgButton)
+{
+	//$('#'+imgButton.id).toggleClass('elibresvisibleabstracts elibreshiddenbstracts');
+	
+	if (imgButton.getAttribute('class')=='hidingAbstracts')
+	{
+		//Set imgButton to hiddenAbstract
+		//Set other button to showingAbstract
+		//Hide abstracts
+		// ----------------------------
+		// Set button to hiddenAbstracts
+		imgButton.setAttribute('class','hiddenAbstracts');
+		//Set other button to showingAbstracts
+		$('#zoomcontrol_full')
+			.addClass('showingAbstracts')
+			.removeClass('shownAbstracts');
+		
+		//Hide abstracts
+		show_results_light()
 	}
 }
 
@@ -219,7 +331,7 @@ function toggle_show_abstracts_in_results(imgButton)
 
 function launch_query_for_debug()
 {
-	set_query('Information'); 
+	set_query('"Information Economy" AND Time'); 
 	launch_query();
 }
 
@@ -258,6 +370,8 @@ function removePunctuationMarks(text) {
  */
 function construct_elib_actions_tooltip(txt,objs)
 {
+	//erase <y> </y> tags in txt
+	txt=txt.replace("<y>","").replace("</y>","");
 	var tooltip_nl='<?php print $TTPNEWLINE;?>';
 	var title_tooltip="This tooltip shows you available actions (on its above leftside) to be started using the text &#171;"+txt+"&#187;"
 									 +tooltip_nl+tooltip_nl+"Start the desired action by clicking on the corresponding icon"
@@ -274,12 +388,8 @@ function construct_elib_actions_tooltip(txt,objs)
 	var title_onto_explore="Click to explore facets using &#171;"+txt+"&#187;";
 
 	var a2bchideclass='';
-	var word_is_contained_in_breadcrumb=false;
-	/*Add to action emu only if not present in breadcrumbs:*/
-	jQuery(".crumb-result-normal:contains(\""+txt+"\")").each(function(){
-		word_is_contained_in_breadcrumb=true;
-	});
-	if(word_is_contained_in_breadcrumb)
+	/*Add to action emu only if not present in breadcrumbs or in searchtext:*/
+	if(term_contained_in_search_or_bc(txt))
 	{
 		a2bchideclass='hidden';
 	}
@@ -293,13 +403,10 @@ function construct_elib_actions_tooltip(txt,objs)
  <a onclick='restrict_render(\""+txt+"\")' title='"+title_filter_wresults_containing+"'><img class='ttp' src='../../../../gen/u/images/funnel.png' /></a> \
 </td> \
 <td id='a2bc' class='ttpi "+a2bchideclass+"'> \
- <a onclick='bc_add_breadcrumb_unique(\""+txt+"\",\"result\");' title='"+title_add_to_breadcrumb+"'><img class='ttp' src='../../../../gen/u/images/add-to-breadcrumb.png' /></a> \
+ <a onclick='wdg_do_bc(\""+txt+"\",\"search term\",\"wsearchfacet\");' title='"+title_add_to_breadcrumb+"'><img class='ttp' src='../../../../gen/u/images/add-to-breadcrumb.png' /></a> \
 </td> \
 <td class='ttpi'> \
  <a onclick='extra_rodin_thesearch_results(\""+txt+"\",<?php print $DEBUG; ?>)' title='"+title_onto_explore+"'><img class='ttp' width='17' src='../../../../gen/u/images/magnifier-onto.png' /></a> \
-</td> \
-<td class='ttpi' > \
- <a onclick='set_query(\""+txt+"\");' title='"+title_search_with_this_text+"'><img class='ttp' src='../img/input_right_search.png' /></a> \
 </td> \
 <td class='ttpi' > \
  <a onclick='set_query(\""+txt+"\");launch_query();' title='"+title_search_with_this_text_go+"'><img class='ttp' width='17' src='../img/input_right_search_hover.png' /></a> \
@@ -328,8 +435,45 @@ function construct_elib_actions_tooltip(txt,objs)
 
 
 
+function term_contained_in_search_or_bc(txt)
+{
+	txt=txt.toLowerCase();
+	var contained = false;
+	jQuery(".semfacet:contains(\""+txt+"\")").each(function(){
+		contained=true;
+	});
+	jQuery(".wsearchfacet:contains(\""+txt+"\")").each(function(){
+		contained=true;
+	});
+	jQuery(".elibfacet:contains(\""+txt+"\")").each(function(){
+		contained=true;
+	});
+	
+	if (!contained)
+	{ /* jQuery only so */
+		contained=jQuery("#elibsearchinput").val().toLowerCase().contains(txt);
+	}
+	return contained;
+}
 
 
+
+
+
+function wdg_do_bc(txt,channel,facettype)
+{
+	bc_add_breadcrumb_unique(txt,channel,facettype);
+	refilter_widgets();
+} 
+
+
+
+
+if(!String.prototype.trim || true){  
+  String.prototype.trim = function(){
+    return this.replace(/^\s+|\s+$/g,'');  
+  };  
+}
 
 function htmlDecode(value) {
    return (typeof value === 'undefined') ? '' : $('<div/>').html(value).text();
@@ -341,6 +485,35 @@ function eclog(txt)
 {
 	if (WANTCONSOLELOG) console.log(Date() + ' '+ txt);
 }	
+
+
+/**
+ * @return an array of facetnames collected using facettype
+ * SPECIALITY: In case of facettype=elibfacet, also the facetgroup is delivered in the format 
+ * group:facetvalue 
+ * 
+ */
+function collect_facets_terms(facettype)
+{
+	var facets_terms = new Array;
+	jQuery('span.crumbssemfacetdesc').each(function(){
+		if(jQuery(this).attr('ftype')==facettype)
+		{		
+			if (facettype=='semfacet'
+			|| facettype=='wsearchfacet')
+				facets_terms.push( jQuery('a',this).text().replace(' ','+'));	
+			else if (facettype=='elibfacet')
+			{ /* collect also facet group */
+				var facetgroup=jQuery('label',this).html(); /*here is a : already contained!*/
+				var elibfacetassignment=facetgroup + jQuery('a',this).text().replace(' ','+');
+				facets_terms.push( elibfacetassignment );	
+			}
+		}
+	});
+	return facets_terms;
+}
+
+
 
 
 
@@ -365,7 +538,7 @@ $(document).ready(function() {
 		user_id: '<?php print  $ELIB_USERID ?>',
 		setversion: '2013',
 		deferRequestBy: 500
-			};
+	};
 	$('#elibsearchinput').autocomplete(options);
 	
 	

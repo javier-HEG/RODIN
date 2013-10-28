@@ -29,6 +29,7 @@ lang["msgPleaseAddWidgetsToTab"]="Ajoutez des widgets sur cette page et réessay
 lang["lblBreadcrumbstitle"]="Requête";
 lang["lblBreadScrumbSearchBTitle"]="Cliquez pour affiner la recherche en utilisant ces mots";
 lang["lblBreadScrumbSearchBLable"]="Cliquez pour affiner la recherche";
+lang["lblElibClick2Del0bcrumbs"]="Cliquez pour effacer le filtrage des resultats avec ce mot";
 lang["lblClick2Del0bcrumbs"]="Cliquez pour effacer ce mot";
 lang["lblAlreadyInBreadCrumbs"]="\"$$\" est déjà dans les breadcrumbs";
 lang["lblAlreadyInSearchQuery"]="\"$$\" est déjà dans inclut dans le texte de la requête.";

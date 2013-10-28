@@ -431,6 +431,7 @@ class BasicRodinResult {
 		$arr{'type'} = strtoupper(RodinResultManager::getRodinResultTypeName($this->resultType));
 		$arr{'title'} = $this->getTitle();
 		$arr{'abstract'} = $this->getProperty('abstract') ;
+		$arr{'description'} = $this->getProperty('description') ;
 		$arr{'score'} = $this->getScore();
 		$arr{'authors'} = $this->getAuthors();
 		$arr{'date'} =  $this->getDate();
@@ -514,11 +515,16 @@ class BasicRodinResult {
 	 * @param $propertyValue
 	 */
 	public function setProperty($propertyName, $propertyValue) {
+		$DEBUG=0;
 		if ($this->validProperties != null) {
+			
+			if ($DEBUG) {print "<br>VALID PROPERTIES: ";print_r($this->validProperties);}
+			
 			if (in_array($propertyName, $this->validProperties)) {
 				$this->resultProperties[$propertyName] = $propertyValue;
 			}
 		} else {
+			if ($DEBUG) print "<br>SETTING PROP $propertyName => $propertyValue";
 			$this->resultProperties[$propertyName] = $propertyValue;
 		}
 	}
@@ -613,13 +619,18 @@ class BasicRodinResult {
 		return $this->authors;
 	}
 	
-	public function setDate($date = '') {
+	public function setDate($date = '') 
+	{ $DEBUG=0;
+	  if($DEBUG) print "<br>setDate($date):";
 		try {
-					if ($date == '')
-						$tempDate = new DateTime();
-					else 
-						$tempDate = new DateTime($date);
-					$this->date = $tempDate->format('d.m.Y');
+					// if ($date == '')
+						// $tempDate = new DateTime();
+					// else 
+						// $tempDate = new DateTime($date);
+// 					
+					// $this->date = $tempDate->format('d.m.Y');
+					$this->date=$date; //test - take it as it is 
+					if ($DEBUG) print "-->". $this->date;
 		}
 		catch (Exception $e)
 		{

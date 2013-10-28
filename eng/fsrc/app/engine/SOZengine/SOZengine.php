@@ -6,7 +6,6 @@
 	# fabio.ricci@ggaweb.ch  
 	# Tel.: +41-76-5281961
 
-
 $filename="SRCengine.php"; $maxretries=10;
 #######################################
 for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")

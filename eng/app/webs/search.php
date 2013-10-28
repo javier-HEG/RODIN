@@ -5,19 +5,22 @@
 	 * 
 	 * Input:
 	 * 
-	 * A query string like ?query=Digital%20Economy&widgets=econbiz,swissbib,arxiv&userid=2&m=2
+	 * A query string like ?query=Digital%20Economy&widgets=econbiz,swissbib,arxiv&userid=2&m=4&wm=2
 	 * Note - widgets: A list of the data sources in which to launch the search (at least one data source)
 	 */
 	
 	$DEBUG=0;
-	
+	$DEBUG=trim($_REQUEST['DEBUG']);
 	$userid=trim($_REQUEST['userid']);
 	$query=trim($_REQUEST['query']);
 	$k = $_REQUEST['k']; // start outputting results from k
 	$rm = $_REQUEST['m']; // return first $rm results - tell me how many results there are at all
+	$wm = $_REQUEST['wm']; // call at most $wm results from each widget
+	if (!$wm) $wm = $rm;
 	$query=trim($_REQUEST['query']);
 	$widgets=$_REQUEST['widgets']; // List of widgets names separated by comma
-		
+	$efacets=$_REQUEST['efacets']; // List of elib facets like "author:C.G.Gottlieb,date:2005,type:book"
+			
 	//Example: ?query=Information+Economy&widgets=econbiz+swissbib+googlebooks
 	
 	//Load components	
@@ -90,7 +93,7 @@
 		$sid = compute_sid($userid);
 		//search in each widget -> results in sid
 		//$wm = $DEFAULT_M; // in db for segment
-		search_in_each_widget($widgets_records,$userid,$sid,$query,$wm=10);
+		search_in_each_widget($widgets_records,$userid,$sid,$query,$efacets,$wm);
 		
 		//Get all results and send them as json
 		$allResultsJson = RodinResultManager::get_json_searchresults4webservice($sid, $k, $rm, true, true);
@@ -106,16 +109,24 @@
 	 * Searches in every widgets
 	 * Stores results in SOLR/DB under $sid
 	 * Returns NOTHING 
+	 * @param $widgets_records - Array of widget info (data sources)
+	 * @param $userid - user for reading preferences
+	 * @param $sid
+	 * @param $query
+	 * @param $efacets - only elibCH - facets information like "author:C.G.Jung,date:1960"
+	 * @param $wm - number of results wanted in this search
 	 */
-	function search_in_each_widget($widgets_records,$userid,$sid,$query,$wm)
+	function search_in_each_widget($widgets_records,$userid,$sid,$query,$efacets,$wm)
 	{
-		$DEBUG=0;
+		global $DEBUG;
 		global $DOCROOT,$RODINUTILITIES_GEN_URL;
 		global $RDW_REQUEST;
 		global $WEBSERVICE;
 		global $USER; $USER=$userid;
 		if ($wm==0) $wm=10; // default
-
+		
+		if($DEBUG) print "<hr>search_in_each_widget for ($query) and efacets ($efacets)...<hr>";
+		
 		if (!$userid) print "<br>ERROR: NO userid provided!";
 		
 		foreach($widgets_records as $widget_record)
@@ -145,19 +156,24 @@
 			// Load user preferences as PHP variables and in the _REQUEST variables
 			$userprefstatement = explode("&",$saved_userprefs_for_this_widget_application);
 			foreach ($userprefstatement as $x) {
-				if ($DEBUG) print "<br>CONSIDER ($x)";
-				list($name,$value) = explode('=',$x);
-				if ($value) {
-					eval( "\${$name} = $value;" );
-					$_REQUEST[$name] = $value;
-					$RDW_REQUEST{$name} = $value;
+				if ($x)
+				{
+					if ($DEBUG) print "<br>CONSIDER userprefstatement ($x)";
+					list($name,$value) = explode('=',$x);
+					if ($value) {
+						eval( "\${$name} = $value;" );
+						$_REQUEST[$name] = $value;
+						$RDW_REQUEST{$name} = $value;
+					}
 				}
 			}
 			
 			$RDW_REQUEST['q']=$query;
 			$RDW_REQUEST['m']=$wm;
 			$RDW_REQUEST['sid']=$sid;
-			
+			if ($efacets)
+				$RDW_REQUEST['efacets']=$efacets;
+						
 			//Execute widget:
 			$rescount = $WIDGET::DEFINITION_RDW_COLLECTRESULTS();
 			if ($DEBUG) {

@@ -589,15 +589,6 @@ EOP;
 	}	
 
 
-	/**
-	 * returns a date out of $text
-	 */
-	function scan_last_date($text)
-	{
-		$last_date = intval($text);
-		return $last_date;
-	}
-	
 	
 	
 	function unregister_default_prefs($app_id)

@@ -383,23 +383,62 @@ function is_romanic_number($txt)
 /**
  * Add $obj in $assoc under $subject
  * SIDE EFFECT ON $assoc !
+ * In case data is provided together with obj,
+ * data is stored in an in ternall assoc for later use
+ * 
+ * @param $assoc
+ * @param $subject
+ * @param $obj 
+ * @param $data - data to assoc with $obj
+ */
+function add_to_assoc_uniquely(&$assoc,$subject,&$obj,&$data)
+{
+	$DEBUG=0;
+	if ($DEBUG){
+		print "<hr>add_to_assoc_uniquely:";
+		print "<br>subject: $subject";
+		print "<br>obj: "; print_r($obj);
+		print "<br>data: "; print_r($data);
+	}
+	if (($X = $assoc{$subject}))
+	{
+		//Is $obj already in the array?
+		if (!in_array($obj, $X))
+		{
+			$assoc{$subject} = array_merge($X,array($obj));
+			if ($data) $assoc{'data'}{$subject}{$obj} = $data;
+		}
+	}
+	else // under subject there is nothing =>
+	{ 
+		$assoc{$subject} = array($obj);
+		if ($data) $assoc{'data'}{$subject}{$obj} = $data;
+	}
+} // add_to_assocvector
+
+
+/**
+ * Add $obj in $assoc under $subject as array - always!
+ * SIDE EFFECT ON $assoc !
  * @param $assoc
  * @param $subject
  * @param $obj 
  */
-function add_to_assoc_uniquely(&$assoc,$subject,&$obj)
+function add_unique_to_assocvector(&$assoc,$subject,&$obj)
 {
 	if (($X = $assoc{$subject}))
 	{
-		$assoc{$subject} = array_unique(array_merge($X,array($obj)));
+		//Is $obj already in the array?
+		if (!in_array($obj, $X))
+		{
+			$assoc{$subject} = array_merge($X,array($obj));
+		}
 	}
 	else // under subject there is nothing =>
 	{ 
 		$assoc{$subject} = array($obj);
 	}
 } // add_to_assocvector
-
-
 /**
  * Add $obj in $assoc under $subject
  * SIDE EFFECT ON $assoc !
@@ -407,6 +446,7 @@ function add_to_assoc_uniquely(&$assoc,$subject,&$obj)
  * @param $subject
  * @param $obj 
  */
+ 
 function add_to_assocvector(&$assoc,$subject,&$obj)
 {
 	if (($X = $assoc{$subject}))
@@ -690,9 +730,30 @@ class RESULT
 
 
 
+/**
+ * @return a cleaned description
+ * this function cleans up the input of elibch widget
+ * sometime delivering same definition with .. as difference ... 
+ */
+function cleanup_author_desc($desc)
+{
+	$DEBUG=0;
+	$desc=str_replace('..','.',$desc);
+	return $desc;
+}
 
 
 
+/**
+ * returns a date out of $text
+ */
+function scan_last_date($text)
+{
+	$last_date = intval($text);
+	return $last_date;
+}
+	
+	
 
 
 function is_a_value($v)
@@ -1030,6 +1091,7 @@ function get_from_src_directly( $sid,
 																$lang,
 																$servicename,
 																$q, // query term
+																
 																$src_name,
 																$mode,
 																$DISKenginePATH,
@@ -1037,7 +1099,7 @@ function get_from_src_directly( $sid,
 																$basic_path_SRCengineInterface,
 																$basic_path_SRCengine,
 																$CLASSNAME,
-																$SRCOBJS, // maybenull object array
+																&$SRCOBJS, // maybenull object array
 																$pathClass,
 																$pathSuperClass,
 																$AuthUser,
@@ -1048,10 +1110,12 @@ function get_from_src_directly( $sid,
 	global $SOLRCLIENT;
 	global $SRCOBJECT;
 	
+	$sortrank = strstr($mode,'sortfacetslex')?'lex':'standard';
 	
 	if ($DEBUG) 
 	{
-		print "<hr>CALLING $servicename $src_name on query=($q)";
+		print "<hr><b>get_from_src_directly:</b>";
+		print "<br>CALLING $servicename $src_name on query=($q)";
 		print "<br>using: <br>";
 		print "<hr>SRCOBJECT: <br>";var_dump($SRCOBJS); print "<hr>";
 		tell("memory_get_peak_usage: ".memory_get_peak_usage());
@@ -1060,6 +1124,8 @@ function get_from_src_directly( $sid,
 		tell( "lang: $lang" );
 		tell( "servicename: $servicename");
 		tell( "q: $q" );
+		tell( "mode: $mode" );
+		tell( "sortrank: $sortrank" );
 		tell( "src_name: $src_name" );
 		tell( "DISKenginePATH: $DISKenginePATH" );
 		tell( "basic_path_sroot: $basic_path_sroot" );
@@ -1069,6 +1135,8 @@ function get_from_src_directly( $sid,
 		tell( "pathClass: $pathClass" );
 		tell( "pathSuperClass: $pathSuperClass" );
 	}
+	
+	if (!$pathSuperClass) print "<br>SYSTEM ERROR: pathSuperClass for $CLASSNAME not set";
 	//include - link elements
 	if ($DEBUG) tell("<br>CD DISKenginePATH $DISKenginePATH");
 	$cwd=getcwd();
@@ -1083,7 +1151,7 @@ function get_from_src_directly( $sid,
 	if ($DEBUG) tell("Requiring basic_path_SRCengine $basic_path_SRCengine");
 	require_once($basic_path_SRCengine);
 
-	if ($DEBUG) tell("Requiring$pathSuperClass $pathSuperClass");
+	if ($DEBUG) tell("Requiring $pathSuperClass $pathSuperClass");
 	include_once($pathSuperClass);
 
 	if ($DEBUG) tell("Requiring pathClass $pathClass");
@@ -1114,7 +1182,7 @@ function get_from_src_directly( $sid,
 		
 		if ($DEBUG) var_dump($SRC);
 		
-		if ($DEBUG) tell("<br>USING SRC $src_name with q=($q) and mode=$mode");
+		if ($DEBUG) tell("<br>USING SRC $src_name with q=($q) and mode=$mode and sortrank=$sortrank");
 		
 		// CALL THE SRC SERVICE
 		
@@ -1125,7 +1193,7 @@ function get_from_src_directly( $sid,
 																$w='0',
 																$lang,
 																$m,
-																$sortrank='standard',
+																$sortrank,
 																$maxdur=15,
 																$c='',
 																$cid='',
@@ -1134,8 +1202,8 @@ function get_from_src_directly( $sid,
 																$mode );
 	
 		
-		if ($DEBUG) tell("<br>OUTPUT:<br>");
-		if ($DEBUG) tell(str_replace("\n","<br>",htmlentities(print_r($CONTENT))));
+		if ($DEBUG) tell("<br>SRC OUTPUT:<br>");
+		if ($DEBUG) tell(str_replace("\n","<br>((",htmlentities(print_r($CONTENT))))."))";
 		
 		if (!chdir($cwd)) fontprint("Problem re-chdir $cwd" , 'red');
 		if ($DEBUG) tell("<br>EXITING get_from_src_directly<br>");
@@ -1143,6 +1211,13 @@ function get_from_src_directly( $sid,
 		
 	return array($CONTENT,$SRCOBJS);
 } // get_from_src_directly
+
+
+
+
+
+
+
 
 
 
@@ -1210,12 +1285,57 @@ function get_from_src_directly( $sid,
 	}
 	
 
+function cleanupElibCH ( $response )
+{
+	//Try to match/replace: 
+	// u¨ --> ü
+	$response=	cleanup_umlaut_bb('a','ä',$response);
+	$response=	cleanup_umlaut_bb('o','ö',$response);
+	$response=	cleanup_umlaut_bb('u','ü',$response);
+		
+	return ($response);
+}
+
+
+function cleanup_umlaut_bb($helpchar,$goodchar,$txt)
+{
+	$uml=chr(204);
+	$backwards=chr(136);
+	$wrongtxt = "$helpchar$uml$backwards";
+	$subst_txt=str_replace($wrongtxt, $goodchar, $txt);
+	return $subst_txt;
+}
+
+
+
+
+
+function to_utf8($in) 
+{ 
+        if (is_array($in)) { 
+            foreach ($in as $key => $value) { 
+                $out[to_utf8($key)] = to_utf8($value); 
+            } 
+        } elseif(is_string($in)) { 
+            if(mb_detect_encoding($in) != "UTF-8") 
+                return utf8_encode($in); 
+            else 
+                return $in; 
+        } else { 
+            return $in; 
+        } 
+        return $out; 
+} 
+
+
 
 /*
  * url: data source url to be retrieved
  * Author: Fabio Ricci for HEG
+ * 
+ * in case a (special) cleanup function is specified, use this on the input
  */
-function get_cached_widget_response_curl($url, &$parameters, &$options)
+function get_cached_widget_response_curl($url, &$parameters, &$options, $cleanupfunction = null)
 {
 	$DEBUG=0;
   global $sid; // KEY for this request
@@ -1225,6 +1345,7 @@ function get_cached_widget_response_curl($url, &$parameters, &$options)
   if ($DEBUG) {
   	print "<br>get_cached_widget_response_curl: <br>url=(($url))";
   	print "<br>parameters:"; 
+		print "<br>cleanupfunction: $cleanupfunction";
 		foreach($parameters as $par=>$val) print "<br>$par=>$val";
   	print "<br>options:"; 
 		foreach($options as $par=>$val) print "<br>$par=>".print_r($val);
@@ -1232,6 +1353,8 @@ function get_cached_widget_response_curl($url, &$parameters, &$options)
 	}
   list($timestamp,$cached_datasource_response) = (get_cached_response($cacheurl));
   
+	if ($DEBUG) print "<br>GOT FROM SOLR: ".htmlentities($cached_datasource_response);
+	
    if (! $cached_datasource_response)
    {
      //get the resonse from the data source
@@ -1239,6 +1362,14 @@ function get_cached_widget_response_curl($url, &$parameters, &$options)
      $timestamp=0;
      $datasource_response= (parametrizable_curl($url, $parameters, $options));
      
+		 if($cleanupfunction)
+		 {
+		 	if ($DEBUG) print "<br>EXEC $cleanupfunction ( $datasource_response )";
+		 	$datasource_response = $cleanupfunction ( $datasource_response );
+			if ($DEBUG) print "<br>EXEC RESULT: ( $datasource_response )";
+		 }
+		 
+		 
      //print "Got resp: (((".htmlentities($datasource_response).")))";
      
      if (good_response($datasource_response))
@@ -1600,6 +1731,7 @@ function get_cached_response_SOLR($url)
   global $USER;
   global $RODINSEGMENT;
   
+	if ($USER==null) {print "<br>get_cached_response_SOLR - System error- called with empty USER - please provide USER!"; exit;}
   $CACHED_CONTENT='';
   //$solr_user=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['user'];
   $solr_host=$SOLR_RODIN_CONFIG['cached_rodin_widget_response']['adapteroptions']['host'];
@@ -1684,7 +1816,12 @@ function get_cached_response_SOLR($url)
 
 function cache_response_SOLR($cacheid,$response)
 {
-  require_once("../u/SOLRinterface/solr_interface.php");
+	$filename="app/u/SOLRinterface/solr_interface.php"; $maxretries=10;
+	#######################################
+	for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+		if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
+	###############################################################
+
   global $SOLR_RODIN_CONFIG;
   global $SOLARIUMDIR;
   global $USER;
@@ -3033,6 +3170,27 @@ function sxml_get_secondtagname($sxml)
 		return $xmltagparam;
 	}
 
+
+
+/**
+ * @return an assoc facet->array-of-values out of
+ * @param $efacets - string like "author:C.G.Jung|date:1960|..."
+ */
+function refactorize_efacets($efacets)
+{
+	$DEBUG  = 0;
+	$EFACET = array();
+	if ($efacets)
+	{
+		$facetsinfos=explode('|',$efacets);
+		foreach($facetsinfos as $facetinfo)
+		{
+			list($facetgroup,$facetvalue)=explode(':',$facetinfo);
+			add_unique_to_assocvector($EFACET,$facetgroup,$facetvalue);
+		}
+	}
+	return $EFACET;
+} // refactorize_efacets
 
 
 	

@@ -17,15 +17,12 @@ $ELIB_LOD_S_M 			= getA('ELIB_LOD_S_M'); //Limit number of search results each t
 $ELIB_AUTOC_M				= getA('ELIB_AUTOC_M'); 
 $ELIB_USERID				= getA('ELIB_USERID');
 
-$ELIB_WIDGET_TO_USE = getA('ELIB_WIDGET_TO_USE'); 	//alex,elib,swissbib
+$ELIB_WIDGETS_TO_USE = getA('ELIB_WIDGETS_TO_USE'); 	//alex,elib,swissbib
+if(!$ELIB_WIDGETS_TO_USE) $ELIB_WIDGETS_TO_USE='elibCH';
 $ELIB_THESAURI_TO_USE = getA('ELIB_THESAURI_TO_USE'); 	//stw,thesoz,locsh
 $ELIB_LODSOURCES_TO_USE = getA('ELIB_LODSOURCES_TO_USE'); 	//europeana,
 
 $TTPNEWLINE = '&#013;';
-
-$RODINIMAGESDIR="../../../../gen/u/images";
-$ELIBIMAGESDIR="../img";
-
 
 if (0)
 {
@@ -42,6 +39,7 @@ if (0)
 	print "<br>AUTOCOMPLETERESPONDER: $AUTOCOMPLETERESPONDER";
 }
 
-$AUTOCOMPLETERESPONDER = "$WEBROOT$RODINROOT/$RODINSEGMENT/elib/app/u/AutoCompleteResponder.php";
+$AUTOCOMPLETERESPONDER 	= "$WEBROOT$RODINROOT/$RODINSEGMENT/elib/app/u/AutoCompleteResponder.php";
+$languages   						= array('en','fr','de','it','es');
 
 ?>

@@ -1,0 +1,1677 @@
+/*-------------CSS override for view ETH3-------------*/
+
+
+/*-------------Hacks-------------*/
+
+/*-------------Move the facets to the right GG20110302------------*/
+body { background: #FFFFFF url(../images/ELIB/bodyBackground.png) repeat-x 0px 0px; 
+}
+body, html {
+  scrollbar-face-color: ThreeDFace !important;
+  scrollbar-shadow-color: ThreeDDarkShadow !important;
+  scrollbar-highlight-color: ThreeDHighlight !important;
+  scrollbar-3dlight-color: ThreeDLightShadow !important;
+  scrollbar-darkshadow-color: ThreeDDarkShadow !important;
+  scrollbar-track-color: Scrollbar !important;
+  scrollbar-arrow-color: ButtonText !important;
+}
+
+/*-------------Hide tabs in brief results GG20110719------------*/
+.EXLResult .EXLReviewsTab { display:none;}
+.EXLResult .EXLMoreTab { display:none;}
+.EXLResult .EXLRequestTab { display:none;}
+/* .EXLResult .EXLLocationsTab { display:none;} */
+
+/*-------------Hide new search for in facets GG20120223------------*/
+#exlidSuggestedList { display:none; }
+
+a:link, a:visited { color: #000; }
+a:focus, a:hover, a:active { color: #CC0000; text-decoration: none !important; }
+
+.EXLResultsContainer div.EXLResultsTile{
+	padding: 0px; border: 0px; float: left;
+	width: 718px; margin-top: -20px; z-index:9999; }
+.EXLFacetTile {float:right;}
+
+/* E-Shelf */
+#draggable { display:none; }
+
+
+
+body.EXLQueryEditlayout, body.EXLEshelfFullRecord { background: none; }
+.EXLMyAccountContainer { background: none; color: #000 !important; padding:20px !important; min-width:956px; }
+.EXLMyAccountContainer table { margin:auto; }
+
+.EXLMyAccountTabsRibbon div ul { margin-left:0px; }
+.EXLMyAccountTabsRibbon { border-bottom: 1px solid #CCCCCC; height: 32px; clear:both; /* position:relative; top:-250px; */ padding:0px 20px; }
+.EXLMyAccountTabsRibbon div li {line-height: 160%; font-size:100%; display: inline; width:14em }
+.EXLMyAccountTabsRibbon div li.EXLMyAccountTab a { color: #000; }
+.EXLMyAccountTabsRibbon div li.EXLMyAccountTab a:hover { color: #CC0000; text-decoration: none; }
+.EXLMyAccountTabsRibbon div li.EXLMyAccountSelectedTab { background: none #CC0000; border-color: #CC0000; border-bottom: 0px; }
+.EXLMyAccountTabsRibbon div li.EXLMyAccountSelectedTab a { color: #FFFFFF; }
+.EXLMyAccountTabsRibbon div li.EXLMyAccountSelectedTab a:hover { color: #FFFFFF; text-decoration: none; }
+
+/* Remove My Databases Tab from e-Shelf */
+#exlidMyDatabasesTab {
+    display: none;
+}
+
+.MyAccount .EXLMyAccountTabsRibbon { border-bottom: 1px solid #CCCCCC; height: 28px; padding-top: 28px;  }
+.MyAccount .EXLMyAccountTabsRibbon div li.EXLMyAccountSelectedTab { border-bottom: 1px solid #CC0000; }
+
+
+.folders_new { border: 1px solid #CCCCCC !important; }
+.folders_new a.selectedFolder { background-color: #FFFBC3 !important; color: #000 !important; }
+.folders_new .folderActions ul { border-bottom: 1px solid #CCCCCC !important; }
+.folders_new input.newFolders_submit { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; border: none !important; color: #FFFFFF !important; width: auto !important; height: auto !important }
+.folders_new input { border: 1px solid #CCCCCC !important; }
+.folders_new input.newFolders_submit_o { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; border: none !important; color: #FFFFFF !important; width: auto !important; height: auto !important }
+.folders_new input { border: 1px solid #CCCCCC !important; }
+.folders_new li a, .guestNote a { color: #000 !important; }
+.folders_new li a:focus, .folders_new li a:hover, .guestNote a:hover { color: #CC0000 !important; text-decoration: none !important; }
+.folders_new li ul li img.noteImg { margin-top: 4px; }
+
+.folder_details .itemsListTable td { line-height: 20px !important; }
+.folder_details table.folderName { border: 1px solid #CCCCCC !important; }
+.folder_details .tableBorder {
+  border-left: 1px solid #CCCCCC !important;
+  border-right: 1px solid #CCCCCC !important;
+  border-bottom: 1px solid #CCCCCC !important;
+}
+.folder_details .added { padding-left: 10px !important; width: 120px !important; }
+.folder_details h5, .folder_details .itemsListTH thm, folder_details td  { color: #000 !important; }
+.folder_details .selected td { background-color: #FFFBC3 !important; color: #000 !important; }
+.folder_details .selectWidth select { border-color: #727272 !important; }
+.folder_details .draggable {
+  border-left: 1px solid #CCCCCC !important;
+  border-right: 1px solid #CCCCCC !important;
+  border-bottom: 1px solid #CCCCCC !important;
+}
+
+.folder_details .itemsList  {
+  scrollbar-face-color: ThreeDFace !important;
+  scrollbar-shadow-color: ThreeDDarkShadow !important;
+  scrollbar-highlight-color: ThreeDHighlight !important;
+  scrollbar-3dlight-color: ThreeDLightShadow !important;
+  scrollbar-darkshadow-color: ThreeDDarkShadow !important;
+  scrollbar-track-color: Scrollbar !important;
+  scrollbar-arrow-color: ButtonText !important;
+}
+
+.buttonGo { border: none !important; }
+.buttonGo a { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; }
+
+.eShelf_error { background-color: #FFFBC3 !important; color: #000 !important; }
+
+/* E-Shelf Notiz */
+.noteBubble h3 { padding: 24px 0px 0px 20px !important; height: 18px !important; }
+.noteBubble .noteBubble_content input.note_submit { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; border: none !important; color: #FFFFFF !important; width: auto !important; height: auto !important; }
+.noteBubble .noteBubble_content input.note_submit_o { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; border: none !important; color: #FFFFFF !important; width: auto !important; height: auto !important; }
+.noteSubmit_holder { margin-top: 6px; margin-right: 26px !important; }
+
+/* E-Shelf E-Mail Popup */
+.EXLEmailPopup { background: none #EFEFEF !important; }
+.EXLEmailPopup input, .EXLEmailPopup textarea { border: 1px solid #CCCCCC !important; color: #000 !important; font-size: 12px; }
+.EXLEmailPopup input.send_button { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; border: none !important; color: #FFFFFF !important; }
+.EXLEmailPopup div.cancel a { background-image: url('../images/icon_close_tabs.png') !important; }
+
+/* E-Shelf Print */
+.printTitle { border: none !important; }
+td.EXLFullDetailsItemCoverImages { padding-left: 20px !important; }
+
+ul.metalinks { position:absolute; top:178px; left:625px; width:300px; display:none; list-style-type:none; }
+ul.metalinks li { float:left; padding-right:20px; }
+ul.metalinks li a { color: #000; font-size:11px; display:inline-block; width:auto !important; }
+
+
+/* E-Shelf Suchanfrage */
+.EXLMyAccountMainMenuContainer ol { border: 1px solid #CCCCCC !important; }
+/*.EXLMyAccountMainMenuContainer ol li { width: 220px; margin-left: 15px; }*/
+.EXLMyAccountMainMenuContainer ol li { margin-left: 15px; }
+.EXLMyAccountMainMenuContainer ol li a { color: #000; }
+.EXLMyAccountMainMenuContainer ol li a:hover { color: #CC0000; text-decoration: none; }
+.EXLMyAccountMainContainer { border: 1px solid #CCCCCC; }
+.EXLMyAccountMainContainer table th { border-bottom: 1px solid #CCCCCC !important; color: #000 !important; text-align:left; }
+.EXLMyAccountMainContainer div.EXLMyAccountMainHeader { background: #F6F6F6; border-bottom: 1px solid #CCCCCC !important; }
+.EXLMyAccountMainContainer .EXLMyAccountMainHeaderContent { color: #000 !important; }
+.EXLMyAccountMainContainer table.EXLMyAccountForm th { border: none !important; }
+.EXLMyAccountMainContainer table.EXLMyAccountTable th { text-align:left; }
+.EXLMyAccountMainContainer table.EXLMyAccountTable td.EXLMyAccountTableRSSLink img { background-color: transparent; }
+.EXLMyAccountMainMenuContainer ol li span.EXLMyAccountMainMenuBullet { margin-left: -24px; left: 0px; margin-right: 0px; right: 0px; }
+.EXLMyAccountMainMenuContainer ol li span.EXLMyAccountMainMenuBulletSelected { background-image: url(../images/ELIB/bullet_myAccount_menu.png); }
+
+
+/* E-Shelf Mein Konto */
+.EXLMyAccountMainHeaderTitle div.EXLMyAccountMainHeaderContent span.EXLMyAccountMainHeaderContentSelected { 
+  border: none; background: none;
+}
+.EXLMyAccountMainContainer div.EXLMyAccountTips { background: none #F6F6F6 !important; border: 1px solid #CCCCCC !important; }
+.EXLMyAccountMainContainer form input { border: 1px solid #CCCCCC !important; }
+.EXLMyAccountMainContainer form input.submit { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; border: none !important; color: #FFFFFF !important; }
+.EXLMyAccountMainContainer form span.submit { border: none !important; }
+.EXLMyAccountFormContainer div.EXLMyAccountTips form select { border: 1px solid #CCCCCC !important; }
+.EXLMyAccountMainMenuContainer ol li span.EXLMyAccountMainMenuTitle { padding-left: 0px; line-height: 14px; }
+.EXLMyAccountMainContainer div.EXLMyAccountTips li span.EXLMyAccountTipsBullet { background-image: url('../images/icon_arrow_red_next.png'); }
+.EXLMyAccountMainMenuContainer ol li span.EXLMyAccountMainMenuCounter { padding-left: 0px !important; margin-left: -3px; }
+.EXLLighboxConfirmContainer { background: #F6F6F6; border-bottom: 1px solid #CCCCCC !important; }
+.EXLLighboxConfirmContainer div.EXLLighboxConfirmButtonLink span { border: none !important; }
+.EXLLighboxConfirmContainer div.EXLLighboxConfirmButtonLink span input { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; border: none !important; color: #FFFFFF !important; }
+.EXLLighboxConfirmContainer div.EXLLighboxConfirmButtonCancel span input { background: none #CCCCCC !important; }
+
+/* E-Shelf Footer */
+.EXLFooterTile { font-size: 11px; color: #000; width: 100%; overflow: hidden; height: 34px; margin-top: 10px; }
+.EXLFooterTile a { font-size: 11px; color: #000; }
+.EXLFooterTile a:hover { font-size: 11px; color: #CC0000 !important; }
+.EXLFooterTile .EXLFooterLinksContainer { margin-top: 11px; margin-left: 11px; }
+.EXLFooterTile ul.EXLFooterLinksList1 { display: none; }
+.EXLFooterTile ul.EXLFooterLinksList2 { padding: 0px; }
+.EXLFooterTile div.EXLFooterAutoUpdate { display: none; }
+.EXLFooterTile { min-height: 34px; background: none; background-color: #FFFFFF; border: none; }
+
+
+/* Suchprofil speichern */
+.EXLQueryEditlayout { background: none #EFEFEF !important; }
+#queryName { font-size: 12px; border: 1px solid #CCCCCC !important; }
+.EXLQueryEditlayout input.EXLUpdateQuerySubmit { background: none #CC0000 !important; padding: 1px 4px 1px 4px !important; border: none !important; color: #FFFFFF !important; width: auto !important; height: auto !important; }
+.EXLQueryEditlayout a.cancel { background-image: url('../images/icon_close_tabs.png') !important; }
+.EXLQuerySaveMessage div { background-color: #FFFBC3 !important; color: #000 !important; background-image: none !important; }
+
+/*-------------topbar-------------*/
+
+#exlidHeaderContainer {
+  width:960px; height: 220px; background-color:transparent; float:none; margin:auto;
+  background-repeat: repeat-x;
+  position:relative;
+}
+
+.Advanced #exlidHeaderContainer { height:505px !important; }
+
+#exlidHeaderSystemFeedback, #exlidResultsContainer { width:960px; margin:auto; }
+
+/* HEADER */
+#exlidHeaderTile {
+  width: 956px; margin: auto; float: none; height: 125px; padding: 0px; overflow: hidden;
+  border-left: 1px solid #CCCCCC; border-right: 1px solid #CCCCCC; 
+}
+
+
+/* HEADER: Navigation User */
+#exlidUserAreaTile { 
+  background: url('../images/ELIB/logotext.png') no-repeat 18px 18px; border-left: 1px solid #CCCCCC; border-right: 1px solid #CCCCCC;
+  clear: both; width: 920px; height: 41px; padding: 18px; float: none; margin: auto;
+  position:relative;
+}
+#exlidUserAreaTile #exlidUserAreaRibbon {
+  height: 24px; margin-right: 344px; border-right: 1px solid #CCCCCC;padding-top: 53px;
+  position: relative; top: -18px; left:2px; float: right; 
+  font-size: 11px; 
+}
+#exlidUserAreaTile #exlidUserAreaRibbon .EXLLastItem{
+    padding-right:2em;
+}
+#beta-link{
+    position:absolute;
+    right:381px;
+    top:17px;
+    z-index:5;
+    display: none;
+}
+#exlidUserAreaRibbon li { background:none; }
+#exlidUserAreaRibbon li a {
+	color: #000 !important;
+	font-family: Arial, sans-serif;
+	font-size: 11px;
+}
+#exlidUserAreaRibbon li a:hover {
+	color: #CC0000 !important;
+}
+#exlidUserAreaRibbon .EXLUserAreaStart { display:none; }
+#exlidUserAreaRibbon .EXLMyShelf { background: url(../images/icon_star_white.png) no-repeat 0px 0px; margin-top: -2px; padding-top: 2px; }
+#exlidUserAreaRibbon .EXLUserNameDisplay { color:#000; font-size:11px; font-weight: normal; }
+
+/* HEADER: Serach Field */
+/*
+  #exlidSearchTileWrapper { 
+  display:block; top:-344px; left: -93px; margin: auto;
+  width: 386px; height: 124px; padding-right: 20px; padding-left: 10px;
+  background: url('../images/ELIB/search_bg.png') repeat-x left top;
+  border-left: 1px solid #CCCCCC; border-right: 1px solid #CCCCCC;
+}*/
+#exlidSearchTileWrapper { 
+  display:block; position:absolute; margin: auto;
+  top: 0px; left:180px; 
+  width: 386px; height: 124px; padding-right: 20px; padding-left: 10px;
+  background: url('../images/ELIB/search_bg.png') repeat-x left top;
+  border: 1px solid white;
+  border-left: 1px solid #CCCCCC; border-right: 1px solid #CCCCCC;
+}
+
+
+.Advanced #exlidSearchTileWrapper { postion:absolute; }
+
+
+/* HEADER: Navigation Level 1 */
+#exlidMainMenuTile {
+  position: absolute; top:0px; right: 0px; margin: auto; z-index: 999; clear: both; float: none; 
+  width: 366px; height: 124px; height:0px;
+}
+#exlidMainMenuTile div.EXLMainMenuContainer { width: 100% !important; display: block; overflow: hidden; }
+#exlidMainMenuTile div.EXLMainMenuContainer li span { border: 0px; margin: 0px; padding: 0px; }
+#exlidMainMenuRibbon { float: none; padding: 0px; }
+#exlidMainMenuRibbon.hidden { display:none; }
+#exlidMainMenuRibbon li {
+  height: 56px; margin: 0px; margin-left: -1px; padding-top: 68px; padding-left: 1px; border-left: 1px solid #CCCCCC;
+  font-size: 16px; line-height: 16px; text-transform: uppercase;
+}
+#exlidMainMenuRibbon li a {
+	padding: 0px 8px 0px 8px;
+	color: #000 !important;
+	font-family: 'UniversLTStd57Condensed', Arial, sans-serif !important;
+	font-size: 16px;
+	font-weight: normal;
+}
+/*#exlidMainMenuRibbon li:first-child { display: none; }
+#exlidMainMenuRibbon li:last-child { display: none; }*/
+
+/*#exlidSearchTileWrapper { position:relative; top:80px; height:120px; display:block; left: -1px;}*/
+#exlidHeaderSystemFeedback { z-index:99; position:absolute; padding:0px; top:280px; background:none; border:0px; text-align:left; width: auto; float:left;}
+.Advanced #exlidHeaderSystemFeedback { top:485px; }
+#exlidHeaderSystemFeedback strong { padding:0px !important; }
+#exlidHeaderSystemFeedback #exlidHeaderSystemFeedback  { position:relative; top:0px; }
+
+body.EXLFullView #exlidHeaderSystemFeedback {
+    display: none;
+}
+
+#exlidHeaderSearchLimits { background:none; border:0px; }
+#exlidHeaderSystemFeedback .EXLSystemFeedback a { color:#C00 !important; font-size: 13px; }
+#exlidHeaderSystemFeedback .EXLSystemFeedback a:hover { text-decortaion: underline !important; color:#C00 !important; }
+
+
+#searchForm { padding: 0px; }
+
+/* Show only Container right */
+.EXLTopLevelFacetList { display: none; }
+
+#exlidFacetTile {
+	width: 220px;
+	margin-top: 101px;
+	margin-left: 21px;
+	padding: 0px;
+	background-color: #fff;
+	border-top: 5px solid #E5E5E5;
+}
+
+#exlidSearchTile {
+	position:relative;
+	background:none; 
+	border:0px; 
+}
+
+#resultsHeaderNoId {
+	position:relative;
+	display:block;
+	height:86px;
+}
+
+#resultsTileNoId #exlidSearchTile {
+	height:39px;
+	top:-1px;
+		overflow:hidden;
+}
+
+.EXLResultsHeader div.EXLResultsNumbers {
+	width:80%;
+}
+
+/* #refinementsNoId { display: none; } */
+#exlidToplevelFacetsContainer { display:none; }
+#exlidTopLevelFacetsTile { display:none; }
+
+#resultsListNoId div.EXLSearchFieldRibbon {
+	display:none !important;
+}
+
+#resultsNumbersTileBottom {
+	display:none; 
+}
+
+#resultsNumbersTile {
+	width:100%;
+}
+
+#resultsListNoId div.EXLSearchFieldRibbonAdvancedSearchLink {
+	display:none;
+}
+
+#resultsListNoId div.helplink { display:none; }
+#resultsListNoId #exlidSearchRibbon { margin-top:0px; }
+#resultsTileNoId #exlidSearchTile { height:34px; border-bottom: 5px solid #E5E5E5; padding-bottom: 0	px; border-top:0px; }
+#resultsTileNoId #exlidSearchRibbon { padding-left:0px; }
+#resultsTileNoId .EXLSearchTab { background-color: #EFEFEF; }
+#resultsTileNoId .EXLSearchTabSelected { background-color: #E5E5E5 !important; }
+#resultsTileNoId .EXLSearchTab a { color:#000; }
+ 
+
+.EXLSearchFieldRibbonFormFields {
+	background: transparent url(../images/ELIB/searchfield.gif) no-repeat top left;
+	height: 43px;
+	width: 320px;
+}
+
+.EXLSearchFieldRibbonFormSubmitSearch {
+	background:transparent url(../images/ELIB/searchfield.gif) no-repeat top right;
+	height:43px;
+	width:50px;
+}
+
+#exlidSearchRibbon:hover .EXLSearchFieldRibbonFormSubmitSearch {
+	background: transparent url(../images/ELIB/searchfield-red.png) no-repeat top right;
+}
+
+#exlidSearchRibbon input.submit {
+	height:43px;
+	width:50px;
+	opacity:0;
+	filter:alpha(opacity:0);
+}
+
+#exlidSearchRibbon fieldset { width: 100%; }
+
+#search_field {
+	background-color:transparent;
+  border: 0 none;
+  color: #000;
+  font-size: 15px;
+  font-weight: normal;
+  line-height: 19px;
+  height: 33px;
+  margin: 0px;
+  padding: 6px 50px 6px 20px;
+  width: 410px;
+}
+
+#exlidHeaderContainer .EXLSearchFieldRibbonAdvancedSearchLink {
+	clear: both; float: right; background: none;
+	position: relative; top: -65px; *top: -28px; left: -120px; *left: -160px;
+  font-size: 11px; color: #000; white-space: nowrap;
+  line-height: 14px;
+}
+#exlidHeaderContainer .EXLSearchFieldRibbonAdvancedSearchLink a {
+	color: #000;
+	font-family: Arial, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+	margin-right: 8px;
+}
+#exlidHeaderContainer .EXLSearchFieldRibbonAdvancedSearchLink a:hover {
+	color: #CC0000;
+}
+
+.helplink {
+  clear: both;
+  position: relative;
+  top: -79px;
+  *top: -50px;
+  left: 345px;
+  width: 100px;
+  font-size: 11px; 
+  line-height: 14px; 
+}
+
+.helplink a {
+	color: #000 !important;
+	font-family: Arial, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+}
+
+.helplink a:hover {
+  color: #CC0000 !important;
+}
+
+.helplink_advancedsearch { 
+  position: absolute;
+  top: 26px;
+  right: -7px; 
+  width: 100px;
+  font-size: 11px; 
+  line-height: 14px; 
+}
+
+.EXLSearchFieldRibbonFormSearchFor {
+	background-color:transparent;
+}
+
+#exlidSearchRibbon div.EXLSearchFieldRibbon {
+	background:none;
+	border:0px;
+}
+
+#exlidSearchRibbon input {
+	font-size: 17px;
+	line-height: 36px;
+	height: 40px;
+	border:0px;
+	font-family: Arial, Verdana, sans-serif;
+	width: 300px;
+	outline: none;
+}
+
+.EXLResultsHeader div.EXLResultsNumbers li a {
+	color:#000;
+}
+
+.EXLSearchFieldRibbonFormSelectedCollection {
+	display:none; 
+}
+
+#exlidHeaderSearchLimits {
+	display:none;
+}
+
+.EXLViewOnlineTabContent div.EXLRequestTipsList li span.EXLRequestTipsBullet { 
+  background-image: url(../images/icon_arrow_red_next.png); background-repeat:no-repeat; height: 45px;
+}
+
+#exlidUserName { background:none; }
+.EXLMainMenuItem  span {
+	border: 0px;
+	color: #000;
+	display: inline-block;
+	font-family: 'UniversLTStd57Condensed', Arial, sans-serif;
+	font-size: 16px;
+	text-align: center; 
+	text-transform: uppercase;
+	width: 120px;
+}
+
+/* Media Types */
+.EXLResultMediaTYPEscore .multipleCoverImageContainer {background-image: url(../images/icon_score.png);}
+.EXLResultMediaTYPEarchivalmat .multipleCoverImageContainer {background-image: url(../images/icon_archivalmat_big.png)!important;}
+.EXLResultMediaTYPEhandschriften .multipleCoverImageContainer {background-image: url(../images/icon_archivalmat_big.png)!important;}
+.EXLResultMediaTYPEweb .multipleCoverImageContainer {background-image: url(../images/icon_website.png)!important;}
+
+/* Fix 4 landscape e-pics images */
+.EXLBriefResultsDisplayCoverImage a {
+    display: table-cell;
+    height: 70px;
+    vertical-align: middle;
+}
+
+/* Language */
+#exlidMainMenuTile div.EXLLanguagesContainer { position: static; z-index: 1198; margin-top: 0px; }
+.EXLLanguageMenuShow  { padding:0px; margin:0px; }
+#exlidMainMenuTile .EXLLanguageMenuShow a{ background:transparent !important; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuShow { background-color:transparent !important; border:1px solid #ccc !important; padding:0px; overflow:hidden; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuHide,
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuHide li.EXLLanguageLink { background-color:transparent !important; border:0px !important; padding-left:5px !important; padding-right:5px !important;}
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuShow .EXLLanguageLink { float:right !important; text-align:right !important; display:block; width:100%; color:#000 !important; font-size:11px; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuShow .EXLLanguageLink:hover { color:#000 !important; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuShow .EXLLanguageLink a{ float:right !important; text-align:right !important; display:block; width:100%; color:#000 !important; font-size:11px; padding-left:5px; padding-right:5px; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuShow .EXLLanguageLink a:hover { color: #000 !important; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuHide .EXLLanguageLink { color: #000 !important; font-size:11px; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuHide .EXLLanguageLink:hover { color:#fff !important; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuHide .EXLLanguageLink a{ color: #000 !important; font-size:11px; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuHide .EXLLanguageLink a:hover { color: #000 !important; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuShow  li#exlidSelectedLanguage { color:#DD240C !important; padding:2px 5px; font-weight: normal; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuHide  li#exlidSelectedLanguage { color:#000 !important; padding:2px 5px; }
+#exlidMainMenuTile div.EXLLanguagesContainer ul.EXLLanguageMenuHide  li#exlidSelectedLanguage { background: url(../images/icon_arrow_sendTo.png) no-repeat right 4px transparent; padding:1px 10px !important;}
+#exlidMainMenuTile div.EXLLanguagesContainer li img { display:none !important; } 
+
+#exlidMainMenuTile div.EXLLanguagesContainer div.EXLLanguagesMenu { background: url(../images/icon_arrow_down.png) no-repeat right 6px transparent; padding-right: 2px; }
+
+/*#exlidMainMenuTile div.EXLLanguagesContainer div.EXLLanguagesMenu:hover { background: url(../images/icon_arrow_down_active.png) no-repeat right 6px transparent; padding-right: 2px; color: #FFFFFF; }*/
+
+/* Facetten */
+
+.EXLFacetContainer { padding: 0px; margin-bottom: 10px; }
+.EXLFacetContainer a:hover, .EXLFacetContainer a:focus { color: #CC0000 !important; }
+
+.EXLFacetContainer h1 {
+  font-size: 15px; line-height: 38px; 
+  border: none; background: none; padding-left: 2px;
+  color: #000;
+}
+
+.EXLFacetContainer h4 {
+    background-color: none;
+    border-top: 3px solid #E5E5E5;
+	  display:block; 
+    color: #000;
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 18px;
+    padding: 10px 0px 7px 2px;
+}
+
+.EXLFacetContainer h3 {
+	background: none; margin-bottom: 8px; padding: 15px 0px 0px 0px; border: 0px;
+	font-size: 15px; line-height: 24px; color:#000;
+}
+
+.EXLFacetContainer ol { padding-left: 2px; }
+.EXLFacetContainer li { word-wrap: break-word; }
+
+.EXLFacetContainer li.EXLFacet a,
+.EXLFacetContainer li.EXLFacetsDisplayMore a,
+.EXLFacetContainer li.EXLFacetsDisplayLess a,
+.EXLFacetContainer li.EXLRelatedSearch a { 
+    font-size: 13px;
+    line-height: 18px;
+    text-decoration: none;
+    color: #000;
+    font-weight: normal;
+}
+
+.EXLFacetContainer li.EXLFacetsDisplayMore a:hover span,
+.EXLFacetContainer li.EXLFacetsDisplayLess a:hover span { 
+  color: #CC0000;
+}
+
+.EXLFacetContainer ol li.EXLFacetsDisplayMore {
+  background: url('../images/arrow.png') no-repeat 0px 10px;
+}
+.EXLFacetContainer ol li.EXLFacetsDisplayMore:hover {
+}
+.EXLFacetContainer ol li.EXLFacetsDisplayLess {
+  background: url('../images/arrow_left.png') no-repeat 0px 10px;
+}
+.EXLFacetContainer ol li.EXLFacetsDisplayLess:hover {
+}
+.EXLFacetContainer ol li.EXLFacetsDisplayMore:hover a, 
+.EXLFacetContainer ol li.EXLFacetsDisplayLess:hover a,
+.EXLFacetContainer ol li.EXLFacetsDisplayMore:hover a span,
+.EXLFacetContainer ol li.EXLFacetsDisplayLess:hover a span {
+	color: #CC0000;
+}
+
+.EXLFacetContainer li.EXLFacetsDisplayMore img,
+.EXLFacetContainer li.EXLFacetsDisplayLess img {
+	display:none;
+}
+
+.EXLFacetContainer li.EXLFacet,
+.EXLFacetContainer li.EXLRelatedSearch {
+	padding-bottom:5px; 
+	background:transparent url('../images/arrow.png') no-repeat 0px 5px;
+	padding-left:10px; 
+}
+
+.EXLFacetContainer li.EXLFacet:hover,
+.EXLFacetContainer li.EXLRelatedSearch:hover {
+	color: #CC0000;
+}
+.EXLFacetContainer li.EXLFacet:hover a,
+.EXLFacetContainer li.EXLRelatedSearch:hover a {
+	color: #CC0000;
+}
+.EXLFacetContainer li.EXLFacetsDisplayMore,
+.EXLFacetContainer li.EXLFacetsDisplayLess { 
+	border-top: 1px solid #DFDFDF;
+	display: block;
+	margin-top: 5px;
+	padding-left: 10px;
+	padding-top: 5px;
+	width: 208px;
+}
+
+.EXLFacetContainer ol li span {
+  color: #000;
+  font-size: 13px;
+  font-weight: bold;
+  margin-left: 2px;
+  unicode-bidi: embed;
+}
+
+/* Pagination 
+.EXLResultsHeader div.EXLResultsNavigation { width:auto; }
+#resultsNavNoId { }
+
+#resultsNavNoId .EXLPrevious,
+#resultsNavNoIdBottom .EXLPrevious { text-indent:1000px; width:5px; height:8px; overflow:hidden; display:block; background:transparent url('../images/arrow_grey_left.png') no-repeat top left; float:left; margin-top:2px; padding-right:10px; }
+
+#resultsNavNoId .EXLPrevious:hover,
+#resultsNavNoIdBottom .EXLPrevious:hover {
+	background:transparent url('../images/arrow_left.png') no-repeat top left;
+}
+
+#resultsNavNoId .EXLNext,
+#resultsNavNoIdBottom .EXLNext { text-indent:1000px; width:5px; height:8px; overflow:hidden; display:block; background:transparent url('../images/arrow.png') no-repeat top left; float:left; margin-top:2px; }
+
+#resultsNavNoId .EXLNext:hover,
+#resultsNavNoIdBottom .EXLNext:hover { 
+	background:transparent url('../images/arrow.png') no-repeat top left;
+}
+
+#resultsNavNoId .EXLDisplayedCount,
+#resultsNavNoIdBottom .EXLDisplayedCount { 
+	padding-right:10px;
+	float:left; 
+  color: #000;
+  font-weight: bold;
+	font-size:12px;
+	line-height:12px;
+}
+#resultsNavNoId .EXLPrevious img,
+#resultsNavNoId .EXLNext img { display:none; }
+
+.EXLResultsNavigation .EXLPrevious img { margin-right: 5px; }
+.EXLResultsNavigation .EXLNext img { margin-left: 5px; }*/
+
+#resultsNavNoId .EXLDisplayedCount,
+#resultsNavNoIdBottom .EXLDisplayedCount { 
+
+  color: #cc0000;
+  font-weight: bold;
+
+}
+
+/* Text Styles */
+#exlidHeaderContainer a {
+	color: #000 !important;
+	font-family: Arial, sans-serif;
+	font-size: 11px;
+}
+#exlidHeaderContainer a:hover {
+	color: #CC0000 !important;
+	text-decoration:none !important;
+}
+/* #exlidHeaderTile a { display: block; width: 230px; float: right; position: relative; right: 10px; top: 0px; height: 50px; background-image: none; z-index: 2000; }  */
+#exlidHeaderTile a { display: block; width: 178px; float: left; position: relative; left: 0px; top: 0px; height: 124px; background-image: none; z-index: 2000; }
+#exlidHeaderTile a img { display: none; }
+#exlidHeaderTile.EXLLogo { background: url('../images/ELIB/logo.png') no-repeat left top; }
+#exlidUserAreaRibbon a { font-size:14px; }
+
+/* Default unselected tab */
+#exlidHeaderContainer .EXLSearchTab { background-color:#FFE9E9; display:none; }
+#exlidHeaderContainer .EXLSearchTab a,
+#exlidHeaderContainer .EXLSearchTab span,
+#exlidHeaderContainer .EXLSearchTab a:hover { color:#fff !important; }
+#exlidSearchRibbon  { width:100% !important; margin-top: 30px; }
+
+
+/* Selected search tab */
+#exlidHeaderContainer .EXLSearchTabSelected { background-color:#fff !important; }
+#exlidHeaderContainer .EXLSearchTabSelected a,
+#exlidHeaderContainer .EXLSearchTabSelected span,
+#exlidHeaderContainer .EXLSearchTabSelected a:hover { color:#000 !important; }
+
+/* Select start text */
+#exlidHeaderContainer span.EXLSearchFieldRibbonFormSelectedCollectionLabel a { color:#000 !important; }
+
+/* Result List */
+/*.EXLResultsList { border-top: 5px solid #E5E5E5; padding-top: 3px;  } */
+
+/* Result Title */
+.EXLResultsHeader h1 {
+    color: #000;
+    float: left;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0 0 10px 0px;
+    padding: 0 0 0 2px;
+}
+
+.EXLResultsHeader h1 em { color: #CC0000; }
+
+/* Result Row */
+.EXLResult  {
+	background-color: #F7F7F7;
+	border-bottom: 4px solid #fff;
+}
+
+.EXLResultsList table {
+	background-color: #efefef;
+	border: 0px;
+	font-size: 13px;
+	line-height: 18px;
+}
+
+.EXLLocationsTabContent div.EXLLocationList { border-bottom: 0px solid #FFFFFF; }
+
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable li {
+  white-space: normal; background: none;
+}
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable td.EXLShowInfo a {
+  background: url("../images/icon_arrow_red_down.png") no-repeat 4px 4px; color: #000; display: block;
+}
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable td.EXLHideInfo a {
+  background: url("../images/icon_arrow_red_up.png") no-repeat 4px 4px; color: #CC0000; display: block;
+}
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable td.EXLHideInfo ul {
+  width: 94%;
+}
+
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable a:hover {
+  color:#c00 !important;
+}
+
+.EXLLocationTableActions { width: 140px; }
+
+.EXLLocationsMoreInfo strong { font-weight: normal; }
+.EXLLocationsMoreInfo { margin-left: 28px; margin-bottom: 10px; padding-bottom:10px; }
+
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable th {
+  border-bottom: 1px solid #FFFFFF !important;
+  padding: 2px;
+}
+.EXLResultsList td {
+	border-bottom: 4px solid #fff !important;
+/*  border-bottom: 2px solid #CCCCCC;
+  margin-bottom: 4px;*/
+}
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable tr.EXLLocationTableRowBgColor {
+  background-color: #F3F3F3;
+}
+
+.EXLLocationsDataFrame, .EXLLocationsTitle, .EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable .EXLLocationTableMargin {
+  padding-left: 15px;
+}
+
+.EXLLocationsTabContent div.EXLLocationViewAllLink {
+  background-color: #FFFFFF;
+}
+.EXLLocationsTabContent div.EXLLocationViewAllLink span {
+  background-color: #CC0000;
+  border: none;
+  color: #FFFFFF;
+}
+
+.EXLLocationsTabContent div.EXLLocationViewAllLink span a {
+  color: #FFFFFF;
+}
+
+.EXLLocationsTabContent div.EXLLocationViewAllLink span a:hover {
+  color: #FFFFFF;
+}
+
+.EXLLocationsIcon { position:absolute; z-index:999; display:block; cursor:pointer; cursor:hand; !important; width:300px !important; height:30px; }
+
+.EXLResultsList table.EXLResultsTable td.EXLResultNumber {
+	display: table-cell;
+	height: auto;
+	font-size: 10px;
+	padding: 5px 0px 0px 5px
+}
+
+.EXLResult:hover {
+	background-color:fafafa !important;
+}
+
+.EXLResultsList td.EXLThumbnail span.EXLThumbnailCaption {
+    border: 0px solid #FFFFFF;
+    display: block;
+    margin: 0;
+    padding: 0;
+    margin-top: 4px;
+}
+
+.EXLResultsList td.EXLThumbnail {
+}
+
+h2.EXLResultTitle,
+h2.EXLResultTitle a {
+  color: #000 !important;
+  display: block;
+  font-size: 19px !important;
+  line-height: 22px;
+  width: 100%;
+	overflow: hidden; 
+	font-weight: normal; 
+	padding: 0px !important;
+	float: left; 
+}
+
+h2.EXLResultTitle a {
+  cursor: pointer;
+}
+
+h2.EXLResultTitle a:hover {
+  color: #CC0000 !important;
+}
+.EXLResultTitle a:hover span {
+  color: #CC0000;
+}
+
+h2.EXLResultTitle {
+  padding-bottom: 5px !important;
+}
+
+.EXLResultTabContainer {
+    border: medium none;
+    clear: left;
+    height: auto;
+    margin-bottom:10px;
+	margin-right:10px;
+}
+
+.EXLTabsRibbon {
+    border-bottom: 1px solid transparent /*#aaa*/;
+    clear: left;
+    height: 26px;
+    margin: 0 10px 0 0;
+    padding: 1em 0 0;
+}
+
+.EXLTabContent {
+	border-color: transparent !important;
+	background-color:#fff;
+  height:auto;
+  border-bottom: 10px solid #FFFFFF;
+	/*overflow:hidden;*/
+}
+.EXLResult .EXLTabContent iframe{
+  height: 400px;
+}
+
+.EXLResult .EXLContainer-recommendTab .EXLTabContent iframe{
+  height: 22em;
+}
+
+.EXLResultTabContainer  { border:1px solid #ccc; border-top:0px;}
+
+.EXLDetailsTabContent, .EXLLocationsTabContent, .EXLRequestTabContent, .EXLReviewsTagsTabContent {
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.EXLReviewsTagsTabContent div.EXLReviewsContent { width: 50%; }
+.EXLReviewsContent span.EXLReviewRating { width: auto; }
+
+.EXLResultTabContainer div.EXLTabHeader {
+	border: none;
+	height: 20px !important;
+	min-height: 20px !important;
+	max-height: 20px !important;
+	background: none;
+	background-color: #FFF;
+	padding-top: 7px;
+  border-top: 1px solid #CCCCCC;
+  top: -2px;
+  position: relative;
+}
+
+.EXLTabHeader div.EXLTabHeaderContent {
+	width:50%;
+	float:left;
+	padding: 0px 5px 0px 15px;
+}
+
+.EXLTabHeader div.EXLTabHeaderButtons a, .EXLTabHeader div.EXLTabHeaderContent a {
+  color: #000;
+  font-size: 11px;
+}
+.EXLTabHeader div.EXLTabHeaderButtons a:hover, .EXLTabHeader div.EXLTabHeaderContent a:hover,
+.EXLTabHeader div.EXLTabHeaderButtons a:focus, .EXLTabHeader div.EXLTabHeaderContent a:focus {
+  color: #CC0000;
+  text-decoration: none;
+}
+
+.EXLTabHeaderButtons ol.EXLTabHeaderButtonSendToList {
+  right: 0px;
+  border-bottom: 1px solid #E1E1E1;
+  text-align: left;
+}
+
+/*
+.EXLTabHeaderButtons ol.EXLTabHeaderButtonSendToList li a>span {
+  width: 120px;
+  overflow: hidden;
+  padding-top: 2px;
+}
+*/
+
+.EXLTabHeaderButtons ol.EXLTabHeaderButtonSendToList li a {
+  color: #CC0000;
+  text-decoration: none;
+  background-image:none !important;
+}
+.EXLTabHeaderButtons ol.EXLTabHeaderButtonSendToList li a:hover {
+  color: #CC0000;
+  text-decoration: none;
+}
+
+.EXLTabHeader div.EXLTabHeaderButtons li {
+	background-image:none;
+	border: none;
+  margin-right: 5px;
+}
+.EXLTabHeader div.EXLTabHeaderButtons li:hover,
+
+body.EXLFullView div.EXLTabHeaderButtons li:hover {
+  background: #FFFFFF !important;
+}
+
+body.EXLFullView div.EXLTabsRibbon {
+	width:930px;
+	float:left; 
+}
+
+body.EXLFullView div.EXLResultTabContainer {
+	width:930px;
+	float:left;
+}
+
+body.EXLFullView div.EXLSummaryFields {
+	padding-left:0px;
+}
+
+.EXLTabHeader div.EXLTabHeaderButtons li span {
+	background-image:none;
+}
+.EXLTabHeader div.EXLTabHeaderButtons {
+  margin-right: 5px;
+}
+.EXLTabHeader div.EXLTabHeaderButtons li.EXLTabHeaderButtonSendTo {
+  width: 160px;
+  text-align: right;
+  padding-right: 6px;
+}
+
+/*
+.EXLTabHeader div.EXLTabHeaderButtons li.EXLTabHeaderButtonSendTo:hover {
+  background: transparent url('../images/icon_arrow_sendTo.png') no-repeat right 6px !important;
+}
+*/
+
+/* ! Not working, because custom css is not linked in popup window: see SI16384-426659 !Change color of buttons in Send to RIS popup Window */
+
+.EXLPopupImportCitationContainer div.EXLPopupImportCitationButtonLink span input {
+  background-color:#CC0000;
+}
+
+.EXLTabHeader div.EXLTabHeaderButtons li.EXLTabHeaderButtonSendTo a {
+  background: transparent url('../images/icon_arrow_sendTo.png') no-repeat right 6px;
+  padding-right:12px;
+}
+
+.EXLTabHeader div.EXLTabHeaderButtons li.EXLTabHeaderButtonSendTo a img {
+  display: none;
+}
+body.EXLFullView div.EXLTabHeaderButtons ol.EXLTabHeaderButtonSendToList {
+  background: white !important;
+  z-index: 10999;
+  float:left;
+  border:1px solid #ccc;
+}
+
+.EXLTabsRibbonClosed { margin-bottom: 0px; border: none; }
+
+.EXLTabsRibbon div {
+	width:100%;
+}
+
+.EXLTabsRibbon div li.EXLResultTab {
+	position: relative;
+	z-index: 999;
+	bottom: 0px;
+	/*height: 28px;*/
+}
+
+.EXLTabsRibbon div li.EXLResultTab a {
+  /*color: #CC0000;*/
+  color: #000;
+  background: url(../images/icon_arrow_red_down.png) no-repeat 4px 4px;
+  padding-left: 14px;
+  line-height: 12px; 
+  font-size: 12px;
+}
+
+.EXLTabsRibbon div li.EXLResultTab a:hover {
+	text-decoration:none; 
+	color: #CC0000;
+}
+
+.EXLSummaryFields { padding-top:5px; }
+
+.EXLResultsList div.EXLSummaryContainer div.EXLSummaryFields {
+    float: left;
+    width: 95%;
+}
+
+#exlidUserAreaRibbon li span.EXLMyShelfStarSelected {
+	display:none;
+}
+
+.EXLResultsList td.EXLMyShelfStar {
+/*  max-width: 19px !important;*/
+padding-right:5px;
+}
+
+.EXLResultTab  { margin: 0px !important; padding: 5px 5px 5px 0px !important; border-left: 1px solid transparent !important; border-right: 1px solid #CCCCCC !important; border-top: 1px solid transparent !important; }
+.EXLResultFirstTab  { /*padding-right:15px !important; margin-right:5px !important;*/ border-left: 1px solid #CCCCCC !important; }
+.EXLResultSelectedTab { font-weight:normal !important; /*border-left:1px solid #aaa !important; border-right:1px solid #aaa !important;*/ border-top: 1px solid #CCC !important; /*  border-bottom: 0px; background: url(../images/icon_arrow_red_up.png) #FFF no-repeat 5px 10px;*/ height: auto; 
+background-color:#fff; }
+
+/*.EXLViewOnlineTab { max-width: 70px; }
+.EXLRequestTab { max-width: 70px; }
+.EXLLocationsTab { max-width: 90px; }
+.EXLDetailsTab { max-width: 80px; }
+.EXLReviewsTab { max-width: 100px; }
+.EXLMoreTab { max-width: 95px; }
+*/
+
+.EXLCurrentLang_fr_FR .EXLReviewsTab a { display: block; display: -moz-box; width: 73px; height: 13px; overflow: hidden; }
+.EXLCurrentLang_fr_FR .EXLMoreTab a { display: block; display: -moz-box; width: 47px; height: 13px; overflow: hidden; }
+.EXLCurrentLang_de_DE .EXLReviewsTab a { width: 136px; height: 13px; overflow: hidden; }
+.EXLCurrentLang_it_IT .EXLMoreTab a { display: block; display: -moz-box; width: 38px; height: 13px; overflow: hidden; }
+
+.EXLTabsRibbon div li.EXLResultSelectedTab {
+  border-bottom: 0px;
+  border-color: none;
+  border-width : 0px;
+  background:#fff !important;
+}
+
+.EXLTabsRibbon div li.EXLResultSelectedTab a {
+    color: #CC0000 !important;
+	background: url(../images/icon_arrow_red_up.png) #FFF no-repeat 4px 4px;
+    padding-left: 14px;
+}
+
+/* TMP */
+#exlidSearchBanner { display:none; }
+#resultsNumbersTileBottom .EXLResultsSortBy { display:none; }
+
+/* Result Entry */
+.EXLResultsList td.EXLThumbnail { width:84px; }
+
+.EXLLanguagesLabel { display:none; }
+
+.EXLLanguagesMenu {
+  position: relative; z-index: 1199;
+	height: 24px; padding-top: 53px; 
+}
+
+.EXLSearchTabsContainer {
+	position:relative;
+	height:30px;
+	top:4px;
+	width:100%;
+}
+
+.EXLSearchTab {
+	background: none repeat scroll 0 0 #999999;
+  border-bottom: 1px solid #FFFFFF;
+  color: #EBEBEB;
+  outline: medium none;
+	height:30px !important;
+	display:block;
+	float:left;
+}
+
+.EXLSearchTab a {
+	color: #EBEBEB;
+    font-size: 14px;
+	line-height:30px;
+}
+
+.EXLSearchTab a:hover {
+	text-decoration:none;
+}
+
+.EXLSearchTabSelected {
+	background: none repeat scroll 0 0 #ECECEC !important;
+  color: #000 !important;
+  outline: medium none !important;
+	border:0px !important;
+	margin-right:2px !important;
+}
+
+.EXLSearchTabSelected a {
+	color: #000 !important;
+	font-weight:normal !important;
+	font-size: 14px !important;
+	line-height:30px !important;
+}
+
+.EXLResultsList { border:0px; }
+
+.EXLResultsList div.EXLSummaryContainer cite.EXLResultFRBR {
+  float: left;
+  font-size: 100%;
+  font-style: normal;
+  font-weight: bold;
+  width: auto;
+  background: url('../images/icon_arrow_red_next.png') no-repeat left 12px transparent;
+  max-width: 360px;
+}
+
+.EXLResultsList div.EXLSummaryContainer cite.EXLResultFRBR span.EXLResultBgFRBR {
+	display:none; 
+}
+
+.EXLResultsList cite a {
+  line-height: 100%;
+  padding: 10px 10px 5px 10px;
+	display:block;
+	color:#000; 
+}
+.EXLResultsList cite a:hover {
+  color: #CC0000;
+}
+
+.EXLResultNumber { display: block; }
+
+.EXLDetailsLinks a { color: #DD240C; }
+
+.EXLTabHeaderButtonSendTo img { top: 4px; position: relative; float: right;  }
+
+/*------------- Availabilty temporary not displayed-------------*/
+.EXLResultsList p.EXLResultAvailability { margin-top: 10px; display: none;}
+
+/*------------- MaybeAvailable temporary not displayed-------------*/
+.EXLResultsList em.EXLResultStatusMaybeAvailable {
+    color: #000000;
+    display: none;
+}
+
+#exlidHomeContainer h1 { color: #DD240C; }
+#exlidHomeContainer h2 { color: #DD240C; }
+#exlidHomeContainer h4 { color: #DD240C; }
+
+#exlidHomeContainer p a { color: #000; padding-top: 4px; }
+#exlidHomeContainer p a:hover { color: #DD240C; text-decoration: none; }
+
+#exlidHomeContainer div.EXLHomeListsContainer li a { color: #000; }
+#exlidHomeContainer div.EXLHomeListsContainer li a:hover { color: #DD240C; text-decoration: none; }
+
+.EXLResultsHeader div.EXLResultsNumbers div.EXLResultsSortBy { width: 151px; margin-top: 14px; }
+.EXLResultsHeader div.EXLResultsNumbers div.EXLResultsSortBy span.EXLResultsSortBySelected a { background-position: 100% 54%; margin-left: 0px; }
+.EXLResultsHeader div.EXLResultsNumbers div.EXLResultsSortBy { text-align: right; }
+.EXLResultsHeader div.EXLResultsNumbers div.EXLResultsSortBy div.EXLResultsSortByMenu { text-align: left; }
+.EXLResultsHeader div.EXLResultsNumbers div.EXLResultsSortBy div.EXLResultsSortByMenu li { text-align: right; }
+
+/* .EXLMyAccountContainer { position:relative; top:-250px;} */
+div.EXLSummaryContainer h3.EXLResultFourthLine { padding-top: 5px; }
+
+/* Clear Float inside EXLMyAccountContainer */
+.EXLMyAccountContainer:after{content: ".";display: block;height: 0;clear: both;visibility: hidden;}
+/* Footer */
+.EXLFooterTile {
+  width: 100%; height: 60px; margin: 14px 0 10px 0; padding-top:12px;
+  background: none; background-color: #FFFFFF; display: block; overflow: hidden; 
+  font-size: 11px; color: #000; line-height: 15px; }
+.EXLFooterTile a { font-size: 11px; color: #000; line-height:15px; }
+.EXLFooterTile a:hover { font-size: 11px; color: #CC0000 !important; }
+.EXLFooterTile div.EXLFooterLinksContainer {
+  float: none; margin: 0 auto; width: 963px; border-top: 3px solid #999999; margin-top: 14px; padding-top: 12px;
+}
+
+.EXLFooterTile div.EXLFooterLinksContainer .logosupport {
+	float:right;
+	vertical-align: middle;
+}
+
+.EXLFooterTile div.EXLFooterLinksContainer .logosupport a {
+	display:inline-block; height: auto; width: auto; vertical-align: middle;
+}
+
+.linksupport { float:left; }
+
+.EXLFooterTile ul.EXLFooterLinksList1 { display: none; }
+.EXLFooterTile ul.EXLFooterLinksList2 { padding: 0px; }
+.EXLFooterTile div.EXLFooterAutoUpdate { display: none; }
+.EXLFooterTile div.EXLFooterUpdateContainer{display:none;}
+.EXLFooterTile img.right{ float:right;}
+
+#footerEXL.EXLFooterTile a { color: #000 !important; }
+#footerEXL.EXLFooterTile a:hover { color: #CC0000 !important; }
+
+.EXLLocationsDataFrame select { border: 1px solid #CCCCCC; }
+.EXLLocationsDataFrame input { background-color: #DD240C; border: none; color: #FFFFFF; padding: 0px 10px; }
+
+.EXLDetailsTabContent div.EXLDetailsLinks {
+  background: none;
+  border: none;
+}
+.EXLDetailsTabContent div.EXLDetailsLinks li span.EXLDetailsLinksBullet {
+  margin-top: 3px;
+}
+.EXLDetailsTabContent div.EXLDetailsLinks li span.EXLDetailsLinksTitle a {
+  color: #000;
+  word-wrap: break-word;
+}
+.EXLDetailsTabContent div.EXLDetailsLinks li span.EXLDetailsLinksTitle a:hover {
+  color: #CC0000; text-decoration: none;
+}
+
+.EXLRefinementRibbon {
+  background: none;
+  border: none;
+}
+
+.EXLRefinementRibbon div a {
+  color: #000; 
+}
+.EXLRefinementRibbon div a:hover {
+  color: #CC0000; text-decoration: none;
+}
+.EXLRefinementRibbon span img {
+  padding: 3px 5px 0 5px;
+  vertical-align: top;
+}
+.EXLRefinementRibbon span.EXLRemoveRefinement {
+  padding: 4px 6px 0px 10px;
+}
+.EXLRefinementRibbon span.EXLRefinementsListTitle {
+  margin-top: 9px;
+  margin-left: 2px;
+}
+
+/*Refined By Ribbon with Exclude*/
+.EXLRefinementRibbonWithExclude span.EXLRefinementsListTitle { font-weight: bold;}
+.EXLRefinementRibbonWithExclude div.EXLRefinementsList { width: auto;}
+.EXLRefinementRibbonWithExclude span.EXLRemoveRefinement{ color:#32322f; }
+.EXLRefinementRibbonWithExclude div a{ color:#32322f; }
+.EXLRefinementRibbonWithExclude div a:hover{ color:#cc0000 }
+
+
+
+/* Bild in Ergebnisliste */
+.EXLResultsList td.EXLThumbnail img { width: 52px; height: auto; max-height: 75px; }
+
+.multipleCoverImageContainer {
+  border: none;
+  height: 70px;
+  width: 70px;
+}
+
+.coverImageDiv {
+  left: 9px;
+}
+
+.EXLTabHeader div.EXLTabHeaderContent span.selected {
+  border: none;
+}
+.EXLTabHeader div.EXLTabHeaderContent span {
+  border: none;
+}
+
+.EXLRequestTabContent form select, .EXLRequestTabContent form textarea, .EXLRequestTabContent form input {
+  border-color: #CCCCCC;
+}
+
+body.EXLFullView div.EXLBackToResults {
+  font-size: 12px;
+  background: url('../images/icon_arrow_red_prev.png') no-repeat 0px 3px;
+}
+
+body.EXLFullView div.EXLBackToResults a {
+  padding-left: 10px;
+}
+
+
+
+body.EXLFullView div.EXLResult { background: none; margin: auto; margin-top:50px; width:960px; }
+body.EXLFullView div.EXLResultTabContainer { border-bottom: 1px solid #CCCCCC; }
+body.EXLFullView div.EXLResultsList h1.EXLResultTitle { font-size: 28px; line-height: 28px; margin-bottom: 20px; }
+body.EXLFullView div.EXLResultsList h2.EXLResultAuthor {  }
+body.EXLFullView div.EXLResultsList p.EXLResultAvailability { margin-top: 20px; }
+.EXLDetailsTabContent div.EXLDetailsContent ul { line-height: 18px; }
+
+.EXLResultsHeader div.EXLResultsNumbers div.EXLResultsSortBy ul { background-color: #FFFFFF; }
+.EXLResultsHeader div.EXLResultsNumbers div.EXLResultsSortBy ul li { background-color: #FFFFFF; }
+
+#exlidFullResultsIdeas { display: none; /*margin:auto; width: 939px; border-top: 3px solid #999999; padding-top: 10px;*/ }
+
+.EXLReviewTabReviewForm {
+  width: 80%;
+}
+
+.EXLReviewFormButton input, .EXLRequestTabContent form input.submit {
+  background: none #CC0000;
+  border: none;
+  padding: 0px 5px;
+  height: 22px;
+  font-size: 12px;
+  font-family: Arial, Verdana, sans-serif;
+}
+
+.EXLReviewFormButton { width: 80px; }
+.EXLReviewFormButton input { width: 80px; }
+
+.EXLReviewFormButtonCancel input {
+  background: none #727272;
+  margin-bottom: 10px;
+}
+
+.EXLReviewFormRowLinkButtons {
+  padding-left: 8px;
+}
+
+.EXLRequestTabContent form span.reset {
+  border: none;
+  display: block;
+  padding: 0px;
+}
+.EXLRequestTabContent form a.reset {
+  background: none #727272;
+  font-size: 12px;
+  height: 18px;
+  line-height: 14px;
+  padding-top: 4px;
+}
+
+.EXLRequestTabContent div.EXLRequestTip span {
+  background: none;
+  border: none;
+}
+.EXLRequestTabContent div.EXLRequestTip {
+  border: none;
+}
+
+.EXLRequestTabContent div.EXLRequestTip a,
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable li a,
+.EXLDetailsTabContent div.EXLDetailsContent a,
+.EXLMyAccountMainContainer table a,
+.EXLRequestTabContent table a {
+  color: #CC0000;
+}
+.EXLRequestTabContent div.EXLRequestTip a:hover,
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable li a:hover,
+.EXLDetailsTabContent div.EXLDetailsContent a:hover,
+.EXLMyAccountMainContainer table a:hover,
+.EXLRequestTabContent table a:hover {
+  color: #CC0000;
+  text-decoration: underline !important;
+}
+.EXLRequestTabContent div.EXLRequestTip a:focus,
+.EXLLocationsTabContent div.EXLLocationList table.EXLLocationTable li a:focus,
+.EXLDetailsTabContent div.EXLDetailsContent a:focus,
+.EXLMyAccountMainContainer table a:focus,
+.EXLRequestTabContent table a:focus {
+  color: #CC0000;
+  text-decoration: underline !important;
+}
+.EXLResult .EXLSystemFeedback span,
+.EXLTabFormValidationFeedback strong,
+.EXLTabLoadingLightBoxFeedback strong,
+.EXLRequestTabContent div.EXLRequestSystemFeedback span,
+.EXLMyAccountMainContainer table caption.EXLCaptionSystemFeedback,
+.EXLMyAccountMainContainer div.EXLMyPersonalSettings div.EXLRequestSystemFeedback span,
+#exlidHeaderSystemFeedback strong,
+#exlidFindDBTile div.EXLFindDBListContainer div.EXLFindDBFeedback strong,
+#exlidFindDBTile div.EXLFindDBListContainer div.EXLFindDBFeedbackResults strong {
+  padding-left: 15px;
+  background: none;
+}
+
+.EXLReviewTextArea textarea {
+  background: none #CCCCCC;
+  border: none;
+  line-height: 130%;
+}
+
+.EXLReviewTabFormRow select {
+  border-color: #000;
+}
+
+.EXLReviewFormButton {
+  border: none;
+}
+
+/* Tag hinzufügen */
+
+.EXLRecordTagsAddTagsHeader {
+  background: none #CCCCCC;
+}
+
+.EXLRecordTagsTextEdit, .EXLRecordTagsEverybodyTags div {
+  border-color: #CCCCCC;
+}
+
+.EXLTagsLinksClosed {
+  display: block; float: left;
+}
+
+#js_saveButton {
+  background: none #CC0000;
+  border: none;
+  padding: 0px 10px;
+  height: 22px;
+  font-size: 12px;
+  font-family: Arial, Verdana, sans-serif;
+}
+
+.EXLCustomLayoutTile.EXLResultsList #exlidSearchRibbon {
+  padding-left: 0px;
+}
+
+.EXLFacetContainer div.EXLFacetActions {
+  background: none;
+  border: none;
+  padding-top: 4px;
+}
+
+/* Stern bei Seite dem e-Shelf hinzufügen ausblenden */
+.EXLFacetContainer div.EXLFacetActionsV2 li.EXLFacetSaveToEShelfActionOff { background-image: url("../images/icon_star_on.png"); }
+
+
+/* Erweiterte Suche */
+
+#exlidAdvancedSearchTile {
+/*  z-index: 999;
+  background: none #F2F2F2;
+  border: 1px solid #CCCCCC;
+  margin-left: -3px;
+  margin-top: 183px;
+  clear: none;
+  padding: 0px;*/
+  
+  z-index: 999;
+  background: none #FCFCFC;
+  border: 1px solid #E5E5E5;
+  margin-left: -189px;
+  margin-top: 240px;
+  clear: none;
+  padding: 0px;
+  width: 956px;
+  
+}
+
+#exlidAdvancedSearchRibbon { margin: 0px 6px; }
+#exlidAdvancedSearchRibbon div.EXLSearchFieldRibbonPreFilters { min-height: inherit; }
+
+#exlidAdvancedSearchRibbon div.EXLSearchFieldRibbon {
+  border: none;
+  background: none;
+}
+
+#exlidAdvancedSearchRibbon div.EXLSearchFieldRibbonFormFieldsGroup1 {
+  width: 54%;
+}
+
+#exlidAdvancedSearchRibbon div.EXLSearchFieldRibbonFormFieldsGroup2 {
+  width: 45%;
+  background: none;
+/*  border: 1px solid #CCCCCC; */
+  padding-top: 10px;
+ border-left: none;
+}
+
+#exlidAdvancedSearchRibbon div.EXLSearchFieldRibbonFormFieldsGroup2 label {width:12em;margin-left:1em;float:left;display:block;}
+
+#exlidAdvancedSearchRibbon select {
+  width: 120px;
+  border: 1px solid #CCCCCC;
+}
+#exlidAdvancedSearchRibbon input {
+  width: 240px;
+  border: 1px solid #CCCCCC;
+  padding-left: 4px;
+  padding-top: 2px;
+}
+
+#exlidAdvancedSearchRibbon .EXLSearchTabsContainer {
+  display: none;
+}
+
+#exlidAdvancedSearchRibbon input.submit {
+  background: none #CC0000;
+  border: none;
+  font-size: 12px;
+  font-family: Arial, Verdana, sans-serif;
+  height: 26px;
+}
+
+#exlidAdvancedSearchRibbon div.EXLSearchFieldRibbonFormSubmitSearch {
+  background: none;
+  border: none;
+  height: auto;
+  width: auto;
+  margin: 0px 0px 12px 16px;
+} 
+
+#exlidAdvancedSearchRibbon div.EXLSearchFieldRibbonFormLinks {
+  background: none transparent;
+  border: none;
+  padding-top: 0px;
+  width: auto;
+  position: absolute;
+  top: 26px;
+  right: 110px;
+  line-height:14px;
+  white-space: nowrap;
+  font-size:11px;
+	background: url(../images/icon_arrow_up.png) no-repeat transparent left 8px;
+	cursor: pointer;
+}
+
+#exlidAdvancedSearchRibbon div.EXLAdvancedSearchFormRow span.EXLAdvancedSearchFormRowInlineInput a {
+  display: none;
+}
+
+#resultsTileNoId #exlidSearchTile {
+	border-bottom: 5px solid #727272;
+}
+
+#resultsTileNoId .EXLSearchTab {
+	background: url('../images/tabs-line.png') no-repeat right center;
+	background-color: transparent !important;
+	margin-right: -1px;
+	padding: 0px 10px;
+}
+
+#exlidSearchTabs li:last-child {
+	background: none;
+}
+
+#exlidSearchTabs li.EXLSearchTabSelected {
+	background-color: #727272 !important;	
+}
+
+#resultsTileNoId .EXLSearchTab a {
+	color: #000;
+	font-size: 11px;
+	font-weight: bold;
+}
+
+#resultsTileNoId li.EXLSearchTabSelected a {
+	color: white !important;
+	font-size: 11px !important;
+	font-weight: bold !important;
+}
+
+#resultsFooterNoId {
+	border-bottom: 3px solid #E5E5E5;
+	padding: 2px 0px 4px 0px;
+}
+
+/* remove languages from laanguage switch
+.EXLLanguageOptionLANGit_IT,.EXLLanguageOptionLANGfr_FR{display:none !important;}*/
+
+.EXLLocationInfo em.EXLResultStatusMaybeAvailable,
+.EXLLocationInfo em.EXLResultStatusNotAvailable,
+.EXLLocationInfo em.EXLResultStatusAvailable {
+  padding: 0px 0px 10px 0px;
+}
+/* external Links */
+a[rel="external"]{
+    background-image: url("../images/ico_external_link.gif");
+    background-position: right 5px;
+    background-repeat: no-repeat;
+    padding-right: 12px;    
+}
+a[rel="external"]:hover,a[rel="external"]:focus{
+	background-image: url(../images/ico_external_link_hover.gif);                  
+}
+/* Error message */
+#exlidErrorSubMessage {
+  height: 20px; margin-top: 100px; padding: 10px 0px;
+  background-color: #FFFBC3 !important; color: #000 !important;
+}
+#exlidErrorSubMessage a { color: #CC0000 !important; }
+#exlidErrorSubMessage a:hover { color: #CC0000 !important; text-decoration: underline !important; }
+
+/* IE 7 Corrections */
+*+html #exlidAdvancedSearchTile { margin-top: 220px; clear: none;  margin-left: -190px; }
+*+html .Advanced #exlidSearchTileWrapper { /*position:relative; top:-80px; */ height: 124px; display:block; }
+*+html .helplink_advancedsearch { top: -201px; left: 32px; }
+*+html #exlidAdvancedSearchRibbon div.EXLSearchFieldRibbonFormLinks { margin-top: -207px; }
+*+html #exlidHeaderSystemFeedback { top:-193px; }
+*+html #exlidResultsContainer { width:960px; margin:auto; position:relative; top:0px; }
+
+/*@font-face {
+	font-family: 'UniversLTStd67BoldCondensed';
+	src: url('universltstd-boldcn-webfont.eot');
+	src: local('â˜º'), url('universltstd-boldcn-webfont.woff') format('woff'), url('universltstd-boldcn-webfont.ttf') format('truetype'), url('universltstd-boldcn-webfont.svg#webfontGfqAcF4Y') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'UniversLTStd57Condensed';
+	src: url('universltstd-cn-webfont.eot');
+	src: local('â˜º'), url('universltstd-cn-webfont.woff') format('woff'), url('universltstd-cn-webfont.ttf') format('truetype'), url('universltstd-cn-webfont.svg#webfontd1MgcKLF') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}*/
+
+/* inside iframe of e-shelf page */
+.inside_iframe{
+    background:none;
+}
+
+/* # FONT */
+
+@font-face {
+	font-family: 'UniversLTStd67BoldCondensed';
+	src: url('universltstd-boldcn-webfont.eot');
+	src: url('universltstd-boldcn-webfont.eot?#iefix') format('embedded-opentype'),
+			 url('universltstd-boldcn-webfont.woff') format('woff'),
+			 url('universltstd-boldcn-webfont.ttf') format('truetype'),
+			 url('universltstd-boldcn-webfont.svg#webfontGfqAcF4Y') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'UniversLTStd57Condensed';
+	src: url('universltstd-cn-webfont.eot');
+	src: url('universltstd-cn-webfont.eot?#iefix') format('embedded-opentype'),
+			 url('universltstd-cn-webfont.woff') format('woff'),
+			 url('universltstd-cn-webfont.ttf') format('truetype'),
+			 url('universltstd-cn-webfont.svg#webfontd1MgcKLF') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/* multiple facets lightbox */
+.EXLFacetsLightboxTabsRibbon {
+    border-bottom: 2px solid #CC0000;
+}
+
+#exlidFacetsLightboxContainer a.EXLSubmit {
+    background-color: #CC0000;
+}
+
+/* Temporär Tabs citations und  */
+#exlidResult0-TabContainer-citationsTab {
+    display: none;
+}
+#exlidResult0-TabContainer-onlinereviewsTab {
+    display: none;
+}

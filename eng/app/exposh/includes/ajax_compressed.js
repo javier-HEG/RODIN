@@ -13677,23 +13677,26 @@ $p.app.widgets={
     var tabId = tab[$p.app.tabs.sel].id;
 	// Let's get a handle on the tab element
 		var modulesHome = document.getElementById('modules' + tabId);
-		firstChild = modulesHome.getChildren()[0];
-		
-		// We show and hide only if the first child is defined.
-		// Which isn't the case if the tab is loading for the
-		// first time, then, nothing needs to be removed anyway
-		if (typeof firstChild != 'undefined') {
-			// The aggregated view is placed over the widgets but
-			// under the Survista visualization if it is present
-			if (firstChild.getAttribute('id') == 'survista_module') {
-				firstChild = modulesHome.getChildren()[1];
+		if (modulesHome)
+		{
+			firstChild = modulesHome.getChildren()[0];
+			
+			// We show and hide only if the first child is defined.
+			// Which isn't the case if the tab is loading for the
+			// first time, then, nothing needs to be removed anyway
+			if (typeof firstChild != 'undefined') {
+				// The aggregated view is placed over the widgets but
+				// under the Survista visualization if it is present
+				if (firstChild.getAttribute('id') == 'survista_module') {
+					firstChild = modulesHome.getChildren()[1];
+				}
+	
+				if (firstChild.getAttribute('id') == 'aggregated_view_module_' + tabId) {
+					modulesHome.removeChild(document.getElementById('aggregated_view_module_' + tabId));
+				}
+	
 			}
-
-			if (firstChild.getAttribute('id') == 'aggregated_view_module_' + tabId) {
-				modulesHome.removeChild(document.getElementById('aggregated_view_module_' + tabId));
-			}
-
-		}
+	}
 	},
 
 	//////////////////////////////////////////////

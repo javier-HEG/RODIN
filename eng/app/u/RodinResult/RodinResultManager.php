@@ -1089,10 +1089,11 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	
 	/**
 	 * Calls and code onto (thesaurus) search results
-	 * Returns a text json representation of them
+	 * broaders, narrowers, related and relative contextual node (for mlt vs widget results)
+	 * @return a text json representation of them
 	 * To be used in a webservice for a javaserver
 	 */
-	public static function get_json_thesearchresults4webservice($query, $userid, $m, $the_records)
+	public static function get_json_thesearchresults4webservice($query, $userid, $m, $ontocontext, $sortfacets_lexicographically, &$the_records)
 	{
 		$DEBUG=0;
 		
@@ -1105,7 +1106,9 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 				$subjects{$qsegment}=0;
 		}
 				
-		if ($DEBUG) {print "<br>USING the foll subjects: "; var_dump($subjects);}
+		if ($DEBUG) {
+			print "<br>get_json_thesearchresults4webservice using ontocontext=$ontocontext";	
+			print "<br>USING the foll subjects: "; var_dump($subjects);}
 		//$sid=uniqid('thesearch');
 		$sid=null;
 		$NAMESPACES = array(); // not used but needed
@@ -1117,7 +1120,6 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 
 		if (($rdfprocessor = new RDFprocessor(null, 2, $HOST)))
 		{
-			
 			RDFprocessor::$rdfp_MAX_SRC_SUBJECT_EXPANSION_PRO_SRC = 1000000; // no limit
 			RDFprocessor::$rdfp_MAX_SRC_SUBJECT_EXPANSION = 1000000; // no limit
 			RDFprocessor::$rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC = RDFprocessor::$rdfp_TOLERATED_SRC_LOD_DATA_AGE_SEC; // no change (for now)
@@ -1134,7 +1136,9 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 																																	$the_records,
 																																	$max_s,
 																																	$m,
-																																	$single_subject_expansion=false  );
+																																	$single_subject_expansion=false,
+																																	$ontocontext,
+																																	$sortfacets_lexicographically  );
 																																	
 			/**Collect/refactorize every item so we have only one THESAURUS record
 			 * with its content (skos node)
@@ -1149,7 +1153,11 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			 *  Related (for subject "digital")
 			 *  Related (for subject "economy")
 			 */ 
-			 
+			 if ($DEBUG)
+			 {
+			 		print "<hr>get_subjects_expansions_using_thesauri returns: <br>"; 
+					var_dump($skos_subject_expansion);
+			 }
 				$refactorized_skos_subject_expansion
 			 					= refactorize_uniquely_skos_subject_expansion($skos_subject_expansion);
 			 
@@ -1290,7 +1298,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	{
 		$DEBUG=0;
 		$ok_to_retrieve=true;
-		
+		if (!$fromResult) $fromResult=0;
 		if (!$sid)
 		{
 			$errortxt='get_json_searchresults() - fatal - no sid provided!';
@@ -1312,20 +1320,32 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			// Both a maximum size and a maximum number of results are set
 			$uptoResult = min($resultCount, $fromResult + $m);
 		
-			if ($DEBUG) print "<br>\n$resultCount results read..."
-												."<br>Showing $m results from $fromResult upto $uptoResult";
-			
+			if ($DEBUG) {
+				print "<br>\n$resultCount results read..."
+												."<br>Showing $m results from $fromResult upto $uptoResult"
+												."<br>DUMPING THE RESULT OBJECT: <hr>"; 
+												
+												var_dump($allResults);
+												print "<hr>";
+												
+			}
 			$i = $fromResult;
 			while ($i < $uptoResult) 
 			{
+				if ($DEBUG) print "<br>reading result ($i) ...";
+				
 				$result = $allResults[$i];
-				if ($result)
+				if ($result==null)
+				{
+					if($DEBUG) fontprint("<br>RESULT $resultCounter ($i) is NULL",'red');
+				}
+				else
 				{
 					$resultCounter = $i + 1;
 				
 					if ($DEBUG)
 					{
-						print "<hr>\n\nRESULT: <br>\n"; var_dump($result);
+						print "<hr>\n\nRESULT $resultCounter ($i): <br>\n"; var_dump($result);
 					}
 				
 					$resultIdentifier = 'aggregatedResult-' . $resultCounter . ($suffix != '' ? '_' . $suffix : '');
@@ -1336,13 +1356,6 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					$singleResult['rid'] = $result->getId() ."";  if ($DEBUG) print "<br>SOLR ID: ".$singleResult['rid'];
 					$singleResult['url'] = $result->getUrlPage();
 					$singleResult['resultIdentifier'] = $resultIdentifier;
-				
-					//$singleResult['headerDiv'] = json_encode($result->headerDiv($resultIdentifier));
-					//$singleResult['contentDiv'] = json_encode($result->contentDiv($resultIdentifier));
-				
-					//$singleResult['header'] = json_encode($result->htmlHeader($singleResult['resultIdentifier'], $resultCounter, $sid, true));
-					//$singleResult['minHeader'] = json_encode($resultCounter . '<br />');
-				
 					$singleResult['toString'] = $result->__toString();
 					$singleResult['toDetails'] = json_encode($result->__toDetails());
 				

@@ -17,18 +17,53 @@ $filenamex="app/elibroot.php";
 $max=10; for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
 { if (file_exists("$updir$filenamex")) 
 	{	require_once("$updir$filenamex"); break;}	}
-
 ###############################################################
+
+$filenamex="app/u/arcUtilities.php";
+#######################################
+$max=10; for ($x=1,$updir='';$x<=$max;$x++,$updir.="../")
+{ if (file_exists("$updir$filenamex")) 
+	{	require_once("$updir$filenamex"); break;}	}
+###############################################################
+$filename="app/u/LanguageDetection.php"; $maxretries=10;
+#######################################
+for ($x=1,$updir='';$x<=$maxretries;$x++,$updir.="../")
+	if (file_exists("$updir$filename")) {include_once("$updir$filename");break;}
 ###############################################################
  
  
 $DEBUG=$_REQUEST['DEBUG']; if (!$DEBUG) $DEBUG=0;
 $QUERY=str_replace(' ','%20',$_REQUEST['query']);
 $QUERYTERMS=explode(' ', $_REQUEST['query']);
+$searchtermlang = $jsonResultsDecoded{'searchtermlang'};
+$searchtermlang	=$searchtermlang? $searchtermlang: detectLanguage($_REQUEST['query']);
 
-$WIDGETS=$ELIB_WIDGET_TO_USE;
+if(!$languages) $languages = array('en','fr','de','it','es');
+
+if ($DEBUG && !$languages) {fontprint("System error: \$languages not known",'red');exit;}
+
+if (in_array($searchtermlang, $languages))
+	$stopwords =get_stopwords_from_db($searchtermlang);
+else 
+	$stopwords =get_stopwords_from_db();
+
+if ($DEBUG) {
+	print "<br>Detection languages: ".$languages;
+	print "<br>Detected language: ".$searchtermlang;
+	//print "<br>stopwords<br>: "; var_dump($stopwords);
+	print "<br>stopwords: " .count($stopwords);
+}
+
+
+
+
+$THESOURCES	=$ELIB_THESAURI_TO_USE;
+$WIDGETS=$ELIB_WIDGETS_TO_USE;
 $M			=$ELIB_WIDGET_S_M; 
 $USERID	=$ELIB_USERID; 
+$THESAURINAMES = get_used_thesauri_sources($USERID);
+
+
 
 if ($DEBUG)
 {
@@ -39,9 +74,11 @@ if ($DEBUG)
 	print "<br>";
 }
 
+$numwidgets_in_this_search = substr_count($ELIB_WIDGETS_TO_USE,',') + 1;
+$wm=$numwidgets_in_this_search * $M;
 
 $base_url="$WEBROOT$RODINROOT/$RODINSEGMENT/app/webs/search.php";
-$url = "$base_url?query=$QUERY&widgets=$WIDGETS&userid=$USERID&m=$M&DEBUG=$DEBUG";
+$url = "$base_url?query=$QUERY&widgets=$WIDGETS&userid=$USERID&m=$M&wm=$wm&DEBUG=$DEBUG";
 
 // Call $url
 
@@ -62,6 +99,10 @@ $TITLExEACHWORD = "Highlight actions"
 								. "shift-hovering or clicking on it "
 								. "or select a sequence of words by dragging with the left mouse button over some text "
 								. "starting from within a word and ending within a word."
+								;
+
+
+$TITLExEACHSTOPWORD = ""
 								;
 
 		
@@ -90,6 +131,8 @@ foreach ($jsonAllResults as $jsonResult)
 	$type								= $toDetails->type;
 	$title							= separateWordsInSpans( $toDetails->title );
 	$abstract						= separateWordsInSpans( $toDetails->abstract );
+	$description				= separateWordsInSpans( $toDetails->description );
+	$EVTLBR 						= $description?'<br>':'';
 	$score							= $toDetails->score; 							
 	$authors						= separateWordsInSpans($toDetails->authors);
 	$date								= separateWordsInSpans($toDetails->date);
@@ -126,8 +169,7 @@ foreach ($jsonAllResults as $jsonResult)
 	$abstractclass=$DISPLAY_ABSTRACT?'elibresvisibleabstract':'elibreshiddenabstract';
 	$CLICKTOSEERECORD="title=\"Click to see original information in a new tab\" onclick=\"window.open('$resultUrl')\"";
 	
-	$CLICKTOSEARCHMLT=" title=\"Click to search with this document\" onclick=\"show_rodin_mlt('$solr_result_id','$sid',$DEBUG);\" ";
-	
+	$CLICKTOSEARCHMLT=" title=\"Click to search with this document\" onclick=\"show_rodin_mlt('$solr_result_id','$sid','Documents similar to:<br><b>&#171;".urlencode($toDetails->title)."&#187;</b>','$QUERY',$DEBUG);\" ";
 	
 	$ONCLICKABSTRACT_DEACKT = " title=\"Click to display/hide abstract section below\" 
 		onclick=\"$('#a$resultNr').toggleClass('elibresvisibleabstract elibreshiddenabstract');\" ";
@@ -147,7 +189,7 @@ foreach ($jsonAllResults as $jsonResult)
 				<tr>
 					<td/>
 					<td class='wdocaction' $CLICKTOSEARCHMLT>
-						<img src='$RODINIMAGESDIR/docsemfilter16x16.png' /> Get similar
+						<img src='$RODINIMAGESURL/docsemfilter25x25.png' /> Get similar
 					</td>
 				</tr>
 			</table>
@@ -157,7 +199,7 @@ foreach ($jsonAllResults as $jsonResult)
 				<tr><td class='elibrestitle' $ONCLICKABSTRACT> $title </td></tr>
 				<tr><td class='elibresauth'> $authors </td></tr>
 				<tr><td class='elibresdate'> $date </td></tr>
-				<tr><td class='$abstractclass' id='a$resultNr'> $abstract </td></tr>
+				<tr><td class='$abstractclass' id='a$resultNr'> $description$EVTLBR$abstract </td></tr>
 				
 			</table>
 		</td><!--elibresult-->
@@ -185,22 +227,35 @@ $OUTPUT=<<<EOO
 <div id='rendered_rodinelib'>
 	<div id='rodin_top_header'></div>
 	<div id='rodin_header'>
+		<input type='hidden' id='sid' name='sid' value='$sid'>
 		<h1 class='maintitle'> RESULTS for your SEARCH </h1>
 	</div id='rodin_header'>
 	<div id='rodin_content'>
-		<div id='rodin_left_column'>
-				<script type="text/javascript">show_rodin_thesearch_results('$QUERY', $DEBUG );</script>
-				&nbsp;
-		</div>
-		<div id='rodin_main_column'>   
-			<table cellspacing='5'>
-				$WRNOTIFICATION_SECTION
-				$RESULTS_HTML
+		<table cellpadding="0" cellspacing="0">
+			<tr>
+			<td>
+				<div id='rodin_left_column'>
+					<script type="text/javascript">show_rodin_thesearch_results('$QUERY', $DEBUG );</script>
+						Collecting semantical facets from thesauri:<br>$THESAURINAMES ...
+				</div>
+			</td>
+			<td>
+				<div id='rodin_main_column'>
+					<table cellspacing='5'>
+						$WRNOTIFICATION_SECTION
+						<hr class='elibfacetdeco_0'>
+						$RESULTS_HTML
+					</table>
+			  </div>
+			 </td>
+			 <td>
+					<div id='rodin_right_column'> 
+							<script type="text/javascript">show_rodinelib_elib_facets('$QUERY', $DEBUG );</script>
+							Collecting e-lib.ch facets ...
+					</div>
+				</td>
+				</tr>
 			</table>
-		  </div>
-		<div id='rodin_right_column'> 
-				<script type="text/javascript">show_rodinelib_pseudofacets('$QUERY', $DEBUG );</script>
-		</div>
 	</div>
 </div>
 EOO;
@@ -208,44 +263,21 @@ EOO;
 
 	print $OUTPUT;
 
-###############################################################################################
-###############################################################################################
-###############################################################################################
 
 
-	function separateWordsInSpans($text) 
+function get_used_thesauri_sources($USERID)
+{
+	$SRCS = get_active_THESAURI_sources( $USERID );
+	$SRCrecords = $SRCS['records'];
+	if(is_array($SRCrecords) && count($SRCrecords))
+	foreach($SRCrecords as $SRC)
 	{
-		global $QUERYTERMS;
-		//print "<br><b>enter.separateWordsInSpans</b>($text) ";
-		//Filter bad chars as nl or tabs
-		$pattern = '/[\n\t\b]/';
-		$text = (trim(preg_replace($pattern, ' ', $text)));
-		$language_specialchars='ßÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
-		
-		$pattern = '/[A-Za-z0-9'.$language_specialchars.'\-_]+/u';
-		$msdelay = 300; //only for onmouseover
-		$replace = '<span class="result-word" '
-		." onmousedown=\"omd(this,event); \" "
-		." onmouseover=\"omo(this,event,$msdelay); \" "
-		." onmouseup=\"omu(this,event); \" "
-		." onmouseout=\"mut(this,event); \" "
-		// ." onclick=\"alert('visualize docs with $0')\" "
-		// ." onrclick=\"prr('$0')\" "
-		.'>$0</span>';
-
-
-
-
-		$result= preg_replace($pattern, $replace, $text);
-
-		//highlight fix yellow words matching $QUERYTERMS
-		foreach($QUERYTERMS as $keyword)
-			$result=preg_replace("/\w*?$keyword\w*/i", "<y>$0</y>", $result);
-		
-		
-		//print "<br><b>exit.separateWordsInSpans</b>($text):<br>(((".htmlentities($result).')))';
-		return $result;
-	}	
-
+		$i++;
+		$sourcename.=$sourcename?', ':'';
+		$sourcename.= lg('lbl'.$SRC['Name']);
+	}
+	
+	return $sourcename;
+}
 
 ?>

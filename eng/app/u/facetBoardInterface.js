@@ -868,7 +868,7 @@ function bc_make_breadcrumb_term_element(term,channel,id) {
 	
 	// Add the image suggesting the possibility of removing this term
 	var imgElement = document.createElement("img");
-	imgElement.setAttribute("src", "<?php print $RODINUTILITIES_GEN_URL; ?>/images/ico_close.gif")
+	imgElement.setAttribute("src", "<?php print $RODINUTILITIES_GEN_URL; ?>/images/ico_close.gif");
 	termElement.appendChild(imgElement);
 	
 	return termElement;

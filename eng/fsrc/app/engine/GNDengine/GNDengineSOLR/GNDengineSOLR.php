@@ -146,9 +146,9 @@ class GNDengineSOLR extends GNDengine
         print "<br> ".count($related_CANDIDATES)." related_CANDIDATES (m=$m):";
 			}
 			
-      list($broader_refined_terms,  $broader_refined_terms_raw)   = $this->scrumble_cut_and_process_raw_results($broader_CANDIDATES,$broader_descriptors,$m,$sortrank);
-      list($narrower_refined_terms, $narrower_refined_terms_raw)  = $this->scrumble_cut_and_process_raw_results($narrower_CANDIDATES,$narrower_descriptors,$m,$sortrank);
-      list($related_refined_terms,  $related_refined_terms_raw)   = $this->scrumble_cut_and_process_raw_results($related_CANDIDATES,$related_descriptors,$m,$sortrank);
+      list($broader_refined_terms,  $broader_refined_terms_raw,  $B_ROOTPATHS)  = $this->cut_and_process_raw_results($broader_CANDIDATES,$broader_descriptors,$B_ROOTPATHS,$m,$sortrank);
+      list($narrower_refined_terms, $narrower_refined_terms_raw, $N_ROOTPATHS)  = $this->cut_and_process_raw_results($narrower_CANDIDATES,$narrower_descriptors,$N_ROOTPATHS,$m,$sortrank);
+      list($related_refined_terms,  $related_refined_terms_raw,  $R_ROOTPATHS)  = $this->cut_and_process_raw_results($related_CANDIDATES,$related_descriptors,$R_ROOTPATHS,$m,$sortrank);
 
 		} // ok
     
@@ -275,90 +275,6 @@ class GNDengineSOLR extends GNDengine
 
 
   
-  
-  
-  /*
-   * Sorts and cut labels ... according to $sortrank
-   * Returns the descriptors base64 encoded
-   * @param $CANDIDATE_LABELS
-   * @param $CANDIDATE_DESCS
-   * @param $m
-   * @param $sortrank
-   */
-  private function scrumble_cut_and_process_raw_results(&$CANDIDATE_LABELS,&$CANDIDATE_DESCS,$m,$sortrank='standard')
- 	#############################################################################
-  {
-    global $TERM_SEPARATOR;
-    
-    if(count($CANDIDATE_LABELS))
-    {
-      // Create label-term map
-      foreach($CANDIDATE_LABELS as $term=>$rank)
-      {
-        $TERMS_RAW{$term}=$CANDIDATE_DESCS[$i++];
-      }
-      
-      // START OF SORT RANK SECTION
-      if ($sortrank='standard') 
-      {
-        arsort($CANDIDATE_LABELS); // sort using values - top value first
-        array_splice($CANDIDATE_LABELS, $m); // keep the first $m 
-     
-     
-        if($this->srcdebug) { 
-           print "<br>m = $m";
-           print "<br>CANDIDATE LABELS: (binding=".$this->getWordbinding().")";
-           var_dump($CANDIDATE_LABELS);
-           print "<br>";
-           foreach($CANDIDATE_LABELS as $C=>$R)
-           {
-             print "<br>Candidade label: $C=>$R";
-           } 
-           print "<br>CANDIDATE DESCS: (binding=".$this->getWordbinding().")";
-           var_dump($CANDIDATE_DESCS);
-           print "<br>";
-           foreach($CANDIDATE_DESCS as $C=>$R)
-           {
-             print "<br>Candidade desc: $C=>$R";
-           } 
-        }
-     }
-     // END OF SORT RANK SECTION
-     
-     
-     $refined_terms=''; //reset
-     $refined_terms_raw='';
-     
-     foreach($CANDIDATE_LABELS as $term=>$RANK)
-     {
-       if($this->srcdebug) {
-         print "<br>Considering candidate $term ...";
-       } 
-        $nextterm=$term; // we do not need to cut off stop words ... here anymore
-//       $nextterm=trim(cleanup_stopwords_str($term));
-//       if ($nextterm) // term is non stopword
-       {
-         if ($this->getWordbinding() == 'GND')
-         {
-           //Construct a sequence of terms separated by $TERM_SEPARATOR
-           if ($refined_terms) $refined_terms.="$TERM_SEPARATOR"; 
-           $refined_terms.=$nextterm;
-           // construct a sequence of base64coded terms separated by $TERM_SEPARATOR
-           if ($refined_terms_raw) $refined_terms_raw.="$TERM_SEPARATOR\n"; 
-           $refined_terms_raw.=base64_encode($TERMS_RAW{$term});	 // encode its descriptor						
-         }
-         //prepare_solr_mlt_context($nextterm);
-       }
-     }
-   }
-   
-   if($this->srcdebug) {
-         print "<br>process_raw_results() Delivering refined_terms_raw:<br>";
-         var_dump($refined_terms_raw);
-       } 
-   
-   return array($refined_terms,$refined_terms_raw);
- } // process_raw_results
   
   
    /**
@@ -671,7 +587,7 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 
     } 
   
-    if ($mode=='web')
+    if ($mode=='web' || strstr($mode,'context'))
 		{
 	    //Compute each ID the path
 	    $LOCALrootPATH = $this->walk_loc_root_path($ID0,$lang,$recursion=0);
@@ -697,8 +613,6 @@ private function get_gnd_nodes_SOLR($term,$descriptor,$m,$lang,$mode)
 			print "<br>Returning DENORMALIZED NARROWER OBJ: ";var_dump($N);
 			print "<br>Returning DENORMALIZED RELATED OBJ: ";var_dump($R);
     }
-  
-  
   
 	return new SRCEngineSKOSResult ( $suggestions, $B, $N, $R );
 } // get_loc_skos_nodes_SOLR

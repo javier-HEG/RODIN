@@ -393,237 +393,6 @@ function fb_init_src_display(src_service_id, skos_relation) {
 }
 
 
-/**
- * Extracts terms from fb_tablebody and adds them in the table-list
- * that corresponds to the skos_relation specified.
- */
-function fb_render_terms(	fb_general_itemcount, fb_counterobj, fb_tablebody, src_service_id, skos_relation, existing_widgetsresults) {
-	var fb_tablebody_id = fb_tablebody.id;
-	var ranked_term = fb_tablebody.ranked_terms;
-	var ranked_term_raw = fb_tablebody.ranked_terms_raw;
-  var ranked_roots = fb_tablebody.ranked_roots;
-	var rodinsegment = '<?php echo $RODINSEGMENT; ?>';
-	var rankinfos = fb_tablebody.rows[0];
-	var tBody = fb_tablebody.getElementsByTagName('tbody')[0];
-	var showmaxlistelems = <?php echo $FACETBOARDSHOWMAXLISTELEMS; ?>;
-	var fb_item_id="fb_item_"+skos_relation.substring(0,1)+'_'+src_service_id;
-	
-	// Update SRC global count of results
-	var general_count = 0;
-	if (/(\d+)\s\w+/.test(fb_general_itemcount.innerHTML)) {
-		var match = /(\d+)\s\w+/.exec(fb_general_itemcount.innerHTML);
-		general_count = parseInt(match[1]);
-	}
-	
-	general_count = general_count + ranked_term.length;
-	//alert('skos_relation= '+skos_relation+'\n\nranked_term.length='+ranked_term.length+'\n\n'+ranked_term);
-	
-	if (general_count > 0) {
-		if (general_count > 1)
-			fb_general_itemcount.innerHTML = lg('lblOntoFacetsFound', general_count);
-		else
-			fb_general_itemcount.innerHTML = lg('lblSingleOntoFacetFound', general_count);
-	}
-
-	// Update local count of found terms
-	if (ranked_term.length > 0) {
-		if (ranked_term.length > 1)
-			fb_counterobj.innerHTML = lg('lblOntoFacetsFound', ranked_term.length);
-		else
-			fb_counterobj.innerHTML = lg('lblSingleOntoFacetFound', ranked_term.length);
-	}
-	// always hide skos_relation count (to be shown on closed item)
-	jQuery(fb_counterobj).hide();
-	
-	
-	// Add each new element to table up to showmaxlistelems
-
-	var limit=Math.min(showmaxlistelems,ranked_term.length);
-	//alert('limit='+limit+'\nranked_term.length='+ranked_term.length);
-	
-	for (var i = 0; i < limit; i++) {
-		//alert('this term: '+ranked_term[i]+'\n\nranked terms: ('+ranked_term+')')
-		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, skos_relation, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0, existing_widgetsresults);
-		tBody.appendChild(termTableRow);		
-	}
-		
-	var delta = ranked_term.length - limit;
-	
-	//Special case 1 further term: Allow it to go with the others...
-	if (delta==1)
-	{
-		i=limit;
-		//alert('allow one more term to be displayed at idx='+i+' skos_relation:'+skos_relation)
-		termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, skos_relation, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, false, 0, existing_widgetsresults);
-		tBody.appendChild(termTableRow);
-	}
-	else
-	if (delta > 0 )
-	{
-		i='more';
-		var plural = (delta==1?'':'s');
-		var itemtxt = 'Show all terms (+'+delta+')...';
-		
-		
-		termTableRow = generate_ontofacet(itemtxt, '', null, fb_tablebody_id, src_service_id, i, skos_relation, '', rodinsegment, true, false, delta, existing_widgetsresults);
-		tBody.appendChild(termTableRow);
-		
-		//Add the remaining terms but hidden!
-		for (var i = limit; i < ranked_term.length; i++) {
-			termTableRow = generate_ontofacet(ranked_term[i], ranked_term_raw[i], ranked_roots[i], fb_tablebody_id, src_service_id, i, skos_relation, parent.LANGUAGE_OF_RESULT_CODED, rodinsegment, false, true, 0, existing_widgetsresults);
-			tBody.appendChild(termTableRow);
-		}
-	}
-	
-	//show facetgroup-header to skos_relation if there were at least one facet:
-	if (ranked_term.length)
-	{
-		jQuery('#'+fb_item_id).each(function() {
-			this.style.visibility='visible';
-			this.style.display='block';
-		});
-	}
-}
-
-
-/*
- * FACETBOARD CONSTRUCTION
- * Generates the table row for the given term.
- */
-function generate_ontofacet(term, ranked_term_raw, rootbase46, fb_tablebody_id, src_service_id, i, skos_relation, lang, rodinsegment, ismore, ishidden, counthiddenterms, existing_widgetsresults) 
-{
-	var of_icons_id="ricons_"+skos_relation.substring(0,1)+'_'+src_service_id+'_'+i;
-	var tableRow = document.createElement('tr');
-	
-	if (ismore)
-	{
-	}
-	else
-	{
-		tableRow.setAttribute("onmouseover", "document.getElementById('"+of_icons_id+"').style.visibility='visible'");
-		tableRow.setAttribute("onmouseout", "document.getElementById('"+of_icons_id+"').style.visibility='hidden'");
-	}
-	if (ishidden) //Make row unvisible
-		tableRow.setAttribute("class", "fb-term-row fb-hidden");
-	else
-	{
-		if (ismore)
-		{
-			tableRow.setAttribute("class", "fb-seemore");
-		}
-		else
-		{
-			tableRow.setAttribute("class", "fb-term-row");
-		}
-	}
-	
-	var tempTableCell = document.createElement('td');
-	tempTableCell.setAttribute("align","left");
-	
-	var termLink = document.createElement('a');
-	if (ismore) 
-	{
-		tempTableCell.setAttribute("class", "fb-ismore");
-		termLink.setAttribute("class", "fb-ismore");
-		
-		//var moretitle=lg('lblOntoFacetsMoreskos_relations').replace('xxx',counthiddenterms);
-		//termLink.setAttribute("title", moretitle);
-		termLink.setAttribute("onclick", "fb_display_more_skos_facets('"+fb_tablebody_id+"','"+src_service_id+"','"+skos_relation+"')");
-	}
-	else
-	{
-		termLink.setAttribute("class", "fb-term");
-		termLink.setAttribute("title", lg('lblOntoFacetsTermskos_relations'));
-	}
-	termLink.innerHTML = term;
-	tempTableCell.appendChild(termLink);
-	tableRow.appendChild(tempTableCell);
-	
-	// A new TD for buttons
-	tempTableCell = document.createElement('td');
-	tempTableCell.setAttribute("align", "right");
-	tempTableCell.setAttribute("id", of_icons_id);
-	tempTableCell.style.visibility='hidden';
-
-	//Add both ex menu items here too
-	//re-search-in-onto
-	var rio_img_src='<?php echo $RODINIMAGESWEB; ?>/magnifier-onto-small.png';
-	var researchontoButton = document.createElement('img');
-  researchontoButton.setAttribute("src", rio_img_src);
-	researchontoButton.setAttribute("class", "ontofacetterm");
-  researchontoButton.setAttribute("title", lg("lblSurvistaExploreOntoFacets"));
-  researchontoButton.setAttribute("onClick", "exploreInOntologicalFacets('"+term+"',null)");
-  tempTableCell.appendChild(researchontoButton);
-	
-
-	//add-to-breadcrumb:
-	var atb_img_src='<?php echo $RODINIMAGESWEB; ?>/add-to-breadcrumb.png';
-	var add2breadcrumbButton = document.createElement('img');
-  add2breadcrumbButton.setAttribute("src", atb_img_src);
-	add2breadcrumbButton.setAttribute("class", "ontofacetterm");
-  add2breadcrumbButton.setAttribute("title", lg("lblSurvistaAddToBreadcrumb"));
-  add2breadcrumbButton.setAttribute("onClick", "bc_add_breadcrumb_unique('"+term+"','result')");
-  tempTableCell.appendChild(add2breadcrumbButton);
-
-	if (rootbase46 && !ismore)
-  {
-    // Show the rank button ONLY IF THERE ARE MORE THAN 2 WIDGET RESULTS PRESENT
-    var rankButton = document.createElement('img');
-    
-    //Add content only if existing_widgetsresults, otherwise leave img with class
-	  rankButton.setAttribute("onClick", "javascript:src_widget_morelikethis(this,'"+ rootbase46 + "', '" + term+ "', '" + lang + "');");
-    rankButton.setAttribute("title", lg("lblClick2RankResults", term));
-    if(existing_widgetsresults)
-    {
-		  rankButton.setAttribute("class", "ontofacetterm4exwr");
-		}
-		else
-		  rankButton.setAttribute("class", "ontofacetterm4exwr hidden");
-	
-		rankButton.setAttribute("src", "../../../gen/u/images/funnel.png");
-    tempTableCell.appendChild(rankButton);
-  }
-  
-  // Show the Survista button only if the raw form is a ZBW URI or a DBPedia category
-	if (ranked_term_raw && !ismore && (ranked_term_raw.indexOf("http://zbw") >= 0 || ranked_term_raw.indexOf("http://dbpedia.org/resource/Category:") >= 0)) {
-	  var survistaButton = document.createElement('img');
-    
-		survistaButton.setAttribute("src", "../../../gen/u/images/survista-icon.png");
-		survistaButton.setAttribute("class", "ontofacetterm");
-		survistaButton.setAttribute("title", lg("lblOntoFacetsShowOnSurvista", term));
-		survistaButton.setAttribute("onClick", "javascript:$p.app.widgets.placeSurvista('" + ranked_term_raw + "', '" + term+ "', '" + lang + "','" + rodinsegment+"');");
-		
-		tempTableCell.appendChild(survistaButton);
-	}
-  
-	tableRow.appendChild(tempTableCell);
-
-	return tableRow;
-}
-
-/**
- * Checks widget results and update menus on ontobox items
- * Allo=shows/Disallow=hide specific menuitems
- */
-function fb_updatefacettermsctxmenuitems4exwr()
-{
-	//alert('fb_updatefacettermsctxmenuitems4exwr');
-	var existing_widgetsresults = getNumberOfExistingWidgetResults() > 1;
-	var img_facettermctxmenuitem4exwr_nodelist = document.querySelectorAll(".ontofacetterm4exwr");
-	if (img_facettermctxmenuitem4exwr_nodelist.length)
-	{
-		for(var i=0;i<img_facettermctxmenuitem4exwr_nodelist.length;i++)
-		{
-			var img = img_facettermctxmenuitem4exwr_nodelist[i];
-			if (existing_widgetsresults) 
-				jQuery(img).removeClass('hidden');
-			else
-				jQuery(img).addClass('hidden');
-		}
-	}
-} 
-
-
 
 function fb_display_more_skos_facets(fb_tablebody_id, src_service_id,skos_relation)
 {
@@ -636,7 +405,7 @@ function fb_display_more_skos_facets(fb_tablebody_id, src_service_id,skos_relati
 	
 	//Show hidden elements	
 	jQuery('.fb-hidden',fb_table).each(function() {
-		jQuery(this).removeClass('fb-hidden')
+		jQuery(this).removeClass('fb-hidden');
 	});
 	
 }
@@ -849,9 +618,21 @@ function bc_clear_breadscrumbs() {
 	bc_hide();
 }
 
-function bc_make_breadcrumb_term_element(term,channel,id) {
-	var comment=friLG("lblClick2Del0bcrumbs");
-	var channelclass='crumb-'+channel+'-normal';
+function bc_make_breadcrumb_term_element(term,channel,facettype,id) {
+	var comment="Click to refilter or research without this term";
+	switch(facettype)
+	{
+		case 'semfacet':
+					comment="Click to re-search without this semantical facet";
+					break;
+		case 'wsearchfacet':
+					comment="Click to re-search without this term";
+					break;
+		case 'elibfacet':
+					comment="Click to re-filter without this term";
+					break;
+	}
+	var channelclass='crumb-'+channel+'-normal '+facettype; /*two classes*/
 	
 	var termElement = document.createElement("a");
 	termElement.setAttribute("href", "#");
@@ -893,11 +674,11 @@ function bc_get_terms(delimiter) {
  * @param term the term to be added
  * @param channel the source of the term: 'meta', 'zen', 'survista', 'onto' or 'result'
  */
-function bc_add_breadcrumb_unique(term, channel) {
+function bc_add_breadcrumb_unique(term, channel,facettype) {
 //	alert('bc_add_breadcrumb_unique('+term+'): Adding '+term+' ('+channel+') to breadcrumbs');
-	var bc = friGetElementId('breadcrumbs_terms');
-	var b = friGetElementId('breadcrumbs');
-	
+	var bc 	= friGetElementId('breadcrumbs_terms');
+	var b 	= friGetElementId('breadcrumbs');
+	//alert('bc_add_breadcrumb_unique - adding a '+facettype);
 	term = term.trim();
 	//term = removePunctuationMarks(term);
 	
@@ -920,9 +701,9 @@ function bc_add_breadcrumb_unique(term, channel) {
 		}
 		
 		var id = randomUUID();
-
-		var termObject = bc_make_breadcrumb_term_element(term, channel, id);
-		bc.appendChild(termObject);
+		var termObject = bc_make_breadcrumb_term_element(term, channel, facettype, id);
+		var facetContainer = bc_make_semfacetDescription(channel,termObject,facettype);
+		bc.appendChild(facetContainer);
 			
 		bc_show();
 		
@@ -970,7 +751,7 @@ function bc_check_delete(bc,term,channel)
 	var term3='&nbsp;'; /* is also added with <a> */
 	var pattern=term1+JOKER_IN_NODE1+channelclass+JOKER_IN_NODE2+term2+term3; 
 	var re = new RegExp(pattern); /* 234 empirical without term!! */
-	alert('PATTERN: ('+pattern+') \n\nIn STRING:\n\n('+str+')')
+	alert('PATTERN: ('+pattern+') \n\nIn STRING:\n\n('+str+')');
 	var match = str.match(re);
 	var res = false;
 	var str_rest='';
@@ -997,7 +778,7 @@ function bc_breadcrumb_remove(id) {
 	var b = friGetElementId('breadcrumbs');
 	var txt = jQuery("#"+id).text();
 	
-	var element = jQuery("#"+id).remove();
+	jQuery("#s"+id).remove(); /*the corr container*/
 	var elements = bc.getElementsByTagName("a");
 	
 	if (elements.length < 1) {
@@ -1006,6 +787,8 @@ function bc_breadcrumb_remove(id) {
 	
 	/* re-add in all controls */
 	bc_show_in_control_panels(txt.trim());
+	
+	refilter_widgets();
 }
 
 /**
@@ -1032,6 +815,27 @@ function bc_registerMetaSearchText(currTxtValue) {
 function bc_getMetaSearchText() {
 	return parent.OLDSEARCH;
 }
+
+/**
+ * Creates and returns a span obj containing label and a crumb
+ */
+function bc_make_semfacetDescription(channel,termObject,facettype)
+{
+	var id = termObject.getAttribute('id');
+	var spanElement = document.createElement("span");
+	spanElement.setAttribute("class", "crumbssemfacetdesc");
+	spanElement.setAttribute("id", 		"s"+id);
+	spanElement.setAttribute("ftype", facettype);
+	
+	var labelElement = document.createElement("label");
+	labelElement.innerHTML= channel+":";
+	labelElement.setAttribute("class", "crumbssemfacetdesc");
+	
+	spanElement.appendChild(labelElement);
+	spanElement.appendChild(termObject);
+	
+	return spanElement;
+}	
 
 //*************
 //* UTILITIES *
@@ -1148,7 +952,7 @@ function fb_check_bc_control_on_breadcrumb_matching(tr, hideonmatch)
 {
 	//alert('fb_check_bc_control_on_breadcrumb_matching('+txt+')');
 	/*hide in tooltip: */
-	var current_selection_txt = jQuery(tr).attr('st');
+	var current_selection_txt = jQuery(tr).attr('stc'); /* ctl the stopwordcleaned version of the facet term */
 	var imgselector="td.icons img.bc";
 	var bc_img = jQuery(imgselector, tr);
 	var tagterm = '?';

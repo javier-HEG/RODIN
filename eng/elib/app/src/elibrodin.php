@@ -15,6 +15,7 @@
     
     <link rel="stylesheet" href="../css/jqtransform.css" type="text/css" media="all" />
     <link rel="stylesheet" href="../css/reset.css" type="text/css" />
+    <!--link rel="stylesheet" href="../css/primo_default.css" type="text/css" / -->
     <link rel="stylesheet" href="../css/styles.css" type="text/css" />
     <link rel="stylesheet" href="../css/rodinelib.css" type="text/css" />
     <link rel="stylesheet" href="../css/rodinBoards.css.php" type="text/css" />
@@ -113,28 +114,48 @@
 	global $B_ALL_ICON_SELECTED, $B_ALL_ICON_HOVER, $B_ALL_ICON_NORMAL;
 	global $B_FILTER_ICON_SELECTED, $B_FILTER_ICON_HOVER, $B_FILTER_ICON_NORMAL;
 	
-	$titleSeeingCompact='Click to show abstracts in results';
-	$titleSeeingAll='Click to hide abstracts in results';
+	
+	$titleSeeingAll='Click to show abstracts in results';
+	$titleSeeingCompact='Click to hide abstracts in results';
 	
 	$textZoomButtons=<<<EOH
   <script type="text/javascript">
     RESULTFILTEREXPR='';
     TEXTZOOM='token';
+    askagainbc=true;
 	</script>
 		<div id="zoomcontroldiv" class="searchOptionDiv">
-			<a id="zoomcontrol" class="showingAbstracts"
-				style="margin-right:5px"
+		
+		<table border="1" bgcolor="white">
+		<tr>
+		<td/>
+		<td class='zoombuttontd'>
+			<a id="zoomcontrol_light" class="hidingAbstracts"
+				style="padding:0; margin:0"
+				title="$titleSeeingCompact" 
+				onclick="toggle_hide_abstracts_in_results(this);"
+			>
+ 				<img id='whitebuttonimg' src='../../../../gen/u/images/white.PNG'/>
+			</a>
+		</td>
+		<td class='zoombuttontd'>
+			<a id="zoomcontrol_full" class="showingAbstracts"
+				style="padding:0; margin:0"
 				title="$titleSeeingAll" 
 				onclick="toggle_show_abstracts_in_results(this);"
 			>
  				<img id='whitebuttonimg' src='../../../../gen/u/images/white.PNG'/>
 			</a>
+		</td>
+		</tr>
+		</table>
 			<input id="selectedTextZoom" type="hidden" value="" />
 			
 		</div>
 EOH;
 ?>
-<body> 
+<body>
+	<div id='block_on_busy' title='Please wait - Your request is currently being processed...'></div>
 	<div id="panel">
 		<div id="header">
 			<div class="line left">
@@ -147,12 +168,13 @@ EOH;
 	      <input type="text" 
 	      id="elibsearchinput"
 	      class='wait4userinput'
-      	onkeyup="if (event.keyCode==13) {show_rodin_search_results(this.value,<?print $DEBUG ?>)} else {METASEARCH_FINISHED=false;}"
+      	onkeydown="bc_clear_breadscrumbs();askagainbc=false"
+      	onkeyup="if (event.keyCode==13) {this.value=this.value.trim();show_rodin_search_results(this.value,<?print $DEBUG ?>); askagainbc=true;} else {METASEARCH_FINISHED=false;}"
       	size="36" value="" placeholder='Search for... '
       />
      
       <div class='searchlupe wait4userinput'
-      	onclick="if(this.value!='') {show_rodin_search_results($('#elibsearchinput').val(), <?print $DEBUG ?>)}"
+      	onclick="if(this.value!='') {$('#elibsearchinput').val($('#elibsearchinput').val().trim()); show_rodin_search_results($('#elibsearchinput').val(), <?print $DEBUG ?>)}"
       	>
       	
       </div>
@@ -173,9 +195,9 @@ EOH;
 			      </div>
 
 				<div id="breadcrumbs" class="breadCrumbsHidden">
-						<div id="breadcrumbs_title" onclick="bc_clear_breadscrumbs();"
+						<div id="breadcrumbs_title" onclick="if(confirm('Remove all filterings?') {bc_clear_breadscrumbs();}"
 							title="<?php print lg("titleBreadcrumbsTitle");?>">
-							<?php print lg("lblBreadcrumbsTitle"); ?>:
+							<!--?php print lg("lblBreadcrumbsTitle").':'; ?-->
 						</div>
 						<div id="breadcrumbs_terms"></div>
 				</div>
@@ -204,7 +226,7 @@ Search. Find. Refine.<br/>
 Welcome to RODIN e-lib
  </div>
  <p class="intro">
-RODIN e-lib is the swiss semantic web portal for academic research<br/>with Linked Open Data access ??
+RODIN e-lib is the swiss semantic web portal for academic research
  </p>
 </div>
 <div class="row1 swiss-map left">
@@ -217,120 +239,7 @@ RODIN e-lib is the swiss semantic web portal for academic research<br/>with Link
 		</div>
 	</div>
 
-	<div id="footer">
-	<div class="outer"></div>
-	<div class="inner">
-		<!-- Start dynamic footer index -->
-		
-		<!--
-		<div class="row2 text left">
-			<div class="text tcol1 left ">
-									
-				<h3>Sections</h3>
-				<ul>
-									<li>
-					                         
-	                        		<a href="/en" title="Home" >Home</a>                           
-		                                                                </li>        
-									<li>
-							                            	<a href="/en/About-us" title="About us">About us</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/Offers2" title="Offers">Offers</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/News" title="News">News</a>                              
-					                                        </li>        
-								</ul>
-																					</div>
-			<div class="text left">
-															
-				<h3>Offers</h3>
-				<ul>
-									<li>
-							                            	<a href="/en/Offers2/Digital-collections" title="Digital collections">Digital collections</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/Offers2/Specialist-portals" title="Specialist portals">Specialist portals</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/Offers2/Document-servers" title="Document servers">Document servers</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/Offers2/Tools" title="Tools">Tools</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/Offers2/Information-literacy" title="Information literacy ">Information literacy </a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/Offers2/Scientific-publishing" title="Scientific publishing">Scientific publishing</a>                              
-					                                        </li>        
-								</ul>
-															</div>
-			<div class="clearfix"></div>
-		</div>
-		<div class="row2 text left">
-			<div class="text tcol1 left">
-																					
-				<h3>e-lib.ch</h3>
-				<ul>
-									<li>
-							                            	<a href="/en/Contact" title="Contact">Contact</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/Imprint" title="Imprint">Imprint</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/Legal-notes" title="Legal notes">Legal notes</a>                              
-					                                        </li>        
-									<li>
-							                            	<a href="/en/About-us/Documents" title="Documents">Documents</a>                              
-					                                        </li>        
-								</ul>
-									</div>
-			
-										<div class="text col4 last left">
-					<h3>Newsletter</h3>
-					<p>
-					The <a href=/en/Ueber-uns2/Dokumente>Newsletter</a> keeps users regularly informed about the latest developments concerning e-lib.ch
-					</p>
-					<a class="button" href=/en/Newsletter2><label>Subscribe</label></a>
-				</div>			
-					</div>
-		<div class="clearfix"></div>
 
-		
-
-
-
-			<div class="vline"></div>
-		-->
-		<div class="logosupport">
-		</div>
-		<div class="clearfix"></div>
-	</div>
-
-
-		<!--div class="text left">
-			Copyright 2011 e-lib.ch  |
-              <a href=/en/Imprint>Imprint</a>
-              | <a href=/en/Betaversion>Beta Version</a>
-		</div-->
-	</div>
-	
-<!--begin code snippets for HES Benutzerfreundlichkeitsstudie Webportal-->
-
-<script type="text/javascript">
-//var loop11_key = "4d7d05fac0131a36bab38661cf9e8261f8b2d741";
-//var l11_host = (("https:" == document.location.protocol) ? "https://" : "http://"); document.write(unescape("%3cscript src='" + l11_host +"www.loop11.com/media/triton/js/embed.js' type='text/javascript'%3e%3c/script%3e"));
-</script>
-
-<script type="text/javascript">
-setTimeout(function(){var a=document.createElement("script");
-var b=document.getElementsByTagName("script")[0];
-a.src=document.location.protocol+"//dnn506yrbagrg.cloudfront.net/pages/scripts/0018/1026.js?"+Math.floor(new Date().getTime()/3600000); a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1); </script>
-
-<!--end code snippets for HES/Eliane Blumer Benutzerfreundlichkeitsstudie Webportal-->
 <div 	id="elib_tooltip" 
 ></div>
 </body>

@@ -29,6 +29,7 @@ lang["msgPleaseAddWidgetsToTab"]="Please add some widgets to this tab and retry 
 lang["lblBreadcrumbstitle"]="Search";
 lang["lblBreadScrumbSearchBLable"]="Click to refine your search";
 lang["lblBreadScrumbSearchBTitle"]="Click to refine your search using the terms in this breacrumb area";
+lang["lblElibClick2Del0bcrumbs"]="Click to remove result filtering with this semantical facet";
 lang["lblClick2Del0bcrumbs"]="Click to remove this word";
 lang["lblAlreadyInBreadCrumbs"]="\"$$\" is already present as breadcrumb.";
 lang["lblAlreadyInSearchQuery"]="\"$$\" is already present in the search query.";

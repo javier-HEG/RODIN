@@ -708,7 +708,7 @@ class RDFprocessor {
 	public function expand_rdfize_subjects($rdfize_only,&$search_subjects,$searchuid,&$result_subjects,$COUNTTRIPLES,&$THERECORDS)
 	{
 		
-		$DEBUG=1;
+		$DEBUG=0;
 		$showsubjects=1;
 		global $WANT_RDF_ANNOTATION;
 		$count_added_triples=0;
@@ -1057,7 +1057,7 @@ class RDFprocessor {
 																		$flattened_expanded_result_subject_list,
 																		$expanded_new_result_subjects		)
 	{
-		$DEBUG=1;
+		$DEBUG=0;
 		global $RODINSEGMENT;
 		global $RDFLOG;
   
@@ -2828,7 +2828,8 @@ class RDFprocessor {
 	 * @param $max_s - forces $max_subjects
 	 * @param $max_m - forces $max_results
 	 * @param $single_subject_expansion - one subject expanded prevent other SRCs from expanding it
-	 */
+	 * @param $compute_onto_context - compute ontological context
+	 * 	 */
 	public function get_subjects_expansions_using_thesauri(&$subjects,
 																													$sid,
 																													$servicename,
@@ -2840,7 +2841,9 @@ class RDFprocessor {
 																												 &$INITIALISED_SRCs,
 																												 $max_s=null,
 																												 $max_m=100000,
-																												 $single_subject_expansion=true )
+																												 $single_subject_expansion=true,
+																												 $compute_onto_context,
+																												 $sortfacets_lexicographically)
 	{
 		global $RDFLOG;
 		global $VERBOSE;
@@ -3107,7 +3110,7 @@ class RDFprocessor {
 						//Call the refine method inside $CLASS
 						if ($DEBUG) $RDFLOG.= "<hr>";
 						
-						$broder_arr=$narrower_arr=$related_arr=array();
+						$broader_arr=$narrower_arr=$related_arr=array();
 						foreach ($subjects as $s=>$uid_notused)
 						{
 							$counter++;
@@ -3236,8 +3239,15 @@ class RDFprocessor {
 													if ($DEBUG) $RDFLOG.="<br>CALL SRC $src_name locally with m($max_m,$max_subjects)=".($max_m?$max_m:$max_subjects);
 													if ($redlupe) {
 														fontprint("<br> !!! redlupe attention ($s) count_results=$count_results",'red');
-														$SPECIALDEBUG=1;
+														$SPECIALDEBUG=0;
 													}
+													
+												if ($DEBUG) print "<br>compute_onto_context:$compute_onto_context";
+												$mode=($compute_onto_context?'direct, ontocontext':'direct');
+												
+												if($sortfacets_lexicographically)
+													$mode.=', sortfacetslex'; // Sort facet lexicografically
+
 												list($CONTENT,$SRCOBJS) = 
 																		get_from_src_directly( 
 																														$sid,
@@ -3245,9 +3255,8 @@ class RDFprocessor {
 																														$lang,
 																														$servicename,
 																														$s, // query
-												
 																														$src_name,
-																														$mode='direct',
+																														$mode, //compute also ontocontext for mlt
 																														$DISKenginePATH,
 																														$basic_path_sroot,
 																														$basic_path_SRCengineInterface,
@@ -3257,8 +3266,7 @@ class RDFprocessor {
 																														$pathClass,
 																														$pathSuperClass,
 																														$AuthUser,
-																														$AuthPasswd,
-																														$max_m  );
+																														$AuthPasswd );
 													if ($DEBUG) 
 													{ 
 														
@@ -3289,8 +3297,8 @@ class RDFprocessor {
 												$broader=$narrower=$related=null;
 	
 												$expanded_subjects = 
-												list($src_name,$srcuse_uid,$src_fresh_data,$broader,$narrower,$related) = 
-															$this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$srcuse_uid,$s,$src_fresh_data=true,$WEBSERVICE);
+												list($src_name,$srcuse_uid,$src_fresh_data,$broader,$narrower,$related, $broader_root,$narrover_root,$relatd_root) = 
+															$this->scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$srcuse_uid,$s,$src_fresh_data=true,$WEBSERVICE,$compute_onto_context);
 												
 												$count_results=count($broader) + count($narrower) + count($related);
 												
@@ -3366,16 +3374,18 @@ class RDFprocessor {
 	
 	
 	/**
-	 * list($broder_arr,$narrower_arr,$related_arr) = scan_src_results($CONTENT,$TERM_SEPARATOR)
+	 * list($broader_arr,$narrower_arr,$related_arr) = scan_src_results($CONTENT,$TERM_SEPARATOR)
 	 */
-	public function scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$srcuse_uid,$subject,$src_fresh_data,$urlcall)
+	public function scan_src_results($CONTENT,$TERM_SEPARATOR,$src_name,$srcuse_uid,$subject,$src_fresh_data,$urlcall,$compute_onto_context)
 	{
-		global $SPECIALDEBUG;
-		$DEBUG= $SPECIALDEBUG;
+		$DEBUG= 0;
 		global $RDFLOG;
+		
+		if ($DEBUG) print "<br>scan_src_results(compute_onto_context=$compute_onto_context)";
+		
 		if ($CONTENT)
 		{
-			$broder_arr=$related_arr=$narrower_arr=array();
+			$broader_arr=$related_arr=$narrower_arr=array();
 			//In the following statement the flag LIBXML_NOCDATA is mandatory for reading and processing CDATA sections:
 			$valid_xml=true;
 			if (datasource_error($CONTENT,$src_name))	
@@ -3415,9 +3425,24 @@ class RDFprocessor {
 						$RDFLOG.="<br>related (".$CONTENT->related->results.")";
 					}
 					
-					$broder_arr		=	$CONTENT->broader->results? explode(',',$CONTENT->broader->results): array();
+					$broader_arr	=	$CONTENT->broader->results? explode(',',$CONTENT->broader->results): array();
 					$narrower_arr	=	$CONTENT->narrower->results? explode(',',$CONTENT->narrower->results): array();
 					$related_arr	=	$CONTENT->related->results? explode(',',$CONTENT->related->results): array();
+					
+					if ($compute_onto_context)
+					{
+						$broader_root_b64_arr		=	$CONTENT->broader->results_root? $CONTENT->broader->results_root: '';
+						$narrower_root_b64_arr	=	$CONTENT->narrower->results_root? $CONTENT->narrower->results_root: '';
+						$related_root_b64_arr		=	$CONTENT->related->results_root? $CONTENT->related->results_root: '';
+						
+						if ($DEBUG) {
+							print "<br>roots /b/n/r : ";
+							print "<br>B: $broader_root_b64_arr";
+							print "<br>N: $narrower_root_b64_arr";
+							print "<br>R: $related_root_b64_arr";
+						}
+						
+					}
 				} // $IS_SRCEngineSKOSResult
 				else //scan linearized xml text into vectors
 				{
@@ -3445,11 +3470,11 @@ class RDFprocessor {
 						if($broader64)
 						{
 							$broader= (base64_decode(($broader64)));
-							$broder_arr=explode($TERM_SEPARATOR,$broader);
+							$broader_arr=explode($TERM_SEPARATOR,$broader);
 							if ($DEBUG) 
 							{
 								print "<br><b>Broader:</b>";
-								foreach($broder_arr as $b) print "<br>$b";
+								foreach($broader_arr as $b) print "<br>$b";
 							}
 						}
 				
@@ -3486,7 +3511,7 @@ else {
 		if($DEBUG) {
 			fontprint("<br>FINISHED  scan_src_results $subject",'red');
 		}
-		return array($src_name,$srcuse_uid,$src_fresh_data,$broder_arr,$narrower_arr,$related_arr);
+		return array($src_name,$srcuse_uid,$src_fresh_data,$broader_arr,$narrower_arr,$related_arr, $broader_root_b64_arr, $narrower_root_b64_arr, $related_root_b64_arr);
 	} // scan_src_results
 	
 	

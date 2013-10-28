@@ -36,6 +36,7 @@ lang["lblTagCloudEmpty"]="(Leer)";
 lang["lblBreadcrumbstitle"]="Suche";
 lang["lblBreadScrumbSearchBTitle"]="Klicken Sie, um die Suche anhand Ihrer Anfrage und der Wörter in der Suchleiste verfeinern";
 lang["lblBreadScrumbSearchBLable"]="Suche verfeinern";
+lang["lblElibClick2Del0bcrumbs"]="Klicken Sie, um die Ergebnisfilterung mit dieser Fassette rückgängig zu machen";
 lang["lblClick2Del0bcrumbs"]="Klicken Sie, um das Wort zu entfernen";
 lang["lblAlreadyInBreadCrumbs"]="Dieses Wort ist bereits in der Sucherweiterung: $$";
 lang["lblAlreadyInSearchQuery"]="Dieses Wort ist bereits in das Suchfeld hinzugefügt worden: $$";

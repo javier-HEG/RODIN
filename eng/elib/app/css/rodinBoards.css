@@ -139,7 +139,11 @@ img.ontofacetterm.hidden
 }
 
 
-
+.elibh4 {
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 18px;
+}
 
 /******************/
 /* Tag cloud only */
@@ -644,6 +648,7 @@ div#breadcrumbs.breadCrumbsHidden {
 }
 
 div#breadcrumbs #breadcrumbs_title {
+	/*
 	font-size:13px;
 	text-align: right;
 	color:<?php print $COLOR_BLACK; ?>;
@@ -653,7 +658,59 @@ div#breadcrumbs #breadcrumbs_title {
 	width: 140px;
 	padding-right:6px;
 	float: left;
+	*/
 }
+
+
+span.crumbssemfacetdesc {
+	white-space:nowrap;
+	float: left;
+}
+
+label.crumbssemfacetdesc {
+	float:left;
+	margin-left:  5px;
+	margin-right: 2px;
+	min-width: 50px;
+}
+
+a.semfacet {
+	background-color:#ffc8c8 !important;
+}
+a.wsearchfacet {
+	background-color:#c8ffc8 !important;
+}
+a.elibfacet {
+	background-color:#c8c8ff !important;
+}
+
+
+.elibfacetdeco {
+	background-color: #dddddd;
+	border-width: 0;
+	height: 5px;
+	display: inline-block;
+	width: 106%;
+}
+
+
+.elibfacetdeco_0 {
+	background-color: #888;
+	border-width: 0;
+	height: 5px;
+	display: inline-block;
+	width: 100%;
+}
+
+.elibfacetdeco_2 {
+	background-color: #dddddd;
+	border-width: 0;
+	height: 2px;
+	display: inline-block;
+	width: 106%;
+}
+
+
 
 div#breadcrumbs_terms #subheader .logotext img {
 	float: right;

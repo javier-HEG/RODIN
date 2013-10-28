@@ -1,8 +1,7 @@
 <?php
 
 /* ********************************************************************************
- * The EconBiz API follows a RESTful API design. The base URL is
- * - http://dev.library.ethz.ch/rib/v1/primo/documents?q=bern
+ * The EconBiz API follows a RESTful API design. The base URL is in the DB
  * 
  * @author Fabio Ricci
  ******************************************************************************** */
@@ -17,7 +16,7 @@ global $SEARCHSUBMITACTION;
 if (!$WEBSERVICE) {
 	print_htmlheader("EconBiz RODIN Widget");
 
-	$searchsource_baseurl="http://dev.library.ethz.ch/rib/v1/primo/documents?";		
+	$searchsource_baseurl=$ELIB_RIB_CLIENT;	
 
 
 /* ********************************************************************************
@@ -122,18 +121,23 @@ public static function DEFINITION_RDW_DISPLAYSEARCHCONTROLS()
  * table with an old structure for results but now returns the number of results
  * found only.
  * 
+ * based on ethz rib client
+ * 
+ * SPECIAL: In case efacets is set, the results will be constrained by efacets
  * @param string $chaining_url
  */
 public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='') 
 {
+	global $DEBUG;
 	global $datasource;
 	global $searchsource_baseurl;
 	global $RDW_REQUEST;
 	global $WEBSERVICE;
+	global $ELIB_RIB_CLIENT;
 	
 	if ($WEBSERVICE) //need to set again url:
 	{
-		$searchsource_baseurl="http://dev.library.ethz.ch/rib/v1/primo/documents?";		
+		$searchsource_baseurl = $ELIB_RIB_CLIENT;
 	}
 		
 	foreach ($RDW_REQUEST as $querystringparam => $d)
@@ -143,25 +147,50 @@ public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='')
 		else eval( "global \${$querystringparam};" );
 	}
 	
+	//Adapt $q to search for all items:
+	//$q= str_replace(' ',' AND ',$q);
+	
 	$qTokens = explode(',', trim($q, ' ,'));
 	
+	if($DEBUG) {
+		if (!$ELIB_RIB_CLIENT) fontprint("ELIB_RIB_CLIENT is not SET - exit",'red');
+		print "<br>ElibCH QUERY: $q";
+	}
 	$parameters = array();
 	$parameters['q'] = $query = $q;
 	$parameters['bulksize'] = $m;
-						
-	$options = array(	CURLOPT_HTTPHEADER => array('Accept:application/json','Accept-Charset: ISO-8859-1'));
-//Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+	
+	$efacets=$RDW_REQUEST['efacets'];
+	if ($efacets)
+	{
+		$EFACET_FULFILLED = array();
+		$EFACET = refactorize_efacets($efacets);
+		if ($DEBUG) {
+			print "<br>EFACETS from ($efacets): "; 
+			foreach($EFACET as $ftype=>$fvalues)
+			{
+				print "<br><b>$ftype</b>";
+				foreach($fvalues as $fval) print " $fval, ";
+			}
+			print "<br>";
+		}
+	}
+				
+	//$options = array(	CURLOPT_HTTPHEADER => array('Accept:application/json','Accept-Charset: ISO-8859-1'));
+	$options = array(	CURLOPT_HTTPHEADER => array('Accept:application/json','Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7') );
+	//Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
 
 	// print "<br> url: $searchsource_baseurl";
 	// print "<br> params: ".var_dump($parameters);
 	// exit;
-//      
-	list($timestamp,$jsonString) = get_cached_widget_response_curl($searchsource_baseurl, $parameters, $options);
+
+	list($timestamp,$jsonString) = get_cached_widget_response_curl($searchsource_baseurl, $parameters, $options, 'cleanupElibCH');
 	//print "FROM DS: ".htmlentities($jsonString);
         
 	$jsonInfo = (json_decode($jsonString, true));
 
-	// print "JSON INFO:<br><br>"; var_dump($jsonInfo); exit;
+	
+	if ($DEBUG && 0) { print "JSON INFO:<br><br>"; var_dump($jsonInfo); exit;}
 
 	// Parse JSON result and build results
 	$allResults = array();
@@ -175,12 +204,13 @@ public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='')
 	
 	if ($NoOfResults > 0) 
 	{
+		if (count($jsonInfo['result']['document']))
 		foreach ($jsonInfo['result']['document'] as $record) 
 		{
 			// Get result data from record
 			$options = array(CURLOPT_HTTPHEADER => array('Accept:application/json'));
       
-			//print "ELIB RECORD: "; var_dump($record);exit;
+			if ($DEBUG) {print "<br>ELIB RECORD: "; var_dump($record); print " END ELIB RECORD";}	
 			$recordid			=$record['recordid'];
 			$biblio_data	=$record['biblioData'];
 			$references		=$record['references'];
@@ -193,32 +223,45 @@ public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='')
 				case 'article':
 				case 'journal':
 					// Create the result object
+					if ($DEBUG) print "<br>RESULT_TYPE_ARTICLE";
 					$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_ARTICLE);
 					break;
 				case 'book':
 					// Create the result object
+					if ($DEBUG) print "<br>RESULT_TYPE_BOOK";
 					$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_BOOK);
 				break;
 				default:
 					// Create a dummmy result object
+					if ($DEBUG) print "<br>RESULT_TYPE_BASIC";
 					$singleResult = RodinResultManager::buildRodinResultByType(RodinResultManager::RESULT_TYPE_BASIC);
 					break;
 			} // switch
 			
 			// General fields
 			$singleResult->setTitle($biblio_data['title']);
-			$singleResult->setDate(scan_last_date($biblio_data['creationdate']));
+			$singleResult->setDate(($biblio_data['creationdate']));
 			
+			
+			if($DEBUG)
+			{
+				print "<br>LINKS: ";var_dump($links);
+				print "<br>LINKS wissensportal: ((".$links['wissensportal']."))";
+				print "<br>LINKS opacHoldings: ((".$links['opacHoldings']."))";
+				
+				print "<br>DATE from ".$biblio_data['creationdate']." to (".$singleResult->getDate().")";
+				
+			}
 			if (isset($links['wissensportal'])) {
 				$singleResult->setUrlPage($links['wissensportal']);
-			} else if (isset($links['opac_holdings'])) {
-				$singleResult->setUrlPage($links['opac_holdings']);
+			} else if (isset($links['opacHoldings'])) {
+				$singleResult->setUrlPage($links['opacHoldings']);
 			} 
 			
 			$authorArray = array();
-			$creator = trim($biblio_data['creator']);
-			$contributor = trim($biblio_data['contributor']);
-			$person = trim($biblio_data['person']);
+			$creator 			= trim(cleanup_author_desc($biblio_data['creator']));
+			$contributor 	= trim(cleanup_author_desc($biblio_data['contributor']));
+			$person 			= trim(cleanup_author_desc($biblio_data['person']));
 			
 			if ($creator 			&& !in_array($creator,$authorArray)) 			$authorArray[]=$creator;
 			if ($contributor 	&& !in_array($contributor,$authorArray)) 	$authorArray[]=$contributor;
@@ -226,9 +269,17 @@ public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='')
 	
 			$singleResult->setAuthors(implode(', ', $authorArray));
 			
-			// Book specific fields
-			$singleResult->setProperty('description', strip_tags($links['abstract']));
-			
+			// Set specific fields
+			if ($biblio_data['abstract'])
+			{
+				$singleResult->setProperty('abstract', strip_tags($biblio_data['abstract']));
+				if ($DEBUG) print "<br>BIBLIODATA ABSTRACT: ".strip_tags($biblio_data['abstract']).' CHECK: '.$singleResult->getProperty('abstract');
+			}
+			if ($biblio_data['description'])
+			{
+				$singleResult->setProperty('description', strip_tags($biblio_data['description']));
+				if ($DEBUG) print "<br>BIBLIODATA DESCRIPTION: ".strip_tags($biblio_data['description']).' CHECK: '.$singleResult->getProperty('description');
+			}		
 			if (isset($biblio_data['subject']) && is_array($biblio_data['subject'])) {
 				$singleResult->setProperty('subjects', implode(', ', $biblio_data['subject']));
 			}
@@ -240,12 +291,136 @@ public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='')
 				$singleResult->setProperty('isbn', $biblio_data['identifier']['ISBN']);
 			}
 			
-			if (isset($biblio_data['description'])) {
-				$singleResult->setProperty('description', $biblio_data['description']);
+			//***********************************************************************
+			// Add single result to table iff $efacets permits it!
+			if ($efacets)
+			{
+				//Fulfill at least one value of EACH FACET!
+				foreach($EFACET as $ftype=>$fvalues)
+				{
+					if ($DEBUG) print "<br>Checking facet $ftype ...";
+					switch($ftype)
+					{
+						##################################################
+						##################################################
+						case 'creation-date':
+									$rvalue=$biblio_data{'creationdate'};
+									if($DEBUG) {print "<br>Checking facet $ftype ($rvalue) in "; print_r($fvalues);}
+									
+									foreach($fvalues as $fvalue)
+										if (strstr($rvalue, $fvalue))
+										{
+											if ($DEBUG) print " YES ";
+											$EFACET_FULFILLED[$ftype]=true;
+										}
+									break; // creation-date
+						##################################################
+						##################################################
+						case 'type':
+									$rvalue=$type;
+									if($DEBUG) {print "<br>Checking facet $ftype ($rvalue) in "; print_r($fvalues);}
+									
+									foreach($fvalues as $fvalue)
+										if (strstr($rvalue, $fvalue))
+										{
+											if ($DEBUG) print " YES ";
+											$EFACET_FULFILLED[$ftype]=true;
+										}
+									break; // type
+																		
+						##################################################
+						##################################################
+						case 'author':
+									$rvalue_arr=$authorArray;
+									if($DEBUG) {print "<br>Checking facet $ftype (";print_r($rvalue_arr); print "in "; print_r($fvalues);}
+									
+									foreach($fvalues as $fvalue)
+										foreach($rvalue_arr as $rvalue)
+											if (strstr($rvalue, $fvalue))
+											{
+												if ($DEBUG) print " YES ";
+												$EFACET_FULFILLED[$ftype]=true;
+											}
+										break; // author
+																		
+						##################################################
+						##################################################
+						case 'collection':
+									$rvalue=$biblio_data{'collection'};
+									if($DEBUG) {print "<br>Checking facet $ftype ($rvalue) in "; print_r($fvalues);}
+									
+									foreach($fvalues as $fvalue)
+										if (strstr($rvalue, $fvalue))
+										{
+											if ($DEBUG) print " YES ";
+											$EFACET_FULFILLED[$ftype]=true;
+										}
+										break; // collection
+																		
+						##################################################
+						##################################################
+						case 'language':
+									$rvalue=$biblio_data{'language'};
+									if($DEBUG) {print "<br>Checking facet $ftype ($rvalue) in "; print_r($fvalues);}
+									
+									foreach($fvalues as $fvalue)
+										if (strstr($rvalue, $fvalue))
+										{
+											if ($DEBUG) print " YES ";
+											$EFACET_FULFILLED[$ftype]=true;
+										}
+										break; // language
+																		
+						##################################################
+						##################################################
+						case 'keyword':
+									$rvalue=$biblio_data{'keywords'};
+									if ($DEBUG) {
+										if (!$rvalue) {
+											print "<br>ACHTUNG: no keyword value in ?? "; var_dump($biblio_data);
+										}
+									}
+									if($DEBUG) {print "<br>Checking facet $ftype ($rvalue) in "; print_r($fvalues);}
+									
+									foreach($fvalues as $fvalue)
+									{
+										if (is_array($rvalue))
+										{
+											foreach($rvalue as $rv)
+											if (strstr($rv, $fvalue))
+											{
+												if ($DEBUG) print " YES ";
+												$EFACET_FULFILLED[$ftype]=true;
+											}
+										}
+										else
+										{
+											if (strstr($rvalue, $fvalue))
+											{
+												if ($DEBUG) print " YES ";
+												$EFACET_FULFILLED[$ftype]=true;
+											}
+										}
+									}
+									break; // keyword
+																																				
+					} //switch
+				} // foreach
+				
+				$all_facets_fullfilled=true; //assume
+				//Check if for every facettype there is a fullfilled facet
+				foreach($EFACET as $ftype=>$fvalues)
+					$all_facets_fullfilled = $all_facets_fullfilled &	$EFACET_FULFILLED[$ftype];
+				
+				if ($all_facets_fullfilled)
+				{
+					if ($DEBUG) print "<br>ALL FACETS FULLFILLED!  ($efacets)<br>";
+					$allResults[] = $singleResult;
+					$EFACET_FULFILLED=array(); // reinit
+				}
 			}
-			
-			// Add single result to table
-			$allResults[] = $singleResult;
+			else // add always
+				$allResults[] = $singleResult;
 		}
 	} // 	if ($NoOfResults > 0
 	
@@ -297,8 +472,6 @@ public static function DEFINITION_RDW_SHOWRESULT_FULL($w,$h) {
 	
 	return true;
 }
-
-
 
 } // RDW_ElibCH
 /* ********************************************************************************

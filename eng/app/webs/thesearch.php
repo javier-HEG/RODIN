@@ -14,13 +14,16 @@
  * 				a thesource should be identified precisely with a name and a userid
  */
 	
-	$DEBUG=0;
+	
+	$DEBUG = $_REQUEST['DEBUG'];
 	
 	$userid=trim($_REQUEST['userid']);
 	$m = $_REQUEST['m'];
 	$host = $_REQUEST['host']; if (!$host) $host='localhost';
 	$query=trim($_REQUEST['query']);
 	$thesources=$_REQUEST['thesources']; // List of thesources ids separated by comma
+	$ontocontext=$_REQUEST['ontocontext']; // Compute also ontocontext each node (for mlt use)
+	$sortfacets_lexicographically=$_REQUEST['sortfacets_lexicographically']; // 			
 	
 	//Load components	
 	$filenamex="app/root.php";
@@ -72,6 +75,12 @@
 	global $HOST;
 	$HOST=$host;
 	$SRCS = get_active_THESAURI_sources( $userid );
+	
+	if ($DEBUG){
+		print "<br>get_active_THESAURI_sources( $userid ) on $RODINSEGMENT:<br> ";
+		var_dump($SRCS);
+	}
+	
 	$the_records = get_SRC_THESAURI_RECORDS($SRCS,$userid,$lang_notused,$thesources);
 	
 	if ($DEBUG) print "<br> THE records: ".count($the_records);
@@ -86,9 +95,11 @@
 	if (!$search_could_start)
 	{
 		$errornotification = "Syntax: ?query=Information+Economy"
-											."&thesources=locsh,thesoz,dbpedia"
-											."&userid=6"
-											."{&m=3}";
+												."&thesources=locsh,thesoz,dbpedia"
+												."&userid=6"
+												."{ontocontext=1}"
+												."{sortfacets_lexicographically=1}"
+												."{&m=3}";
 											
 		$allResultsJson = json_encode(array('query' => $query,
 																				'results' => null,
@@ -108,7 +119,7 @@
 		//compute $sid
 				
 		//Get all results and send them as json
-		$allResultsJson = RodinResultManager::get_json_thesearchresults4webservice($query, $userid, $m, $the_records);
+		$allResultsJson = RodinResultManager::get_json_thesearchresults4webservice($query, $userid, $m, $ontocontext, $sortfacets_lexicographically, $the_records);
 	} // $search_could_start
 	
 	//Output results in JSON:

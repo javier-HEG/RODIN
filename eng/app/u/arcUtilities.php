@@ -380,6 +380,8 @@ EOX;
 	 function refactorize_uniquely_skos_subject_expansion($skos_subject_expansion)
 	 {
 	 		$DEBUG=0;
+			if($DEBUG) print "<br>refactorize_uniquely_skos_subject_expansion:";
+			
 			$skos = array();
 	 		if (is_array($skos_subject_expansion) && ($c=count($skos_subject_expansion)))
 			{
@@ -387,38 +389,62 @@ EOX;
 				{
 					foreach($EXPANSIONS as $SKOS)
 					{
-						
+						$broader_roots=$narrower_roots=$related_roots=null;
 						list($src_name,$srcuid,$src_data_fresh,
-														$broaders,$narrowers,$related)=$SKOS;
+														$broaders,$narrowers,$related,
+														$broader_root_str,$narrower_root_str,$related_root_str)=$SKOS;
 						$SRCID= get_srcid_from_srcuid($srcuid); 
-						add_to_assoc_uniquely($skos{$src_name},'id',$SRCID);
+						add_to_assoc_uniquely($skos{$src_name},'id',$SRCID,$nix=null);
+						if($broader_root_str) $broader_roots=explode('|',$broader_root_str);
+						if($narrower_root_str) $narrower_roots=explode('|',$narrower_root_str);
+						if($related_root_str) $related_roots=explode('|',$related_root_str);
+						$has_b_roots=is_array($broader_roots) && count($broader_roots);
+						$has_n_roots=is_array($narrower_roots) && count($narrower_roots);
+						$has_r_roots=is_array($related_roots) && count($related_roots);
 						
+						if($DEBUG)
+						{
+							print "<br>broader roots ($has_b_roots): "		; print_r( $broader_roots );
+							print "<br>narrower roots ($has_n_roots): "	; print_r( $narrower_roots );
+							print "<br>related roots ($has_r_roots): "		; print_r( $related_roots );
+						}
+						
+						//Scan exactely broaders and their roots:
 						if (($bc=is_array($broaders) * count($broaders))>0)
 						{
-							foreach($broaders as $b)
+							for($bx=0; $bx<$bc; $bx++)
 							{
-								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name B $b: ";var_dump($skos{$src_name});}
-								add_to_assoc_uniquely($skos{$src_name},'b',$b);
+								$b=$broaders[$bx];
+								$br=$has_b_roots?$broader_roots[$bx]:'';
+								if ($DEBUG) {print "<br> the broader root data at bx=$bx in ("; print_r($broader_roots); print ") is: ".$broader_roots[$bx];}
+								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name B $b (root: ".base64_decode($br)."): ";var_dump($skos{$src_name});}
+								add_to_assoc_uniquely($skos{$src_name},'b',$b,$br);
 								if ($DEBUG) {print "<br>2 add_to_assoc_uniquely $b: ";var_dump($skos{$src_name});}
 							}
 						}
 						
+						//Scan exactely narrowers and their roots:
 						if (($nc=is_array($narrowers) * count($narrowers))>0)
 						{
-							foreach($narrowers as $n)
+							for($nx=0; $nx<$nc; $nx++)
 							{
-								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name N $n: ";var_dump($skos{$src_name});}
-								add_to_assoc_uniquely($skos{$src_name},'n',$n);
+								$n=$narrowers[$nx];
+								$nr=$has_n_roots?$narrower_roots[$nx]:'';
+								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name N $n (root: ".base64_decode($nr)."): ";var_dump($skos{$src_name});}
+								add_to_assoc_uniquely($skos{$src_name},'n',$n,$nr);
 								if ($DEBUG) {print "<br>2 add_to_assoc_uniquely $n: ";var_dump($skos{$src_name});}
 							}
 						}
 	
+						//Scan exactely related and their roots:
 						if (($rc=is_array($related) * count($related))>0)
 						{
-							foreach($related as $r)
+							for($rx=0; $rx<$rc; $rx++)
 							{
-								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name R $r: ";var_dump($skos{$src_name});}
-								add_to_assoc_uniquely($skos{$src_name},'r',$r);
+								$r=$related[$rx];
+								$rr=$has_r_roots?$related_roots[$rx]:'';
+								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name R $r (root: ".base64_decode($rr).")): ";var_dump($skos{$src_name});}
+								add_to_assoc_uniquely($skos{$src_name},'r',$r,$rr);
 								if ($DEBUG) {print "<br>2 add_to_assoc_uniquely $n: ";var_dump($skos{$src_name});}
 							}
 						}
@@ -2611,17 +2637,17 @@ EOQ;
 																						$query, // query
 				
 																						$src_name,
-																						$mode='autocomplete',
+																						$mode='autocomplete, sortfacetslex',
 																						$DISKenginePATH,
 																						$basic_path_sroot,
 																						$basic_path_SRCengineInterface,
 																						$basic_path_SRCengine,
 																						$CLASS,
-																						&$SRCOBJS,
+																						$SRCOBJS,
+																						$pathClass,
 																						$pathSuperClass,
 																						$AuthUser,
-																						$AuthPasswd,
-																						$m=$max_suggestions_each_rsc  );
+																						$AuthPasswd );
 					####################################################
 					#
 					# Beautify SRC name and insert uniquely suggestions

@@ -883,10 +883,10 @@ function src_widget_morelikethis(obj,semanticcontextbase64,term,lang)
   var group_div = document.getElementById('fb_itemcontent_'+ONTO_id);
   if (!group_div) alert('ALERT: NO OBJECT WITH ID='+'fb_itemcontent_'+ONTO_id);
   
-  /* //We do not ask - we do:
+  /* //We do not ask - we do: */
   if (confirm("This will show ranked widget results\naccordingly to similarity with the context of '"+term+"':"
           +"\n\n"+semanticcontext
-          +"\n\nContinue?")) */
+          +"\n\nContinue?")) 
   {
     var solr_id = semanticcontextbase64;
     var solr_path = 'rodin_result';
@@ -917,7 +917,7 @@ function src_widget_morelikethis(obj,semanticcontextbase64,term,lang)
 }
 
 /**
-	 * callbyk after skos context insertion in SOLR
+	 * callback after skos context insertion in SOLR
 	 * @param response - the response of the called service 
 	 * @param vars - the AJAX passed vars
 	 */

@@ -27,8 +27,8 @@ abstract class SRCengine implements SRCEngineInterface {
 	
   public  $currentclassname;
   private $term_separator;
-	private $verbose;
-	private $srcdebug;
+	public $verbose;
+	public $srcdebug;
 	private $wordbinding;
 	private $maxresults;
 	private $preprocessFunctionName;
@@ -202,8 +202,6 @@ abstract class SRCengine implements SRCEngineInterface {
    * It returns the response with a tag 'age_in_seconds' to inform
    * the user on the age of the data set.
 	 * 
-	 * 
-	 * 
 	 * @param 
 	 */
 	public function webRefine($sid, $qb64, $vb64, $w, $lang, $m, $sortrank='standard', $maxdur/*USED?*/, $c, $cid, $action, $reqClassName, $mode='web') 
@@ -212,6 +210,8 @@ abstract class SRCengine implements SRCEngineInterface {
 		$SHOULD_CACHE =( !strstr($mode,'autocomplete')
 									&& !strstr($mode,'direct')
 									); // cache only if not SOLR tecnology and never on autocomplete
+		
+		$SORT_FACETS_LEXICOGRAPHICALLY = (strstr($mode,'sortfacetslex'));
 		
     $q=base64_decode($qb64);
     $v=base64_decode($vb64);
@@ -313,6 +313,7 @@ abstract class SRCengine implements SRCEngineInterface {
 						print "<hr>";
 					}
          
+				 
           $srv_p = base64_encode($this->cleanup_viki_tokens($RESULTS_P->results));
           $srv_p_raw = base64_encode($RESULTS_P->results_raw);
 
@@ -326,7 +327,7 @@ abstract class SRCengine implements SRCEngineInterface {
           $srv_r_raw =  base64_encode($RESULTS_R->results_raw);
           $srv_r_root =              ($RESULTS_R->results_root);
 
-          
+          //Prepare XML response:
           $SRV_DATA = <<<SRV
             <pre><![CDATA[ $srv_p ]]></pre>
             <pre_raw><![CDATA[ $srv_p_raw ]]></pre_raw>
@@ -362,6 +363,9 @@ SRV;
       //the succestions themselves, and in case of a match
       //even the SKOS neighbours
 
+      
+      
+      
 			if ($SHOULD_CACHE) //Linearize and cache
 			{
 	      $xml_src_content =<<< EOF
@@ -391,7 +395,9 @@ EOF;
 			}
 			else // Just give back the result object
 			{
-				$SRC_RESULT = new SRCEngineSKOSResult ($RESULTS_S, $RESULTS_B,$RESULTS_N,$RESULTS_R);
+				if (! strstr($mode,'context'))
+					$srv_b_root=$srv_n_root=$srv_r_root=array();
+				$SRC_RESULT = new SRCEngineSKOSResult ($RESULTS_S, $RESULTS_B,$RESULTS_N,$RESULTS_R) ;
 			}
     } // quality control of cache nok
     else 
@@ -428,6 +434,89 @@ EOF;
 
 
   
+	
+
+  
+  
+    /**
+   * Sorts and cut labels ... according to $sortrank
+   * Returns the descriptors base64 encoded
+   * @param $CANDIDATE_LABELS
+   * @param $CANDIDATE_DESCS - Descriptors
+   * @param $m
+   * @param $sortrank - standard or lexical
+   */
+  protected function cut_and_process_raw_results(&$CANDIDATE_LABELS,&$CANDIDATE_DESCS,$ROOTPATHS,$m,$sortrank)
+ 	#############################################################################
+  {
+    global $TERM_SEPARATOR;
+    $ROOTPATHSelements=explode('|',$ROOTPATHS);
+		
+    if(count($CANDIDATE_LABELS))
+    {
+      // Create label-term map
+      foreach($CANDIDATE_LABELS as $label=>$rank)
+      {
+        $TERMS_RAW{$label}=$CANDIDATE_DESCS[$i];
+				$ROOTPATH_VALUE{$label}=$ROOTPATHSelements[$i];
+				$i++;
+      }
+
+      // print "<br>cut_and_process_raw_results sort $sortrank";
+				
+      // START OF SORT RANK SECTION
+      if ($sortrank=='standard') 
+      {
+      	#################################################################
+        arsort($CANDIDATE_LABELS); // sort using values=ranks - top value first
+        array_splice($CANDIDATE_LABELS, $m); // keep the first $m 
+        #################################################################
+     } // ($sortrank='standard') 
+			elseif($sortrank=='lex') 
+      {
+      	#################################################################
+        ksort($CANDIDATE_LABELS); // sort using values=ranks - top value first
+        array_splice($CANDIDATE_LABELS, $m); // keep the first $m 
+        #################################################################
+     } // ($sortrank='standard') 
+     
+     // END OF SORT RANK SECTION
+     
+     //ALIGN ALL VECTORS AFTER SORTING ON THE BASIS OF the (number and sort of) $CANDIDATE_LABELS:
+     $refined_terms=''; //reset
+     $refined_terms_raw='';
+     $root_paths='';
+     $elemcount=0;
+		 foreach($CANDIDATE_LABELS as $label=>$RANK)
+     {
+     	 if($this->srcdebug) {
+         print "<hr>Considering candidate <b>$label</b> ...";
+       } 
+       
+       //Construct a sequence of terms separated by $TERM_SEPARATOR
+       if ($refined_terms) $refined_terms.="$TERM_SEPARATOR"; 
+       $refined_terms.=$label;
+       // construct a sequence of base64coded terms separated by $TERM_SEPARATOR
+       if ($refined_terms_raw) $refined_terms_raw.="$TERM_SEPARATOR\n"; 
+       $refined_terms_raw.=base64_encode($TERMS_RAW{$label});	 // encode its descriptor						
+
+       if($root_paths) $root_paths.="|"; // Attention - variants are coded with |
+			 
+			 // print "<br>cut_and_process_raw_results ALIGNING ($label) -> ".$ROOTPATH_VALUE{$label};
+			 
+       $root_paths.=$ROOTPATH_VALUE{$label};	 // already encoded						
+     }
+   }
+   
+   if($this->srcdebug) {
+         print "<br>process_raw_results() Delivering refined_terms_raw:<br>";
+         var_dump($refined_terms_raw);
+       } 
+   
+   return array($refined_terms,$refined_terms_raw,$root_paths);
+ 	} // cut_and_process_raw_results
+  
+	
   
   
   
@@ -923,8 +1012,12 @@ EOF;
 		//foreach($labels as $l) print "<br> $l";
 		return $labels;
 	} //collect_labels_for_autocomplete
- 
+	
+	 
 } // class SRCengine
+
+
+
 
 
 
@@ -946,7 +1039,7 @@ class SRCEngineResult {
 		$this->results_raw = $results_raw;
 		$this->results_root = $results_root;
 		$this->explanation = $explanation;
-	}	
+	}		
 }
 
 
@@ -961,7 +1054,8 @@ class SRCEngineSKOSResult {
 	public $related;
 	public $explanation;
 	
-	function SRCEngineSKOSResult(&$suggested, &$broader, &$narrower, &$related, $ok = true) 
+	function SRCEngineSKOSResult( &$suggested, &$broader, &$narrower, &$related, 
+																$ok = true )
 	{
 		$this->ok = $ok;
 		$this->suggested=$suggested;
@@ -969,6 +1063,7 @@ class SRCEngineSKOSResult {
 		$this->narrower = $narrower;
 		$this->related = $related;
 	}	
+	
 }
 
 ?>

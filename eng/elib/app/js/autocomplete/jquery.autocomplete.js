@@ -144,7 +144,7 @@ function t(srcname,p)
       if (!this.options.width) { this.options.width = this.el.width(); }
       AUTOCOMPLETECONTAINER_ID = this.mainContainerId = 'AutocompleteContainter_' + uid;
 
-      $('<div id="' + this.mainContainerId + '" style="position:absolute;z-index:9999;"><div class="autocomplete-w1"><div class="autocomplete" id="' + autocompleteElId + '" style="display:none; width:300px;"></div></div></div>').appendTo('body');
+      $('<div id="' + this.mainContainerId + '" style="position:absolute;z-index:9999;"><div class="autocomplete-w1"><div class="autocomplete" id="' + autocompleteElId + '" style="display:none;"></div></div></div>').appendTo('body');
 
       this.container = $('#' + autocompleteElId);
       this.fixPosition();
@@ -166,7 +166,7 @@ function t(srcname,p)
         if($.isArray(o.lookup)){ o.lookup = { suggestions:o.lookup, data:[] }; }
       }
       $('#'+this.mainContainerId).css({ zIndex:o.zIndex });
-      this.container.css({ maxHeight: o.maxHeight + 'px', width:o.width });
+      this.container.css({ maxHeight: o.maxHeight + 'px' });
     },
     
     clearCache: function(){
