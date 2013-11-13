@@ -268,6 +268,9 @@ function fb_show_itemcontent(facet_id, extension, mode) {
 }
 
 
+
+
+
 /**
  * Sets a time-out message as the title of the name of the SRC service that
  * has timed out. 

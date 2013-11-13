@@ -5,7 +5,6 @@
 # Fabio Ricci Tel. +41(76)5281961
 #
 # Main Vars File
-# 18.1.2010
 #
 
 date_default_timezone_set('Europe/Zurich');
@@ -24,6 +23,13 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'];
 $WANT_RFLAB=false;
 #
 #############################################
+
+
+#############################################
+$HIDE_WIDGETMENU_UC3=0;
+$WANT_WIDGET_USER_PREFERENCES=1;
+#############################################
+
 
 
 if (preg_match("/Mobile/",$userAgent))
@@ -161,6 +167,7 @@ else {
 	}
 }
 
+$UC3RODINROOT = str_replace('rodin','rodinuc3',$RODINROOT);
 $RODIN = "$DOCROOT$RODINROOT/$RODINSEGMENT";
 $RODINW = "$WEBROOT$RODINROOT/$RODINSEGMENT";
 $RODINU = "$RODINROOT/$RODINSEGMENT/app/u";
@@ -279,12 +286,18 @@ $RODINDB_PASSWD = getA('RODINDB_PASSWD');
 $WEBSERVICE_USERID = getA('WEBSERVICE_USERID');
 $WEBSERVICE_TABNAME = getA('WEBSERVICE_TABNAME');
 
+
+
+
 if(0)
 {
 print "<br>RODINDB_HOST:$RODINDB_HOST";
 print "<br>RODINDB_DBNAME:$RODINDB_DBNAME";
 print "<br>RODINDB_USERNAME:$RODINDB_USERNAME";
 print "<br>RODINDB_PASSWD:$RODINDB_PASSWD";
+
+print "<br>WEBSERVICE_USERID:$WEBSERVICE_USERID";
+print "<br>WEBSERVICE_TABNAME:$WEBSERVICE_TABNAME";
 
 print "<br>WEBROOT:$WEBROOT";
 print "<hr>ENV:<br>"; var_dump($_ENV);
@@ -337,7 +350,7 @@ $INTERNET_CHECK_TIMEOUT = 2;
 $CALLING_TIMEOUT_SEC = 5;
 $WIDGET_SEARCH_MAX = 15000; //msek = 15sec
 $SRC_SEARCH_MAX = 15000; //msek = 15sec
-
+$WIDGET_HEIGHT=237;
 ###########################################
 
 $EPSILON=0.0000000001;
@@ -870,6 +883,7 @@ function limitusernamelength($uname, $limitlen=16)
 
 
 $ADMIN_USING=0;
+
 
 $ROOT=1;
 

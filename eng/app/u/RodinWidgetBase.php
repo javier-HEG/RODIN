@@ -1,17 +1,17 @@
 <?php
-// Load the session used by posh
-
-//Called by a webservice? no session
-if (!$NOSESSION)
-{
-	session_name('myhomepage');
-	session_start();
-		if (!isset($_SESSION['lang'])) {
-			if (isset($_REQUEST['l10n']) && $_REQUEST['l10n'] != 'undefined') {
-				$_SESSION['lang'] = $_REQUEST['l10n'] != '' ? $_REQUEST['l10n'] : 'en';
-			}
-	}
-} 
+	// Load the session used by posh
+	
+	//Called by a webservice? no session
+	if (!$NOSESSION)
+	{
+		session_name('myhomepage');
+		session_start();
+			if (!isset($_SESSION['lang'])) {
+				if (isset($_REQUEST['l10n']) && $_REQUEST['l10n'] != 'undefined') {
+					$_SESSION['lang'] = $_REQUEST['l10n'] != '' ? $_REQUEST['l10n'] : 'en';
+				}
+		}
+	} 
 	
 	if ($WEBSERVICE)
 	{
@@ -20,7 +20,7 @@ if (!$NOSESSION)
 
 	require_once("FRIdbUtilities.php");
 	include_once "$DOCROOT/$RODINUTILITIES_GEN_URL/simplehtmldom/simple_html_dom.php";
-		
+	
 	$CACHE_EXTENSION='rodin'; //used by apache mod_rewrite to cache .php ext.
 
 	// CONSTANTS FOR WIDGETS INTERFACE
@@ -34,7 +34,7 @@ if (!$NOSESSION)
 	define ("RDW_STORERESULTS", 3); // 
 	define ("RDW_SHOWRESULT_WIDGET", 4); // 
 	define ("RDW_SHOWRESULT_FULL", 5); // 
-	
+	$NEED_PHP_INTERNET_ACCESS = true; // assumption
 	$WIDGETSEARCHBUTTON_SIZE = 17;
 	
 	$thisSCRIPT = $_SERVER['SCRIPT_NAME'];

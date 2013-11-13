@@ -75,7 +75,7 @@ $errortxt				= $jsonResultsDecoded{'error'};
 # TODO: Cambiare i Links (dinamici !!! Server !!!) /-/rodin/gen/u/images ....
 #
 ###############################################################
-if(!$languages) $languages = array('en','fr','de','it','es');
+
 $searchtermlang	=$searchtermlang? $searchtermlang: detectLanguage($query);
 if (in_array($searchtermlang, $languages))
 	$stopwords =get_stopwords_from_db($searchtermlang);
@@ -437,13 +437,12 @@ EOE;
 			onmouseout="fomo('$bnr',$SRCID,$counter,this)" 
 			onmousedown="fomd('$bnr',$SRCID,$counter,event)" 
 			onmouseup="fomu('$bnr',$SRCID,$counter,this,event)"
-			onclick="do_bc('$TERM_ID','$bnr')"
 			id='$TERM_ID'
 			st = '$term'
 			stc= '$term_cleaned'
 			class="fb-term-row"
 	>
-		<td align="left" class='fb'>
+		<td align="left" class='fb' onclick="do_bc('$TERM_ID','$bnr')">
 			<a class="fb-term" >$term</a>
 		</td>
 		<td align="right" class='fb icons hidden'

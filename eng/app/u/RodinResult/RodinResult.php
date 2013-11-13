@@ -281,7 +281,9 @@ class BasicRodinResult {
     $result_doc->user       = $user;
     $result_doc->id         = $id // do we have already one id?
     												? $id // yes: take old id
-														: $result_doc->sid.'-'.$resultNumber.'-'.uniqid(); //SOLR ID unique!!!
+														//: $result_doc->sid.'-'.$resultNumber.'-'.uniqid(); //SOLR ID unique!!!
+														: $result_doc->sid.'-'.$datasource.'-'.$resultNumber; //SOLR ID unique - but if it comes several times, only one doc should be stored
+																												
     $result_doc->type       = $this->getResultType();
     $result_doc->title      = encode4solr($this->getTitle());
     $result_doc->authors    = encode4solr($this->getAuthors());

@@ -194,7 +194,7 @@ function format3pos(num)
 			{
 				url = url+'&_x='+iframe.id;
 				//alert('recursive: frameid= '+iframe.id);
-				fri_redirect(datasource,url,iframe.id,target)
+				fri_redirect(datasource,url,iframe.id,target);
 			}
 			else
 				return window.open(url,target);
@@ -1021,8 +1021,8 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 		var module				=variables['module'];
 		var newsid				=variables['newsid'];
 		var service_id		=variables['service_id'];
-		var src_service_name 	=variables['src_service_name'];
-		var src_service_url 	=variables['src_service_url'];
+		var src_service_name 	=variables['src_service_name']
+		var src_service_url 	=variables['src_service_url']
     var this_wid_uniq_id	=variables['this_wid_uniq_id'];
 		var calledfromoutsideiframe=variables['calledfromoutsideiframe'];
 		var lang				=variables['l'];
@@ -1093,7 +1093,7 @@ function fri_rodin_do_onto_search(terms,lang,calledfromoutsideiframe,pclass)
 				var cid = sid +'.'+msec +'.' + this_wid_uniq_id;
 				var newsid=sid; 
 				
-				var url_bridge='<?php print "$SRC_INTERFACE_BASE_URL/refine/index.php"; ?>' ;
+				var url_bridge='<?php print "$SRC_INTERFACE_BASE_URL/refine/index.php"; ?>' 
 				
 				 if (response_xmlwellformed_exists)
 				 {
@@ -1851,7 +1851,7 @@ if (response!=null) {
 	
 	function get_datasource_name(url_with_params)
 	{ //RDW.BAR.Digiblabla.rodin?blablabla
-		var datasource_name=null;
+		var datasource_name=url_with_params;
 		//alert('get_datasource_name('+url_with_params+')');
 		var expr = /RDW_(.*)\./; //match RDW.(xxxx).sth
 		expr.exec(url_with_params);
@@ -1859,12 +1859,15 @@ if (response!=null) {
 			datasource_name = RegExp.$1;
 		else // TRY a generalized widget RDW.BAR.(.*).
 		{
-			expr = /RDW\.(.*)\.(.*)\./; //match RDW.BAR.(xxxx).sth
+			expr = /RDWuc3_(.*)\./; //match RDWuc3_(xxxx).sth
 			expr.exec(url_with_params);
 		
-			if (RegExp.$2!='') 
-				datasource_name = RegExp.$2;		
+			if (RegExp.$1!="") 
+				datasource_name = RegExp.$2;
 		}
+		
+		if (!datasource_name) datasource_name=url_with_params;
+		
 		//alert('get_datasource_name liefert: '+datasource_name);
 		return datasource_name.toUpperCase();		
 	}
@@ -2405,7 +2408,7 @@ if (response!=null) {
 
     //Add aggregated view module
     //take div inside the tab db_tab_id with id='module'+db_tab_id
-    var aggViewDiv = parent.$('modules'+db_tab_id).children.aggregated_view_module
+    var aggViewDiv = parent.$('modules'+db_tab_id).children.aggregated_view_module;
     if (aggViewDiv)
         iframesinfo.push(new Array(aggViewDiv,'aggregatedView',aggViewDiv.clientHeight));
 

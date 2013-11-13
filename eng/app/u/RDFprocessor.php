@@ -288,6 +288,7 @@ class RDFprocessor {
 
 		$searchterm_subjects = $this->extract_subjects_from_term($this->searchterm,$this->searchtermlang);
 		//Construct global subject UIDs for later use!
+		if (is_array($searchterm_subjects) && count($searchterm_subjects))
 		foreach($searchterm_subjects as $slabel)
 			$this->rodin_search_subjects{$slabel}=RDFprocessor::$ownnamespacename.':'.RDFprocessor::adapt_name_for_uid($slabel);
 		
@@ -1172,6 +1173,7 @@ class RDFprocessor {
 			if ($DEBUG) $RDFLOG.="<br>rod doc $rank: $title ";
 		}
 
+		if (is_array($ranked_docs_ext) && count($ranked_docs_ext))
 		foreach($ranked_docs_ext as $docuid=>$rank)
 		{
 			$result=
@@ -1217,7 +1219,14 @@ class RDFprocessor {
 		$searchuid = 'rodin_a:'.$this->searchuid;
 		
 				//Get result documents direct from search (in $o)
-		list($_,$docs) = get_triple_objects($searchuid,'rodin_a:resultdoc',$this->store,$C::$NAMESPACES);		
+		list($_,$docs) = get_triple_objects($searchuid,'rodin_a:resultdoc',$this->store,$C::$NAMESPACES);	
+		
+		if ($DEBUG) 
+		{
+			$cnt_docs=count($docs);
+			print "<br>$cnt_docs docs from inner LOD SPACE: "; var_dump($docs);
+		}
+		
 		//Compute the number of subj each document
 		
 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START RERANK"),$this->sid);
@@ -1227,6 +1236,15 @@ class RDFprocessor {
 
 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="END RERANK"),$this->sid);
 		Logger::logAction(27, array('from'=>'rdfLODfetchDocumentsOnSubjects','msg'=>$msg="START WRES ASSEMBLING"),$this->sid);
+
+
+		if ($DEBUG)
+		{
+			$cnt_ranked_docs=count($ranked_docs);
+			$cnt_ranked_docs_ext=count($ranked_docs_ext);
+			print "<br>$cnt_ranked_docs ranked_docs: "; var_dump($ranked_docs);
+		}
+
 
 		$ranked_doc_infos = $this->resume_docs_with_rank(  $this->rodin_results,
 																											 $ranked_docs_ext,
@@ -1311,9 +1329,11 @@ class RDFprocessor {
 		else // We need to have all in $ranked_docs
 		{
 	    // MERGE $ranked_docs and $ranked_docs_ext
-	    if (count($ranked_docs)) {
+	    if (is_array($ranked_docs) && count($ranked_docs)) {
 	    foreach($ranked_docs as $o=>$r)
 				$all_ranked_docs{$o}=$r;
+			
+			if (is_array($ranked_docs_ext) && count($ranked_docs_ext))
 			foreach($ranked_docs_ext as $o=>$r)
 				$all_ranked_docs{$o}=$r;
 			
@@ -1340,7 +1360,7 @@ class RDFprocessor {
 		#
 		#######################################################################
 		
-		//if ($DEBUG) { print "<hr>"; var_dump($ranked_doc_infos);}
+		if ($DEBUG) { print "<hr>ranked_doc_infos: <br>"; var_dump($ranked_doc_infos);}
 		
 		foreach($ranked_doc_infos as $ranked_doc_info)
 		{
@@ -1359,7 +1379,7 @@ class RDFprocessor {
 				##############################################
 					if ($DEBUG)
 						$RDFLOG.= "<br>FINAL RANKED $type $docuid ($rank [$explanation] previous:$previousrank) DOC ($title)";
-					//$RDFLOG.= "<br>CREATING ranked ($rank) $type ($title)";
+						$RDFLOG.= "<br>CREATING ranked ($rank) $type ($title)";
 					$result->setRank($rank);
 					$result->setExplanation($explanation);
 					RodinResultManager::saveRodinResults($allResults=array($result), $this->sid, $result->datasource, $timestamp='');

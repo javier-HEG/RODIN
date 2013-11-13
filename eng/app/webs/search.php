@@ -7,11 +7,14 @@
 	 * 
 	 * A query string like ?query=Digital%20Economy&widgets=econbiz,swissbib,arxiv&userid=2&m=4&wm=2
 	 * Note - widgets: A list of the data sources in which to launch the search (at least one data source)
+	 * 
+	 * if $suppress_output is specified, results are just stored (works best with $sid set) and a minimal object (with sid) is returned
 	 */
 	
-	$DEBUG=0;
 	$DEBUG=trim($_REQUEST['DEBUG']);
+	$sid=trim($_REQUEST['sid']); // if set: take THIS sid for storing results
 	$userid=trim($_REQUEST['userid']);
+	$suppress_output=trim($_REQUEST['suppress_output']); // return output (i.e.: only store in db)
 	$query=trim($_REQUEST['query']);
 	$k = $_REQUEST['k']; // start outputting results from k
 	$rm = $_REQUEST['m']; // return first $rm results - tell me how many results there are at all
@@ -21,6 +24,7 @@
 	$widgets=$_REQUEST['widgets']; // List of widgets names separated by comma
 	$efacets=$_REQUEST['efacets']; // List of elib facets like "author:C.G.Gottlieb,date:2005,type:book"
 			
+	$output = !$suppress_output; // logical convenience
 	//Example: ?query=Information+Economy&widgets=econbiz+swissbib+googlebooks
 	
 	//Load components	
@@ -70,7 +74,11 @@
 											."&widgets=econbiz,swissbib,alexandria"
 											."&userid=6"
 											."{&k=0}"
-											."{&m=3}";
+											."{&wm=3}"
+											."{&m=3}"
+											."{&suppress_output=1}"
+											;
+		
 											
 		$allResultsJson = json_encode(array('sid' => 0, 'count' => 0, 'from' => $k, 'upto' => ($k+$m-1), 'all' => $all, 'results' => null,
 																	'error'=>$errornotification));									
@@ -87,22 +95,37 @@
 				print "<br>".$widget_record['name'].': '.$widget_record['url'];
 		}
 		
+		if (!$output)
+		$json_no_output									
+		 = json_encode(array('sid' => $sid, 'count' => 0, 'from' => $k, 'upto' => ($k+$m-1), 'all' => 0, 'results' => null,
+																	'error'=>'no output specified -> results stored in SOLR'));	
 		
-		
-		//compute $sid
-		$sid = compute_sid($userid);
+		//compute $sid if unset
+		$sid = $sid?$sid:compute_sid($userid);
 		//search in each widget -> results in sid
 		//$wm = $DEFAULT_M; // in db for segment
 		search_in_each_widget($widgets_records,$userid,$sid,$query,$efacets,$wm);
 		
 		//Get all results and send them as json
-		$allResultsJson = RodinResultManager::get_json_searchresults4webservice($sid, $k, $rm, true, true);
+		if ($output)
+			$allResultsJson = RodinResultManager::get_json_searchresults4webservice($sid, $k, $rm, true, true);
 	} // $search_could_start
 	
 	//Output results in JSON:
 	if (!$DEBUG) header('Content-type: application/json; charset=utf-8');
-	if ($DEBUG) var_dump($allResultsJson);
-	echo $allResultsJson;
+	if ($DEBUG) {print "<br>The results: "; var_dump($allResultsJson); print "<br>";}
+	if($output)	echo $allResultsJson;
+	else echo $json_no_output;
+
+
+
+
+
+
+
+
+
+
 
 	
 	/**
@@ -116,7 +139,7 @@
 	 * @param $efacets - only elibCH - facets information like "author:C.G.Jung,date:1960"
 	 * @param $wm - number of results wanted in this search
 	 */
-	function search_in_each_widget($widgets_records,$userid,$sid,$query,$efacets,$wm)
+	function search_in_each_widget(&$widgets_records,$userid,$sid,$query,$efacets,$wm)
 	{
 		global $DEBUG;
 		global $DOCROOT,$RODINUTILITIES_GEN_URL;
@@ -171,10 +194,12 @@
 			$RDW_REQUEST['q']=$query;
 			$RDW_REQUEST['m']=$wm;
 			$RDW_REQUEST['sid']=$sid;
+			$RDW_REQUEST['datasource']=$widget_record['name'];
 			if ($efacets)
 				$RDW_REQUEST['efacets']=$efacets;
-						
-			//Execute widget:
+			
+			//Execute widget searching on $sid:
+			//which stores results in SOLR on $sid
 			$rescount = $WIDGET::DEFINITION_RDW_COLLECTRESULTS();
 			if ($DEBUG) {
 				print "<br> $rescount results got from ".$widget_record['name']

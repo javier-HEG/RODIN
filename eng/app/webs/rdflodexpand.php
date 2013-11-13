@@ -12,7 +12,7 @@
 	 * The maximal amount to document to return (m) - needed ?
 	 */
 	
-	$DEBUG=0;
+	$DEBUG=$_REQUEST['DEBUG'];
 	$WEBSERVICE = true; //Prevent other modules to make output to stdin
 	$userid=trim($_REQUEST['userid']);
 	$sid=trim($_REQUEST['sid']);
@@ -81,18 +81,19 @@
 	//LOD sources
 	list($lodok,$lod_records,$errortxt)  = get_matching_SRC_records($lodsources,$userid,$lod_as_service='UsedForLODRdfExpansion');
 	if ($DEBUG) {
-		print "<br>RESULT LOD: lodok=$lodok ".count($lod_records).' records';
+		print "<br>RESULT LOD: lodok=$lodok ".count($lod_records).' records: <br>';
+		var_dump($lod_records); print "<br>";
 	}
 	//Are the input parameters satisfying the minimial exec conditions?
 	$search_could_start = 
 				$sid_ok 
 		&&	$userid_ok
-		&&  $lodok
-		&&	count($lod_records)
+		&&	((!$lodsearch) || ($lodok && count($lod_records)))
 		;
 				
 	if (!$search_could_start)
 	{
+		if($DEBUG) print "<br>Could not start! <br>";
 		$errornotification = "Syntax: ?sid=20130809.125101.498.eng.2"
 												."&thesauries=thesoz,stw,rameau"
 												."&lodsources=europeana"
@@ -100,28 +101,45 @@
 												."{&k=0}"
 												."{&m=3}";
 											
-		$allResultsJson = json_encode(array('sid' => 0, 'count' => 0, 'from'=>$k, 'upto' => ($k+$m-1), 'all'=>$all, 'results' => null, 'error'=>$errornotification));									
+		$allResultsJson = json_encode(array(
+																				'sid' => 0, 
+																				'count' => 0, 
+																				'from'=>$k, 
+																				'upto' => ($k+$m-1), 
+																				'all'=>$all, 
+																				'results' => null, 
+																				'error'=>$errornotification
+																	) 		);									
 	}									
 	else // $search_could_start
 	{
+		global $USER; 		$USER		=$userid; // Needed from the called methods so
+		global $USER_ID; 	$USER_ID=$userid; // Needed from the called methods so
+		global $m; $m=$rm; // need it as global
+		global $SEBSERVICE; $SEBSERVICE=1;
+		global $COUNTTRIPLES; $COUNTTRIPLES=0;
+				
 		if ($DEBUG) 
 		{
-			print "<br>THESAURIES: ";
+			print "<br>THESAURI: "; //var_dump($the_records); print "<br>";
 			foreach($the_records as $the_record)
-				print "<br>".$the_record['Name'].': '.$the_record['Path_Refine'];
-			print "<br><br>LOD sources:"; 
-			foreach($lod_records as $lod_record)
-				print "<br>".$lod_record['Name'].': '.$lod_record['sparql_endpoint']; 
-		}
-	
-				
-			if (count($lod_records)) 
+				print "<br>".$the_record[0].': '.$the_record[18];
+			
+			if ($lodok)
 			{
-				global $USER; $USER=$userid;
-				rdfize_and_expand($sid, $lodsearch, $the_records, $lod_records);
+				print "<br><br>LOD sources:"; 
+				foreach($lod_records as $lod_record)
+				print "<br>".$lod_record['Name'].': '.$lod_record['sparql_endpoint']; 
 			}
+		}
 		
-		//Get all results and send them as json
+		global $rdfize; $rdfize=1; // needed by rdfize_and_expand():
+		global $RDFLOG;
+		rdfize_and_expand($sid, $lodsearch, $the_records, $lod_records);
+		if ($DEBUG) {
+			print "<br><br>RDFLOG:<br><br>".$RDFLOG;
+		}
+		//Get all ranked results and send them as json
 		$allResultsJson = RodinResultManager::get_json_searchresults4webservice($sid, $k, $rm, true, true);
 	} // $search_could_start
 	

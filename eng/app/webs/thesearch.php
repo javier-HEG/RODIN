@@ -24,6 +24,9 @@
 	$thesources=$_REQUEST['thesources']; // List of thesources ids separated by comma
 	$ontocontext=$_REQUEST['ontocontext']; // Compute also ontocontext each node (for mlt use)
 	$sortfacets_lexicographically=$_REQUEST['sortfacets_lexicographically']; // 			
+	$unifyedskosresults=$_REQUEST['unifyedskosresults'];
+	$mode=$_REQUEST['mode']; //alfa, afla, rele
+	if (!$mode) $mode = 'rele'; // sort by relevance
 	
 	//Load components	
 	$filenamex="app/root.php";
@@ -99,7 +102,10 @@
 												."&userid=6"
 												."{ontocontext=1}"
 												."{sortfacets_lexicographically=1}"
-												."{&m=3}";
+												."{&m=3}"
+												."{&unifyedskosresults=1}"
+												."{&mode=alfa}"
+												;
 											
 		$allResultsJson = json_encode(array('query' => $query,
 																				'results' => null,
@@ -119,7 +125,8 @@
 		//compute $sid
 				
 		//Get all results and send them as json
-		$allResultsJson = RodinResultManager::get_json_thesearchresults4webservice($query, $userid, $m, $ontocontext, $sortfacets_lexicographically, $the_records);
+		$allResultsJson = RodinResultManager::get_json_thesearchresults4webservice(
+												$query, $userid, $m, $ontocontext, $mode, $unifyedskosresults, $the_records);
 	} // $search_could_start
 	
 	//Output results in JSON:

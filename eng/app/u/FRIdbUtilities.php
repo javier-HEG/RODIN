@@ -1730,6 +1730,9 @@ EOQ;
 		print "<br> get_matching_SRC_records($srcsources, $userid, $as_service) => (($Q)) ".count($records). ' records returned <br><br>';
 		var_dump($records);
 	}
+	
+	$ok = count($records)>0;
+	
 	return array($ok,$records,$errortxt);	
 } // get_matching_SRC_records
 

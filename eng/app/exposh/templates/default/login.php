@@ -134,7 +134,7 @@ body {
 				<div p=5 id="loginbox">
 					<div p=6 align="left" id="header" bgcolor="#ffffff">
 						<div id="no-logo" style="float: left;">
-							<a href="../portal/index.php">
+							<a href="<?php print $WEBROOT.$UC3RODINROOT.'/'.$RODINSEGMENT.'/posh/' ?>" title='Switch to RODIN TILED'>
 								<img src="../images/logo_portal.gif" style="width: 150px;" />
 							</a>
 						</div>

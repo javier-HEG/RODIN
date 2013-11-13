@@ -5881,7 +5881,6 @@ $p.app.menu={
 				$p.show("menuoptions",$p.app.menu.template[__menuposition].displayType);
 				l_s += '<ul class="menulist">'
 				 */
-				
 			}
 
 			var l_hasOptions = false;
@@ -6869,37 +6868,42 @@ $p.app.menu.widget={
 					{
 						if (l_quantity != 0 || vars['category'] == 0) 
 						{
-							var divObj1 = new Element('div', 
-								{ 
-									'class':'expdir',
-									'id':"exp"+vars['prefix']+l_dirid
-								}
-							);
-							var aObj1 = new Element('a',
-								{
-									'events':
+							var expclass='boh';
+							/*FRI: Cache UC3 if desired or output every widget dir*/
+							if (!HIDE_WIDGETMENU_UC3 || $p.ajax.getVal(l_result,"dirname","str",false,"...")!="UC3")
+							{
+								var divObj1 = new Element('div', 
+									{ 
+										'class':'expdir',
+										'id':"exp"+vars['prefix']+l_dirid
+									}
+								);
+								var aObj1 = new Element('a',
 									{
-										'click': function()
+										'events':
 										{
-											return $p.app.menu.widget.getExplorer(this.l_dirid,indef,this.l_lang,this.secured,this.level);
-										}
-									},
-									'class': 'dirlink',
-									'href': '#'
-								}
-							);
-							
-							aObj1.l_dirid = l_dirid;
-							aObj1.l_lang = l_lang;
-                            aObj1.secured = l_secured;
-                            aObj1.level = vars['level']+1;
-							aObj1.set('html',   $p.img("ico_directory.gif",16,13)
-                                                + " "+$p.ajax.getVal(l_result,"dirname","str",false,"...")
-                                                + " ("+l_quantity+")"
-                                                + (l_secured == 0 ? "" : " "+$p.img("lock.gif",7,9))
-                            );
-							aObj1.inject(divObj1);
-							divObj1.inject(l_divObj);
+											'click': function()
+											{
+												return $p.app.menu.widget.getExplorer(this.l_dirid,indef,this.l_lang,this.secured,this.level);
+											}
+										},
+										'class': 'dirlink',
+										'href': '#'
+									}
+								);
+								
+								aObj1.l_dirid = l_dirid;
+								aObj1.l_lang = l_lang;
+	                            aObj1.secured = l_secured;
+	                            aObj1.level = vars['level']+1;
+								aObj1.set('html',   $p.img("ico_directory.gif",16,13)
+	                                                + " "+$p.ajax.getVal(l_result,"dirname","str",false,"...")
+	                                                + " ("+l_quantity+")"
+	                                                + (l_secured == 0 ? "" : " "+$p.img("lock.gif",7,9))
+	                            );
+								aObj1.inject(divObj1);
+								divObj1.inject(l_divObj);
+							}
 						}
 					}
 					l_i++;
@@ -10921,7 +10925,7 @@ $p.app.counter.activityStep=0;
         }
 
 		$p.app.widgets.createAll(v_tab);
-
+	
 		$p.app.widgets.enableMoving(v_tab);
 		if (v_tab==$p.app.tabs.sel)//only if initializing active tab
 		{
@@ -12053,7 +12057,7 @@ $p.app.widgets={
 		}
 															
 		//FRI Adding hier Icon/HREF for controlling widget preferences
-		if(__showWidgetUserPreferences)
+		if(__showWidgetUserPreferences && WANT_WIDGET_USER_PREFERENCES)
 		{
 			var aObj4bis = new Element('a',
 				{
@@ -14656,7 +14660,79 @@ $p.app.widgets={
 			$p.app.widgets.saveChanges(l_var,indef,v_tab);
 		}
 	},
- 	/*
+	/*
+		Function: $p.app.widgets.createAll USE CASE III
+                                Create all widgets of a personalized page
+                                
+		Parameters:
+ 
+			v_tab - tab sequence ID
+			v_display - set if widgets are displayed once created
+	*/
+	createAlluc3:function(v_tab,v_display)
+	{
+		// Create all the modules
+		var l_col=1;
+		var l_ontop=0;
+		// compute the max Uniq ID
+		for (var i=0;i<tab[v_tab].module.length;i++)    {
+			if (tab[v_tab].module[i].uniq>tab[v_tab].maxUniq) tab[v_tab].maxUniq=tab[v_tab].module[i].uniq;
+		}
+
+		//sort the modules depending on the show type
+		if (tab[v_tab].showType==0) {
+			tab[v_tab].module.sort(blocSort);
+		}
+		else    {
+			tab[v_tab].module.sort(newspaperSort);
+		}
+
+		for (var i=0;i<tab[v_tab].module.length;i++)
+		{
+			while (tab[v_tab].module[i].col>l_col) l_col++;
+			if (tab[v_tab].showType==0 || tab[v_tab].module[i].format!='R') 
+            {
+				tab[v_tab].module[i].l10n = __lang;
+				tab[v_tab].module[i].create();
+            }
+
+			//display modules if not in the active tab
+			if (v_tab!=$p.app.tabs.sel || v_display)    {
+				tab[v_tab].module[i].show();
+			}
+			//if a module is added from outside of Portaneo
+			if (tab[v_tab].module[i].pos==99) 
+            {
+                l_ontop=i;
+            }
+
+		}
+
+		if (tab[v_tab].showType==1) {
+			$p.app.widgets.rss.reader.init();
+			$p.app.widgets.rss.reader.load();
+			// if modules are aligned, a dummy div is added on the bottom of the column of widgets
+			if (tab[v_tab].moduleAlign) tab[v_tab].cols[1].appendChild($p.app.widgets.endList());
+		}
+		else    {
+			// if modules are aligned, a dummy div is added on the bottom of each column
+			if (tab[v_tab].moduleAlign) {
+				for (var i=1;i<=tab[v_tab].colnb;i++)
+				{
+					tab[v_tab].cols[i].appendChild($p.app.widgets.endList());
+				}
+			}
+		}	
+
+		//if a module is not placed, place it on top of first column (only if modules are aligned)
+		if (l_ontop!=0 && tab[v_tab].moduleAlign)   {
+			tab[v_tab].moduledefineWidgetContainer[l_ontop].placeonTop();
+			var l_var=[];
+			l_var[0]=tab[v_tab].module[l_ontop].col;
+			$p.app.widgets.saveChanges(l_var,indef,v_tab);
+		}
+	},
+	 	/*
 		Function: $p.app.widgets.fri_createAll4refine - for RODIN
                                 Clone all widgets of a personalized page
 																into a target page and place a selected

@@ -376,11 +376,23 @@ EOX;
 	 *  Related (for subject "digital economy")
 	 *  Related (for subject "digital")
 	 *  Related (for subject "economy")
+	 * 
+	 * This methods also renormalize capital letters (first letter is made capital)
+	 * 
+	 * @param $skos_subject_expansion - complex array 
+	 * @param $unify_src - flag - if set only one virtual src is returned with unified broaders, narrowers, related
+	 * @param $sort_mode - sorting flag ('rele', 'alfa', 'afla')
+	 * 
+	 * Return dedoubled (unified) broaders/narrowers/related items
+	 * 
 	 */ 
-	 function refactorize_uniquely_skos_subject_expansion($skos_subject_expansion)
+	 function unify_theskos_results($skos_subject_expansion, $unify_src, $sort_mode)
 	 {
 	 		$DEBUG=0;
-			if($DEBUG) print "<br>refactorize_uniquely_skos_subject_expansion:";
+			if (!$unify_src) $unify_src=false;
+			if($DEBUG) print "<br>unify_theskos_results (unify_src=$unify_src, sort_mode=$sort_mode):";
+			
+			$src_virtual_name='V';
 			
 			$skos = array();
 	 		if (is_array($skos_subject_expansion) && ($c=count($skos_subject_expansion)))
@@ -394,7 +406,13 @@ EOX;
 														$broaders,$narrowers,$related,
 														$broader_root_str,$narrower_root_str,$related_root_str)=$SKOS;
 						$SRCID= get_srcid_from_srcuid($srcuid); 
+						if ($unify_src) 
+						{
+							$src_name='V'; // Unified virtual name
+							$SRCID = -1;
+						}
 						add_to_assoc_uniquely($skos{$src_name},'id',$SRCID,$nix=null);
+						
 						if($broader_root_str) $broader_roots=explode('|',$broader_root_str);
 						if($narrower_root_str) $narrower_roots=explode('|',$narrower_root_str);
 						if($related_root_str) $related_roots=explode('|',$related_root_str);
@@ -414,7 +432,7 @@ EOX;
 						{
 							for($bx=0; $bx<$bc; $bx++)
 							{
-								$b=$broaders[$bx];
+								$b=cleanup4SRCtoken($broaders[$bx]);
 								$br=$has_b_roots?$broader_roots[$bx]:'';
 								if ($DEBUG) {print "<br> the broader root data at bx=$bx in ("; print_r($broader_roots); print ") is: ".$broader_roots[$bx];}
 								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name B $b (root: ".base64_decode($br)."): ";var_dump($skos{$src_name});}
@@ -428,7 +446,7 @@ EOX;
 						{
 							for($nx=0; $nx<$nc; $nx++)
 							{
-								$n=$narrowers[$nx];
+								$n=cleanup4SRCtoken($narrowers[$nx]);
 								$nr=$has_n_roots?$narrower_roots[$nx]:'';
 								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name N $n (root: ".base64_decode($nr)."): ";var_dump($skos{$src_name});}
 								add_to_assoc_uniquely($skos{$src_name},'n',$n,$nr);
@@ -441,21 +459,43 @@ EOX;
 						{
 							for($rx=0; $rx<$rc; $rx++)
 							{
-								$r=$related[$rx];
+								$r=cleanup4SRCtoken($related[$rx]);
 								$rr=$has_r_roots?$related_roots[$rx]:'';
 								if ($DEBUG) {print "<br><br>1 add_to_assoc_uniquely $src_name R $r (root: ".base64_decode($rr).")): ";var_dump($skos{$src_name});}
 								add_to_assoc_uniquely($skos{$src_name},'r',$r,$rr);
 								if ($DEBUG) {print "<br>2 add_to_assoc_uniquely $n: ";var_dump($skos{$src_name});}
 							}
 						}
+						
+						switch($sort_mode)
+						{
+							case 'afla': // sort lexicographically inverse
+							case 'alfa': // sort lexicographically
+											$skos{$src_name}{'b'}=sort_skos_data($skos{$src_name},'b',$sort_mode);
+											$skos{$src_name}{'n'}=sort_skos_data($skos{$src_name},'n',$sort_mode);
+											$skos{$src_name}{'r'}=sort_skos_data($skos{$src_name},'r',$sort_mode);
+											
+											if ($DEBUG)
+											{
+												print "<hr><b>AFTER SORT</b>:<hr> "; var_dump($skos); print "<hr>";
+											}
+										break;
+							case 'rele': ; // do nothing
+										if ($DEBUG) print "<br><b>sort by relevance</b>";
+						} // switch
+						
+						
 					}
 				} // EXPANSIONS
 			}
-		
+
+			if($DEBUG) {
+				print "<hr><br><b>unify_theskos_results returning</b>: "; var_dump($skos);
+			}
+
 			return $skos;
-			
-		} // refactorize_uniquely_skos_subject_expansion
-		
+		} // unify_theskos_results
+				
 
 				
 	function get_srcid_from_srcuid($srcuid)
@@ -470,6 +510,46 @@ EOX;
 		return $SRCID;
 	} // get_srcid_from_srcuid
 	
+		
+		
+		/**
+		 * @param $sortmethod: one of {alfa, afla}
+		 * 
+		 * This method supposes that every token is either capital or lower, 
+		 * a mix of capital and lower letters disturb sorting (Capital letter before, lower letter after...)
+		 * ex: sort_skos_data($skos{$src_name},'b','alfa')
+		 */
+		function sort_skos_data(&$SKOSNODE,$bnr,$sortmethod)
+		{
+			$DEBUG=0;
+			if ($BBB=$SKOSNODE{$bnr})
+			{
+				if($DEBUG) {print "<br><b>PRESORT $bnr</b>: "; var_dump($SKOSNODE{$bnr});}
+				if($sortmethod=='alfa')	
+						asort($BBB); // sort using values
+				else if($sortmethod=='afla')	
+						arsort($BBB); // sort using values
+				$SKOSNODE{$bnr}=$BBB;
+				if($DEBUG) {print "<br><b>POSTSORT $bnr</b>: "; var_dump($SKOSNODE{$bnr}); print "<br>";}
+				//Sort data section
+				if (($DATABBB=$SKOSNODE{'data'}{$bnr}))
+				{
+					if($DEBUG) {print "<br><b>DATA PRESORT $bnr</b>: "; var_dump($DATABBB);}
+					if($sortmethod=='alfa')	
+						ksort($DATABBB); // sort using keys
+					else if($sortmethod=='afla')	
+						krsort($DATABBB); // sort using keys
+					$SKOSNODE{'data'}{$bnr}=$DATABBB;
+					if($DEBUG) {print "<br><b>DATA POSTSORT $bnr</b>: "; var_dump($SKOSNODE{'data'}{$bnr}); print "<br>";}
+				}
+			}
+			
+			if ($DEBUG) {
+				print "<hr>sort_skos_data results:<hr> "; var_dump($SKOSNODE{$bnr});print "<hr>";
+			}
+			return $SKOSNODE{$bnr}; //necessary? we work per reference
+		} // sort_skos_data
+		
 		
 		
 	
@@ -2168,13 +2248,20 @@ EOQ;
 		return $str;
 	}
 	
+	/**
+	 * used for displaying (and sorting) always with the first capital letter
+	 */
+	function cleanup4SRCtoken($str)
+	{
+		return strtoupper(substr($str,0,1)).substr($str,1);
+	}
 	
 	
 	
 	/**
 	 * Returns an assoc with the number of subject each doc in docs
 	 */
-	function rank_docs_with_its_subjects($docs_uid,&$store,&$NAMESPACES,&$ranked_result_subjects)
+	function rank_docs_with_its_subjects(&$docs_uid,&$store,&$NAMESPACES,&$ranked_result_subjects)
 	{
 		$DEBUG=0;
 		global $RDFLOG;
@@ -2551,7 +2638,7 @@ EOQ;
 		$descriptions=array();
 	
 		$max_retrieval_results=$max_suggestions_each_rsc; // Limit search engine to n results each SRC
-		$max_displayed_results=2; // Limit display in autocomplete to n results
+		$max_displayed_results=3; // Limit display in autocomplete to n results
 			
 		$servicename='autocomplete';
 		$SRCS = get_active_SRC_autocomplete_sources( $USER_ID );

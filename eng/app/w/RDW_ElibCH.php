@@ -152,10 +152,8 @@ public static function DEFINITION_RDW_COLLECTRESULTS($chaining_url='')
 	
 	$qTokens = explode(',', trim($q, ' ,'));
 	
-	if($DEBUG) {
-		if (!$ELIB_RIB_CLIENT) fontprint("ELIB_RIB_CLIENT is not SET - exit",'red');
-		print "<br>ElibCH QUERY: $q";
-	}
+	if($DEBUG) print "<br>ElibCH QUERY: $q";
+	
 	$parameters = array();
 	$parameters['q'] = $query = $q;
 	$parameters['bulksize'] = $m;

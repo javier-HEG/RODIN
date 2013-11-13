@@ -24,8 +24,8 @@ foreach(explode(',',$id) as $base64ids)
   $doc.=base64_decode($base64ids);
 }
 
-$lang= $_REQUEST['lang'];
-$path=$_REQUEST['path']; // i.e. rodin_result
+$lang	=$_REQUEST['lang'];
+$path	=$_REQUEST['path']; // i.e. rodin_result
 $title=$_REQUEST['title']; // i.e. skos-context
 
 $host   =$SOLR_RODIN_CONFIG['rodin_result']['adapteroptions']['host'];

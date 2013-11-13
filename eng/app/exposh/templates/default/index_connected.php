@@ -66,6 +66,9 @@
 	<script type='text/javascript' src='../../app/u/RODINsemfilters.js.php?skin=<?php print $RODINSKIN;?>'></script>
   
 	<script type='text/javascript'>
+		HIDE_WIDGETMENU_UC3=<?php if ($HIDE_WIDGETMENU_UC3) echo 'true'; else echo 'false';?>; /*Cache UC3 from widget menu if set*/
+		WANT_WIDGET_USER_PREFERENCES=<?php if ($WANT_WIDGET_USER_PREFERENCES) echo 'true'; else echo 'false';?>; /*Cache UC3 from widget menu if set*/
+		
 		var isIndexConnected = true;
 		// Holds the aggregated status per tab
 		var tabAggregatedStatusTabId = new Array();

@@ -173,7 +173,9 @@ class RodinResultManager {
 		return $modified;
 	}
 
-
+	/**
+	 * saves ONCE Results under sid
+	 */
   public static function saveRodinResultsInResultsSOLR(&$results, $sid, $datasource, $timestamp)
   {
     //print "<br>saveRodinResultsInResultsSOLR(<b> $sid, $datasource</b>)";
@@ -454,6 +456,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 		   print "\n<br>sid: $sid";
 		   print "\n<br>USER: $USER";
 		   print "\n<br>USER_ID: $USER_ID";
+		   print "\n<br>m: $m";
 		}
     #Fetch result from SOLR using even $slrq (handler and some parameters) if set instead of the standard Handler
     $EVTL_datasource=($datasource<>'')?"%20wdatasource:$datasource":'';
@@ -745,7 +748,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			print "<hr> RETURNING: "; var_dump($allResults);
 		} 
 			 
-		//exit;
+		if ($DEBUG) exit;
 		return $allResults;
 	}
 
@@ -807,7 +810,11 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	 * Requires that the RodinResultSet.js file is included in page where
 	 * these results are rendered.
 	 */
-	public static function renderAllResultsInWidget($sid, $datasource, $slrq, $render) {
+	public static function renderAllResultsInWidget($sid, $datasource, $slrq, $render) 
+	{
+		$DEBUG=0;
+		if ($DEBUG) {print "<br>renderAllResultsInWidget($sid, $datasource, $slrq, $render) "; exit;}
+		
     global $RESULTS_STORE_METHOD;
     switch($RESULTS_STORE_METHOD)
     {
@@ -1056,8 +1063,6 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 						print "\n\n jsonSingleResult['allContent']: ".$singleResult['allContent'];
 					}
 				
-				
-				
 					// Check the size of the response if this result was added
 					$tmpAllResults = $jsonAllResults;
 					$tmpAllResults[] = $singleResult;
@@ -1093,11 +1098,12 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	 * @return a text json representation of them
 	 * To be used in a webservice for a javaserver
 	 */
-	public static function get_json_thesearchresults4webservice($query, $userid, $m, $ontocontext, $sortfacets_lexicographically, &$the_records)
+	public static function get_json_thesearchresults4webservice($query, $userid, $m, $ontocontext, $sort_mode, $unifysrc, &$the_records)
 	{
 		$DEBUG=0;
 		
 		global $RDFLOG, $HOST;
+		if (!$unifysrc) $unifysrc=false;
 		$errortxt='';
 		$subjects{$query}=0; // take compound as is (0 is just dummy)
 		if (strstr($query,' '))
@@ -1107,7 +1113,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 		}
 				
 		if ($DEBUG) {
-			print "<br>get_json_thesearchresults4webservice using ontocontext=$ontocontext";	
+			print "<br>get_json_thesearchresults4webservice using ontocontext=$ontocontext and sort_mode=$sort_mode";	
 			print "<br>USING the foll subjects: "; var_dump($subjects);}
 		//$sid=uniqid('thesearch');
 		$sid=null;
@@ -1153,13 +1159,14 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			 *  Related (for subject "digital")
 			 *  Related (for subject "economy")
 			 */ 
+			 
 			 if ($DEBUG)
 			 {
 			 		print "<hr>get_subjects_expansions_using_thesauri returns: <br>"; 
 					var_dump($skos_subject_expansion);
 			 }
 				$refactorized_skos_subject_expansion
-			 					= refactorize_uniquely_skos_subject_expansion($skos_subject_expansion);
+			 					= unify_theskos_results($skos_subject_expansion,$unifysrc,$sort_mode);
 			 
 		}		
 		if($DEBUG) {
@@ -1167,7 +1174,7 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 			var_dump($skos_subject_expansion);
 			tell_skos_subjects($skos_subject_expansion, 'RESULTS expand_subjects');
 			
-			print "<hr>refactorize_uniquely_skos_subject_expansion() returning: <br>";
+			print "<hr>unify_theskos_results() returning: <br>";
 			var_dump($refactorized_skos_subject_expansion);
 			print "<hr>";
 			tell_skos_subjects($refactorized_skos_subject_expansion, 'RESULTS refactorized');
@@ -1293,35 +1300,44 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 	 * Returns a text json representation of them
 	 * To be used in a webservice for a javaserver
 	 * Returns first $m results from $fromResult
+	 * @param $sid - the key for data
+	 * @param $fromResult - integer
+	 * @param $rm - integer: Number of results to be returned
+	 * @param $fromResult - integer
+	 * @param $internalresults - bool - take only internal results
+	 * @param $externalresults - bool - take only external results
 	 */
-	public static function get_json_searchresults4webservice($sid, $fromResult, $m, $internalresults, $externalresults)
+	public static function get_json_searchresults4webservice($sid, $fromResult, $rm, $internalresults, $externalresults)
 	{
 		$DEBUG=0;
 		$ok_to_retrieve=true;
 		if (!$fromResult) $fromResult=0;
 		if (!$sid)
 		{
-			$errortxt='get_json_searchresults() - fatal - no sid provided!';
+			$errortxt='get_json_searchresults4webservice() - fatal - no sid provided!';
 			$ok_to_retrieve=false;
 		} 
-		else if($m==0)
+		else if($rm==0)
 		{
-			$errortxt='get_json_searchresults() - fatal - no m provided!';
+			$errortxt='get_json_searchresults4webservice() - fatal - no m provided!';
 			$ok_to_retrieve=false;
 		}
 		if ($DEBUG)
-			print "\n<br> get_json_searchresults($sid, $internalresults, $externalresults)";
+			print "\n<br> get_json_searchresults4webservice($sid, $fromResult, $rm, $internalresults, $externalresults)";
 		
 		if ($ok_to_retrieve)
 		{
-			$allResults = RodinResultManager::getRodinResultsForASearch($sid,'',$internalresults, $externalresults); 
+			global $m; $m=$rm; //use in global mode for the following method:
+			if ($DEBUG) print "<br><b>RodinResultManager::getRodinResultsForASearch($sid,null,$internalresults, $externalresults)</b><br>";
+			
+			$allResults = RodinResultManager::getRodinResultsForASearch($sid,null,$internalresults, $externalresults); 
 			$resultCount = count($allResults);
 			
 			// Both a maximum size and a maximum number of results are set
 			$uptoResult = min($resultCount, $fromResult + $m);
 		
 			if ($DEBUG) {
-				print "<br>\n$resultCount results read..."
+				print "<br>\n$resultCount results read using sid=$sid ..."
 												."<br>Showing $m results from $fromResult upto $uptoResult"
 												."<br>DUMPING THE RESULT OBJECT: <hr>"; 
 												
@@ -1356,7 +1372,8 @@ public static function getRodinResultsFromSOLR($sid,$datasource,$internal,$exter
 					$singleResult['rid'] = $result->getId() ."";  if ($DEBUG) print "<br>SOLR ID: ".$singleResult['rid'];
 					$singleResult['url'] = $result->getUrlPage();
 					$singleResult['resultIdentifier'] = $resultIdentifier;
-					$singleResult['toString'] = $result->__toString();
+					$singleResult['resultIdentifier'] = $resultIdentifier;
+					$singleResult['rank'] = $result->getRank();
 					$singleResult['toDetails'] = json_encode($result->__toDetails());
 				
 					// Check the size of the response if this result was added

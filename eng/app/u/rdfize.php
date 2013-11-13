@@ -62,6 +62,9 @@ $TITLEPAGE="'$search_term' RDFIZE";
 #Get switches:
 #######################################
 #
+
+$DEBUG=$_GET['DEBUG'];
+
 $sid=$_GET['sid'];
 if (!$sid) $sid=$sid_example;
 
@@ -116,6 +119,7 @@ if (file_exists($RODIN_PROFILING_PATH)) unlink($RODIN_PROFILING_PATH);
 //TomaNota::vaciar();
 if ($sid<>'') 
 {
+	$COUNTTRIPLES=1; // called as script
 	rdfize_and_expand($sid,$lodsearch,$THERECORDS=null, $LODSRCRECORDS=null);
 	
 	if ($list3pls && $deakt)
@@ -264,11 +268,11 @@ EOP;
  */
 function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 {
-	$DEBUG=0;
+	global $DEBUG;
 	global $RDFLOG;
 	global $rdfize, $listwr, $list3pls, $USER_ID, $reqhost, $WANT_USER_RESONANCE;
 	global $WANT_RDF_STORE_INITIALIZED_AT_EVERY_SEARCH;
-	global $WEBSERVICE;
+	global $WEBSERVICE,$COUNTTRIPLES;
 	
 	$rdfize_only = ! $lodsearch;
 	
@@ -283,23 +287,26 @@ function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 		if ($countTHE==0) fontprint("<br>rdfize_and_expand THESRCRECORDS is NULL",'orange');
 		if ($countLOD==0) fontprint("<br>rdfize_and_expand LODSRCRECORDS is NULL",'orange');
 		if (! $lodsearch) 
-					 	fontprint("<br>LOD search and subject expansion suppressed by user",'red');
+					fontprint("<br>LOD search and subject expansion suppressed by user",'red');
 						
 		
-		print "<br>rdfize_and_expand($sid,$countTHE THE records, $countLOD LOD records)";
+		print "<br>rdfize_and_expand($sid,$countTHE THE records, $countLOD LOD records):<br><br>";
 	}
 	$fromResult = 0;
 	
 	//if ($countTHE>0) // at least
 	{
 	
-		//Recall internal rodin results from SOLR using sid but no datasource! (get for every datasource)
+		//Recall internal rodin results from SOLR using sid but no datasource! (get for every datasource) - using global $m
 		$allResults = RodinResultManager::getRodinResultsForASearch($sid,$datasource='',true,false);
 		$resultCount = count($allResults);	
 	
 		$CONTENT2="$resultCount Widget result documents found for sid $sid";
 		
-		//var_dump($allResults);
+		if ($DEBUG) {
+			print "<br>$resultCount Retrieved results for sid=$sid: <br>";
+			var_dump($allResults);print "<br><br>";
+		}
 		// Both a maximum size and a maximum number of results are set
 		$resultMaxSetSize = $resultCount;
 		
@@ -314,7 +321,6 @@ function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 	
 		###############################################################################################
 		#
-		$COUNTTRIPLES=true;
 		if ($rdfize)
 		{
 			Logger::logAction(27, array('from'=>'rdfize','msg'=>"RDF Start using $resultCount results on search term '$search_term'"),$sid);
@@ -330,7 +336,6 @@ function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 					Logger::logAction(27, array('from'=>'rdfize','msg'=>"RDF PERSIST STORE'"),$sid);
 				}
 				
-				
 				$rdf_parameters = $rdfprocessor->log_rdf_parameters();
 				$C=get_class($rdfprocessor);
 				list( $search_subjects, 
@@ -340,10 +345,10 @@ function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 							
 					if (!$SEBSERVICE && $COUNTTRIPLES) print "<br>rdfize_extract_subjects: globally $count_added_triples_rdfize_extract_subjects added triples";
 				
-					if(1 && $list3pls)
+					if($DEBUG || $list3pls)
 					{
 						$RDFLOG.="<br> search_subjects: ".count($search_subjects);
-						$RDFLOG.="<br> result_subjects: ".count($result_subjects);
+						$RDFLOG.="<br> result_subjects: ".count($result_subjects)."<br>";
 					}
 					//Continue if result_subjects expanded
 					if (is_array($result_subjects) && count($result_subjects))
@@ -435,7 +440,7 @@ function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 						}				
 
 					 if (!$lodsearch) 
-					 	$RDFLOG.=htmlprint("LOD search and subject expansion suppressed by user",'red');
+					 	$RDFLOG.=htmlprint("<br>LOD search and subject expansion suppressed by user",'red');
 						
 						if($lodsearch)
 						list(	$expandeddocs,
@@ -452,17 +457,15 @@ function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 							 print "<hr>expandeddocs: <br>"; var_dump($expandeddocs);
 							 print "<hr>expanded_new_subjects: <br>"; var_dump($expanded_new_subjects);
 							 print "<hr>expanded_old_subjects: <br>"; var_dump($expanded_old_subjects);
-							 
-						}				
-																												
+							 print "<hr>expandeddocs: <br>"; var_dump($expandeddocs);
+ 						}				
 																												
 						if (!$SEBSERVICE && $COUNTTRIPLES) print "<br>lod_subJ_doc_fetch: globally $count_triples_added_lod_subJ_doc_fetch added triples";
 						if ((is_array($expandeddocs) && count($expandeddocs))
 						|| (is_array($expanded_new_subjects) && count($expanded_new_subjects)))
 						{
-							if (1 && $list3pls)
+							if ($DEBUG || $list3pls)
 							{
-								
 								if (count($expandeddocs))
 								{
 									$RDFLOG.= "<br><br> ".count($expandeddocs)." LOD EXPANDED DOCS: ";foreach($expandeddocs as $expdocid) $RDFLOG.= "<br>$expdocid";
@@ -476,48 +479,47 @@ function rdfize_and_expand($sid, $lodsearch, &$THESRCRECORDS, &$LODSRCRECORDS)
 										$RDFLOG.= "<br><br> ".count($expanded_old_subjects)." LOD EXPANDED OLD SUBJECTS: ";foreach($expanded_old_subjects as $label=>$suid) $RDFLOG.= "<br>$label=>$suid";
 								}
 							}
-							
-							//Rerank again the extended RESULT subjects to be used:
-							$ranked_result_subjects = $rdfprocessor->rerank_subjects(	$search_subjects, 
-																																				$flattened_expanded_search_subject_list 
-																																					= flatten_sort_skos_obj_to_array($skos_search_subjects_expansions),
-																																				$result_subjects,
-																																				$flattened_expanded_result_subject_list,
-																																				$expanded_new_subjects  );
-																																	
-							if(1 && $list3pls)
-							{
-								$RDFLOG.= "<hr><b>Sorted ranked (expanded) result subjects: </b>";
-							
-								if(is_array($ranked_result_subjects)&&count($ranked_result_subjects))
-									foreach($ranked_result_subjects as $label=>$REC)
-									{
-										list($rank,$k)=$REC;
-										$BLA= "<br>$rank: $k: $label";
-										if ($rank > 1)
-											$RDFLOG.=htmlprint($BLA,'green');
-										else 
-											$RDFLOG.=htmlprint($BLA,'#fbb');
-									} // foreach
-							}
-																								
-							$ranked_docs = $rdfprocessor->rerankadd_docs($sid, $expandeddocs, $ranked_result_subjects, $WANT_USER_RESONANCE);
-	
-	            //OUTPUT IF RDFLAB/RDFIZE GUI param set
-							if (1 && $list3pls)
-							{
-								$RDFLOG.= "<hr><b>Sorted ranked documents </b>";
-								if(is_array($ranked_docs) && count($ranked_docs))
-								{
-									arsort($ranked_docs); // sory by key
-									foreach($ranked_docs as $docuid=>$rank)
-										$RDFLOG.="<br>$rank: $docuid";
-								}
-							}
-							
 						} // LOD fetch done -> rerankadd_docs
+						//Rerank again the extended RESULT subjects to be used:
+						$ranked_result_subjects = $rdfprocessor->rerank_subjects(	$search_subjects, 
+																																			$flattened_expanded_search_subject_list 
+																																				= flatten_sort_skos_obj_to_array($skos_search_subjects_expansions),
+																																			$result_subjects,
+																																			$flattened_expanded_result_subject_list,
+																																			$expanded_new_subjects  );
+																																
+						if($DEBUG || $list3pls)
+						{
+							$RDFLOG.= "<hr><b>Sorted ranked (expanded) result subjects: </b>";
+							if(is_array($ranked_result_subjects)&&count($ranked_result_subjects))
+							{
+								foreach($ranked_result_subjects as $label=>$REC)
+								{
+									list($rank,$k)=$REC;
+									$BLA= "<br>$rank: $k: $label";
+									if ($rank > 1)
+										$RDFLOG.=htmlprint($BLA,'green');
+									else 
+										$RDFLOG.=htmlprint($BLA,'#fbb');
+								} // foreach
+								$RDFLOG.= "<br><br>";
+							}
+						}
+																							
+						$ranked_docs = $rdfprocessor->rerankadd_docs($sid, $expandeddocs, $ranked_result_subjects, $WANT_USER_RESONANCE);
+
+            //OUTPUT IF RDFLAB/RDFIZE GUI param set
+						if ($DEBUG || $list3pls)
+						{
+							$RDFLOG.= "<br><hr><b>Sorted ranked documents </b>";
+							if(is_array($ranked_docs) && count($ranked_docs))
+							{
+								arsort($ranked_docs); // sory by key
+								foreach($ranked_docs as $docuid=>$rank)
+									$RDFLOG.="<br>$rank: $docuid";
+							}
+						}
 					} // subject expanded
-					
 				} // subjects computed -> expand subjects
 			} // instantiate RDFprocessor
 			Logger::logAction(27, array('from'=>'rdfize','msg'=>"RDF End using $resultCount results on search term '$search_term'"),$sid);

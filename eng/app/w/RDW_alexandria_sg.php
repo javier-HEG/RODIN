@@ -303,7 +303,7 @@ public static function DEFINITION_RDW_DOWNLOAD()
 # Performs the download and returns the date
 #
 {
-	$DEBUG=1;
+	$DEBUG=0;
 	global $basedatadir;
 	global $ALEX_SG_URL;
 	date_default_timezone_set('Europe/Rome');

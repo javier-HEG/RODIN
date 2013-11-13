@@ -384,7 +384,7 @@ function is_romanic_number($txt)
  * Add $obj in $assoc under $subject
  * SIDE EFFECT ON $assoc !
  * In case data is provided together with obj,
- * data is stored in an in ternall assoc for later use
+ * data is stored in an internal assoc 'data' for later use
  * 
  * @param $assoc
  * @param $subject
@@ -1358,7 +1358,7 @@ function get_cached_widget_response_curl($url, &$parameters, &$options, $cleanup
    if (! $cached_datasource_response)
    {
      //get the resonse from the data source
-     //print "CACHE CONTENT EXPIRED ... CALL AGAIIN";
+     if ($DEBUG) print "<br>CACHE CONTENT EXPIRED ... CALL AGAIN";
      $timestamp=0;
      $datasource_response= (parametrizable_curl($url, $parameters, $options));
      
@@ -1369,19 +1369,23 @@ function get_cached_widget_response_curl($url, &$parameters, &$options, $cleanup
 			if ($DEBUG) print "<br>EXEC RESULT: ( $datasource_response )";
 		 }
 		 
-		 
-     //print "Got resp: (((".htmlentities($datasource_response).")))";
+     if ($DEBUG) print "Got resp: (((".htmlentities($datasource_response).")))";
      
      if (good_response($datasource_response))
      {
        //Store response
-       //print "CACHING RESPONSE WITH CACHEURL=($cacheurl)"; exit;
+       if ($DEBUG) print "<br>CACHING RESPONSE WITH CACHEURL=($cacheurl)"; exit;
        cache_response($cacheurl,($datasource_response));  
      } // got good response
      
    } // $cached_datasource_response
-  else
+  else {
+     if ($DEBUG) print "<br>CACHE CONTENT GOOD ";
     $datasource_response = $cached_datasource_response;
+  }
+	
+	//if ($DEBUG) exit;
+	
   return array($timestamp,$datasource_response); 
 }
 
